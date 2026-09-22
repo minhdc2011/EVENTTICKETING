@@ -2062,8 +2062,9 @@
 
         if (!listContainer || !emptyMsg || !summaryCount || !summaryTotal || !proceedBtn) return;
 
+        listContainer.innerHTML = '';
+
         if (selectedSeatIds.size === 0) {
-          listContainer.innerHTML = '';
           listContainer.appendChild(emptyMsg);
           emptyMsg.classList.remove('hidden');
           summaryCount.innerText = '0 / 4 vé';
@@ -2084,8 +2085,7 @@
           startHoldCountdown();
         }
 
-        // Render selected items
-        listContainer.innerHTML = '';
+        // Render every selected ticket, including standing tickets.
         let totalAmount = 0;
 
         selectedSeatIds.forEach(ticketId => {
@@ -2134,22 +2134,14 @@
       }
 
       window.removeSingleSeat = function(ticketId) {
-        const standingTicket = standingTickets.get(ticketId);
         selectedSeatIds.delete(ticketId);
-        if (standingTicket) {
-          standingTickets.delete(ticketId);
-          standingQuantities[standingTicket.zoneCode] = Math.max(0, standingQuantities[standingTicket.zoneCode] - 1);
-          updateStandingQuantityDisplay(standingTicket.zoneCode);
-          showToast(`Đã bỏ vé đứng ${ticketId}`, 'info');
-        } else {
-          showToast(`Đã bỏ chọn ghế ${ticketId}`, 'info');
-        }
+        standingTickets.delete(ticketId);
+        showToast(`Đã bỏ chọn vé ${ticketId}`, 'info');
         updateSidebar();
         renderSeats();
       };
 
       window.clearAllSeats = function() {
-        if (selectedSeatIds.size === 0 && Object.values(standingQuantities).every(count => count === 0)) return;
         selectedSeatIds.clear();
         standingTickets.clear();
         standingQuantities.GA_STAND_1 = 0;
