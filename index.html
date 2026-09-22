@@ -110,9 +110,39 @@
         filter: brightness(0.95);
       }
 
-      /* Countdown Digits Glow */
-      .countdown-digit {
-        text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+      /* Countdown Digits Glow & 3D Mechanical Split-Flap Clock */
+      .countdown-digit, .flip-num {
+        text-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+      }
+      .flip-leaf-top, .flip-leaf-bottom {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+      @keyframes flipFoldDown {
+        0% {
+          transform: rotateX(0deg);
+          filter: brightness(1);
+        }
+        100% {
+          transform: rotateX(-90deg);
+          filter: brightness(0.55);
+        }
+      }
+      @keyframes flipUnfoldDown {
+        0% {
+          transform: rotateX(90deg);
+          filter: brightness(1.25);
+        }
+        100% {
+          transform: rotateX(0deg);
+          filter: brightness(1);
+        }
+      }
+      .flip-leaf-top.flipping {
+        animation: flipFoldDown 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      .flip-leaf-bottom.flipping {
+        animation: flipUnfoldDown 0.28s cubic-bezier(0.2, 0, 0.4, 1) 0.26s both;
       }
 
       /* Master Optical Entrance Animations */
@@ -657,23 +687,118 @@
                   <h2 class="text-lg font-bold text-white mb-1 tracking-tight">ĐẾM NGƯỢC GIỜ MỞ BÁN VÉ CHÍNH THỨC</h2>
                   <p class="text-xs text-slate-400 mb-5">Hệ thống mở bán trực tuyến và phân phối vé số lượng có hạn</p>
 
-                  <!-- Countdown Grid with Inset Shadow & Distinct Monospace Labels -->
-                  <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center mb-6">
-                    <div class="p-3 rounded-xl inset-dark-cell">
-                      <div id="countdown-days" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
-                      <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">NGÀY</div>
+                  <!-- 3D Mechanical Split-Flap Countdown Grid -->
+                  <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center mb-6" id="hero-flip-countdown">
+                    <!-- Unit: NGÀY -->
+                    <div class="flex flex-col items-center" id="flip-unit-days" data-val="">
+                      <div class="flip-card relative w-full h-16 sm:h-20 rounded-xl overflow-hidden shadow-2xl select-none" style="perspective: 400px;">
+                        <!-- Static Top -->
+                        <div class="flip-top-static absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[#0e172a] border-t border-x border-white/10 rounded-t-xl">
+                          <div class="flip-num font-black font-display text-amber-400 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20">00</div>
+                        </div>
+                        <!-- Static Bottom -->
+                        <div class="flip-bottom-static absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[#070b16] border-b border-x border-white/10 rounded-b-xl">
+                          <div class="flip-num font-black font-display text-amber-300 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20 -mt-8 sm:-mt-10">00</div>
+                        </div>
+                        <!-- Flip Leaf Top -->
+                        <div class="flip-leaf-top absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[#0e172a] border-t border-x border-white/10 rounded-t-xl origin-bottom z-10">
+                          <div class="flip-num font-black font-display text-amber-400 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20">00</div>
+                        </div>
+                        <!-- Flip Leaf Bottom -->
+                        <div class="flip-leaf-bottom absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[#070b16] border-b border-x border-white/10 rounded-b-xl origin-top z-10">
+                          <div class="flip-num font-black font-display text-amber-300 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20 -mt-8 sm:-mt-10">00</div>
+                        </div>
+                        <!-- Center slit line and side hinges -->
+                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-black/90 z-20 pointer-events-none shadow-[0_1px_1px_rgba(255,255,255,0.08)]"></div>
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-[#0B0F17] rounded-r-full z-30 pointer-events-none border-r border-white/15"></div>
+                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-[#0B0F17] rounded-l-full z-30 pointer-events-none border-l border-white/15"></div>
+                      </div>
+                      <span id="countdown-days" class="sr-only">00</span>
+                      <div class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider uppercase mt-2">NGÀY</div>
                     </div>
-                    <div class="p-3 rounded-xl inset-dark-cell">
-                      <div id="countdown-hours" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
-                      <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">GIỜ</div>
+
+                    <!-- Unit: GIỜ -->
+                    <div class="flex flex-col items-center" id="flip-unit-hours" data-val="">
+                      <div class="flip-card relative w-full h-16 sm:h-20 rounded-xl overflow-hidden shadow-2xl select-none" style="perspective: 400px;">
+                        <!-- Static Top -->
+                        <div class="flip-top-static absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[#0e172a] border-t border-x border-white/10 rounded-t-xl">
+                          <div class="flip-num font-black font-display text-amber-400 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20">00</div>
+                        </div>
+                        <!-- Static Bottom -->
+                        <div class="flip-bottom-static absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[#070b16] border-b border-x border-white/10 rounded-b-xl">
+                          <div class="flip-num font-black font-display text-amber-300 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20 -mt-8 sm:-mt-10">00</div>
+                        </div>
+                        <!-- Flip Leaf Top -->
+                        <div class="flip-leaf-top absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[#0e172a] border-t border-x border-white/10 rounded-t-xl origin-bottom z-10">
+                          <div class="flip-num font-black font-display text-amber-400 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20">00</div>
+                        </div>
+                        <!-- Flip Leaf Bottom -->
+                        <div class="flip-leaf-bottom absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[#070b16] border-b border-x border-white/10 rounded-b-xl origin-top z-10">
+                          <div class="flip-num font-black font-display text-amber-300 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20 -mt-8 sm:-mt-10">00</div>
+                        </div>
+                        <!-- Center slit line and side hinges -->
+                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-black/90 z-20 pointer-events-none shadow-[0_1px_1px_rgba(255,255,255,0.08)]"></div>
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-[#0B0F17] rounded-r-full z-30 pointer-events-none border-r border-white/15"></div>
+                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-[#0B0F17] rounded-l-full z-30 pointer-events-none border-l border-white/15"></div>
+                      </div>
+                      <span id="countdown-hours" class="sr-only">00</span>
+                      <div class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider uppercase mt-2">GIỜ</div>
                     </div>
-                    <div class="p-3 rounded-xl inset-dark-cell">
-                      <div id="countdown-minutes" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
-                      <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">PHÚT</div>
+
+                    <!-- Unit: PHÚT -->
+                    <div class="flex flex-col items-center" id="flip-unit-minutes" data-val="">
+                      <div class="flip-card relative w-full h-16 sm:h-20 rounded-xl overflow-hidden shadow-2xl select-none" style="perspective: 400px;">
+                        <!-- Static Top -->
+                        <div class="flip-top-static absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[#0e172a] border-t border-x border-white/10 rounded-t-xl">
+                          <div class="flip-num font-black font-display text-amber-400 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20">00</div>
+                        </div>
+                        <!-- Static Bottom -->
+                        <div class="flip-bottom-static absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[#070b16] border-b border-x border-white/10 rounded-b-xl">
+                          <div class="flip-num font-black font-display text-amber-300 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20 -mt-8 sm:-mt-10">00</div>
+                        </div>
+                        <!-- Flip Leaf Top -->
+                        <div class="flip-leaf-top absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[#0e172a] border-t border-x border-white/10 rounded-t-xl origin-bottom z-10">
+                          <div class="flip-num font-black font-display text-amber-400 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20">00</div>
+                        </div>
+                        <!-- Flip Leaf Bottom -->
+                        <div class="flip-leaf-bottom absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[#070b16] border-b border-x border-white/10 rounded-b-xl origin-top z-10">
+                          <div class="flip-num font-black font-display text-amber-300 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20 -mt-8 sm:-mt-10">00</div>
+                        </div>
+                        <!-- Center slit line and side hinges -->
+                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-black/90 z-20 pointer-events-none shadow-[0_1px_1px_rgba(255,255,255,0.08)]"></div>
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-[#0B0F17] rounded-r-full z-30 pointer-events-none border-r border-white/15"></div>
+                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-[#0B0F17] rounded-l-full z-30 pointer-events-none border-l border-white/15"></div>
+                      </div>
+                      <span id="countdown-minutes" class="sr-only">00</span>
+                      <div class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider uppercase mt-2">PHÚT</div>
                     </div>
-                    <div class="p-3 rounded-xl inset-dark-cell">
-                      <div id="countdown-seconds" class="text-2xl sm:text-3xl font-black font-display text-amber-300 countdown-digit">00</div>
-                      <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">GIÂY</div>
+
+                    <!-- Unit: GIÂY -->
+                    <div class="flex flex-col items-center" id="flip-unit-seconds" data-val="">
+                      <div class="flip-card relative w-full h-16 sm:h-20 rounded-xl overflow-hidden shadow-2xl select-none" style="perspective: 400px;">
+                        <!-- Static Top -->
+                        <div class="flip-top-static absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[#0e172a] border-t border-x border-white/10 rounded-t-xl">
+                          <div class="flip-num font-black font-display text-amber-400 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20">00</div>
+                        </div>
+                        <!-- Static Bottom -->
+                        <div class="flip-bottom-static absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[#070b16] border-b border-x border-white/10 rounded-b-xl">
+                          <div class="flip-num font-black font-display text-amber-300 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20 -mt-8 sm:-mt-10">00</div>
+                        </div>
+                        <!-- Flip Leaf Top -->
+                        <div class="flip-leaf-top absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[#0e172a] border-t border-x border-white/10 rounded-t-xl origin-bottom z-10">
+                          <div class="flip-num font-black font-display text-amber-400 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20">00</div>
+                        </div>
+                        <!-- Flip Leaf Bottom -->
+                        <div class="flip-leaf-bottom absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[#070b16] border-b border-x border-white/10 rounded-b-xl origin-top z-10">
+                          <div class="flip-num font-black font-display text-amber-300 text-2xl sm:text-3xl flex items-center justify-center h-16 sm:h-20 -mt-8 sm:-mt-10">00</div>
+                        </div>
+                        <!-- Center slit line and side hinges -->
+                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-black/90 z-20 pointer-events-none shadow-[0_1px_1px_rgba(255,255,255,0.08)]"></div>
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-[#0B0F17] rounded-r-full z-30 pointer-events-none border-r border-white/15"></div>
+                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-[#0B0F17] rounded-l-full z-30 pointer-events-none border-l border-white/15"></div>
+                      </div>
+                      <span id="countdown-seconds" class="sr-only">00</span>
+                      <div class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider uppercase mt-2">GIÂY</div>
                     </div>
                   </div>
 
@@ -1801,8 +1926,62 @@
       }
 
       // ==========================================
-      // 6. REALTIME CONCERT COUNTDOWN TIMER (HEADER)
+      // 6. REALTIME CONCERT COUNTDOWN TIMER (3D MECHANICAL SPLIT-FLAP)
       // ==========================================
+      function setFlipCard(unitId, nextVal) {
+        const container = document.getElementById(unitId);
+        if (!container) return;
+        const currentVal = container.getAttribute('data-val');
+
+        const topStatic = container.querySelector('.flip-top-static .flip-num');
+        const bottomStatic = container.querySelector('.flip-bottom-static .flip-num');
+        const leafTop = container.querySelector('.flip-leaf-top');
+        const leafTopNum = leafTop ? leafTop.querySelector('.flip-num') : null;
+        const leafBottom = container.querySelector('.flip-leaf-bottom');
+        const leafBottomNum = leafBottom ? leafBottom.querySelector('.flip-num') : null;
+
+        if (!topStatic || !bottomStatic || !leafTop || !leafBottom) return;
+
+        // First initialization
+        if (!currentVal) {
+          container.setAttribute('data-val', nextVal);
+          topStatic.innerText = nextVal;
+          bottomStatic.innerText = nextVal;
+          if (leafTopNum) leafTopNum.innerText = nextVal;
+          if (leafBottomNum) leafBottomNum.innerText = nextVal;
+          return;
+        }
+
+        if (currentVal === nextVal) return;
+
+        container.setAttribute('data-val', nextVal);
+
+        // Prepare values for flip:
+        // 1. Static top immediately has NEXT value (revealed when leafTop folds away)
+        topStatic.innerText = nextVal;
+        // 2. Leaf top holds OLD value and folds down
+        if (leafTopNum) leafTopNum.innerText = currentVal;
+        // 3. Static bottom holds OLD value until leafBottom unfolds onto it
+        bottomStatic.innerText = currentVal;
+        // 4. Leaf bottom has NEXT value
+        if (leafBottomNum) leafBottomNum.innerText = nextVal;
+
+        // Trigger animation
+        leafTop.classList.remove('flipping');
+        leafBottom.classList.remove('flipping');
+        void leafTop.offsetWidth; // force DOM reflow
+
+        leafTop.classList.add('flipping');
+        leafBottom.classList.add('flipping');
+
+        setTimeout(() => {
+          bottomStatic.innerText = nextVal;
+          if (leafTopNum) leafTopNum.innerText = nextVal;
+          leafTop.classList.remove('flipping');
+          leafBottom.classList.remove('flipping');
+        }, 580);
+      }
+
       function initConcertCountdown() {
         // Concert date: 19:30, Ngày 15/10/2026
         const targetDate = new Date('2026-10-15T19:30:00+07:00').getTime();
@@ -1811,18 +1990,11 @@
           const now = new Date().getTime();
           const distance = targetDate - now;
 
-          const daysEl = document.getElementById('countdown-days');
-          const hoursEl = document.getElementById('countdown-hours');
-          const minsEl = document.getElementById('countdown-minutes');
-          const secsEl = document.getElementById('countdown-seconds');
-
-          if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
-
           if (distance <= 0) {
-            daysEl.innerText = '00';
-            hoursEl.innerText = '00';
-            minsEl.innerText = '00';
-            secsEl.innerText = '00';
+            setFlipCard('flip-unit-days', '00');
+            setFlipCard('flip-unit-hours', '00');
+            setFlipCard('flip-unit-minutes', '00');
+            setFlipCard('flip-unit-seconds', '00');
             return;
           }
 
@@ -1831,10 +2003,25 @@
           const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-          daysEl.innerText = days.toString().padStart(2, '0');
-          hoursEl.innerText = hours.toString().padStart(2, '0');
-          minsEl.innerText = minutes.toString().padStart(2, '0');
-          secsEl.innerText = seconds.toString().padStart(2, '0');
+          const daysStr = days.toString().padStart(2, '0');
+          const hoursStr = hours.toString().padStart(2, '0');
+          const minsStr = minutes.toString().padStart(2, '0');
+          const secsStr = seconds.toString().padStart(2, '0');
+
+          setFlipCard('flip-unit-days', daysStr);
+          setFlipCard('flip-unit-hours', hoursStr);
+          setFlipCard('flip-unit-minutes', minsStr);
+          setFlipCard('flip-unit-seconds', secsStr);
+
+          // Update accessibility fallbacks
+          const daysEl = document.getElementById('countdown-days');
+          const hoursEl = document.getElementById('countdown-hours');
+          const minsEl = document.getElementById('countdown-minutes');
+          const secsEl = document.getElementById('countdown-seconds');
+          if (daysEl) daysEl.innerText = daysStr;
+          if (hoursEl) hoursEl.innerText = hoursStr;
+          if (minsEl) minsEl.innerText = minsStr;
+          if (secsEl) secsEl.innerText = secsStr;
         }
 
         update();
