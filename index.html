@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,7 +33,8 @@
             },
             fontFamily: {
               sans: ['"Be Vietnam Pro"', 'sans-serif'],
-              display: ['"Outfit"', 'sans-serif']
+              display: ['"Outfit"', 'sans-serif'],
+              serif: ['"Playfair Display"', 'serif']
             }
           }
         }
@@ -41,22 +42,134 @@
     </script>
 
     <style>
-      /* Custom Concert Visual Polish */
+      /* Global Reset & Overflow Protection */
+      html, body {
+        overflow-x: hidden;
+      }
       body {
-        background-color: #07090e;
+        background-color: #05070B;
         color: #f3f4f6;
         font-family: 'Be Vietnam Pro', sans-serif;
       }
       .font-display {
         font-family: 'Outfit', sans-serif;
       }
-      /* Ambient Stage Glows */
+
+      /* Starfield Layers (Pixel Contract JS-driven) */
+      #stA, #stB {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Cinematic Ambient Stage Background */
       .stage-glow {
-        background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.22) 0%, rgba(59, 130, 246, 0.12) 40%, rgba(7, 9, 14, 0) 75%);
+        background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.16) 0%, rgba(29, 48, 69, 0.25) 45%, #05070B 85%);
       }
       .spotlight {
-        background: radial-gradient(ellipse at 50% 10%, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+        background: radial-gradient(ellipse at 50% 10%, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
       }
+
+      /* Pixel Contract B — The Signature Glow Buttons (.btn-glow) */
+      .btn-glow {
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: linear-gradient(to top, #f59e0b 1px, #d97706 3px, #b45309 6px, #78350f 10px, #1c1917 18px, #0a111d 28px, #0a111d 100%);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 0 12px rgba(245,158,11,.15), 0 2px 6px -2px rgba(245,158,11,.5);
+        color: #ffffff;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease, box-shadow 0.2s ease;
+      }
+      .btn-glow::before {
+        content: '';
+        position: absolute;
+        left: 20%;
+        right: 20%;
+        top: 0.8px;
+        height: 1.5px;
+        background: linear-gradient(90deg, transparent, rgba(255,235,180,0.8), transparent);
+        filter: blur(0.5px);
+        pointer-events: none;
+      }
+      .btn-glow:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 20px rgba(245,158,11,.45);
+      }
+      .btn-glow:active:not(:disabled) {
+        transform: translateY(0);
+        filter: brightness(0.95);
+      }
+
+      /* Countdown Digits Glow */
+      .countdown-digit {
+        text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+      }
+
+      /* Master Optical Entrance Animations */
+      .entrance-badge {
+        animation: settleDown 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .entrance-headline {
+        animation: wipeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+      }
+      .entrance-countdown {
+        animation: floatUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+      }
+
+      @keyframes settleDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes wipeUp {
+        from {
+          opacity: 0;
+          clip-path: inset(100% 0 -30% 0);
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          clip-path: inset(-30% 0 -30% 0);
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes floatUp {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .entrance-badge,
+        .entrance-headline,
+        .entrance-countdown {
+          animation: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+          clip-path: none !important;
+        }
+      }
+
       /* Custom Tooltip */
       #seat-tooltip {
         position: fixed;
@@ -79,18 +192,186 @@
       .toast-animate {
         animation: slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
-      /* Seat Pulse on Hover */
+      /* =========================================================
+         MOTIONSITES PIXEL CONTRACT SPECIFICATIONS (§2, §4, §9)
+         ========================================================= */
+
+      /* §4 NAV & §9 MOCK STYLE: THE GLASS CONTAINER SPEC */
+      .glass-panel {
+        background: rgba(13, 17, 23, 0.72) !important;
+        border: 1px solid rgba(255, 255, 255, 0.085) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        backdrop-filter: blur(16px) saturate(140%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 40px -15px rgba(0, 0, 0, 0.7) !important;
+        border-radius: 18px !important;
+      }
+
+      /* Sub-cells and nested tiles (10px radius) */
+      .glass-tile {
+        background: rgba(13, 17, 23, 0.65) !important;
+        border: 1px solid rgba(255, 255, 255, 0.085) !important;
+        -webkit-backdrop-filter: blur(12px) saturate(140%);
+        backdrop-filter: blur(12px) saturate(140%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        border-radius: 10px !important;
+      }
+
+      /* Inset dark sub-cell (for inputs, timers, countdown digits, summary items) */
+      .inset-dark-cell {
+        background: rgba(0, 0, 0, 0.45) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 10px !important;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+      }
+
+      /* Sleek glass strip (toolbar & legends - 14px radius) */
+      .glass-strip {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border: 1px solid rgba(255, 255, 255, 0.07) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        backdrop-filter: blur(16px) saturate(140%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        border-radius: 14px !important;
+      }
+
+      /* Ghost tab buttons */
+      .ghost-tab {
+        background: transparent !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 10px !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .ghost-tab:hover {
+        background: rgba(255, 255, 255, 0.04) !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.14) !important;
+      }
+
+      /* Active tab with signature dark button bloom & gold foot-light */
+      .active-gold-tab {
+        position: relative !important;
+        background: linear-gradient(to top, #f59e0b 1px, #d97706 2px, #b45309 4px, #78350f 7px, #1c1917 12px, #0a111d 20px, #0a111d 100%) !important;
+        border: 1px solid rgba(245, 158, 11, 0.5) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border-radius: 10px !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 12px rgba(245, 158, 11, 0.25), 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+      }
+      .active-gold-tab::after {
+        content: '';
+        position: absolute;
+        bottom: 0px;
+        left: 20%;
+        right: 20%;
+        height: 1.5px;
+        background: #f59e0b;
+        box-shadow: 0 0 8px #f59e0b;
+        border-radius: 9999px;
+      }
+
+      /* §2 ZONE BLOCKS & SEATING REFACTOR */
+      .zone-block {
+        background: rgba(255, 255, 255, 0.015) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 14px !important;
+        transition: border-color 0.2s ease;
+      }
+      #zone-block-VIP {
+        --zone-accent-color: rgba(234, 179, 8, 0.3);
+        box-shadow: inset 0 1px 0 var(--zone-accent-color) !important;
+      }
+      #zone-block-A {
+        --zone-accent-color: rgba(59, 130, 246, 0.3);
+        box-shadow: inset 0 1px 0 var(--zone-accent-color) !important;
+      }
+      #zone-block-B {
+        --zone-accent-color: rgba(168, 85, 247, 0.3);
+        box-shadow: inset 0 1px 0 var(--zone-accent-color) !important;
+      }
+      #zone-block-C {
+        --zone-accent-color: rgba(34, 197, 94, 0.3);
+        box-shadow: inset 0 1px 0 var(--zone-accent-color) !important;
+      }
+
+      /* 6x6px rounded glow dot beside zone titles */
+      .zone-glow-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 9999px;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .zone-glow-dot-vip {
+        background: #EAB308;
+        box-shadow: 0 0 6px rgba(234, 179, 8, 0.85);
+      }
+      .zone-glow-dot-a {
+        background: #3B82F6;
+        box-shadow: 0 0 6px rgba(59, 130, 246, 0.85);
+      }
+      .zone-glow-dot-b {
+        background: #A855F7;
+        box-shadow: 0 0 6px rgba(168, 85, 247, 0.85);
+      }
+      .zone-glow-dot-c {
+        background: #22C55E;
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.85);
+      }
+
+      /* SEAT NODES SPECIFICATION */
       .seat-node {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        min-height: 42px !important;
         transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
+        box-sizing: border-box;
       }
-      .seat-node:hover:not(.seat-sold) {
-        transform: scale(1.22);
-        filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.7));
+      /* Available (#22C55E): Clean, vibrant, with box-shadow: inset 0 1px 0 rgba(255,255,255,0.3) */
+      .seat-available,
+      .seat-node.seat-available {
+        background: #22C55E !important;
+        color: #020617 !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+        font-weight: 700 !important;
       }
-      .seat-selected {
-        filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.85)) !important;
-        animation: pulseSelect 1.8s infinite;
+      .seat-available:hover,
+      .seat-node.seat-available:hover {
+        background: #16a34a !important;
+        transform: scale(1.15);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 12px rgba(34, 197, 94, 0.7) !important;
+      }
+
+      /* Sold (#9CA3AF): Recede deeply into the background */
+      .seat-sold,
+      .seat-node.seat-sold {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.04) !important;
+        color: rgba(255, 255, 255, 0.2) !important;
+        opacity: 0.45 !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+      }
+      .seat-sold:hover,
+      .seat-node.seat-sold:hover {
+        transform: none !important;
+        filter: none !important;
+      }
+
+      /* Selected (#EAB308): Vibrant amber with pulse and active highlight */
+      .seat-selected,
+      .seat-node.seat-selected {
+        background: #EAB308 !important;
+        color: #020617 !important;
+        border: 1px solid #fef08a !important;
+        font-weight: 700 !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 12px rgba(234, 179, 8, 0.7) !important;
+        animation: pulseSelect 1.8s infinite !important;
       }
       @keyframes pulseSelect {
         0%, 100% { transform: scale(1.1); }
@@ -113,50 +394,70 @@
       }
     </style>
   </head>
-  <body class="min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-amber-400 selection:text-black">
+  <body class="min-h-screen bg-[#05070B] text-slate-100 antialiased selection:bg-amber-400 selection:text-black relative">
+
+    <!-- Starfield Dynamic Background Containers (Layer A & B) -->
+    <div id="stA" aria-hidden="true"></div>
+    <div id="stB" aria-hidden="true"></div>
 
     <!-- MAIN HERO BANNER & CONCERT INFO (FR-T1-01) -->
-    <section id="concert-hero" class="relative overflow-hidden stage-glow border-b border-slate-800/80 pt-10 pb-16 sm:pt-16 sm:pb-24">
+    <section id="concert-hero" class="relative overflow-hidden stage-glow border-b border-white/[0.08] pt-10 pb-16 sm:pt-16 sm:pb-24">
       <div class="absolute inset-0 spotlight pointer-events-none"></div>
 
       <!-- Hero content -->
       <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <!-- Left Column: Title & Metadata -->
-          <div class="lg:col-span-7 space-y-5">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-950/60 border border-red-600/40 text-red-300 text-xs font-semibold tracking-wide uppercase">
-              ★ Sự Kiện Âm Nhạc Trọng Điểm 2026
+        <!-- Desktop: balanced 7:5 side-by-side grid, never stacked on desktop -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          
+          <!-- Left Column (lg:col-span-7): Badge -> Title -> Subtitle -> Details -> CTAs -->
+          <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Pixel Contract A: Status Badge -->
+            <div>
+              <div class="entrance-badge inline-flex items-center h-9 px-3 rounded-xl border border-white/[0.115] bg-gradient-to-t from-amber-500/[0.12] to-white/[0.015] backdrop-blur-md shadow-inner gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#f59e0b] to-[#0a1120] flex items-center justify-center shadow-inner text-amber-300">
+                  <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                <span class="text-xs font-semibold uppercase tracking-[0.08em] text-white/90">
+                  SỰ KIỆN ÂM NHẠC TRỌNG ĐIỂM 2026
+                </span>
+              </div>
             </div>
 
-            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-white leading-tight">
-              SUPER CONCERT 2026
-              <span class="block text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 text-2xl sm:text-4xl lg:text-5xl font-bold mt-1">
-                ĐẠI NHẠC HỘI NGOẠI THƯƠNG
-              </span>
-            </h1>
+            <!-- H1 Typography with metallic gold gradient & entrance animation -->
+            <div class="entrance-headline">
+              <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-white leading-tight uppercase">
+                SUPER CONCERT 2026
+                <span class="block text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-normal mt-1.5 bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-500">
+                  ĐẠI NHẠC HỘI NGOẠI THƯƠNG
+                </span>
+              </h1>
+            </div>
 
-            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl font-light">
               Đêm đại nhạc hội quy mô 40.000 khán giả hội tụ dàn nghệ sĩ hàng đầu Việt Nam, hệ thống âm thanh ánh sáng D&B Audiotechnik chuẩn quốc tế và trải nghiệm chọn vé thời gian thực.
             </p>
 
             <!-- Event Details Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-start space-x-3">
-                <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+              <div class="p-3.5 rounded-[10px] glass-tile flex items-start space-x-3">
+                <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
                   <!-- Calendar icon -->
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
                 </div>
                 <div>
-                  <div class="text-xs text-slate-400">Thời gian diễn ra</div>
-                  <div class="text-sm font-semibold text-white">19:30, Ngày 15/10/2026</div>
-                  <div class="text-[11px] text-amber-400/90">Mở cổng check-in từ 16:30</div>
+                  <div class="text-[11px] uppercase tracking-wider text-slate-400">Thời gian diễn ra</div>
+                  <div class="text-sm font-semibold text-white mt-0.5">19:30, Ngày 15/10/2026</div>
+                  <div class="text-[11px] text-amber-400/90 mt-0.5">Mở cổng check-in từ 16:30</div>
                 </div>
               </div>
 
-              <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-start space-x-3">
-                <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <div class="p-3.5 rounded-[10px] glass-tile flex items-start space-x-3">
+                <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">
                   <!-- Map Pin icon -->
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -164,45 +465,46 @@
                   </svg>
                 </div>
                 <div>
-                  <div class="text-xs text-slate-400">Địa điểm tổ chức</div>
-                  <div class="text-sm font-semibold text-white">SVĐ Quốc gia Mỹ Đình</div>
-                  <div class="text-[11px] text-slate-400">Đường Lê Đức Thọ, Nam Từ Liêm, Hà Nội</div>
+                  <div class="text-[11px] uppercase tracking-wider text-slate-400">Địa điểm tổ chức</div>
+                  <div class="text-sm font-semibold text-white mt-0.5">SVĐ Quốc gia Mỹ Đình</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">Đường Lê Đức Thọ, Nam Từ Liêm, Hà Nội</div>
                 </div>
               </div>
             </div>
 
-            <!-- Action buttons -->
+            <!-- Action buttons with Pixel Contract B signature glow button -->
             <div class="flex flex-wrap items-center gap-3 pt-2">
               <a
                 href="#seating-section"
-                class="px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2"
+                id="btn-hero-select-seats"
+                class="btn-glow px-6 py-3.5 text-sm sm:text-base font-bold gap-2.5 shadow-xl cursor-pointer"
               >
-                <span>Xem sơ đồ & Chọn ghế ngay</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                 </svg>
+                <span>BẤM ĐỂ CHỌN CHỖ NGỒI</span>
               </a>
 
               <a
                 href="#pricing-section"
-                class="px-5 py-3 rounded-xl font-medium border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition flex items-center gap-2"
+                class="px-5 py-3 rounded-xl font-medium text-sm border border-white/[0.085] bg-white/[0.03] hover:bg-white/[0.08] text-slate-200 transition flex items-center gap-2 cursor-pointer backdrop-blur-sm shadow-md"
               >
                 <span>Bảng giá các hạng vé</span>
               </a>
 
               <button
                 id="btn-view-schedule"
-                class="px-4 py-3 rounded-xl font-medium text-xs border border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition"
+                class="px-4 py-3 rounded-xl font-medium text-xs border border-white/[0.085] bg-white/[0.02] hover:bg-white/[0.06] text-slate-400 hover:text-slate-200 transition cursor-pointer backdrop-blur-sm"
               >
                 Xem timeline lịch trình
               </button>
             </div>
           </div>
 
-          <!-- Right Column: Realtime Countdown Box -->
-          <div class="lg:col-span-5">
-            <div class="relative p-6 sm:p-7 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/95 border border-slate-800 shadow-2xl backdrop-blur-xl">
-              <!-- Glow accent border -->
+          <!-- Right Column (lg:col-span-5): Realtime Countdown Box -->
+          <div class="lg:col-span-5 entrance-countdown">
+            <div class="relative p-6 sm:p-7 glass-panel">
+              <!-- Top amber hairline highlight -->
               <div class="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
 
               <div class="flex items-center justify-between mb-4">
@@ -215,38 +517,38 @@
                 </span>
               </div>
 
-              <h2 class="text-lg font-bold text-white mb-1">ĐẾM NGƯỢC GIỜ MỞ BÁN VÉ CHÍNH THỨC</h2>
+              <h2 class="text-lg font-bold text-white mb-1 tracking-tight">ĐẾM NGƯỢC GIỜ MỞ BÁN VÉ CHÍNH THỨC</h2>
               <p class="text-xs text-slate-400 mb-5">Hệ thống mở bán trực tuyến và phân phối vé số lượng có hạn</p>
 
-              <!-- Countdown Grid -->
+              <!-- Countdown Grid with Inset Shadow & Distinct Monospace Labels -->
               <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center mb-6">
-                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                  <div id="countdown-days" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-400">00</div>
-                  <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">NGÀY</div>
+                <div class="p-3 rounded-[10px] inset-dark-cell">
+                  <div id="countdown-days" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
+                  <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">NGÀY</div>
                 </div>
-                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                  <div id="countdown-hours" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-400">00</div>
-                  <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">GIỜ</div>
+                <div class="p-3 rounded-[10px] inset-dark-cell">
+                  <div id="countdown-hours" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
+                  <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">GIỜ</div>
                 </div>
-                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                  <div id="countdown-minutes" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-400">00</div>
-                  <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">PHÚT</div>
+                <div class="p-3 rounded-[10px] inset-dark-cell">
+                  <div id="countdown-minutes" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
+                  <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">PHÚT</div>
                 </div>
-                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                  <div id="countdown-seconds" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-300">00</div>
-                  <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">GIÂY</div>
+                <div class="p-3 rounded-[10px] inset-dark-cell">
+                  <div id="countdown-seconds" class="text-2xl sm:text-3xl font-black font-display text-amber-300 countdown-digit">00</div>
+                  <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">GIÂY</div>
                 </div>
               </div>
 
               <!-- Realtime simulation controls -->
-              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+              <div class="p-3 rounded-[10px] inset-dark-cell text-xs text-slate-400 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                   </svg>
                   <span>Mục tiêu mở bán: <strong>10:00 - 01/10/2026</strong></span>
                 </div>
-                <span class="text-[11px] text-emerald-400 font-mono">Đang đồng bộ</span>
+                <span class="text-[11px] text-emerald-400 font-mono font-semibold">Đang đồng bộ</span>
               </div>
             </div>
           </div>
@@ -255,7 +557,7 @@
     </section>
 
     <!-- ARTIST LINEUP SECTION (DÀN NGHỆ SĨ KHÁCH MỜI) -->
-    <section id="artist-lineup" class="py-12 border-b border-slate-800 bg-[#090d14]">
+    <section id="artist-lineup" class="py-12 border-b border-white/[0.085]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
           <div>
@@ -265,113 +567,113 @@
           <span class="text-xs text-slate-500">6 Nghệ sĩ & Nhóm nhạc xác nhận tham gia</span>
         </div>
 
-        <!-- Artist Cards Grid -->
+        <!-- Artist Cards Grid (6-column on desktop) -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           <!-- Artist 1 -->
-          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
-            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80"
                 alt="Sơn Tùng M-TP"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 referrerpolicy="no-referrer"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-black">HEADLINER</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
+              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-amber-400 text-black shadow-md">HEADLINER</span>
             </div>
             <div class="p-3 text-center">
-              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">Sơn Tùng M-TP</h3>
-              <p class="text-[11px] text-slate-400">Pop / R&B</p>
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">Sơn Tùng M-TP</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Pop / R&B</p>
             </div>
           </div>
 
           <!-- Artist 2 -->
-          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
-            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80"
                 alt="Soobin Hoàng Sơn"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 referrerpolicy="no-referrer"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white">SPECIAL ACT</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
+              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-red-600 text-white shadow-md">SPECIAL ACT</span>
             </div>
             <div class="p-3 text-center">
-              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">Soobin Hoàng Sơn</h3>
-              <p class="text-[11px] text-slate-400">R&B / Ballad</p>
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">Soobin Hoàng Sơn</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">R&B / Ballad</p>
             </div>
           </div>
 
           <!-- Artist 3 -->
-          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
-            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80"
                 alt="Suboi"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 referrerpolicy="no-referrer"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-purple-600 text-white">QUEEN OF HIPHOP</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
+              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-purple-600 text-white shadow-md">QUEEN OF HIPHOP</span>
             </div>
             <div class="p-3 text-center">
-              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">Suboi</h3>
-              <p class="text-[11px] text-slate-400">Hip-hop / Rap</p>
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">Suboi</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Hip-hop / Rap</p>
             </div>
           </div>
 
           <!-- Artist 4 -->
-          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
-            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80"
                 alt="MONO"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 referrerpolicy="no-referrer"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-600 text-white">GUEST STAR</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
+              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-cyan-600 text-white shadow-md">GUEST STAR</span>
             </div>
             <div class="p-3 text-center">
-              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">MONO</h3>
-              <p class="text-[11px] text-slate-400">Dance-pop</p>
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">MONO</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Dance-pop</p>
             </div>
           </div>
 
           <!-- Artist 5 -->
-          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
-            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=600&q=80"
                 alt="Ban nhạc Chillies"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 referrerpolicy="no-referrer"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-600 text-white">LIVE BAND</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
+              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-emerald-600 text-white shadow-md">LIVE BAND</span>
             </div>
             <div class="p-3 text-center">
-              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">Chillies</h3>
-              <p class="text-[11px] text-slate-400">Indie Pop / Rock</p>
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">Chillies</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Indie Pop / Rock</p>
             </div>
           </div>
 
           <!-- Artist 6 -->
-          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
-            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=600&q=80"
                 alt="DJ Mie"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 referrerpolicy="no-referrer"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-fuchsia-600 text-white">DJ SET</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
+              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-fuchsia-600 text-white shadow-md">DJ SET</span>
             </div>
             <div class="p-3 text-center">
-              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">DJ Mie</h3>
-              <p class="text-[11px] text-slate-400">EDM / Remix</p>
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">DJ Mie</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">EDM / Remix</p>
             </div>
           </div>
         </div>
@@ -379,32 +681,31 @@
     </section>
 
     <!-- PRICING & TIER SPECS (FR-T1-01) -->
-    <section id="pricing-section" class="py-14 border-b border-slate-800">
+    <section id="pricing-section" class="py-16 border-b border-white/[0.085] relative">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="text-center max-w-3xl mx-auto mb-10">
+        <div class="text-center max-w-3xl mx-auto mb-12">
           <h2 class="text-2xl sm:text-4xl font-extrabold font-display text-white">BẢNG GIÁ VÉ & QUYỀN LỢI PHÂN KHU</h2>
           <p class="text-slate-400 text-sm mt-2">Niêm yết công khai theo đúng tài liệu SRS môn Phân tích & Thiết kế Hệ thống</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- Tier 1: VIP Kim Cương -->
-          <div class="relative rounded-2xl bg-slate-900/90 border-2 border-amber-500/60 p-6 flex flex-col justify-between hover:border-amber-400 transition-all shadow-xl shadow-amber-500/10">
-            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[11px] font-bold uppercase bg-amber-500 text-black shadow">
-              HẠNG CAO CẤP NHẤT
-            </div>
-
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold text-amber-400 tracking-wider uppercase">Fanzone A / B</span>
-                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+          <div class="relative rounded-[18px] glass-panel p-6 flex flex-col justify-between hover:border-amber-400/50 transition-all duration-300 overflow-hidden group">
+            <!-- Dedicated accent top-line -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 shadow-sm shadow-amber-400/50"></div>
+            
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold text-amber-400 tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">Fanzone A / B</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-400 text-black shadow-sm">VIP</span>
               </div>
-              <h3 class="text-xl font-bold text-white mb-2">VIP Kim Cương</h3>
-              <div class="mb-4">
-                <span class="text-3xl font-extrabold text-amber-400">3.500.000</span>
-                <span class="text-xs text-slate-400">VNĐ / vé</span>
+              <h3 class="text-xl font-bold text-white mb-2 font-display">VIP Kim Cương</h3>
+              <div class="mb-5 flex items-baseline gap-1.5">
+                <span class="text-3xl font-black text-amber-400 font-display">3.500.000</span>
+                <span class="text-xs text-slate-400 font-medium">VNĐ / vé</span>
               </div>
 
-              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-white/[0.08] pt-4">
                 <li class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                   <span>Vị trí Fanzone sát sân khấu trung tâm</span>
@@ -424,30 +725,36 @@
               </ul>
             </div>
 
-            <div class="mt-6 pt-4 border-t border-slate-800/80">
+            <div class="mt-6 pt-4 border-t border-white/[0.08]">
               <button
                 onclick="filterByZone('VIP')"
-                class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs transition"
+                class="btn-glow w-full py-3 rounded-xl text-slate-950 font-bold text-xs transition cursor-pointer shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5"
               >
-                Lọc ghế VIP trên sơ đồ
+                <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                </svg>
+                <span>BẤM CHỌN CHỖ NGỒI VIP</span>
               </button>
             </div>
           </div>
 
           <!-- Tier 2: Khán đài A -->
-          <div class="relative rounded-2xl bg-slate-900/90 border border-slate-700/80 p-6 flex flex-col justify-between hover:border-blue-400/60 transition-all">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase">Tầng 1 (Trực diện)</span>
+          <div class="relative rounded-[18px] glass-panel p-6 flex flex-col justify-between hover:border-blue-400/50 transition-all duration-300 overflow-hidden group">
+            <!-- Dedicated accent top-line -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 shadow-sm shadow-blue-400/50"></div>
+
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold text-blue-400 tracking-wider uppercase px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20">Tầng 1 (Trực diện)</span>
                 <span class="w-3 h-3 rounded-full bg-blue-400"></span>
               </div>
-              <h3 class="text-xl font-bold text-white mb-2">Khán đài A</h3>
-              <div class="mb-4">
-                <span class="text-3xl font-extrabold text-blue-400">2.200.000</span>
-                <span class="text-xs text-slate-400">VNĐ / vé</span>
+              <h3 class="text-xl font-bold text-white mb-2 font-display">Khán đài A</h3>
+              <div class="mb-5 flex items-baseline gap-1.5">
+                <span class="text-3xl font-black text-blue-400 font-display">2.200.000</span>
+                <span class="text-xs text-slate-400 font-medium">VNĐ / vé</span>
               </div>
 
-              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-white/[0.08] pt-4">
                 <li class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                   <span>Ghế ngồi tầng 1 đối diện sân khấu</span>
@@ -467,30 +774,36 @@
               </ul>
             </div>
 
-            <div class="mt-6 pt-4 border-t border-slate-800/80">
+            <div class="mt-6 pt-4 border-t border-white/[0.08]">
               <button
                 onclick="filterByZone('A')"
-                class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition"
+                class="w-full py-3 rounded-[10px] ghost-tab hover:border-blue-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
               >
-                Lọc ghế Khán đài A
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                </svg>
+                <span>BẤM CHỌN CHỖ NGỒI KHÁN ĐÀI A</span>
               </button>
             </div>
           </div>
 
           <!-- Tier 3: Khán đài B -->
-          <div class="relative rounded-2xl bg-slate-900/90 border border-slate-700/80 p-6 flex flex-col justify-between hover:border-purple-400/60 transition-all">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold text-purple-400 tracking-wider uppercase">Tầng 2 (Toàn cảnh)</span>
+          <div class="relative rounded-[18px] glass-panel p-6 flex flex-col justify-between hover:border-purple-400/50 transition-all duration-300 overflow-hidden group">
+            <!-- Dedicated accent top-line -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-purple-400 to-purple-600 shadow-sm shadow-purple-400/50"></div>
+
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold text-purple-400 tracking-wider uppercase px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20">Tầng 2 (Toàn cảnh)</span>
                 <span class="w-3 h-3 rounded-full bg-purple-400"></span>
               </div>
-              <h3 class="text-xl font-bold text-white mb-2">Khán đài B</h3>
-              <div class="mb-4">
-                <span class="text-3xl font-extrabold text-purple-400">1.500.000</span>
-                <span class="text-xs text-slate-400">VNĐ / vé</span>
+              <h3 class="text-xl font-bold text-white mb-2 font-display">Khán đài B</h3>
+              <div class="mb-5 flex items-baseline gap-1.5">
+                <span class="text-3xl font-black text-purple-400 font-display">1.500.000</span>
+                <span class="text-xs text-slate-400 font-medium">VNĐ / vé</span>
               </div>
 
-              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-white/[0.08] pt-4">
                 <li class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                   <span>Ghế ngồi tầng 2 khán đài phía Tây/Đông</span>
@@ -510,30 +823,36 @@
               </ul>
             </div>
 
-            <div class="mt-6 pt-4 border-t border-slate-800/80">
+            <div class="mt-6 pt-4 border-t border-white/[0.08]">
               <button
                 onclick="filterByZone('B')"
-                class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition"
+                class="w-full py-3 rounded-[10px] ghost-tab hover:border-purple-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
               >
-                Lọc ghế Khán đài B
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                </svg>
+                <span>BẤM CHỌN CHỖ NGỒI KHÁN ĐÀI B</span>
               </button>
             </div>
           </div>
 
           <!-- Tier 4: Khán đài C -->
-          <div class="relative rounded-2xl bg-slate-900/90 border border-slate-700/80 p-6 flex flex-col justify-between hover:border-emerald-400/60 transition-all">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold text-emerald-400 tracking-wider uppercase">Phổ thông</span>
+          <div class="relative rounded-[18px] glass-panel p-6 flex flex-col justify-between hover:border-emerald-400/50 transition-all duration-300 overflow-hidden group">
+            <!-- Dedicated accent top-line -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600 shadow-sm shadow-emerald-400/50"></div>
+
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold text-emerald-400 tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">Phổ thông</span>
                 <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
               </div>
-              <h3 class="text-xl font-bold text-white mb-2">Khán đài C</h3>
-              <div class="mb-4">
-                <span class="text-3xl font-extrabold text-emerald-400">800.000</span>
-                <span class="text-xs text-slate-400">VNĐ / vé</span>
+              <h3 class="text-xl font-bold text-white mb-2 font-display">Khán đài C</h3>
+              <div class="mb-5 flex items-baseline gap-1.5">
+                <span class="text-3xl font-black text-emerald-400 font-display">800.000</span>
+                <span class="text-xs text-slate-400 font-medium">VNĐ / vé</span>
               </div>
 
-              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-white/[0.08] pt-4">
                 <li class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                   <span>Mức giá tiếp cận phù hợp sinh viên</span>
@@ -553,12 +872,15 @@
               </ul>
             </div>
 
-            <div class="mt-6 pt-4 border-t border-slate-800/80">
+            <div class="mt-6 pt-4 border-t border-white/[0.08]">
               <button
                 onclick="filterByZone('C')"
-                class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition"
+                class="w-full py-3 rounded-[10px] ghost-tab hover:border-emerald-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
               >
-                Lọc ghế Khán đài C
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                </svg>
+                <span>BẤM CHỌN CHỖ NGỒI KHÁN ĐÀI C</span>
               </button>
             </div>
           </div>
@@ -567,7 +889,7 @@
     </section>
 
     <!-- INTERACTIVE SEATING MAP (FR-T1-02 & SHOULD-HAVE EXTENSIONS) -->
-    <section id="seating-section" class="py-14 bg-[#090d14]">
+    <section id="seating-section" class="py-14">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <!-- Section Header -->
         <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
@@ -579,40 +901,40 @@
           </div>
 
           <!-- Color Legends (Mã màu chuẩn SRS) -->
-          <div class="flex flex-wrap items-center gap-4 bg-slate-900/90 border border-slate-800 px-4 py-2.5 rounded-xl text-xs">
+          <div class="flex flex-wrap items-center gap-4 glass-strip px-4 py-2.5 rounded-[14px] text-xs">
             <div class="flex items-center gap-2">
-              <span class="w-3.5 h-3.5 rounded-md bg-[#22C55E] shadow-sm shadow-emerald-500/50"></span>
+              <span class="w-3.5 h-3.5 rounded-[5px] bg-[#22C55E] border border-white/20 shadow-sm shadow-emerald-500/30"></span>
               <span class="text-slate-300">Còn trống (#22C55E)</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="w-3.5 h-3.5 rounded-md bg-[#9CA3AF] opacity-80"></span>
+              <span class="w-3.5 h-3.5 rounded-[5px] bg-white/[0.04] border border-white/[0.04]"></span>
               <span class="text-slate-400">Đã bán (#9CA3AF)</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="w-3.5 h-3.5 rounded-md bg-[#EAB308] shadow-sm shadow-amber-500/50"></span>
+              <span class="w-3.5 h-3.5 rounded-[5px] bg-[#EAB308] border border-amber-200 shadow-sm shadow-amber-500/30"></span>
               <span class="text-slate-200 font-semibold">Đang chọn (#EAB308)</span>
             </div>
           </div>
         </div>
 
         <!-- Filter & Search Toolbar (Mở rộng Should-Have) -->
-        <div class="mb-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <div class="mb-6 p-4 rounded-[14px] glass-strip flex flex-wrap items-center justify-between gap-4">
           <!-- Zone Filter Tabs -->
           <div class="flex flex-wrap items-center gap-2 text-xs">
             <span class="text-slate-400 font-medium mr-1">Phân khu:</span>
-            <button onclick="filterByZone('ALL')" id="tab-zone-ALL" class="zone-tab px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold transition">
+            <button onclick="filterByZone('ALL')" id="tab-zone-ALL" class="zone-tab active-gold-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
               Tất cả (96 ghế)
             </button>
-            <button onclick="filterByZone('VIP')" id="tab-zone-VIP" class="zone-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700 transition">
+            <button onclick="filterByZone('VIP')" id="tab-zone-VIP" class="zone-tab ghost-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
               VIP Kim Cương
             </button>
-            <button onclick="filterByZone('A')" id="tab-zone-A" class="zone-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700 transition">
+            <button onclick="filterByZone('A')" id="tab-zone-A" class="zone-tab ghost-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
               Khán đài A
             </button>
-            <button onclick="filterByZone('B')" id="tab-zone-B" class="zone-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700 transition">
+            <button onclick="filterByZone('B')" id="tab-zone-B" class="zone-tab ghost-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
               Khán đài B
             </button>
-            <button onclick="filterByZone('C')" id="tab-zone-C" class="zone-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700 transition">
+            <button onclick="filterByZone('C')" id="tab-zone-C" class="zone-tab ghost-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
               Khán đài C
             </button>
           </div>
@@ -624,8 +946,8 @@
               <input
                 type="text"
                 id="search-seat-input"
-                placeholder="Tìm mã ghế (VD: VIP-A, A-02)..."
-                class="w-48 sm:w-56 px-3 py-1.5 pl-8 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                placeholder="Tìm mã ghế (VD: VIP-A, A1-02)..."
+                class="w-48 sm:w-56 px-3 py-1.5 pl-8 rounded-[10px] inset-dark-cell text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
               />
               <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -633,11 +955,11 @@
             </div>
 
             <!-- Zoom Controls -->
-            <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg p-1 text-xs">
-              <button id="btn-zoom-out" class="px-2 py-1 hover:bg-slate-800 rounded text-slate-300" title="Thu nhỏ sơ đồ">-</button>
+            <div class="flex items-center inset-dark-cell rounded-[10px] p-1 text-xs">
+              <button id="btn-zoom-out" class="px-2 py-1 hover:bg-white/[0.08] rounded-[6px] text-slate-300 cursor-pointer" title="Thu nhỏ sơ đồ">-</button>
               <span id="zoom-level-text" class="px-2 font-mono text-slate-400">100%</span>
-              <button id="btn-zoom-in" class="px-2 py-1 hover:bg-slate-800 rounded text-slate-300" title="Phóng to sơ đồ">+</button>
-              <button id="btn-zoom-reset" class="px-2 py-1 hover:bg-slate-800 rounded text-amber-400 ml-1 text-[11px]" title="Reset tỉ lệ">Reset</button>
+              <button id="btn-zoom-in" class="px-2 py-1 hover:bg-white/[0.08] rounded-[6px] text-slate-300 cursor-pointer" title="Phóng to sơ đồ">+</button>
+              <button id="btn-zoom-reset" class="px-2 py-1 hover:bg-white/[0.08] rounded-[6px] text-amber-400 ml-1 text-[11px] cursor-pointer" title="Reset tỉ lệ">Reset</button>
             </div>
           </div>
         </div>
@@ -645,7 +967,7 @@
         <!-- MAIN LAYOUT: MAP (LEFT) + SIDEBAR SUMMARY (RIGHT) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <!-- LEFT 8 COLS: INTERACTIVE STAGE & SEAT MAP -->
-          <div class="lg:col-span-8 rounded-2xl bg-slate-950 border border-slate-800 p-4 sm:p-6 overflow-hidden relative shadow-2xl">
+          <div class="lg:col-span-8 rounded-[18px] glass-panel p-4 sm:p-6 overflow-hidden relative shadow-2xl">
             <!-- Stage Map Canvas Wrapper -->
             <div id="map-zoom-container" class="transition-transform duration-200 origin-top min-h-[560px]">
               
@@ -670,10 +992,10 @@
               <div id="seats-wrapper" class="space-y-8">
                 
                 <!-- ZONE 1: VIP KIM CƯƠNG (FANZONE A / B) -->
-                <div id="zone-block-VIP" class="zone-block p-4 sm:p-5 rounded-xl bg-amber-950/10 border border-amber-500/30">
+                <div id="zone-block-VIP" class="zone-block p-4 sm:p-5 rounded-[14px] bg-amber-950/15 border border-amber-500/30">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
-                      <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                      <span class="zone-glow-dot zone-glow-dot-vip"></span>
                       <h4 class="font-bold text-sm text-amber-400">PHÂN KHU: VIP KIM CƯƠNG (FANZONE A & B)</h4>
                     </div>
                     <span class="text-xs font-semibold text-amber-300">3.500.000 VNĐ / ghế</span>
@@ -687,10 +1009,10 @@
                 </div>
 
                 <!-- ZONE 2: KHÁN ĐÀI A (TẦNG 1) -->
-                <div id="zone-block-A" class="zone-block p-4 sm:p-5 rounded-xl bg-blue-950/10 border border-blue-500/30">
+                <div id="zone-block-A" class="zone-block p-4 sm:p-5 rounded-[14px] bg-blue-950/15 border border-blue-500/30">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
-                      <span class="w-3 h-3 rounded-full bg-blue-400"></span>
+                      <span class="zone-glow-dot zone-glow-dot-a"></span>
                       <h4 class="font-bold text-sm text-blue-400">PHÂN KHU: KHÁN ĐÀI A (TẦNG 1 - CHÍNH DIỆN)</h4>
                     </div>
                     <span class="text-xs font-semibold text-blue-300">2.200.000 VNĐ / ghế</span>
@@ -704,10 +1026,10 @@
                 </div>
 
                 <!-- ZONE 3: KHÁN ĐÀI B (TẦNG 2) -->
-                <div id="zone-block-B" class="zone-block p-4 sm:p-5 rounded-xl bg-purple-950/10 border border-purple-500/30">
+                <div id="zone-block-B" class="zone-block p-4 sm:p-5 rounded-[14px] bg-purple-950/15 border border-purple-500/30">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
-                      <span class="w-3 h-3 rounded-full bg-purple-400"></span>
+                      <span class="zone-glow-dot zone-glow-dot-b"></span>
                       <h4 class="font-bold text-sm text-purple-400">PHÂN KHU: KHÁN ĐÀI B (TẦNG 2 - TOÀN CẢNH)</h4>
                     </div>
                     <span class="text-xs font-semibold text-purple-300">1.500.000 VNĐ / ghế</span>
@@ -721,10 +1043,10 @@
                 </div>
 
                 <!-- ZONE 4: KHÁN ĐÀI C (PHỔ THÔNG) -->
-                <div id="zone-block-C" class="zone-block p-4 sm:p-5 rounded-xl bg-emerald-950/10 border border-emerald-500/30">
+                <div id="zone-block-C" class="zone-block p-4 sm:p-5 rounded-[14px] bg-emerald-950/15 border border-emerald-500/30">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
-                      <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                      <span class="zone-glow-dot zone-glow-dot-c"></span>
                       <h4 class="font-bold text-sm text-emerald-400">PHÂN KHU: KHÁN ĐÀI C (PHỔ THÔNG TIÊU CHUẨN)</h4>
                     </div>
                     <span class="text-xs font-semibold text-emerald-300">800.000 VNĐ / ghế</span>
@@ -740,7 +1062,7 @@
               </div>
 
               <!-- Sound Control Booth (FOH) at back -->
-              <div class="mt-8 p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center max-w-xs mx-auto">
+              <div class="mt-8 p-3 rounded-[10px] glass-tile text-center max-w-xs mx-auto">
                 <div class="text-[11px] font-bold text-slate-400 tracking-wider">KHU KỸ THUẬT & ĐIỀU KHIỂN ÂM THANH (FOH)</div>
               </div>
             </div>
@@ -749,15 +1071,15 @@
           <!-- RIGHT 4 COLS: SELECTED TICKETS SUMMARY SIDEBAR (TẠM TÍNH VÉ ĐÃ CHỌN) -->
           <div class="lg:col-span-4 sticky top-20 space-y-4">
             
-            <div class="p-5 sm:p-6 rounded-2xl bg-slate-900/95 border border-slate-800 shadow-2xl backdrop-blur-md">
-              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="p-5 sm:p-6 rounded-[18px] glass-panel">
+              <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
                 <div class="flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span>
                   <h3 class="font-bold text-base text-white">TẠM TÍNH VÉ ĐÃ CHỌN</h3>
                 </div>
                 <button
                   id="btn-clear-all-seats"
-                  class="text-xs text-red-400 hover:text-red-300 transition hidden"
+                  class="text-xs text-red-400 hover:text-red-300 transition hidden cursor-pointer"
                 >
                   Xóa tất cả
                 </button>
@@ -776,7 +1098,7 @@
               </div>
 
               <!-- Total calculation -->
-              <div class="border-t border-slate-800 pt-4 space-y-2 text-xs">
+              <div class="border-t border-white/[0.08] pt-4 space-y-2 text-xs">
                 <div class="flex justify-between text-slate-400">
                   <span>Số lượng vé:</span>
                   <span id="summary-count" class="font-bold text-white">0 / 4 vé</span>
@@ -788,7 +1110,7 @@
               </div>
 
               <!-- 5-Minute Hold Countdown Simulation (FR-T3-01 / US-T1-01) -->
-              <div id="hold-timer-container" class="mt-4 p-3 rounded-xl bg-slate-950 border border-amber-500/30 hidden">
+              <div id="hold-timer-container" class="mt-4 p-3 rounded-[10px] inset-dark-cell border-amber-500/30 hidden">
                 <div class="flex items-center justify-between text-xs">
                   <div class="flex items-center gap-1.5 text-amber-300 font-semibold">
                     <svg class="w-4 h-4 animate-spin text-amber-400" fill="none" viewBox="0 0 24 24">
@@ -804,15 +1126,15 @@
                 </div>
               </div>
 
-              <!-- Proceed Button -->
+              <!-- Proceed Button with Pixel Contract B Signature Glow Button -->
               <div class="mt-5">
                 <button
                   id="btn-proceed-booking"
                   disabled
-                  class="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed hover:from-amber-400 hover:to-amber-500 transition-all flex items-center justify-center gap-2"
+                  class="btn-glow w-full py-3.5 px-4 text-sm font-bold gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:filter-none shadow-xl"
                 >
                   <span>Tiến hành giữ chỗ & Thanh toán</span>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                   </svg>
                 </button>
@@ -826,15 +1148,34 @@
       </div>
     </section>
 
+    <!-- FLOATING ACTION BUTTON (ALWAYS ACCESSIBLE "CHỌN CHỖ NGỒI") -->
+    <aside aria-label="Nút chọn chỗ ngồi nhanh" class="fixed bottom-6 right-6 z-40">
+      <a
+        href="#seating-section"
+        id="fab-select-seats"
+        class="btn-glow px-4 py-3 sm:px-5 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold shadow-2xl flex items-center gap-2.5 cursor-pointer border border-amber-400/50 backdrop-blur-md hover:scale-105 transition-transform"
+      >
+        <svg class="w-5 h-5 text-amber-300 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+        </svg>
+        <span class="tracking-wide">CHỌN CHỖ NGỒI</span>
+        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span>
+      </a>
+    </aside>
+
     <!-- FOOTER -->
-    <footer class="border-t border-slate-800 bg-[#07090e] py-8 text-xs text-slate-400">
+    <footer class="border-t border-white/[0.085] bg-[#05070B] py-8 text-xs text-slate-400">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="text-center md:text-left text-slate-500 text-xs">
           © 2026 SUPER CONCERT — ĐẠI NHẠC HỘI NGOẠI THƯƠNG. All rights reserved.
         </div>
 
         <div class="flex items-center gap-4 text-slate-300">
-          <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-amber-400 transition flex items-center gap-1">
+          <button onclick="document.getElementById('team-modal').classList.remove('hidden')" class="hover:text-amber-400 transition cursor-pointer">
+            Thông tin đề tài & nhóm 4
+          </button>
+          <span>•</span>
+          <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-amber-400 transition flex items-center gap-1 cursor-pointer">
             <span>Lên đầu trang</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
@@ -845,8 +1186,8 @@
     </footer>
 
     <!-- DYNAMIC TOOLTIP FOR SEAT HOVER (FR-T1-02 Should-Have) -->
-    <div id="seat-tooltip" class="opacity-0 bg-slate-900 text-white text-xs rounded-xl p-3 border border-slate-700 shadow-2xl backdrop-blur-md pointer-events-none min-w-[200px]">
-      <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-1.5 mb-1.5">
+    <div id="seat-tooltip" class="opacity-0 glass-panel !rounded-[12px] text-white text-xs p-3 pointer-events-none min-w-[200px] border border-white/[0.12] shadow-2xl">
+      <div class="flex items-center justify-between gap-2 border-b border-white/[0.08] pb-1.5 mb-1.5">
         <span id="tooltip-seat-code" class="font-black text-amber-400 font-mono text-sm">VIP-A-01</span>
         <span id="tooltip-seat-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">Còn trống</span>
       </div>
@@ -864,20 +1205,20 @@
 
     <!-- MODAL 1: TEAM & PROJECT INFO (BÁO CÁO NHÓM 4 FTU) -->
     <div id="team-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-      <div class="relative w-full max-w-xl rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-2xl">
-        <button id="btn-close-team-modal" class="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+      <div class="relative w-full max-w-xl rounded-[18px] glass-panel p-6 shadow-2xl">
+        <button id="btn-close-team-modal" class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
 
         <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-xl bg-red-950 border border-red-700 flex items-center justify-center font-bold text-red-400">FTU</div>
+          <div class="w-10 h-10 rounded-xl bg-red-950/80 border border-red-700/60 flex items-center justify-center font-bold text-red-400">FTU</div>
           <div>
             <h3 class="font-bold text-base text-white">THÔNG TIN ĐỒ ÁN & THÀNH VIÊN NHÓM 4</h3>
             <p class="text-xs text-slate-400">Báo cáo Đặc tả Yêu cầu Hệ thống (SRS) — Tháng 9/2026</p>
           </div>
         </div>
 
-        <div class="space-y-3 text-xs text-slate-300 mb-6 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+        <div class="space-y-3 text-xs text-slate-300 mb-6 inset-dark-cell p-3.5 rounded-[10px]">
           <div><strong>Trường:</strong> Đại học Ngoại Thương (Foreign Trade University)</div>
           <div><strong>Khoa:</strong> Công nghệ và Khoa học Dữ liệu</div>
           <div><strong>Đề tài:</strong> EventTicketing — Nền tảng Quản lý Bán vé Sự kiện & Tối ưu Doanh thu Tự động</div>
@@ -888,30 +1229,30 @@
         <div class="mb-5">
           <h4 class="font-semibold text-xs text-slate-200 uppercase tracking-wider mb-2">Danh sách thành viên nhóm 4:</h4>
           <div class="space-y-1.5 text-xs">
-            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
               <span>1. Nguyễn Sỹ Bách</span>
               <span class="font-mono text-slate-400">MSV: 2412960004</span>
             </div>
-            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
               <span>2. Trần Khánh Bình</span>
               <span class="font-mono text-slate-400">MSV: 2412960005</span>
             </div>
-            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
               <span>3. Nguyễn Khánh Huyền</span>
               <span class="font-mono text-slate-400">MSV: 2412960012</span>
             </div>
-            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
               <span class="text-amber-400 font-medium">4. Đặng Công Minh (Lead)</span>
               <span class="font-mono text-amber-400">MSV: 2412960016</span>
             </div>
-            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
               <span>5. Đỗ Nhật Quang</span>
               <span class="font-mono text-slate-400">MSV: 2412960021</span>
             </div>
           </div>
         </div>
 
-        <button id="btn-close-team-modal-2" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition">
+        <button id="btn-close-team-modal-2" class="w-full py-2.5 rounded-[10px] ghost-tab text-white font-medium text-xs transition cursor-pointer">
           Đóng cửa sổ
         </button>
       </div>
@@ -919,18 +1260,18 @@
 
     <!-- MODAL 2: TIMELINE LỊCH TRÌNH BIỂU DIỄN -->
     <div id="schedule-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-      <div class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-2xl">
-        <button id="btn-close-schedule-modal" class="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+      <div class="relative w-full max-w-lg rounded-[18px] glass-panel p-6 shadow-2xl">
+        <button id="btn-close-schedule-modal" class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
 
-        <h3 class="font-bold text-lg text-white mb-1">LỊCH TRÌNH SUPER CONCERT 2026</h3>
+        <h3 class="font-bold text-lg text-white mb-1 font-display">LỊCH TRÌNH SUPER CONCERT 2026</h3>
         <p class="text-xs text-slate-400 mb-5">Thứ Năm, Ngày 15/10/2026 tại SVĐ Quốc gia Mỹ Đình</p>
 
         <div class="space-y-3.5 text-xs text-slate-300">
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">16:30</span>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 w-full">
+            <div class="p-2.5 rounded-[10px] inset-dark-cell w-full">
               <div class="font-semibold text-white">Mở cổng check-in an ninh</div>
               <div class="text-[11px] text-slate-400">Quét mã QR soát vé cổng vào, phát vòng tay cho khán đài VIP/Fanzone</div>
             </div>
@@ -938,7 +1279,7 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">17:45</span>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 w-full">
+            <div class="p-2.5 rounded-[10px] inset-dark-cell w-full">
               <div class="font-semibold text-amber-300">Soundcheck VIP Exclusive</div>
               <div class="text-[11px] text-slate-400">Giao lưu sớm cùng nghệ sĩ dành riêng cho chủ nhân vé VIP Kim Cương</div>
             </div>
@@ -946,7 +1287,7 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">18:30</span>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 w-full">
+            <div class="p-2.5 rounded-[10px] inset-dark-cell w-full">
               <div class="font-semibold text-white">Warm-up DJ Set</div>
               <div class="text-[11px] text-slate-400">Set nhạc EDM hâm nóng bầu không khí cùng DJ Mie</div>
             </div>
@@ -954,7 +1295,7 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">19:30</span>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-amber-500/40 w-full">
+            <div class="p-2.5 rounded-[10px] inset-dark-cell border-amber-500/40 w-full">
               <div class="font-bold text-amber-400">KHAI MẠC ĐẠI NHẠC HỘI NGOẠI THƯƠNG</div>
               <div class="text-[11px] text-slate-300">Biểu diễn các tiết mục mở màn, Chillies, MONO, Suboi</div>
             </div>
@@ -962,7 +1303,7 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">21:15</span>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-red-500/40 w-full">
+            <div class="p-2.5 rounded-[10px] inset-dark-cell border-red-500/40 w-full">
               <div class="font-bold text-red-400">HEADLINER STAGE: Sơn Tùng M-TP & Soobin</div>
               <div class="text-[11px] text-slate-300">Chuỗi hit đỉnh cao kết hợp hiệu ứng pháo hoa và máy bay không người lái</div>
             </div>
@@ -970,13 +1311,13 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">22:30</span>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 w-full">
+            <div class="p-2.5 rounded-[10px] inset-dark-cell w-full">
               <div class="font-semibold text-slate-300">Bế mạc & Hướng dẫn ra về an toàn</div>
             </div>
           </div>
         </div>
 
-        <button id="btn-close-schedule-modal-2" class="w-full mt-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition">
+        <button id="btn-close-schedule-modal-2" class="w-full mt-6 py-2.5 rounded-[10px] ghost-tab text-white font-medium text-xs transition cursor-pointer">
           Đóng lịch trình
         </button>
       </div>
@@ -984,25 +1325,25 @@
 
     <!-- MODAL 3: BOOKING SIMULATION SUCCESS (SPRINT 3 PREVIEW) -->
     <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
-      <div class="relative w-full max-w-md rounded-2xl bg-slate-900 border border-amber-500/50 p-6 shadow-2xl text-center">
+      <div class="relative w-full max-w-md rounded-[18px] glass-panel border border-amber-500/50 p-6 shadow-2xl text-center">
         <div class="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center mb-4">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
         </div>
 
-        <h3 class="text-xl font-extrabold text-white mb-1">GIỮ CHỖ THÀNH CÔNG!</h3>
+        <h3 class="text-xl font-extrabold text-white mb-1 font-display">GIỮ CHỖ THÀNH CÔNG!</h3>
         <p class="text-xs text-slate-400 mb-4">
           Ghế của bạn đã được khóa độc quyền trong <strong>5 phút (300 giây)</strong> theo chuẩn cơ chế Distributed Lock (FR-T3-01).
         </p>
 
-        <div id="booking-modal-summary" class="text-left bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-2 mb-5">
+        <div id="booking-modal-summary" class="text-left inset-dark-cell p-4 rounded-[10px] text-xs space-y-2 mb-5">
           <!-- Dynamic details -->
         </div>
 
         <div class="flex gap-3">
-          <button id="btn-close-booking-modal" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold">
+          <button id="btn-close-booking-modal" class="w-full py-2.5 rounded-[10px] ghost-tab text-slate-200 text-xs font-semibold cursor-pointer">
             Tiếp tục xem sơ đồ
           </button>
-          <button onclick="simulateNextSprint()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-lg shadow-amber-500/20">
+          <button onclick="simulateNextSprint()" class="w-full py-2.5 rounded-[10px] bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-lg shadow-amber-500/20 cursor-pointer">
             Mô phỏng Sprint 3
           </button>
         </div>
@@ -1101,6 +1442,8 @@
         const gridB = document.getElementById('grid-b');
         const gridC = document.getElementById('grid-c');
 
+        if (!gridVIP || !gridA || !gridB || !gridC) return;
+
         gridVIP.innerHTML = '';
         gridA.innerHTML = '';
         gridB.innerHTML = '';
@@ -1123,20 +1466,23 @@
           seatEl.id = `seat-btn-${seat.id}`;
           seatEl.setAttribute('data-seat-id', seat.id);
 
-          // Seat classes according to SRS color specification
-          let bgClass = '';
+          // Seat classes according to SRS color specification and MotionSites glass spec
+          let stateClass = '';
           if (isSelected) {
             // Vàng (#EAB308): Ghế đang được click chọn tạm tính
-            bgClass = 'bg-[#EAB308] text-black border-amber-300 font-bold seat-selected shadow-lg';
+            stateClass = 'seat-selected';
           } else if (isSold) {
             // Xám mờ (#9CA3AF): Ghế đã bán (Sold)
-            bgClass = 'bg-[#9CA3AF]/40 border-slate-700 text-slate-500 cursor-not-allowed seat-sold';
+            stateClass = 'seat-sold';
           } else {
             // Xanh lá (#22C55E): Ghế còn trống (Available)
-            bgClass = 'bg-[#22C55E] text-slate-950 border-emerald-400/80 font-medium seat-available hover:bg-[#16a34a]';
+            stateClass = 'seat-available';
           }
 
-          seatEl.className = `seat-node relative flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-lg border text-[10px] sm:text-xs font-mono select-none transition-all ${bgClass} ${isVisible ? 'block' : 'opacity-20 scale-90'}`;
+          const visibilityClass = isVisible ? 'flex opacity-100 scale-100' : 'opacity-20 scale-90 pointer-events-none';
+          seatEl.className = `seat-node relative flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-lg border text-[10px] sm:text-xs font-mono select-none transition-all duration-150 cursor-pointer ${stateClass} ${visibilityClass}`;
+          seatEl.title = isSold ? `Ghế ${seat.id} đã bán (${formatVND(seat.price)})` : (isSelected ? `Đang chọn ghế ${seat.id}` : `Bấm để chọn ghế ${seat.id} (${formatVND(seat.price)})`);
+          seatEl.setAttribute('aria-label', `Ghế ${seat.id} - ${seat.zoneName} - ${formatVND(seat.price)}`);
 
           seatEl.innerHTML = `
             <span class="leading-none font-bold">${seat.id}</span>
@@ -1218,6 +1564,8 @@
         const clearBtn = document.getElementById('btn-clear-all-seats');
         const holdTimerContainer = document.getElementById('hold-timer-container');
 
+        if (!listContainer || !emptyMsg || !summaryCount || !summaryTotal || !proceedBtn) return;
+
         if (selectedSeatIds.size === 0) {
           listContainer.innerHTML = '';
           listContainer.appendChild(emptyMsg);
@@ -1225,15 +1573,15 @@
           summaryCount.innerText = '0 / 4 vé';
           summaryTotal.innerText = '0 VNĐ';
           proceedBtn.disabled = true;
-          clearBtn.classList.add('hidden');
-          holdTimerContainer.classList.add('hidden');
+          if (clearBtn) clearBtn.classList.add('hidden');
+          if (holdTimerContainer) holdTimerContainer.classList.add('hidden');
           stopHoldCountdown();
           return;
         }
 
         emptyMsg.classList.add('hidden');
-        clearBtn.classList.remove('hidden');
-        holdTimerContainer.classList.remove('hidden');
+        if (clearBtn) clearBtn.classList.remove('hidden');
+        if (holdTimerContainer) holdTimerContainer.classList.remove('hidden');
 
         // Start 5-min Hold Countdown if not already running
         if (!holdTimerInterval) {
@@ -1250,10 +1598,10 @@
           totalAmount += seat.price;
 
           const itemEl = document.createElement('div');
-          itemEl.className = 'p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-2 text-xs hover:border-amber-500/40 transition';
+          itemEl.className = 'p-2.5 rounded-[10px] inset-dark-cell flex items-center justify-between gap-2 text-xs hover:border-amber-500/40 transition';
           itemEl.innerHTML = `
             <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#EAB308]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#EAB308] shadow-sm shadow-amber-400/50"></span>
               <div>
                 <div class="font-mono font-bold text-white">${seat.id}</div>
                 <div class="text-[10px] text-slate-400">${seat.zoneName}</div>
@@ -1263,7 +1611,7 @@
               <span class="font-bold text-amber-400 text-xs">${formatVND(seat.price)}</span>
               <button
                 onclick="removeSingleSeat('${seat.id}')"
-                class="p-1 rounded text-slate-500 hover:text-red-400 hover:bg-slate-800 transition"
+                class="p-1 rounded-[6px] text-slate-400 hover:text-red-400 hover:bg-white/[0.08] transition cursor-pointer"
                 title="Bỏ ghế này"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1339,11 +1687,18 @@
           const now = new Date().getTime();
           const distance = targetDate - now;
 
+          const daysEl = document.getElementById('countdown-days');
+          const hoursEl = document.getElementById('countdown-hours');
+          const minsEl = document.getElementById('countdown-minutes');
+          const secsEl = document.getElementById('countdown-seconds');
+
+          if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+
           if (distance <= 0) {
-            document.getElementById('countdown-days').innerText = '00';
-            document.getElementById('countdown-hours').innerText = '00';
-            document.getElementById('countdown-minutes').innerText = '00';
-            document.getElementById('countdown-seconds').innerText = '00';
+            daysEl.innerText = '00';
+            hoursEl.innerText = '00';
+            minsEl.innerText = '00';
+            secsEl.innerText = '00';
             return;
           }
 
@@ -1352,10 +1707,10 @@
           const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-          document.getElementById('countdown-days').innerText = days.toString().padStart(2, '0');
-          document.getElementById('countdown-hours').innerText = hours.toString().padStart(2, '0');
-          document.getElementById('countdown-minutes').innerText = minutes.toString().padStart(2, '0');
-          document.getElementById('countdown-seconds').innerText = seconds.toString().padStart(2, '0');
+          daysEl.innerText = days.toString().padStart(2, '0');
+          hoursEl.innerText = hours.toString().padStart(2, '0');
+          minsEl.innerText = minutes.toString().padStart(2, '0');
+          secsEl.innerText = seconds.toString().padStart(2, '0');
         }
 
         update();
@@ -1368,6 +1723,7 @@
       const tooltip = document.getElementById('seat-tooltip');
 
       function showSeatTooltip(e, seat) {
+        if (!tooltip) return;
         const isSelected = selectedSeatIds.has(seat.id);
         const isSold = seat.status === 'SOLD';
 
@@ -1383,7 +1739,7 @@
           statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
         } else if (isSold) {
           statusEl.innerText = 'Đã bán';
-          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300';
+          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-white/[0.08] text-slate-400 border border-white/[0.08]';
         } else {
           statusEl.innerText = 'Còn trống';
           statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
@@ -1394,11 +1750,13 @@
       }
 
       function moveSeatTooltip(e) {
+        if (!tooltip) return;
         tooltip.style.left = `${e.clientX}px`;
         tooltip.style.top = `${e.clientY - 12}px`;
       }
 
       function hideSeatTooltip() {
+        if (!tooltip) return;
         tooltip.style.opacity = '0';
       }
 
@@ -1407,23 +1765,24 @@
       // ==========================================
       function showToast(message, type = 'info') {
         const container = document.getElementById('toast-container');
+        if (!container) return;
         const toast = document.createElement('div');
 
-        let borderClass = 'border-slate-700 bg-slate-900 text-slate-200';
-        let iconSvg = `<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        let borderClass = 'border-white/[0.1] bg-[#0D1117]/95 text-slate-200';
+        let iconSvg = `<svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
 
         if (type === 'error') {
-          borderClass = 'border-red-600/70 bg-red-950/90 text-red-200 shadow-red-900/40';
+          borderClass = 'border-red-500/50 bg-[#160b0e]/95 text-red-200 shadow-red-950/50';
           iconSvg = `<svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
         } else if (type === 'success') {
-          borderClass = 'border-emerald-600/70 bg-emerald-950/90 text-emerald-200 shadow-emerald-900/40';
+          borderClass = 'border-emerald-500/50 bg-[#0a1610]/95 text-emerald-200 shadow-emerald-950/50';
           iconSvg = `<svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
         } else if (type === 'warning') {
-          borderClass = 'border-amber-600/70 bg-amber-950/90 text-amber-200 shadow-amber-900/40';
+          borderClass = 'border-amber-500/50 bg-[#191409]/95 text-amber-200 shadow-amber-950/50';
           iconSvg = `<svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
         }
 
-        toast.className = `toast-animate pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border text-xs shadow-2xl backdrop-blur-md max-w-sm ${borderClass}`;
+        toast.className = `toast-animate pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-[12px] border text-xs shadow-2xl backdrop-blur-md max-w-sm ${borderClass}`;
         toast.innerHTML = `
           ${iconSvg}
           <span class="flex-1 font-medium leading-tight">${message}</span>
@@ -1447,14 +1806,14 @@
 
         // Update active tab styles
         document.querySelectorAll('.zone-tab').forEach(tab => {
-          tab.classList.remove('bg-amber-500', 'text-black', 'font-semibold');
-          tab.classList.add('bg-slate-800', 'text-slate-300', 'font-medium');
+          tab.classList.remove('active-gold-tab');
+          tab.classList.add('ghost-tab');
         });
 
         const activeTab = document.getElementById(`tab-zone-${zoneKey}`);
         if (activeTab) {
-          activeTab.classList.remove('bg-slate-800', 'text-slate-300', 'font-medium');
-          activeTab.classList.add('bg-amber-500', 'text-black', 'font-semibold');
+          activeTab.classList.remove('ghost-tab');
+          activeTab.classList.add('active-gold-tab');
         }
 
         renderSeats();
@@ -1468,34 +1827,48 @@
 
       // Search Seat Input Handler
       const searchInput = document.getElementById('search-seat-input');
-      searchInput.addEventListener('input', (e) => {
-        currentSearchQuery = e.target.value.trim();
-        renderSeats();
-      });
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          currentSearchQuery = e.target.value.trim();
+          renderSeats();
+        });
+      }
 
       // Zoom Controls Handler
       let currentZoom = 1;
       const zoomContainer = document.getElementById('map-zoom-container');
       const zoomText = document.getElementById('zoom-level-text');
 
-      document.getElementById('btn-zoom-in').addEventListener('click', () => {
-        if (currentZoom < 1.4) {
-          currentZoom += 0.1;
+      const btnZoomIn = document.getElementById('btn-zoom-in');
+      if (btnZoomIn) {
+        btnZoomIn.addEventListener('click', () => {
+          if (currentZoom < 1.4) {
+            currentZoom += 0.1;
+            applyZoom();
+          }
+        });
+      }
+
+      const btnZoomOut = document.getElementById('btn-zoom-out');
+      if (btnZoomOut) {
+        btnZoomOut.addEventListener('click', () => {
+          if (currentZoom > 0.7) {
+            currentZoom -= 0.1;
+            applyZoom();
+          }
+        });
+      }
+
+      const btnZoomReset = document.getElementById('btn-zoom-reset');
+      if (btnZoomReset) {
+        btnZoomReset.addEventListener('click', () => {
+          currentZoom = 1;
           applyZoom();
-        }
-      });
-      document.getElementById('btn-zoom-out').addEventListener('click', () => {
-        if (currentZoom > 0.7) {
-          currentZoom -= 0.1;
-          applyZoom();
-        }
-      });
-      document.getElementById('btn-zoom-reset').addEventListener('click', () => {
-        currentZoom = 1;
-        applyZoom();
-      });
+        });
+      }
 
       function applyZoom() {
+        if (!zoomContainer || !zoomText) return;
         zoomContainer.style.transform = `scale(${currentZoom})`;
         zoomText.innerText = `${Math.round(currentZoom * 100)}%`;
       }
@@ -1516,7 +1889,10 @@
       }
 
       // Clear all seats button
-      document.getElementById('btn-clear-all-seats').addEventListener('click', clearAllSeats);
+      const clearBtn = document.getElementById('btn-clear-all-seats');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', clearAllSeats);
+      }
 
       // Modal Triggers
       const teamModal = document.getElementById('team-modal');
@@ -1524,50 +1900,76 @@
       const bookingModal = document.getElementById('booking-modal');
 
       const btnOpenTeam = document.getElementById('btn-open-team-info');
-      if (btnOpenTeam) {
+      if (btnOpenTeam && teamModal) {
         btnOpenTeam.addEventListener('click', () => teamModal.classList.remove('hidden'));
       }
-      document.getElementById('btn-close-team-modal').addEventListener('click', () => teamModal.classList.add('hidden'));
-      document.getElementById('btn-close-team-modal-2').addEventListener('click', () => teamModal.classList.add('hidden'));
 
-      document.getElementById('btn-view-schedule').addEventListener('click', () => scheduleModal.classList.remove('hidden'));
-      document.getElementById('btn-close-schedule-modal').addEventListener('click', () => scheduleModal.classList.add('hidden'));
-      document.getElementById('btn-close-schedule-modal-2').addEventListener('click', () => scheduleModal.classList.add('hidden'));
+      const btnCloseTeam = document.getElementById('btn-close-team-modal');
+      if (btnCloseTeam && teamModal) {
+        btnCloseTeam.addEventListener('click', () => teamModal.classList.add('hidden'));
+      }
 
-      document.getElementById('btn-close-booking-modal').addEventListener('click', () => bookingModal.classList.add('hidden'));
+      const btnCloseTeam2 = document.getElementById('btn-close-team-modal-2');
+      if (btnCloseTeam2 && teamModal) {
+        btnCloseTeam2.addEventListener('click', () => teamModal.classList.add('hidden'));
+      }
+
+      const btnViewSchedule = document.getElementById('btn-view-schedule');
+      if (btnViewSchedule && scheduleModal) {
+        btnViewSchedule.addEventListener('click', () => scheduleModal.classList.remove('hidden'));
+      }
+
+      const btnCloseSchedule = document.getElementById('btn-close-schedule-modal');
+      if (btnCloseSchedule && scheduleModal) {
+        btnCloseSchedule.addEventListener('click', () => scheduleModal.classList.add('hidden'));
+      }
+
+      const btnCloseSchedule2 = document.getElementById('btn-close-schedule-modal-2');
+      if (btnCloseSchedule2 && scheduleModal) {
+        btnCloseSchedule2.addEventListener('click', () => scheduleModal.classList.add('hidden'));
+      }
+
+      const btnCloseBooking = document.getElementById('btn-close-booking-modal');
+      if (btnCloseBooking && bookingModal) {
+        btnCloseBooking.addEventListener('click', () => bookingModal.classList.add('hidden'));
+      }
 
       // Proceed Booking Action (Modal Preview)
-      document.getElementById('btn-proceed-booking').addEventListener('click', () => {
-        if (selectedSeatIds.size === 0) return;
+      const btnProceedBooking = document.getElementById('btn-proceed-booking');
+      if (btnProceedBooking) {
+        btnProceedBooking.addEventListener('click', () => {
+          if (selectedSeatIds.size === 0 || !bookingModal) return;
 
-        let itemsHtml = '';
-        let total = 0;
-        selectedSeatIds.forEach(id => {
-          const s = seatsData.find(x => x.id === id);
-          if (s) {
-            total += s.price;
-            itemsHtml += `
-              <div class="flex justify-between py-1 border-b border-slate-900">
-                <span class="font-mono text-amber-400">${s.id} (${s.zoneName})</span>
-                <span class="text-white">${formatVND(s.price)}</span>
-              </div>
-            `;
-          }
+          let itemsHtml = '';
+          let total = 0;
+          selectedSeatIds.forEach(id => {
+            const s = seatsData.find(x => x.id === id);
+            if (s) {
+              total += s.price;
+              itemsHtml += `
+                <div class="flex justify-between py-1 border-b border-slate-900">
+                  <span class="font-mono text-amber-400">${s.id} (${s.zoneName})</span>
+                  <span class="text-white">${formatVND(s.price)}</span>
+                </div>
+              `;
+            }
+          });
+
+          itemsHtml += `
+            <div class="flex justify-between font-bold text-white pt-2 text-sm">
+              <span>Tổng cộng (${selectedSeatIds.size} vé):</span>
+              <span class="text-amber-400 font-display">${formatVND(total)}</span>
+            </div>
+          `;
+
+          const summaryEl = document.getElementById('booking-modal-summary');
+          if (summaryEl) summaryEl.innerHTML = itemsHtml;
+          bookingModal.classList.remove('hidden');
         });
-
-        itemsHtml += `
-          <div class="flex justify-between font-bold text-white pt-2 text-sm">
-            <span>Tổng cộng (${selectedSeatIds.size} vé):</span>
-            <span class="text-amber-400 font-display">${formatVND(total)}</span>
-          </div>
-        `;
-
-        document.getElementById('booking-modal-summary').innerHTML = itemsHtml;
-        bookingModal.classList.remove('hidden');
-      });
+      }
 
       function simulateNextSprint() {
-        bookingModal.classList.add('hidden');
+        if (bookingModal) bookingModal.classList.add('hidden');
         showToast('Chuyển tiếp thành công: Dữ liệu ghế đã chọn sẽ chuyển tới Sprint 2 (Xác thực OTP) & Sprint 3 (Thanh toán đa kênh VNPAY/MoMo)!', 'success');
       }
 
@@ -1577,13 +1979,57 @@
       }
 
       // ==========================================
+      // 10. DYNAMIC STARFIELD ENGINE (PIXEL CONTRACT)
+      // ==========================================
+      function initStarfield() {
+        const stA = document.getElementById('stA');
+        const stB = document.getElementById('stB');
+        if (!stA || !stB) return;
+
+        function generateStars(count, size, palette) {
+          const stars = [];
+          const maxW = Math.max(window.innerWidth, 1920);
+          const maxH = Math.max(window.innerHeight, 2400);
+          for (let i = 0; i < count; i++) {
+            const x = Math.floor(Math.random() * maxW);
+            const y = Math.floor(Math.random() * maxH);
+            const color = palette[Math.floor(Math.random() * palette.length)];
+            stars.push(`${x}px ${y}px 0 ${size}px ${color}`);
+          }
+          return stars.join(', ');
+        }
+
+        // Layer A: 120 points, size 1px, opacity ~0.45 (White & Gold)
+        stA.style.boxShadow = generateStars(120, 0, [
+          'rgba(255, 255, 255, 0.45)',
+          'rgba(254, 240, 138, 0.42)',
+          'rgba(253, 230, 138, 0.38)',
+          'rgba(240, 249, 255, 0.35)'
+        ]);
+
+        // Layer B: 50 points, size 1.5px, opacity ~0.65 (Gleaming Gold & Crisp White)
+        stB.style.boxShadow = generateStars(50, 0.5, [
+          'rgba(255, 255, 255, 0.65)',
+          'rgba(253, 224, 71, 0.62)',
+          'rgba(250, 204, 21, 0.58)'
+        ]);
+      }
+
+      // ==========================================
       // INITIAL BOOTSTRAP
       // ==========================================
-      window.addEventListener('DOMContentLoaded', () => {
+      function bootstrap() {
+        initStarfield();
         generateSeats();
         renderSeats();
         initConcertCountdown();
-      });
+      }
+
+      if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', bootstrap);
+      } else {
+        bootstrap();
+      }
     </script>
   </body>
 </html>
