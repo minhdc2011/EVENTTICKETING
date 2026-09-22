@@ -1258,25 +1258,80 @@
               <!-- ZONES & SEATING GRIDS -->
               <div id="seats-wrapper" class="space-y-6">
                 
-                <!-- ZONE 1: VIP KIM CƯƠNG (FANZONE A / B) -->
-                <div id="zone-block-VIP" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                <!-- ZONE 1: VVIP DIAMOND -->
+                <div id="zone-block-VVIP" data-zone-code="VVIP_DIAMOND" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                       <span class="zone-glow-dot zone-glow-dot-vip"></span>
-                      <h4 class="font-bold text-sm text-amber-400">PHÂN KHU: VIP KIM CƯƠNG (FANZONE A & B)</h4>
+                      <h4 class="font-bold text-sm text-amber-400">PHÂN KHU: VVIP DIAMOND LOUNGE</h4>
                     </div>
                     <span class="text-xs font-semibold text-amber-300">3.500.000 VNĐ / ghế</span>
                   </div>
                   <div class="text-[11px] text-slate-400 mb-3">Sát chân sân khấu, tầm nhìn chân thực nhất</div>
                   
-                  <!-- Grid seats VIP -->
-                  <div id="grid-vip" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                  <div id="grid-vvip" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
                     <!-- Injected via JS -->
                   </div>
                 </div>
 
-                <!-- ZONE 2: KHÁN ĐÀI A (TẦNG 1) -->
-                <div id="zone-block-A" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                <!-- ZONE 2: VIP PLATINUM 1 -->
+                <div id="zone-block-VIP1" data-zone-code="VIP_PLATINUM_1" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-a"></span>
+                      <h4 class="font-bold text-sm text-blue-400">PHÂN KHU: VIP PLATINUM 1</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-blue-300">3.500.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Khu VIP Platinum 1, gồm hàng ghế VIP1-C và VIP1-D</div>
+                  <div id="grid-vip1" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- ZONE 3: GA FANZONE STANDING -->
+                <div id="zone-block-stand-1" data-zone-code="GA_STAND_1" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-c"></span>
+                      <h4 class="font-bold text-sm text-emerald-400">PHÂN KHU: GA FANZONE STANDING 1 (KHU A)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-300">2.200.000 VNĐ / vé</span>
+                  </div>
+                  <div class="glass-tile p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div class="font-semibold text-white text-sm">Khu vực vé đứng tự do (Standing Zone)</div>
+                      <div class="text-[11px] text-slate-400 mt-1">Không đánh số ghế cố định. Vé được kiểm soát theo số lượng.</div>
+                    </div>
+                    <div class="shrink-0 text-left sm:text-right">
+                      <div class="text-[11px] text-emerald-300 font-semibold">Tối đa 4 vé / đơn</div>
+                      <div class="text-[10px] text-slate-500 mt-1">Chọn số lượng ở bước thanh toán</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="zone-block-stand-2" data-zone-code="GA_STAND_2" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-c"></span>
+                      <h4 class="font-bold text-sm text-emerald-400">PHÂN KHU: GA FANZONE STANDING 2 (KHU B)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-300">1.800.000 VNĐ / vé</span>
+                  </div>
+                  <div class="glass-tile p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div class="font-semibold text-white text-sm">Khu vực vé đứng tự do (Standing Zone)</div>
+                      <div class="text-[11px] text-slate-400 mt-1">Không đánh số ghế cố định. Vé được kiểm soát theo số lượng.</div>
+                    </div>
+                    <div class="shrink-0 text-left sm:text-right">
+                      <div class="text-[11px] text-emerald-300 font-semibold">Tối đa 4 vé / đơn</div>
+                      <div class="text-[10px] text-slate-500 mt-1">Chọn số lượng ở bước thanh toán</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ZONE 4: KHÁN ĐÀI A (TẦNG 1) -->
+                <div id="zone-block-A" data-zone-code="ZONE_A_T1" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                       <span class="zone-glow-dot zone-glow-dot-a"></span>
@@ -1292,8 +1347,8 @@
                   </div>
                 </div>
 
-                <!-- ZONE 3: KHÁN ĐÀI B (TẦNG 2) -->
-                <div id="zone-block-B" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                <!-- ZONE 5: KHÁN ĐÀI B (TẦNG 2) -->
+                <div id="zone-block-B" data-zone-code="ZONE_B_T2" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                       <span class="zone-glow-dot zone-glow-dot-b"></span>
@@ -1309,8 +1364,8 @@
                   </div>
                 </div>
 
-                <!-- ZONE 4: KHÁN ĐÀI C (PHỔ THÔNG) -->
-                <div id="zone-block-C" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                <!-- ZONE 6: KHÁN ĐÀI C (PHỔ THÔNG) -->
+                <div id="zone-block-C" data-zone-code="ZONE_CD_UP" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                       <span class="zone-glow-dot zone-glow-dot-c"></span>
@@ -1732,6 +1787,7 @@
 
         Object.keys(ZONES).forEach(key => delete ZONES[key]);
         rawZones.map(normalizeZone).forEach(zone => {
+          ZONES[zone.code] = zone;
           if (!ZONES[zone.zoneKey]) {
             ZONES[zone.zoneKey] = zone;
           }
@@ -1741,15 +1797,13 @@
       }
 
       function updateZonePresentation() {
-        const zoneBlocks = { VIP: 'zone-block-VIP', A: 'zone-block-A', B: 'zone-block-B', C: 'zone-block-C' };
-        Object.entries(zoneBlocks).forEach(([zoneKey, blockId]) => {
-          const zone = ZONES[zoneKey];
-          const block = document.getElementById(blockId);
-          if (!block || !zone) return;
+        document.querySelectorAll('#seats-wrapper > .zone-block[data-zone-code]').forEach(block => {
+          const zone = ZONES[block.dataset.zoneCode];
+          if (!zone) return;
           const heading = block.querySelector('h4');
           const price = block.querySelector(':scope > div:first-of-type > span:last-child');
           if (heading) heading.textContent = `PHÂN KHU: ${zone.name.toUpperCase()}`;
-          if (price) price.textContent = `${formatVND(zone.price)} / ghế`;
+          if (price) price.textContent = `${formatVND(zone.price)} / ${zone.code.startsWith('GA_STAND') ? 'vé' : 'ghế'}`;
         });
 
         document.querySelectorAll('.zone-tab').forEach(tab => {
@@ -1777,14 +1831,16 @@
       // 2. RENDER SEATS INTO GRIDS
       // ==========================================
       function renderSeats() {
-        const gridVIP = document.getElementById('grid-vip');
+        const gridVVIP = document.getElementById('grid-vvip');
+        const gridVIP1 = document.getElementById('grid-vip1');
         const gridA = document.getElementById('grid-a');
         const gridB = document.getElementById('grid-b');
         const gridC = document.getElementById('grid-c');
 
-        if (!gridVIP || !gridA || !gridB || !gridC) return;
+        if (!gridVVIP || !gridVIP1 || !gridA || !gridB || !gridC) return;
 
-        gridVIP.innerHTML = '';
+        gridVVIP.innerHTML = '';
+        gridVIP1.innerHTML = '';
         gridA.innerHTML = '';
         gridB.innerHTML = '';
         gridC.innerHTML = '';
@@ -1845,23 +1901,22 @@
           // Event Listener: Click Interaction
           seatEl.addEventListener('click', () => handleSeatClick(seat));
 
-          // Append to corresponding grid
-          if (seat.zoneKey === 'VIP') gridVIP.appendChild(seatEl);
+          // Route by the source zone code so VVIP and VIP Platinum keep separate prices.
+          if (seat.zoneId === 1) gridVVIP.appendChild(seatEl);
+          else if (seat.zoneId === 2) gridVIP1.appendChild(seatEl);
           else if (seat.zoneKey === 'A') gridA.appendChild(seatEl);
           else if (seat.zoneKey === 'B') gridB.appendChild(seatEl);
           else if (seat.zoneKey === 'C') gridC.appendChild(seatEl);
         });
 
-        // Toggle zone container visibility if filtered
-        ['VIP', 'A', 'B', 'C'].forEach(zk => {
-          const zoneContainer = document.getElementById(`zone-block-${zk}`);
-          if (zoneContainer) {
-            if (currentZoneFilter === 'ALL' || currentZoneFilter === zk) {
-              zoneContainer.classList.remove('hidden');
-            } else {
-              zoneContainer.classList.add('hidden');
-            }
-          }
+        // Keep standing blocks visible as information panels, and hide empty seat-only blocks.
+        document.querySelectorAll('#seats-wrapper > .zone-block').forEach(zoneContainer => {
+          const zoneCode = zoneContainer.dataset.zoneCode;
+          const zoneKey = ZONE_KEY_BY_CODE[zoneCode] || 'C';
+          const grid = zoneContainer.querySelector('[id^="grid-"]');
+          const hasSeats = !grid || grid.children.length > 0;
+          const matchesFilter = currentZoneFilter === 'ALL' || currentZoneFilter === zoneKey;
+          zoneContainer.classList.toggle('hidden', !matchesFilter || !hasSeats);
         });
       }
 
