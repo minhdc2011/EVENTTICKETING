@@ -8,10 +8,10 @@
     <meta property="og:title" content="SUPER CONCERT 2026 — ĐẠI NHẠC HỘI NGOẠI THƯƠNG" />
     <meta property="og:description" content="Bản Demo Prototype Sprint 1 - Đặt vé & Sơ đồ chỗ ngồi tương tác" />
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts (Full Vietnamese Support) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Syne:wght@700;800&family=Space+Grotesk:wght@500;700&display=swap&subset=vietnamese" rel="stylesheet" />
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,8 +33,9 @@
             },
             fontFamily: {
               sans: ['"Be Vietnam Pro"', 'sans-serif'],
-              display: ['"Outfit"', 'sans-serif'],
-              serif: ['"Playfair Display"', 'serif']
+              display: ['"Be Vietnam Pro"', '"Syne"', 'sans-serif'],
+              syne: ['"Syne"', '"Be Vietnam Pro"', 'sans-serif'],
+              mono: ['"Space Grotesk"', 'monospace']
             }
           }
         }
@@ -42,9 +43,9 @@
     </script>
 
     <style>
-      /* Global Reset & Overflow Protection */
+      /* Global Reset & Overflow Protection (overflow-x: clip preserves position: sticky) */
       html, body {
-        overflow-x: hidden;
+        overflow-x: clip;
       }
       body {
         background-color: #05070B;
@@ -52,7 +53,8 @@
         font-family: 'Be Vietnam Pro', sans-serif;
       }
       .font-display {
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Be Vietnam Pro', 'Syne', sans-serif;
+        font-weight: 800;
       }
 
       /* Starfield Layers (Pixel Contract JS-driven) */
@@ -162,12 +164,114 @@
       @media (prefers-reduced-motion: reduce) {
         .entrance-badge,
         .entrance-headline,
-        .entrance-countdown {
+        .entrance-countdown,
+        .countdown-border-beam::before,
+        .countdown-ambient-glow::before {
           animation: none !important;
           opacity: 1 !important;
           transform: none !important;
           clip-path: none !important;
         }
+      }
+
+      /* =========================================================
+         COUNTDOWN ANIMATED GLOWING BORDER BEAM (BORDER TRAIL)
+         ========================================================= */
+      .countdown-beam-container {
+        position: relative;
+        border-radius: 20px;
+      }
+
+      /* Ambient soft halo that rotates synchronously with the laser beam */
+      .countdown-ambient-glow {
+        position: absolute;
+        inset: -3px;
+        border-radius: 23px;
+        overflow: hidden;
+        filter: blur(14px);
+        opacity: 0.7;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .countdown-ambient-glow::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 320%;
+        height: 320%;
+        transform: translate(-50%, -50%);
+        background: conic-gradient(
+          from 0deg,
+          transparent 0deg,
+          transparent 100deg,
+          rgba(245, 158, 11, 0.2) 130deg,
+          rgba(234, 179, 8, 0.75) 165deg,
+          #FDE047 180deg,
+          rgba(234, 179, 8, 0.75) 195deg,
+          rgba(245, 158, 11, 0.2) 230deg,
+          transparent 260deg,
+          transparent 360deg
+        );
+        animation: borderBeamSpin 5s linear infinite;
+      }
+
+      /* Border beam precision rim (1.5px hairline gap) */
+      .countdown-border-beam {
+        position: relative;
+        border-radius: 20px;
+        padding: 1.5px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.85);
+        z-index: 1;
+      }
+
+      /* Rotating high-intensity gold laser trail */
+      .countdown-border-beam::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 350%;
+        height: 350%;
+        transform: translate(-50%, -50%);
+        background: conic-gradient(
+          from 0deg,
+          transparent 0deg,
+          transparent 105deg,
+          rgba(245, 158, 11, 0.25) 135deg,
+          rgba(234, 179, 8, 0.95) 165deg,
+          #FFFBEB 180deg,
+          rgba(234, 179, 8, 0.95) 195deg,
+          rgba(245, 158, 11, 0.25) 225deg,
+          transparent 255deg,
+          transparent 360deg
+        );
+        animation: borderBeamSpin 5s linear infinite;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      @keyframes borderBeamSpin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      /* Dark luxury body (#0B0F17 / rgba(11, 15, 23, 0.96)) */
+      .countdown-card-inner {
+        position: relative;
+        border-radius: 18.5px;
+        background: rgba(11, 15, 23, 0.96) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        backdrop-filter: blur(20px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        z-index: 1;
       }
 
       /* Custom Tooltip */
@@ -193,8 +297,39 @@
         animation: slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
       /* =========================================================
-         MOTIONSITES PIXEL CONTRACT SPECIFICATIONS (§2, §4, §9)
+         LIQUID GLASS PREMIUM SPECIFICATION
          ========================================================= */
+      .liquid-glass {
+        background: rgba(13, 17, 23, 0.65) !important;
+        backdrop-filter: blur(16px) saturate(140%);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        border: none !important;
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 16px 36px -10px rgba(0, 0, 0, 0.7) !important;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .liquid-glass::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.35) 0%,
+          rgba(255, 255, 255, 0.10) 25%,
+          rgba(255, 255, 255, 0) 45%,
+          rgba(255, 255, 255, 0) 65%,
+          rgba(255, 255, 255, 0.08) 85%,
+          rgba(255, 255, 255, 0.25) 100%
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        z-index: 1;
+      }
 
       /* §4 NAV & §9 MOCK STYLE: THE GLASS CONTAINER SPEC */
       .glass-panel {
@@ -406,21 +541,21 @@
 
       <!-- Hero content -->
       <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <!-- Desktop: balanced 7:5 side-by-side grid, never stacked on desktop -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+        <!-- Desktop: balanced 7:5 side-by-side grid with ample breathing room -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center">
           
           <!-- Left Column (lg:col-span-7): Badge -> Title -> Subtitle -> Details -> CTAs -->
-          <div class="lg:col-span-7 space-y-6">
+          <div class="lg:col-span-7 space-y-5 sm:space-y-6">
             
             <!-- Pixel Contract A: Status Badge -->
             <div>
-              <div class="entrance-badge inline-flex items-center h-9 px-3 rounded-xl border border-white/[0.115] bg-gradient-to-t from-amber-500/[0.12] to-white/[0.015] backdrop-blur-md shadow-inner gap-2.5">
-                <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#f59e0b] to-[#0a1120] flex items-center justify-center shadow-inner text-amber-300">
+              <div class="entrance-badge inline-flex items-center h-8 sm:h-9 px-3 rounded-xl border border-white/[0.115] bg-gradient-to-t from-amber-500/[0.12] to-white/[0.015] backdrop-blur-md shadow-inner gap-2 sm:gap-2.5">
+                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-br from-[#f59e0b] to-[#0a1120] flex items-center justify-center shadow-inner text-amber-300 shrink-0">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-[0.08em] text-white/90">
+                <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.08em] text-white/90 whitespace-nowrap">
                   SỰ KIỆN ÂM NHẠC TRỌNG ĐIỂM 2026
                 </span>
               </div>
@@ -428,22 +563,22 @@
 
             <!-- H1 Typography with metallic gold gradient & entrance animation -->
             <div class="entrance-headline">
-              <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-white leading-tight uppercase">
+              <h1 class="text-3xl sm:text-4xl lg:text-[40px] xl:text-5xl font-black font-display tracking-tight text-white leading-tight uppercase">
                 SUPER CONCERT 2026
-                <span class="block text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-normal mt-1.5 bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-500">
+                <span class="block text-lg sm:text-2xl lg:text-[25px] xl:text-[32px] font-extrabold tracking-normal mt-2 sm:mt-2.5 pt-1 pb-0.5 leading-snug bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-500 font-['Be_Vietnam_Pro'] whitespace-nowrap">
                   ĐẠI NHẠC HỘI NGOẠI THƯƠNG
                 </span>
               </h1>
             </div>
 
-            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl font-light">
+            <p class="text-slate-300/90 text-sm sm:text-[15px] leading-relaxed max-w-xl font-normal">
               Đêm đại nhạc hội quy mô 40.000 khán giả hội tụ dàn nghệ sĩ hàng đầu Việt Nam, hệ thống âm thanh ánh sáng D&B Audiotechnik chuẩn quốc tế và trải nghiệm chọn vé thời gian thực.
             </p>
 
             <!-- Event Details Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-              <div class="p-3.5 rounded-[10px] glass-tile flex items-start space-x-3">
-                <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
+              <div class="p-3.5 rounded-2xl liquid-glass flex items-start space-x-3">
+                <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
                   <!-- Calendar icon -->
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -456,8 +591,8 @@
                 </div>
               </div>
 
-              <div class="p-3.5 rounded-[10px] glass-tile flex items-start space-x-3">
-                <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">
+              <div class="p-3.5 rounded-2xl liquid-glass flex items-start space-x-3">
+                <div class="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">
                   <!-- Map Pin icon -->
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -501,54 +636,58 @@
             </div>
           </div>
 
-          <!-- Right Column (lg:col-span-5): Realtime Countdown Box -->
+          <!-- Right Column (lg:col-span-5): Realtime Countdown Box with Animated Glowing Border Beam -->
           <div class="lg:col-span-5 entrance-countdown">
-            <div class="relative p-6 sm:p-7 glass-panel">
-              <!-- Top amber hairline highlight -->
-              <div class="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
+            <div class="countdown-beam-container">
+              <!-- Ambient Glow Layer tracking the border beam -->
+              <div class="countdown-ambient-glow" aria-hidden="true"></div>
 
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                  <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Trạng Thái Hệ Thống</span>
-                </div>
-                <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                  Sprint 1 Live Demo
-                </span>
-              </div>
+              <!-- Border Beam Rim (1.5px overflow-hidden) -->
+              <div class="countdown-border-beam rounded-2xl">
+                <!-- Deep dark inner body with Liquid Glass (#0B0F17 / rgba(11, 15, 23, 0.96)) -->
+                <div class="relative p-6 sm:p-7 countdown-card-inner rounded-2xl liquid-glass">
+                  <!-- Top amber hairline highlight -->
+                  <div class="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
 
-              <h2 class="text-lg font-bold text-white mb-1 tracking-tight">ĐẾM NGƯỢC GIỜ MỞ BÁN VÉ CHÍNH THỨC</h2>
-              <p class="text-xs text-slate-400 mb-5">Hệ thống mở bán trực tuyến và phân phối vé số lượng có hạn</p>
+                  <div class="flex items-center space-x-2 mb-4">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Trạng Thái Hệ Thống</span>
+                  </div>
 
-              <!-- Countdown Grid with Inset Shadow & Distinct Monospace Labels -->
-              <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center mb-6">
-                <div class="p-3 rounded-[10px] inset-dark-cell">
-                  <div id="countdown-days" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
-                  <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">NGÀY</div>
-                </div>
-                <div class="p-3 rounded-[10px] inset-dark-cell">
-                  <div id="countdown-hours" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
-                  <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">GIỜ</div>
-                </div>
-                <div class="p-3 rounded-[10px] inset-dark-cell">
-                  <div id="countdown-minutes" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
-                  <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">PHÚT</div>
-                </div>
-                <div class="p-3 rounded-[10px] inset-dark-cell">
-                  <div id="countdown-seconds" class="text-2xl sm:text-3xl font-black font-display text-amber-300 countdown-digit">00</div>
-                  <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">GIÂY</div>
-                </div>
-              </div>
+                  <h2 class="text-lg font-bold text-white mb-1 tracking-tight">ĐẾM NGƯỢC GIỜ MỞ BÁN VÉ CHÍNH THỨC</h2>
+                  <p class="text-xs text-slate-400 mb-5">Hệ thống mở bán trực tuyến và phân phối vé số lượng có hạn</p>
 
-              <!-- Realtime simulation controls -->
-              <div class="p-3 rounded-[10px] inset-dark-cell text-xs text-slate-400 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
-                  <span>Mục tiêu mở bán: <strong>10:00 - 01/10/2026</strong></span>
+                  <!-- Countdown Grid with Inset Shadow & Distinct Monospace Labels -->
+                  <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center mb-6">
+                    <div class="p-3 rounded-xl inset-dark-cell">
+                      <div id="countdown-days" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
+                      <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">NGÀY</div>
+                    </div>
+                    <div class="p-3 rounded-xl inset-dark-cell">
+                      <div id="countdown-hours" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
+                      <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">GIỜ</div>
+                    </div>
+                    <div class="p-3 rounded-xl inset-dark-cell">
+                      <div id="countdown-minutes" class="text-2xl sm:text-3xl font-black font-display text-amber-400 countdown-digit">00</div>
+                      <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">PHÚT</div>
+                    </div>
+                    <div class="p-3 rounded-xl inset-dark-cell">
+                      <div id="countdown-seconds" class="text-2xl sm:text-3xl font-black font-display text-amber-300 countdown-digit">00</div>
+                      <div class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">GIÂY</div>
+                    </div>
+                  </div>
+
+                  <!-- Realtime simulation controls -->
+                  <div class="p-3 rounded-xl inset-dark-cell text-xs text-slate-400 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                      </svg>
+                      <span>Mục tiêu mở bán: <strong>10:00 - 01/10/2026</strong></span>
+                    </div>
+                    <span class="text-[11px] text-emerald-400 font-mono font-semibold">Đang đồng bộ</span>
+                  </div>
                 </div>
-                <span class="text-[11px] text-emerald-400 font-mono font-semibold">Đang đồng bộ</span>
               </div>
             </div>
           </div>
@@ -559,18 +698,14 @@
     <!-- ARTIST LINEUP SECTION (DÀN NGHỆ SĨ KHÁCH MỜI) -->
     <section id="artist-lineup" class="py-12 border-b border-white/[0.085]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
-          <div>
-            <h2 class="text-2xl sm:text-3xl font-bold font-display text-white">DÀN NGHỆ SĨ KHÁCH MỜI (ARTIST LINEUP)</h2>
-            <p class="text-slate-400 text-xs sm:text-sm mt-1">Những ngôi sao sáng giá nhất quy tụ tại Super Concert 2026</p>
-          </div>
-          <span class="text-xs text-slate-500">6 Nghệ sĩ & Nhóm nhạc xác nhận tham gia</span>
+        <div class="mb-8">
+          <h2 class="text-2xl sm:text-3xl font-bold font-display text-white">DÀN NGHỆ SĨ KHÁCH MỜI (ARTIST LINEUP)</h2>
         </div>
 
         <!-- Artist Cards Grid (6-column on desktop) -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           <!-- Artist 1 -->
-          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+          <div class="group relative rounded-2xl overflow-hidden liquid-glass hover:scale-[1.02] transition-all duration-300">
             <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80"
@@ -579,7 +714,6 @@
                 referrerpolicy="no-referrer"
               />
               <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
-              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-amber-400 text-black shadow-md">HEADLINER</span>
             </div>
             <div class="p-3 text-center">
               <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">Sơn Tùng M-TP</h3>
@@ -588,7 +722,7 @@
           </div>
 
           <!-- Artist 2 -->
-          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+          <div class="group relative rounded-2xl overflow-hidden liquid-glass hover:scale-[1.02] transition-all duration-300">
             <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80"
@@ -597,7 +731,6 @@
                 referrerpolicy="no-referrer"
               />
               <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
-              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-red-600 text-white shadow-md">SPECIAL ACT</span>
             </div>
             <div class="p-3 text-center">
               <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">Soobin Hoàng Sơn</h3>
@@ -606,7 +739,7 @@
           </div>
 
           <!-- Artist 3 -->
-          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+          <div class="group relative rounded-2xl overflow-hidden liquid-glass hover:scale-[1.02] transition-all duration-300">
             <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80"
@@ -615,7 +748,6 @@
                 referrerpolicy="no-referrer"
               />
               <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
-              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-purple-600 text-white shadow-md">QUEEN OF HIPHOP</span>
             </div>
             <div class="p-3 text-center">
               <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">Suboi</h3>
@@ -624,7 +756,7 @@
           </div>
 
           <!-- Artist 4 -->
-          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+          <div class="group relative rounded-2xl overflow-hidden liquid-glass hover:scale-[1.02] transition-all duration-300">
             <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80"
@@ -633,7 +765,6 @@
                 referrerpolicy="no-referrer"
               />
               <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
-              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-cyan-600 text-white shadow-md">GUEST STAR</span>
             </div>
             <div class="p-3 text-center">
               <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">MONO</h3>
@@ -642,7 +773,7 @@
           </div>
 
           <!-- Artist 5 -->
-          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+          <div class="group relative rounded-2xl overflow-hidden liquid-glass hover:scale-[1.02] transition-all duration-300">
             <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=600&q=80"
@@ -651,7 +782,6 @@
                 referrerpolicy="no-referrer"
               />
               <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
-              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-emerald-600 text-white shadow-md">LIVE BAND</span>
             </div>
             <div class="p-3 text-center">
               <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">Chillies</h3>
@@ -660,7 +790,7 @@
           </div>
 
           <!-- Artist 6 -->
-          <div class="group relative rounded-[18px] overflow-hidden glass-panel hover:border-amber-400/50 transition-all duration-300">
+          <div class="group relative rounded-2xl overflow-hidden liquid-glass hover:scale-[1.02] transition-all duration-300">
             <div class="aspect-square w-full overflow-hidden bg-slate-900 relative">
               <img
                 src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=600&q=80"
@@ -669,7 +799,6 @@
                 referrerpolicy="no-referrer"
               />
               <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-transparent"></div>
-              <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-fuchsia-600 text-white shadow-md">DJ SET</span>
             </div>
             <div class="p-3 text-center">
               <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition font-display">DJ Mie</h3>
@@ -683,14 +812,13 @@
     <!-- PRICING & TIER SPECS (FR-T1-01) -->
     <section id="pricing-section" class="py-16 border-b border-white/[0.085] relative">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="text-center max-w-3xl mx-auto mb-12">
+        <div class="text-center max-w-3xl mx-auto mb-10">
           <h2 class="text-2xl sm:text-4xl font-extrabold font-display text-white">BẢNG GIÁ VÉ & QUYỀN LỢI PHÂN KHU</h2>
-          <p class="text-slate-400 text-sm mt-2">Niêm yết công khai theo đúng tài liệu SRS môn Phân tích & Thiết kế Hệ thống</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- Tier 1: VIP Kim Cương -->
-          <div class="relative rounded-[18px] glass-panel p-6 flex flex-col justify-between hover:border-amber-400/50 transition-all duration-300 overflow-hidden group">
+          <div class="relative rounded-2xl liquid-glass p-6 flex flex-col justify-between hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
             <!-- Dedicated accent top-line -->
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 shadow-sm shadow-amber-400/50"></div>
             
@@ -728,18 +856,18 @@
             <div class="mt-6 pt-4 border-t border-white/[0.08]">
               <button
                 onclick="filterByZone('VIP')"
-                class="btn-glow w-full py-3 rounded-xl text-slate-950 font-bold text-xs transition cursor-pointer shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5"
+                class="btn-glow w-full py-3 rounded-xl text-amber-300 hover:text-white font-extrabold text-xs transition cursor-pointer shadow-lg shadow-amber-500/25 flex items-center justify-center gap-1.5 border border-amber-500/30"
               >
-                <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                 </svg>
-                <span>BẤM CHỌN CHỖ NGỒI VIP</span>
+                <span class="text-amber-200 hover:text-white font-extrabold tracking-wide">BẤM CHỌN CHỖ NGỒI VIP</span>
               </button>
             </div>
           </div>
 
           <!-- Tier 2: Khán đài A -->
-          <div class="relative rounded-[18px] glass-panel p-6 flex flex-col justify-between hover:border-blue-400/50 transition-all duration-300 overflow-hidden group">
+          <div class="relative rounded-2xl liquid-glass p-6 flex flex-col justify-between hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
             <!-- Dedicated accent top-line -->
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 shadow-sm shadow-blue-400/50"></div>
 
@@ -777,7 +905,7 @@
             <div class="mt-6 pt-4 border-t border-white/[0.08]">
               <button
                 onclick="filterByZone('A')"
-                class="w-full py-3 rounded-[10px] ghost-tab hover:border-blue-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                class="w-full py-3 rounded-xl ghost-tab hover:border-blue-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
@@ -788,7 +916,7 @@
           </div>
 
           <!-- Tier 3: Khán đài B -->
-          <div class="relative rounded-[18px] glass-panel p-6 flex flex-col justify-between hover:border-purple-400/50 transition-all duration-300 overflow-hidden group">
+          <div class="relative rounded-2xl liquid-glass p-6 flex flex-col justify-between hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
             <!-- Dedicated accent top-line -->
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-purple-400 to-purple-600 shadow-sm shadow-purple-400/50"></div>
 
@@ -826,7 +954,7 @@
             <div class="mt-6 pt-4 border-t border-white/[0.08]">
               <button
                 onclick="filterByZone('B')"
-                class="w-full py-3 rounded-[10px] ghost-tab hover:border-purple-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                class="w-full py-3 rounded-xl ghost-tab hover:border-purple-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
@@ -837,7 +965,7 @@
           </div>
 
           <!-- Tier 4: Khán đài C -->
-          <div class="relative rounded-[18px] glass-panel p-6 flex flex-col justify-between hover:border-emerald-400/50 transition-all duration-300 overflow-hidden group">
+          <div class="relative rounded-2xl liquid-glass p-6 flex flex-col justify-between hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
             <!-- Dedicated accent top-line -->
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600 shadow-sm shadow-emerald-400/50"></div>
 
@@ -875,7 +1003,7 @@
             <div class="mt-6 pt-4 border-t border-white/[0.08]">
               <button
                 onclick="filterByZone('C')"
-                class="w-full py-3 rounded-[10px] ghost-tab hover:border-emerald-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                class="w-full py-3 rounded-xl ghost-tab hover:border-emerald-400/60 hover:text-white text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
@@ -892,25 +1020,24 @@
     <section id="seating-section" class="py-14">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <!-- Section Header -->
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
-          <div>
-            <h2 class="text-2xl sm:text-4xl font-extrabold font-display text-white">SƠ ĐỒ CHỖ NGỒI & CHỌN VÉ TRỰC QUAN</h2>
-            <p class="text-slate-400 text-xs sm:text-sm mt-1">
-              Rê chuột để xem thông tin ghế, click vào ghế màu xanh lá để tạm tính. Ghế màu xám đã bán.
-            </p>
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-7 gap-4">
+          <div class="shrink-0">
+            <h2 class="text-base sm:text-xl md:text-2xl lg:text-2xl xl:text-[28px] font-extrabold font-display text-white tracking-tight whitespace-nowrap">
+              SƠ ĐỒ CHỖ NGỒI & CHỌN VÉ TRỰC QUAN
+            </h2>
           </div>
 
           <!-- Color Legends (Mã màu chuẩn SRS) -->
-          <div class="flex flex-wrap items-center gap-4 glass-strip px-4 py-2.5 rounded-[14px] text-xs">
-            <div class="flex items-center gap-2">
+          <div class="flex flex-nowrap items-center gap-3 sm:gap-4 glass-strip px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs whitespace-nowrap overflow-x-auto shrink-0">
+            <div class="flex items-center gap-2 shrink-0">
               <span class="w-3.5 h-3.5 rounded-[5px] bg-[#22C55E] border border-white/20 shadow-sm shadow-emerald-500/30"></span>
               <span class="text-slate-300">Còn trống (#22C55E)</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="w-3.5 h-3.5 rounded-[5px] bg-white/[0.04] border border-white/[0.04]"></span>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="w-3.5 h-3.5 rounded-[5px] bg-slate-800/80 border border-slate-400/60 shadow-sm"></span>
               <span class="text-slate-400">Đã bán (#9CA3AF)</span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
               <span class="w-3.5 h-3.5 rounded-[5px] bg-[#EAB308] border border-amber-200 shadow-sm shadow-amber-500/30"></span>
               <span class="text-slate-200 font-semibold">Đang chọn (#EAB308)</span>
             </div>
@@ -918,23 +1045,23 @@
         </div>
 
         <!-- Filter & Search Toolbar (Mở rộng Should-Have) -->
-        <div class="mb-6 p-4 rounded-[14px] glass-strip flex flex-wrap items-center justify-between gap-4">
+        <div class="mb-6 p-4 rounded-2xl liquid-glass flex flex-wrap items-center justify-between gap-4">
           <!-- Zone Filter Tabs -->
           <div class="flex flex-wrap items-center gap-2 text-xs">
             <span class="text-slate-400 font-medium mr-1">Phân khu:</span>
-            <button onclick="filterByZone('ALL')" id="tab-zone-ALL" class="zone-tab active-gold-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
+            <button onclick="filterByZone('ALL')" id="tab-zone-ALL" class="zone-tab active-gold-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Tất cả (96 ghế)
             </button>
-            <button onclick="filterByZone('VIP')" id="tab-zone-VIP" class="zone-tab ghost-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
+            <button onclick="filterByZone('VIP')" id="tab-zone-VIP" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               VIP Kim Cương
             </button>
-            <button onclick="filterByZone('A')" id="tab-zone-A" class="zone-tab ghost-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
+            <button onclick="filterByZone('A')" id="tab-zone-A" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Khán đài A
             </button>
-            <button onclick="filterByZone('B')" id="tab-zone-B" class="zone-tab ghost-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
+            <button onclick="filterByZone('B')" id="tab-zone-B" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Khán đài B
             </button>
-            <button onclick="filterByZone('C')" id="tab-zone-C" class="zone-tab ghost-tab px-3 py-1.5 rounded-[10px] text-xs transition cursor-pointer">
+            <button onclick="filterByZone('C')" id="tab-zone-C" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Khán đài C
             </button>
           </div>
@@ -947,7 +1074,7 @@
                 type="text"
                 id="search-seat-input"
                 placeholder="Tìm mã ghế (VD: VIP-A, A1-02)..."
-                class="w-48 sm:w-56 px-3 py-1.5 pl-8 rounded-[10px] inset-dark-cell text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
+                class="w-48 sm:w-56 px-3 py-1.5 pl-8 rounded-xl inset-dark-cell text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
               />
               <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -955,11 +1082,11 @@
             </div>
 
             <!-- Zoom Controls -->
-            <div class="flex items-center inset-dark-cell rounded-[10px] p-1 text-xs">
-              <button id="btn-zoom-out" class="px-2 py-1 hover:bg-white/[0.08] rounded-[6px] text-slate-300 cursor-pointer" title="Thu nhỏ sơ đồ">-</button>
+            <div class="flex items-center inset-dark-cell rounded-xl p-1 text-xs">
+              <button id="btn-zoom-out" class="px-2 py-1 hover:bg-white/[0.08] rounded-lg text-slate-300 cursor-pointer" title="Thu nhỏ sơ đồ">-</button>
               <span id="zoom-level-text" class="px-2 font-mono text-slate-400">100%</span>
-              <button id="btn-zoom-in" class="px-2 py-1 hover:bg-white/[0.08] rounded-[6px] text-slate-300 cursor-pointer" title="Phóng to sơ đồ">+</button>
-              <button id="btn-zoom-reset" class="px-2 py-1 hover:bg-white/[0.08] rounded-[6px] text-amber-400 ml-1 text-[11px] cursor-pointer" title="Reset tỉ lệ">Reset</button>
+              <button id="btn-zoom-in" class="px-2 py-1 hover:bg-white/[0.08] rounded-lg text-slate-300 cursor-pointer" title="Phóng to sơ đồ">+</button>
+              <button id="btn-zoom-reset" class="px-2 py-1 hover:bg-white/[0.08] rounded-lg text-amber-400 ml-1 text-[11px] cursor-pointer" title="Reset tỉ lệ">Reset</button>
             </div>
           </div>
         </div>
@@ -967,7 +1094,7 @@
         <!-- MAIN LAYOUT: MAP (LEFT) + SIDEBAR SUMMARY (RIGHT) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <!-- LEFT 8 COLS: INTERACTIVE STAGE & SEAT MAP -->
-          <div class="lg:col-span-8 rounded-[18px] glass-panel p-4 sm:p-6 overflow-hidden relative shadow-2xl">
+          <div class="lg:col-span-8 rounded-2xl liquid-glass p-4 sm:p-6 overflow-hidden relative shadow-2xl">
             <!-- Stage Map Canvas Wrapper -->
             <div id="map-zoom-container" class="transition-transform duration-200 origin-top min-h-[560px]">
               
@@ -989,10 +1116,10 @@
               </div>
 
               <!-- ZONES & SEATING GRIDS -->
-              <div id="seats-wrapper" class="space-y-8">
+              <div id="seats-wrapper" class="space-y-6">
                 
                 <!-- ZONE 1: VIP KIM CƯƠNG (FANZONE A / B) -->
-                <div id="zone-block-VIP" class="zone-block p-4 sm:p-5 rounded-[14px] bg-amber-950/15 border border-amber-500/30">
+                <div id="zone-block-VIP" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                       <span class="zone-glow-dot zone-glow-dot-vip"></span>
@@ -1009,7 +1136,7 @@
                 </div>
 
                 <!-- ZONE 2: KHÁN ĐÀI A (TẦNG 1) -->
-                <div id="zone-block-A" class="zone-block p-4 sm:p-5 rounded-[14px] bg-blue-950/15 border border-blue-500/30">
+                <div id="zone-block-A" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                       <span class="zone-glow-dot zone-glow-dot-a"></span>
@@ -1026,7 +1153,7 @@
                 </div>
 
                 <!-- ZONE 3: KHÁN ĐÀI B (TẦNG 2) -->
-                <div id="zone-block-B" class="zone-block p-4 sm:p-5 rounded-[14px] bg-purple-950/15 border border-purple-500/30">
+                <div id="zone-block-B" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                       <span class="zone-glow-dot zone-glow-dot-b"></span>
@@ -1043,7 +1170,7 @@
                 </div>
 
                 <!-- ZONE 4: KHÁN ĐÀI C (PHỔ THÔNG) -->
-                <div id="zone-block-C" class="zone-block p-4 sm:p-5 rounded-[14px] bg-emerald-950/15 border border-emerald-500/30">
+                <div id="zone-block-C" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                       <span class="zone-glow-dot zone-glow-dot-c"></span>
@@ -1062,16 +1189,16 @@
               </div>
 
               <!-- Sound Control Booth (FOH) at back -->
-              <div class="mt-8 p-3 rounded-[10px] glass-tile text-center max-w-xs mx-auto">
+              <div class="mt-8 p-3 rounded-xl liquid-glass text-center max-w-xs mx-auto">
                 <div class="text-[11px] font-bold text-slate-400 tracking-wider">KHU KỸ THUẬT & ĐIỀU KHIỂN ÂM THANH (FOH)</div>
               </div>
             </div>
           </div>
 
           <!-- RIGHT 4 COLS: SELECTED TICKETS SUMMARY SIDEBAR (TẠM TÍNH VÉ ĐÃ CHỌN) -->
-          <div class="lg:col-span-4 sticky top-20 space-y-4">
+          <div class="lg:col-span-4 sticky top-24 z-20 space-y-4 self-start">
             
-            <div class="p-5 sm:p-6 rounded-[18px] glass-panel">
+            <div id="selected-tickets-summary-card" class="p-5 sm:p-6 rounded-2xl liquid-glass shadow-2xl">
               <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
                 <div class="flex items-center gap-2">
                   <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span>
@@ -1110,7 +1237,7 @@
               </div>
 
               <!-- 5-Minute Hold Countdown Simulation (FR-T3-01 / US-T1-01) -->
-              <div id="hold-timer-container" class="mt-4 p-3 rounded-[10px] inset-dark-cell border-amber-500/30 hidden">
+              <div id="hold-timer-container" class="mt-4 p-3 rounded-xl inset-dark-cell border-amber-500/30 hidden">
                 <div class="flex items-center justify-between text-xs">
                   <div class="flex items-center gap-1.5 text-amber-300 font-semibold">
                     <svg class="w-4 h-4 animate-spin text-amber-400" fill="none" viewBox="0 0 24 24">
@@ -1138,9 +1265,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                   </svg>
                 </button>
-                <div class="text-[10px] text-center text-slate-500 mt-2">
-                  Dữ liệu demo prototype chuyển tiếp cho Sprint 2 & Sprint 3
-                </div>
               </div>
             </div>
           </div>
@@ -1186,7 +1310,7 @@
     </footer>
 
     <!-- DYNAMIC TOOLTIP FOR SEAT HOVER (FR-T1-02 Should-Have) -->
-    <div id="seat-tooltip" class="opacity-0 glass-panel !rounded-[12px] text-white text-xs p-3 pointer-events-none min-w-[200px] border border-white/[0.12] shadow-2xl">
+    <div id="seat-tooltip" class="opacity-0 liquid-glass !rounded-xl text-white text-xs p-3 pointer-events-none min-w-[200px] shadow-2xl">
       <div class="flex items-center justify-between gap-2 border-b border-white/[0.08] pb-1.5 mb-1.5">
         <span id="tooltip-seat-code" class="font-black text-amber-400 font-mono text-sm">VIP-A-01</span>
         <span id="tooltip-seat-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">Còn trống</span>
@@ -1205,7 +1329,7 @@
 
     <!-- MODAL 1: TEAM & PROJECT INFO (BÁO CÁO NHÓM 4 FTU) -->
     <div id="team-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-      <div class="relative w-full max-w-xl rounded-[18px] glass-panel p-6 shadow-2xl">
+      <div class="relative w-full max-w-xl rounded-2xl liquid-glass p-6 shadow-2xl">
         <button id="btn-close-team-modal" class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
@@ -1218,7 +1342,7 @@
           </div>
         </div>
 
-        <div class="space-y-3 text-xs text-slate-300 mb-6 inset-dark-cell p-3.5 rounded-[10px]">
+        <div class="space-y-3 text-xs text-slate-300 mb-6 inset-dark-cell p-3.5 rounded-xl">
           <div><strong>Trường:</strong> Đại học Ngoại Thương (Foreign Trade University)</div>
           <div><strong>Khoa:</strong> Công nghệ và Khoa học Dữ liệu</div>
           <div><strong>Đề tài:</strong> EventTicketing — Nền tảng Quản lý Bán vé Sự kiện & Tối ưu Doanh thu Tự động</div>
@@ -1229,30 +1353,30 @@
         <div class="mb-5">
           <h4 class="font-semibold text-xs text-slate-200 uppercase tracking-wider mb-2">Danh sách thành viên nhóm 4:</h4>
           <div class="space-y-1.5 text-xs">
-            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
               <span>1. Nguyễn Sỹ Bách</span>
               <span class="font-mono text-slate-400">MSV: 2412960004</span>
             </div>
-            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
               <span>2. Trần Khánh Bình</span>
               <span class="font-mono text-slate-400">MSV: 2412960005</span>
             </div>
-            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
               <span>3. Nguyễn Khánh Huyền</span>
               <span class="font-mono text-slate-400">MSV: 2412960012</span>
             </div>
-            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
               <span class="text-amber-400 font-medium">4. Đặng Công Minh (Lead)</span>
               <span class="font-mono text-amber-400">MSV: 2412960016</span>
             </div>
-            <div class="p-2 rounded-[8px] inset-dark-cell flex justify-between">
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
               <span>5. Đỗ Nhật Quang</span>
               <span class="font-mono text-slate-400">MSV: 2412960021</span>
             </div>
           </div>
         </div>
 
-        <button id="btn-close-team-modal-2" class="w-full py-2.5 rounded-[10px] ghost-tab text-white font-medium text-xs transition cursor-pointer">
+        <button id="btn-close-team-modal-2" class="w-full py-2.5 rounded-xl ghost-tab text-white font-medium text-xs transition cursor-pointer">
           Đóng cửa sổ
         </button>
       </div>
@@ -1260,7 +1384,7 @@
 
     <!-- MODAL 2: TIMELINE LỊCH TRÌNH BIỂU DIỄN -->
     <div id="schedule-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-      <div class="relative w-full max-w-lg rounded-[18px] glass-panel p-6 shadow-2xl">
+      <div class="relative w-full max-w-lg rounded-2xl liquid-glass p-6 shadow-2xl">
         <button id="btn-close-schedule-modal" class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
@@ -1271,7 +1395,7 @@
         <div class="space-y-3.5 text-xs text-slate-300">
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">16:30</span>
-            <div class="p-2.5 rounded-[10px] inset-dark-cell w-full">
+            <div class="p-2.5 rounded-xl inset-dark-cell w-full">
               <div class="font-semibold text-white">Mở cổng check-in an ninh</div>
               <div class="text-[11px] text-slate-400">Quét mã QR soát vé cổng vào, phát vòng tay cho khán đài VIP/Fanzone</div>
             </div>
@@ -1279,7 +1403,7 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">17:45</span>
-            <div class="p-2.5 rounded-[10px] inset-dark-cell w-full">
+            <div class="p-2.5 rounded-xl inset-dark-cell w-full">
               <div class="font-semibold text-amber-300">Soundcheck VIP Exclusive</div>
               <div class="text-[11px] text-slate-400">Giao lưu sớm cùng nghệ sĩ dành riêng cho chủ nhân vé VIP Kim Cương</div>
             </div>
@@ -1287,7 +1411,7 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">18:30</span>
-            <div class="p-2.5 rounded-[10px] inset-dark-cell w-full">
+            <div class="p-2.5 rounded-xl inset-dark-cell w-full">
               <div class="font-semibold text-white">Warm-up DJ Set</div>
               <div class="text-[11px] text-slate-400">Set nhạc EDM hâm nóng bầu không khí cùng DJ Mie</div>
             </div>
@@ -1295,7 +1419,7 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">19:30</span>
-            <div class="p-2.5 rounded-[10px] inset-dark-cell border-amber-500/40 w-full">
+            <div class="p-2.5 rounded-xl inset-dark-cell border-amber-500/40 w-full">
               <div class="font-bold text-amber-400">KHAI MẠC ĐẠI NHẠC HỘI NGOẠI THƯƠNG</div>
               <div class="text-[11px] text-slate-300">Biểu diễn các tiết mục mở màn, Chillies, MONO, Suboi</div>
             </div>
@@ -1303,7 +1427,7 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">21:15</span>
-            <div class="p-2.5 rounded-[10px] inset-dark-cell border-red-500/40 w-full">
+            <div class="p-2.5 rounded-xl inset-dark-cell border-red-500/40 w-full">
               <div class="font-bold text-red-400">HEADLINER STAGE: Sơn Tùng M-TP & Soobin</div>
               <div class="text-[11px] text-slate-300">Chuỗi hit đỉnh cao kết hợp hiệu ứng pháo hoa và máy bay không người lái</div>
             </div>
@@ -1311,13 +1435,13 @@
 
           <div class="flex gap-3 items-start">
             <span class="font-mono font-bold text-amber-400 w-14 shrink-0">22:30</span>
-            <div class="p-2.5 rounded-[10px] inset-dark-cell w-full">
+            <div class="p-2.5 rounded-xl inset-dark-cell w-full">
               <div class="font-semibold text-slate-300">Bế mạc & Hướng dẫn ra về an toàn</div>
             </div>
           </div>
         </div>
 
-        <button id="btn-close-schedule-modal-2" class="w-full mt-6 py-2.5 rounded-[10px] ghost-tab text-white font-medium text-xs transition cursor-pointer">
+        <button id="btn-close-schedule-modal-2" class="w-full mt-6 py-2.5 rounded-xl ghost-tab text-white font-medium text-xs transition cursor-pointer">
           Đóng lịch trình
         </button>
       </div>
@@ -1325,7 +1449,7 @@
 
     <!-- MODAL 3: BOOKING SIMULATION SUCCESS (SPRINT 3 PREVIEW) -->
     <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
-      <div class="relative w-full max-w-md rounded-[18px] glass-panel border border-amber-500/50 p-6 shadow-2xl text-center">
+      <div class="relative w-full max-w-md rounded-2xl liquid-glass p-6 shadow-2xl text-center">
         <div class="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center mb-4">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
         </div>
@@ -1335,15 +1459,15 @@
           Ghế của bạn đã được khóa độc quyền trong <strong>5 phút (300 giây)</strong> theo chuẩn cơ chế Distributed Lock (FR-T3-01).
         </p>
 
-        <div id="booking-modal-summary" class="text-left inset-dark-cell p-4 rounded-[10px] text-xs space-y-2 mb-5">
+        <div id="booking-modal-summary" class="text-left inset-dark-cell p-4 rounded-xl text-xs space-y-2 mb-5">
           <!-- Dynamic details -->
         </div>
 
         <div class="flex gap-3">
-          <button id="btn-close-booking-modal" class="w-full py-2.5 rounded-[10px] ghost-tab text-slate-200 text-xs font-semibold cursor-pointer">
+          <button id="btn-close-booking-modal" class="w-full py-2.5 rounded-xl ghost-tab text-slate-200 text-xs font-semibold cursor-pointer">
             Tiếp tục xem sơ đồ
           </button>
-          <button onclick="simulateNextSprint()" class="w-full py-2.5 rounded-[10px] bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-lg shadow-amber-500/20 cursor-pointer">
+          <button onclick="simulateNextSprint()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-lg shadow-amber-500/20 cursor-pointer">
             Mô phỏng Sprint 3
           </button>
         </div>
