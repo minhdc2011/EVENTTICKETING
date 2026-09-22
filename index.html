@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="vi" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SUPER CONCERT 2026 — ĐẠI NHẠC HỘI NGOẠI THƯƠNG | EventTicketing</title>
+    <meta name="description" content="Demo Prototype Sprint 1: Web giới thiệu Concert & Lịch trình - Hệ thống EventTicketing ĐH Ngoại Thương (SRS Môn PTTKHT Nhóm 4)" />
+    <meta property="og:title" content="SUPER CONCERT 2026 — ĐẠI NHẠC HỘI NGOẠI THƯƠNG" />
+    <meta property="og:description" content="Bản Demo Prototype Sprint 1 - Đặt vé & Sơ đồ chỗ ngồi tương tác" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              seat: {
+                available: '#22C55E',
+                sold: '#9CA3AF',
+                selected: '#EAB308'
+              },
+              ftu: {
+                red: '#991B1B',
+                lightRed: '#EF4444'
+              }
+            },
+            fontFamily: {
+              sans: ['"Be Vietnam Pro"', 'sans-serif'],
+              display: ['"Outfit"', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+
+    <style>
+      /* Custom Concert Visual Polish */
+      body {
+        background-color: #07090e;
+        color: #f3f4f6;
+        font-family: 'Be Vietnam Pro', sans-serif;
+      }
+      .font-display {
+        font-family: 'Outfit', sans-serif;
+      }
+      /* Ambient Stage Glows */
+      .stage-glow {
+        background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.22) 0%, rgba(59, 130, 246, 0.12) 40%, rgba(7, 9, 14, 0) 75%);
+      }
+      .spotlight {
+        background: radial-gradient(ellipse at 50% 10%, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+      }
+      /* Custom Tooltip */
+      #seat-tooltip {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+        transform: translate(-50%, -115%);
+      }
+      /* Toast Animation */
+      @keyframes slideInUp {
+        from {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .toast-animate {
+        animation: slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      /* Seat Pulse on Hover */
+      .seat-node {
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+      }
+      .seat-node:hover:not(.seat-sold) {
+        transform: scale(1.22);
+        filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.7));
+      }
+      .seat-selected {
+        filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.85)) !important;
+        animation: pulseSelect 1.8s infinite;
+      }
+      @keyframes pulseSelect {
+        0%, 100% { transform: scale(1.1); }
+        50% { transform: scale(1.25); }
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0d1117;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #1f2937;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #374151;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-amber-400 selection:text-black">
+
+    <!-- MAIN HERO BANNER & CONCERT INFO (FR-T1-01) -->
+    <section id="concert-hero" class="relative overflow-hidden stage-glow border-b border-slate-800/80 pt-10 pb-16 sm:pt-16 sm:pb-24">
+      <div class="absolute inset-0 spotlight pointer-events-none"></div>
+
+      <!-- Hero content -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <!-- Left Column: Title & Metadata -->
+          <div class="lg:col-span-7 space-y-5">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-950/60 border border-red-600/40 text-red-300 text-xs font-semibold tracking-wide uppercase">
+              ★ Sự Kiện Âm Nhạc Trọng Điểm 2026
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-white leading-tight">
+              SUPER CONCERT 2026
+              <span class="block text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 text-2xl sm:text-4xl lg:text-5xl font-bold mt-1">
+                ĐẠI NHẠC HỘI NGOẠI THƯƠNG
+              </span>
+            </h1>
+
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+              Đêm đại nhạc hội quy mô 40.000 khán giả hội tụ dàn nghệ sĩ hàng đầu Việt Nam, hệ thống âm thanh ánh sáng D&B Audiotechnik chuẩn quốc tế và trải nghiệm chọn vé thời gian thực.
+            </p>
+
+            <!-- Event Details Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-start space-x-3">
+                <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <!-- Calendar icon -->
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-xs text-slate-400">Thời gian diễn ra</div>
+                  <div class="text-sm font-semibold text-white">19:30, Ngày 15/10/2026</div>
+                  <div class="text-[11px] text-amber-400/90">Mở cổng check-in từ 16:30</div>
+                </div>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-start space-x-3">
+                <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  <!-- Map Pin icon -->
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-xs text-slate-400">Địa điểm tổ chức</div>
+                  <div class="text-sm font-semibold text-white">SVĐ Quốc gia Mỹ Đình</div>
+                  <div class="text-[11px] text-slate-400">Đường Lê Đức Thọ, Nam Từ Liêm, Hà Nội</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex flex-wrap items-center gap-3 pt-2">
+              <a
+                href="#seating-section"
+                class="px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2"
+              >
+                <span>Xem sơ đồ & Chọn ghế ngay</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+              </a>
+
+              <a
+                href="#pricing-section"
+                class="px-5 py-3 rounded-xl font-medium border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition flex items-center gap-2"
+              >
+                <span>Bảng giá các hạng vé</span>
+              </a>
+
+              <button
+                id="btn-view-schedule"
+                class="px-4 py-3 rounded-xl font-medium text-xs border border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition"
+              >
+                Xem timeline lịch trình
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column: Realtime Countdown Box -->
+          <div class="lg:col-span-5">
+            <div class="relative p-6 sm:p-7 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/95 border border-slate-800 shadow-2xl backdrop-blur-xl">
+              <!-- Glow accent border -->
+              <div class="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
+
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Trạng Thái Hệ Thống</span>
+                </div>
+                <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                  Sprint 1 Live Demo
+                </span>
+              </div>
+
+              <h2 class="text-lg font-bold text-white mb-1">ĐẾM NGƯỢC GIỜ MỞ BÁN VÉ CHÍNH THỨC</h2>
+              <p class="text-xs text-slate-400 mb-5">Hệ thống mở bán trực tuyến và phân phối vé số lượng có hạn</p>
+
+              <!-- Countdown Grid -->
+              <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center mb-6">
+                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                  <div id="countdown-days" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-400">00</div>
+                  <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">NGÀY</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                  <div id="countdown-hours" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-400">00</div>
+                  <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">GIỜ</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                  <div id="countdown-minutes" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-400">00</div>
+                  <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">PHÚT</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                  <div id="countdown-seconds" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-300">00</div>
+                  <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">GIÂY</div>
+                </div>
+              </div>
+
+              <!-- Realtime simulation controls -->
+              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                  <span>Mục tiêu mở bán: <strong>10:00 - 01/10/2026</strong></span>
+                </div>
+                <span class="text-[11px] text-emerald-400 font-mono">Đang đồng bộ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARTIST LINEUP SECTION (DÀN NGHỆ SĨ KHÁCH MỜI) -->
+    <section id="artist-lineup" class="py-12 border-b border-slate-800 bg-[#090d14]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-bold font-display text-white">DÀN NGHỆ SĨ KHÁCH MỜI (ARTIST LINEUP)</h2>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1">Những ngôi sao sáng giá nhất quy tụ tại Super Concert 2026</p>
+          </div>
+          <span class="text-xs text-slate-500">6 Nghệ sĩ & Nhóm nhạc xác nhận tham gia</span>
+        </div>
+
+        <!-- Artist Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <!-- Artist 1 -->
+          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+              <img
+                src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80"
+                alt="Sơn Tùng M-TP"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerpolicy="no-referrer"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-black">HEADLINER</span>
+            </div>
+            <div class="p-3 text-center">
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">Sơn Tùng M-TP</h3>
+              <p class="text-[11px] text-slate-400">Pop / R&B</p>
+            </div>
+          </div>
+
+          <!-- Artist 2 -->
+          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+              <img
+                src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80"
+                alt="Soobin Hoàng Sơn"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerpolicy="no-referrer"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white">SPECIAL ACT</span>
+            </div>
+            <div class="p-3 text-center">
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">Soobin Hoàng Sơn</h3>
+              <p class="text-[11px] text-slate-400">R&B / Ballad</p>
+            </div>
+          </div>
+
+          <!-- Artist 3 -->
+          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+              <img
+                src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80"
+                alt="Suboi"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerpolicy="no-referrer"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-purple-600 text-white">QUEEN OF HIPHOP</span>
+            </div>
+            <div class="p-3 text-center">
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">Suboi</h3>
+              <p class="text-[11px] text-slate-400">Hip-hop / Rap</p>
+            </div>
+          </div>
+
+          <!-- Artist 4 -->
+          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+              <img
+                src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80"
+                alt="MONO"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerpolicy="no-referrer"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-600 text-white">GUEST STAR</span>
+            </div>
+            <div class="p-3 text-center">
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">MONO</h3>
+              <p class="text-[11px] text-slate-400">Dance-pop</p>
+            </div>
+          </div>
+
+          <!-- Artist 5 -->
+          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+              <img
+                src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=600&q=80"
+                alt="Ban nhạc Chillies"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerpolicy="no-referrer"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-600 text-white">LIVE BAND</span>
+            </div>
+            <div class="p-3 text-center">
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">Chillies</h3>
+              <p class="text-[11px] text-slate-400">Indie Pop / Rock</p>
+            </div>
+          </div>
+
+          <!-- Artist 6 -->
+          <div class="group relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all duration-300">
+            <div class="aspect-square w-full overflow-hidden bg-slate-800 relative">
+              <img
+                src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=600&q=80"
+                alt="DJ Mie"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerpolicy="no-referrer"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-fuchsia-600 text-white">DJ SET</span>
+            </div>
+            <div class="p-3 text-center">
+              <h3 class="font-bold text-sm text-white group-hover:text-amber-400 transition">DJ Mie</h3>
+              <p class="text-[11px] text-slate-400">EDM / Remix</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING & TIER SPECS (FR-T1-01) -->
+    <section id="pricing-section" class="py-14 border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="text-center max-w-3xl mx-auto mb-10">
+          <h2 class="text-2xl sm:text-4xl font-extrabold font-display text-white">BẢNG GIÁ VÉ & QUYỀN LỢI PHÂN KHU</h2>
+          <p class="text-slate-400 text-sm mt-2">Niêm yết công khai theo đúng tài liệu SRS môn Phân tích & Thiết kế Hệ thống</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Tier 1: VIP Kim Cương -->
+          <div class="relative rounded-2xl bg-slate-900/90 border-2 border-amber-500/60 p-6 flex flex-col justify-between hover:border-amber-400 transition-all shadow-xl shadow-amber-500/10">
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[11px] font-bold uppercase bg-amber-500 text-black shadow">
+              HẠNG CAO CẤP NHẤT
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-amber-400 tracking-wider uppercase">Fanzone A / B</span>
+                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2">VIP Kim Cương</h3>
+              <div class="mb-4">
+                <span class="text-3xl font-extrabold text-amber-400">3.500.000</span>
+                <span class="text-xs text-slate-400">VNĐ / vé</span>
+              </div>
+
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Vị trí Fanzone sát sân khấu trung tâm</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Tham gia buổi Soundcheck độc quyền</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Lối check-in Fast-track riêng biệt</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Bộ Gift set Concert & Thẻ đeo kỷ niệm</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800/80">
+              <button
+                onclick="filterByZone('VIP')"
+                class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs transition"
+              >
+                Lọc ghế VIP trên sơ đồ
+              </button>
+            </div>
+          </div>
+
+          <!-- Tier 2: Khán đài A -->
+          <div class="relative rounded-2xl bg-slate-900/90 border border-slate-700/80 p-6 flex flex-col justify-between hover:border-blue-400/60 transition-all">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase">Tầng 1 (Trực diện)</span>
+                <span class="w-3 h-3 rounded-full bg-blue-400"></span>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2">Khán đài A</h3>
+              <div class="mb-4">
+                <span class="text-3xl font-extrabold text-blue-400">2.200.000</span>
+                <span class="text-xs text-slate-400">VNĐ / vé</span>
+              </div>
+
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Ghế ngồi tầng 1 đối diện sân khấu</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Tầm nhìn thẳng chính diện góc 0 độ</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Ghế tựa đệm lưng có số ghế chỉ định</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Hỗ trợ quầy nước F&B tầng 1</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800/80">
+              <button
+                onclick="filterByZone('A')"
+                class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition"
+              >
+                Lọc ghế Khán đài A
+              </button>
+            </div>
+          </div>
+
+          <!-- Tier 3: Khán đài B -->
+          <div class="relative rounded-2xl bg-slate-900/90 border border-slate-700/80 p-6 flex flex-col justify-between hover:border-purple-400/60 transition-all">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-purple-400 tracking-wider uppercase">Tầng 2 (Toàn cảnh)</span>
+                <span class="w-3 h-3 rounded-full bg-purple-400"></span>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2">Khán đài B</h3>
+              <div class="mb-4">
+                <span class="text-3xl font-extrabold text-purple-400">1.500.000</span>
+                <span class="text-xs text-slate-400">VNĐ / vé</span>
+              </div>
+
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Ghế ngồi tầng 2 khán đài phía Tây/Đông</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Góc nhìn cao bao quát toàn bộ pháo hoa</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Trải nghiệm hiệu ứng ánh sáng flycam</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Số ghế niêm yết rõ ràng</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800/80">
+              <button
+                onclick="filterByZone('B')"
+                class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition"
+              >
+                Lọc ghế Khán đài B
+              </button>
+            </div>
+          </div>
+
+          <!-- Tier 4: Khán đài C -->
+          <div class="relative rounded-2xl bg-slate-900/90 border border-slate-700/80 p-6 flex flex-col justify-between hover:border-emerald-400/60 transition-all">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-emerald-400 tracking-wider uppercase">Phổ thông</span>
+                <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2">Khán đài C</h3>
+              <div class="mb-4">
+                <span class="text-3xl font-extrabold text-emerald-400">800.000</span>
+                <span class="text-xs text-slate-400">VNĐ / vé</span>
+              </div>
+
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Mức giá tiếp cận phù hợp sinh viên</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Hòa mình vào bầu không khí náo nhiệt</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Hệ thống 4 màn hình LED Delay sắc nét</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Đầy đủ tiện ích an ninh y tế sân vận động</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800/80">
+              <button
+                onclick="filterByZone('C')"
+                class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition"
+              >
+                Lọc ghế Khán đài C
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTERACTIVE SEATING MAP (FR-T1-02 & SHOULD-HAVE EXTENSIONS) -->
+    <section id="seating-section" class="py-14 bg-[#090d14]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <!-- Section Header -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
+          <div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold font-display text-white">SƠ ĐỒ CHỖ NGỒI & CHỌN VÉ TRỰC QUAN</h2>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1">
+              Rê chuột để xem thông tin ghế, click vào ghế màu xanh lá để tạm tính. Ghế màu xám đã bán.
+            </p>
+          </div>
+
+          <!-- Color Legends (Mã màu chuẩn SRS) -->
+          <div class="flex flex-wrap items-center gap-4 bg-slate-900/90 border border-slate-800 px-4 py-2.5 rounded-xl text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-md bg-[#22C55E] shadow-sm shadow-emerald-500/50"></span>
+              <span class="text-slate-300">Còn trống (#22C55E)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-md bg-[#9CA3AF] opacity-80"></span>
+              <span class="text-slate-400">Đã bán (#9CA3AF)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-md bg-[#EAB308] shadow-sm shadow-amber-500/50"></span>
+              <span class="text-slate-200 font-semibold">Đang chọn (#EAB308)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar (Mở rộng Should-Have) -->
+        <div class="mb-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <!-- Zone Filter Tabs -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 font-medium mr-1">Phân khu:</span>
+            <button onclick="filterByZone('ALL')" id="tab-zone-ALL" class="zone-tab px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold transition">
+              Tất cả (96 ghế)
+            </button>
+            <button onclick="filterByZone('VIP')" id="tab-zone-VIP" class="zone-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700 transition">
+              VIP Kim Cương
+            </button>
+            <button onclick="filterByZone('A')" id="tab-zone-A" class="zone-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700 transition">
+              Khán đài A
+            </button>
+            <button onclick="filterByZone('B')" id="tab-zone-B" class="zone-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700 transition">
+              Khán đài B
+            </button>
+            <button onclick="filterByZone('C')" id="tab-zone-C" class="zone-tab px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700 transition">
+              Khán đài C
+            </button>
+          </div>
+
+          <!-- Status Filter & Search -->
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Search input -->
+            <div class="relative">
+              <input
+                type="text"
+                id="search-seat-input"
+                placeholder="Tìm mã ghế (VD: VIP-A, A-02)..."
+                class="w-48 sm:w-56 px-3 py-1.5 pl-8 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+              />
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+
+            <!-- Zoom Controls -->
+            <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg p-1 text-xs">
+              <button id="btn-zoom-out" class="px-2 py-1 hover:bg-slate-800 rounded text-slate-300" title="Thu nhỏ sơ đồ">-</button>
+              <span id="zoom-level-text" class="px-2 font-mono text-slate-400">100%</span>
+              <button id="btn-zoom-in" class="px-2 py-1 hover:bg-slate-800 rounded text-slate-300" title="Phóng to sơ đồ">+</button>
+              <button id="btn-zoom-reset" class="px-2 py-1 hover:bg-slate-800 rounded text-amber-400 ml-1 text-[11px]" title="Reset tỉ lệ">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN LAYOUT: MAP (LEFT) + SIDEBAR SUMMARY (RIGHT) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <!-- LEFT 8 COLS: INTERACTIVE STAGE & SEAT MAP -->
+          <div class="lg:col-span-8 rounded-2xl bg-slate-950 border border-slate-800 p-4 sm:p-6 overflow-hidden relative shadow-2xl">
+            <!-- Stage Map Canvas Wrapper -->
+            <div id="map-zoom-container" class="transition-transform duration-200 origin-top min-h-[560px]">
+              
+              <!-- SÂN KHẤU TRUNG TÂM (STAGE HEADER) -->
+              <div class="relative w-full max-w-xl mx-auto mb-10 text-center">
+                <!-- Light beams -->
+                <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-gradient-to-b from-amber-400/20 via-blue-500/10 to-transparent blur-md pointer-events-none"></div>
+
+                <!-- Stage Platform -->
+                <div class="relative py-4 px-8 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-black text-base sm:text-lg tracking-widest uppercase shadow-xl shadow-amber-500/20 border border-amber-300">
+                  ★ SÂN KHẤU TRUNG TÂM (MAIN STAGE) ★
+                  <div class="text-[10px] tracking-normal font-medium text-slate-900 mt-0.5">Hệ thống LED màn cong 360° & Bàn nâng nghệ sĩ</div>
+                </div>
+
+                <!-- Catwalk runway extending forward -->
+                <div class="w-20 h-10 mx-auto bg-gradient-to-b from-amber-500 to-amber-700/80 border-x border-b border-amber-400/50 rounded-b-md flex items-center justify-center text-[9px] font-bold text-slate-950">
+                  CATWALK
+                </div>
+              </div>
+
+              <!-- ZONES & SEATING GRIDS -->
+              <div id="seats-wrapper" class="space-y-8">
+                
+                <!-- ZONE 1: VIP KIM CƯƠNG (FANZONE A / B) -->
+                <div id="zone-block-VIP" class="zone-block p-4 sm:p-5 rounded-xl bg-amber-950/10 border border-amber-500/30">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                      <h4 class="font-bold text-sm text-amber-400">PHÂN KHU: VIP KIM CƯƠNG (FANZONE A & B)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-amber-300">3.500.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Sát chân sân khấu, tầm nhìn chân thực nhất</div>
+                  
+                  <!-- Grid seats VIP -->
+                  <div id="grid-vip" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- ZONE 2: KHÁN ĐÀI A (TẦNG 1) -->
+                <div id="zone-block-A" class="zone-block p-4 sm:p-5 rounded-xl bg-blue-950/10 border border-blue-500/30">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="w-3 h-3 rounded-full bg-blue-400"></span>
+                      <h4 class="font-bold text-sm text-blue-400">PHÂN KHU: KHÁN ĐÀI A (TẦNG 1 - CHÍNH DIỆN)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-blue-300">2.200.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Ghế đệm ngồi trung tâm đối diện sân khấu</div>
+
+                  <!-- Grid seats A -->
+                  <div id="grid-a" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- ZONE 3: KHÁN ĐÀI B (TẦNG 2) -->
+                <div id="zone-block-B" class="zone-block p-4 sm:p-5 rounded-xl bg-purple-950/10 border border-purple-500/30">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="w-3 h-3 rounded-full bg-purple-400"></span>
+                      <h4 class="font-bold text-sm text-purple-400">PHÂN KHU: KHÁN ĐÀI B (TẦNG 2 - TOÀN CẢNH)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-purple-300">1.500.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Tầm nhìn cao toàn diện bao quát sân vận động</div>
+
+                  <!-- Grid seats B -->
+                  <div id="grid-b" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- ZONE 4: KHÁN ĐÀI C (PHỔ THÔNG) -->
+                <div id="zone-block-C" class="zone-block p-4 sm:p-5 rounded-xl bg-emerald-950/10 border border-emerald-500/30">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                      <h4 class="font-bold text-sm text-emerald-400">PHÂN KHU: KHÁN ĐÀI C (PHỔ THÔNG TIÊU CHUẨN)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-300">800.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Không gian sôi động phù hợp cho đông đảo sinh viên</div>
+
+                  <!-- Grid seats C -->
+                  <div id="grid-c" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Sound Control Booth (FOH) at back -->
+              <div class="mt-8 p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center max-w-xs mx-auto">
+                <div class="text-[11px] font-bold text-slate-400 tracking-wider">KHU KỸ THUẬT & ĐIỀU KHIỂN ÂM THANH (FOH)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT 4 COLS: SELECTED TICKETS SUMMARY SIDEBAR (TẠM TÍNH VÉ ĐÃ CHỌN) -->
+          <div class="lg:col-span-4 sticky top-20 space-y-4">
+            
+            <div class="p-5 sm:p-6 rounded-2xl bg-slate-900/95 border border-slate-800 shadow-2xl backdrop-blur-md">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                  <h3 class="font-bold text-base text-white">TẠM TÍNH VÉ ĐÃ CHỌN</h3>
+                </div>
+                <button
+                  id="btn-clear-all-seats"
+                  class="text-xs text-red-400 hover:text-red-300 transition hidden"
+                >
+                  Xóa tất cả
+                </button>
+              </div>
+
+              <!-- Selected Seats List Container -->
+              <div id="selected-seats-list" class="my-4 space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                <!-- Empty State -->
+                <div id="empty-seats-msg" class="py-8 text-center text-slate-500 text-xs">
+                  <svg class="w-8 h-8 mx-auto mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                  </svg>
+                  <span>Chưa có ghế nào được chọn.</span>
+                  <p class="text-[11px] text-slate-600 mt-1">Hãy click vào các ghế màu xanh lá trên sơ đồ.</p>
+                </div>
+              </div>
+
+              <!-- Total calculation -->
+              <div class="border-t border-slate-800 pt-4 space-y-2 text-xs">
+                <div class="flex justify-between text-slate-400">
+                  <span>Số lượng vé:</span>
+                  <span id="summary-count" class="font-bold text-white">0 / 4 vé</span>
+                </div>
+                <div class="flex justify-between items-baseline pt-1">
+                  <span class="font-medium text-slate-300">Tổng tiền tạm tính:</span>
+                  <span id="summary-total" class="text-xl font-black text-amber-400 font-display">0 VNĐ</span>
+                </div>
+              </div>
+
+              <!-- 5-Minute Hold Countdown Simulation (FR-T3-01 / US-T1-01) -->
+              <div id="hold-timer-container" class="mt-4 p-3 rounded-xl bg-slate-950 border border-amber-500/30 hidden">
+                <div class="flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-1.5 text-amber-300 font-semibold">
+                    <svg class="w-4 h-4 animate-spin text-amber-400" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Mô phỏng Khóa giữ chỗ:</span>
+                  </div>
+                  <span id="hold-countdown" class="font-mono font-bold text-amber-400 text-sm">05:00</span>
+                </div>
+                <div class="text-[10px] text-slate-400 mt-1">
+                  (Theo FR-T3-01: Giữ chỗ đúng 300 giây độc quyền, chống Double-booking)
+                </div>
+              </div>
+
+              <!-- Proceed Button -->
+              <div class="mt-5">
+                <button
+                  id="btn-proceed-booking"
+                  disabled
+                  class="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed hover:from-amber-400 hover:to-amber-500 transition-all flex items-center justify-center gap-2"
+                >
+                  <span>Tiến hành giữ chỗ & Thanh toán</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </button>
+                <div class="text-[10px] text-center text-slate-500 mt-2">
+                  Dữ liệu demo prototype chuyển tiếp cho Sprint 2 & Sprint 3
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800 bg-[#07090e] py-8 text-xs text-slate-400">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="text-center md:text-left text-slate-500 text-xs">
+          © 2026 SUPER CONCERT — ĐẠI NHẠC HỘI NGOẠI THƯƠNG. All rights reserved.
+        </div>
+
+        <div class="flex items-center gap-4 text-slate-300">
+          <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-amber-400 transition flex items-center gap-1">
+            <span>Lên đầu trang</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <!-- DYNAMIC TOOLTIP FOR SEAT HOVER (FR-T1-02 Should-Have) -->
+    <div id="seat-tooltip" class="opacity-0 bg-slate-900 text-white text-xs rounded-xl p-3 border border-slate-700 shadow-2xl backdrop-blur-md pointer-events-none min-w-[200px]">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-1.5 mb-1.5">
+        <span id="tooltip-seat-code" class="font-black text-amber-400 font-mono text-sm">VIP-A-01</span>
+        <span id="tooltip-seat-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">Còn trống</span>
+      </div>
+      <div class="space-y-1 text-slate-300 text-[11px]">
+        <div>Phân khu: <strong id="tooltip-zone" class="text-white">VIP Kim Cương</strong></div>
+        <div>Vị trí: Hàng <strong id="tooltip-row" class="text-white">A</strong>, Ghế <strong id="tooltip-number" class="text-white">01</strong></div>
+        <div class="text-amber-300 pt-1 text-xs">Giá vé: <strong id="tooltip-price" class="text-sm font-bold text-white">3.500.000 VNĐ</strong></div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER (For click sold seat or validation) -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none">
+      <!-- Toasts dynamically appended here -->
+    </div>
+
+    <!-- MODAL 1: TEAM & PROJECT INFO (BÁO CÁO NHÓM 4 FTU) -->
+    <div id="team-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+      <div class="relative w-full max-w-xl rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-2xl">
+        <button id="btn-close-team-modal" class="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-red-950 border border-red-700 flex items-center justify-center font-bold text-red-400">FTU</div>
+          <div>
+            <h3 class="font-bold text-base text-white">THÔNG TIN ĐỒ ÁN & THÀNH VIÊN NHÓM 4</h3>
+            <p class="text-xs text-slate-400">Báo cáo Đặc tả Yêu cầu Hệ thống (SRS) — Tháng 9/2026</p>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs text-slate-300 mb-6 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+          <div><strong>Trường:</strong> Đại học Ngoại Thương (Foreign Trade University)</div>
+          <div><strong>Khoa:</strong> Công nghệ và Khoa học Dữ liệu</div>
+          <div><strong>Đề tài:</strong> EventTicketing — Nền tảng Quản lý Bán vé Sự kiện & Tối ưu Doanh thu Tự động</div>
+          <div><strong>Lớp tín chỉ:</strong> COSH301(2627 - HK1)GĐ1+2.1</div>
+          <div><strong>Giảng viên hướng dẫn:</strong> TS. Phạm Thị Kim Dung</div>
+        </div>
+
+        <div class="mb-5">
+          <h4 class="font-semibold text-xs text-slate-200 uppercase tracking-wider mb-2">Danh sách thành viên nhóm 4:</h4>
+          <div class="space-y-1.5 text-xs">
+            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+              <span>1. Nguyễn Sỹ Bách</span>
+              <span class="font-mono text-slate-400">MSV: 2412960004</span>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+              <span>2. Trần Khánh Bình</span>
+              <span class="font-mono text-slate-400">MSV: 2412960005</span>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+              <span>3. Nguyễn Khánh Huyền</span>
+              <span class="font-mono text-slate-400">MSV: 2412960012</span>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+              <span class="text-amber-400 font-medium">4. Đặng Công Minh (Lead)</span>
+              <span class="font-mono text-amber-400">MSV: 2412960016</span>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-800/80 flex justify-between">
+              <span>5. Đỗ Nhật Quang</span>
+              <span class="font-mono text-slate-400">MSV: 2412960021</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-close-team-modal-2" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition">
+          Đóng cửa sổ
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 2: TIMELINE LỊCH TRÌNH BIỂU DIỄN -->
+    <div id="schedule-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+      <div class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-2xl">
+        <button id="btn-close-schedule-modal" class="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <h3 class="font-bold text-lg text-white mb-1">LỊCH TRÌNH SUPER CONCERT 2026</h3>
+        <p class="text-xs text-slate-400 mb-5">Thứ Năm, Ngày 15/10/2026 tại SVĐ Quốc gia Mỹ Đình</p>
+
+        <div class="space-y-3.5 text-xs text-slate-300">
+          <div class="flex gap-3 items-start">
+            <span class="font-mono font-bold text-amber-400 w-14 shrink-0">16:30</span>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 w-full">
+              <div class="font-semibold text-white">Mở cổng check-in an ninh</div>
+              <div class="text-[11px] text-slate-400">Quét mã QR soát vé cổng vào, phát vòng tay cho khán đài VIP/Fanzone</div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 items-start">
+            <span class="font-mono font-bold text-amber-400 w-14 shrink-0">17:45</span>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 w-full">
+              <div class="font-semibold text-amber-300">Soundcheck VIP Exclusive</div>
+              <div class="text-[11px] text-slate-400">Giao lưu sớm cùng nghệ sĩ dành riêng cho chủ nhân vé VIP Kim Cương</div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 items-start">
+            <span class="font-mono font-bold text-amber-400 w-14 shrink-0">18:30</span>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 w-full">
+              <div class="font-semibold text-white">Warm-up DJ Set</div>
+              <div class="text-[11px] text-slate-400">Set nhạc EDM hâm nóng bầu không khí cùng DJ Mie</div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 items-start">
+            <span class="font-mono font-bold text-amber-400 w-14 shrink-0">19:30</span>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-amber-500/40 w-full">
+              <div class="font-bold text-amber-400">KHAI MẠC ĐẠI NHẠC HỘI NGOẠI THƯƠNG</div>
+              <div class="text-[11px] text-slate-300">Biểu diễn các tiết mục mở màn, Chillies, MONO, Suboi</div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 items-start">
+            <span class="font-mono font-bold text-amber-400 w-14 shrink-0">21:15</span>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-red-500/40 w-full">
+              <div class="font-bold text-red-400">HEADLINER STAGE: Sơn Tùng M-TP & Soobin</div>
+              <div class="text-[11px] text-slate-300">Chuỗi hit đỉnh cao kết hợp hiệu ứng pháo hoa và máy bay không người lái</div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 items-start">
+            <span class="font-mono font-bold text-amber-400 w-14 shrink-0">22:30</span>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 w-full">
+              <div class="font-semibold text-slate-300">Bế mạc & Hướng dẫn ra về an toàn</div>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-close-schedule-modal-2" class="w-full mt-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition">
+          Đóng lịch trình
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 3: BOOKING SIMULATION SUCCESS (SPRINT 3 PREVIEW) -->
+    <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
+      <div class="relative w-full max-w-md rounded-2xl bg-slate-900 border border-amber-500/50 p-6 shadow-2xl text-center">
+        <div class="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center mb-4">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+
+        <h3 class="text-xl font-extrabold text-white mb-1">GIỮ CHỖ THÀNH CÔNG!</h3>
+        <p class="text-xs text-slate-400 mb-4">
+          Ghế của bạn đã được khóa độc quyền trong <strong>5 phút (300 giây)</strong> theo chuẩn cơ chế Distributed Lock (FR-T3-01).
+        </p>
+
+        <div id="booking-modal-summary" class="text-left bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-2 mb-5">
+          <!-- Dynamic details -->
+        </div>
+
+        <div class="flex gap-3">
+          <button id="btn-close-booking-modal" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold">
+            Tiếp tục xem sơ đồ
+          </button>
+          <button onclick="simulateNextSprint()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-lg shadow-amber-500/20">
+            Mô phỏng Sprint 3
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC (SENIOR FRONTEND IMPLEMENTATION) -->
+    <script>
+      // ==========================================
+      // 1. DATA DEFINITIONS & SEAT CATALOG
+      // ==========================================
+      const ZONES = {
+        VIP: {
+          name: 'VIP Kim Cương (Fanzone A/B)',
+          price: 3500000,
+          color: '#EAB308',
+          rows: ['VIP-A', 'VIP-B'],
+          seatsPerRow: 12
+        },
+        A: {
+          name: 'Khán đài A (Tầng 1)',
+          price: 2200000,
+          color: '#3B82F6',
+          rows: ['A1', 'A2'],
+          seatsPerRow: 12
+        },
+        B: {
+          name: 'Khán đài B (Tầng 2)',
+          price: 1500000,
+          color: '#A855F7',
+          rows: ['B1', 'B2'],
+          seatsPerRow: 12
+        },
+        C: {
+          name: 'Khán đài C (Phổ thông)',
+          price: 800000,
+          color: '#10B981',
+          rows: ['C1', 'C2'],
+          seatsPerRow: 12
+        }
+      };
+
+      // 96 Seats Catalog (Standard SRS Demo: >= 30-50 seats, perfectly balanced)
+      let seatsData = [];
+      let selectedSeatIds = new Set();
+      let currentZoneFilter = 'ALL';
+      let currentSearchQuery = '';
+      let holdTimerInterval = null;
+      let holdTimeRemaining = 300; // 5 minutes (300 seconds)
+
+      // Initialize Seats with realistic sold/available distribution
+      function generateSeats() {
+        seatsData = [];
+        // Fixed seed indices of sold seats for consistent demo realism
+        const soldIndexesVIP = [1, 4, 7, 10, 14, 18, 20];
+        const soldIndexesA = [0, 3, 5, 8, 11, 15, 19, 21, 23];
+        const soldIndexesB = [2, 6, 9, 13, 16, 22];
+        const soldIndexesC = [5, 7, 12, 17, 18, 23];
+
+        Object.keys(ZONES).forEach(zoneKey => {
+          const zone = ZONES[zoneKey];
+          let indexInZone = 0;
+
+          zone.rows.forEach(rowCode => {
+            for (let seatNum = 1; seatNum <= zone.seatsPerRow; seatNum++) {
+              const seatId = `${rowCode}-${seatNum.toString().padStart(2, '0')}`;
+              let isSold = false;
+
+              if (zoneKey === 'VIP' && soldIndexesVIP.includes(indexInZone)) isSold = true;
+              if (zoneKey === 'A' && soldIndexesA.includes(indexInZone)) isSold = true;
+              if (zoneKey === 'B' && soldIndexesB.includes(indexInZone)) isSold = true;
+              if (zoneKey === 'C' && soldIndexesC.includes(indexInZone)) isSold = true;
+
+              seatsData.push({
+                id: seatId,
+                zoneKey: zoneKey,
+                zoneName: zone.name,
+                row: rowCode,
+                number: seatNum,
+                price: zone.price,
+                status: isSold ? 'SOLD' : 'AVAILABLE' // 'AVAILABLE' | 'SOLD' | 'SELECTED'
+              });
+
+              indexInZone++;
+            }
+          });
+        });
+      }
+
+      // ==========================================
+      // 2. RENDER SEATS INTO GRIDS
+      // ==========================================
+      function renderSeats() {
+        const gridVIP = document.getElementById('grid-vip');
+        const gridA = document.getElementById('grid-a');
+        const gridB = document.getElementById('grid-b');
+        const gridC = document.getElementById('grid-c');
+
+        gridVIP.innerHTML = '';
+        gridA.innerHTML = '';
+        gridB.innerHTML = '';
+        gridC.innerHTML = '';
+
+        seatsData.forEach(seat => {
+          const isSelected = selectedSeatIds.has(seat.id);
+          const isSold = seat.status === 'SOLD';
+
+          // Check zone filter
+          const zoneMatch = (currentZoneFilter === 'ALL' || currentZoneFilter === seat.zoneKey);
+          // Check search query
+          const searchMatch = !currentSearchQuery || seat.id.toLowerCase().includes(currentSearchQuery.toLowerCase());
+
+          const isVisible = zoneMatch && searchMatch;
+
+          // Seat element
+          const seatEl = document.createElement('button');
+          seatEl.type = 'button';
+          seatEl.id = `seat-btn-${seat.id}`;
+          seatEl.setAttribute('data-seat-id', seat.id);
+
+          // Seat classes according to SRS color specification
+          let bgClass = '';
+          if (isSelected) {
+            // Vàng (#EAB308): Ghế đang được click chọn tạm tính
+            bgClass = 'bg-[#EAB308] text-black border-amber-300 font-bold seat-selected shadow-lg';
+          } else if (isSold) {
+            // Xám mờ (#9CA3AF): Ghế đã bán (Sold)
+            bgClass = 'bg-[#9CA3AF]/40 border-slate-700 text-slate-500 cursor-not-allowed seat-sold';
+          } else {
+            // Xanh lá (#22C55E): Ghế còn trống (Available)
+            bgClass = 'bg-[#22C55E] text-slate-950 border-emerald-400/80 font-medium seat-available hover:bg-[#16a34a]';
+          }
+
+          seatEl.className = `seat-node relative flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-lg border text-[10px] sm:text-xs font-mono select-none transition-all ${bgClass} ${isVisible ? 'block' : 'opacity-20 scale-90'}`;
+
+          seatEl.innerHTML = `
+            <span class="leading-none font-bold">${seat.id}</span>
+            <span class="text-[8px] leading-tight opacity-75 hidden sm:inline">${(seat.price / 1000000).toFixed(1)}M</span>
+          `;
+
+          // Event Listeners: Hover Tooltip
+          seatEl.addEventListener('mouseenter', (e) => showSeatTooltip(e, seat));
+          seatEl.addEventListener('mousemove', (e) => moveSeatTooltip(e));
+          seatEl.addEventListener('mouseleave', hideSeatTooltip);
+
+          // Event Listener: Click Interaction
+          seatEl.addEventListener('click', () => handleSeatClick(seat));
+
+          // Append to corresponding grid
+          if (seat.zoneKey === 'VIP') gridVIP.appendChild(seatEl);
+          else if (seat.zoneKey === 'A') gridA.appendChild(seatEl);
+          else if (seat.zoneKey === 'B') gridB.appendChild(seatEl);
+          else if (seat.zoneKey === 'C') gridC.appendChild(seatEl);
+        });
+
+        // Toggle zone container visibility if filtered
+        ['VIP', 'A', 'B', 'C'].forEach(zk => {
+          const zoneContainer = document.getElementById(`zone-block-${zk}`);
+          if (zoneContainer) {
+            if (currentZoneFilter === 'ALL' || currentZoneFilter === zk) {
+              zoneContainer.classList.remove('hidden');
+            } else {
+              zoneContainer.classList.add('hidden');
+            }
+          }
+        });
+      }
+
+      // ==========================================
+      // 3. SEAT INTERACTION & LOGIC
+      // ==========================================
+      function handleSeatClick(seat) {
+        if (seat.status === 'SOLD') {
+          // SRS REQUIREMENT: Nếu click vào ghế màu xám: Hiển thị toast thông báo "Ghế này đã có người mua!"
+          showToast(`Ghế ${seat.id} này đã có người mua! Vui lòng chọn ghế màu xanh lá.`, 'error');
+          // Shake effect on the seat
+          const el = document.getElementById(`seat-btn-${seat.id}`);
+          if (el) {
+            el.classList.add('animate-ping');
+            setTimeout(() => el.classList.remove('animate-ping'), 400);
+          }
+          return;
+        }
+
+        if (selectedSeatIds.has(seat.id)) {
+          // Unselect
+          selectedSeatIds.delete(seat.id);
+          showToast(`Đã bỏ chọn ghế ${seat.id}`, 'info');
+        } else {
+          // Check limit 4 tickets (FR-T2-02)
+          if (selectedSeatIds.size >= 4) {
+            showToast('Bạn chỉ được chọn tối đa 4 vé trên mỗi tài khoản (Quy định SRS FR-T2-02)', 'warning');
+            return;
+          }
+          // Select
+          selectedSeatIds.add(seat.id);
+          showToast(`Đã chọn ghế ${seat.id} (${formatVND(seat.price)})`, 'success');
+        }
+
+        updateSidebar();
+        renderSeats();
+      }
+
+      // ==========================================
+      // 4. SIDEBAR SUMMARY UPDATE (TẠM TÍNH VÉ ĐÃ CHỌN)
+      // ==========================================
+      function updateSidebar() {
+        const listContainer = document.getElementById('selected-seats-list');
+        const emptyMsg = document.getElementById('empty-seats-msg');
+        const summaryCount = document.getElementById('summary-count');
+        const summaryTotal = document.getElementById('summary-total');
+        const proceedBtn = document.getElementById('btn-proceed-booking');
+        const clearBtn = document.getElementById('btn-clear-all-seats');
+        const holdTimerContainer = document.getElementById('hold-timer-container');
+
+        if (selectedSeatIds.size === 0) {
+          listContainer.innerHTML = '';
+          listContainer.appendChild(emptyMsg);
+          emptyMsg.classList.remove('hidden');
+          summaryCount.innerText = '0 / 4 vé';
+          summaryTotal.innerText = '0 VNĐ';
+          proceedBtn.disabled = true;
+          clearBtn.classList.add('hidden');
+          holdTimerContainer.classList.add('hidden');
+          stopHoldCountdown();
+          return;
+        }
+
+        emptyMsg.classList.add('hidden');
+        clearBtn.classList.remove('hidden');
+        holdTimerContainer.classList.remove('hidden');
+
+        // Start 5-min Hold Countdown if not already running
+        if (!holdTimerInterval) {
+          startHoldCountdown();
+        }
+
+        // Render selected items
+        listContainer.innerHTML = '';
+        let totalAmount = 0;
+
+        selectedSeatIds.forEach(seatId => {
+          const seat = seatsData.find(s => s.id === seatId);
+          if (!seat) return;
+          totalAmount += seat.price;
+
+          const itemEl = document.createElement('div');
+          itemEl.className = 'p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-2 text-xs hover:border-amber-500/40 transition';
+          itemEl.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#EAB308]"></span>
+              <div>
+                <div class="font-mono font-bold text-white">${seat.id}</div>
+                <div class="text-[10px] text-slate-400">${seat.zoneName}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-bold text-amber-400 text-xs">${formatVND(seat.price)}</span>
+              <button
+                onclick="removeSingleSeat('${seat.id}')"
+                class="p-1 rounded text-slate-500 hover:text-red-400 hover:bg-slate-800 transition"
+                title="Bỏ ghế này"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          `;
+          listContainer.appendChild(itemEl);
+        });
+
+        summaryCount.innerText = `${selectedSeatIds.size} / 4 vé`;
+        summaryTotal.innerText = formatVND(totalAmount);
+        proceedBtn.disabled = false;
+      }
+
+      function removeSingleSeat(seatId) {
+        selectedSeatIds.delete(seatId);
+        showToast(`Đã bỏ chọn ghế ${seatId}`, 'info');
+        updateSidebar();
+        renderSeats();
+      }
+
+      function clearAllSeats() {
+        if (selectedSeatIds.size === 0) return;
+        selectedSeatIds.clear();
+        showToast('Đã xóa tất cả ghế đã chọn', 'info');
+        updateSidebar();
+        renderSeats();
+      }
+
+      // ==========================================
+      // 5. COUNTDOWN TIMER SIMULATION (FR-T3-01 5 PHÚT GIỮ CHỖ)
+      // ==========================================
+      function startHoldCountdown() {
+        holdTimeRemaining = 300; // 5 minutes
+        updateHoldTimerDisplay();
+        clearInterval(holdTimerInterval);
+        holdTimerInterval = setInterval(() => {
+          holdTimeRemaining--;
+          updateHoldTimerDisplay();
+          if (holdTimeRemaining <= 0) {
+            stopHoldCountdown();
+            selectedSeatIds.clear();
+            updateSidebar();
+            renderSeats();
+            showToast('Đã hết hạn giữ chỗ 5 phút! Ghế đã được tự động mở lại theo chuẩn FR-T3-01.', 'warning');
+          }
+        }, 1000);
+      }
+
+      function stopHoldCountdown() {
+        clearInterval(holdTimerInterval);
+        holdTimerInterval = null;
+      }
+
+      function updateHoldTimerDisplay() {
+        const timerEl = document.getElementById('hold-countdown');
+        if (!timerEl) return;
+        const mins = Math.floor(holdTimeRemaining / 60).toString().padStart(2, '0');
+        const secs = (holdTimeRemaining % 60).toString().padStart(2, '0');
+        timerEl.innerText = `${mins}:${secs}`;
+      }
+
+      // ==========================================
+      // 6. REALTIME CONCERT COUNTDOWN TIMER (HEADER)
+      // ==========================================
+      function initConcertCountdown() {
+        // Concert date: 19:30, Ngày 15/10/2026
+        const targetDate = new Date('2026-10-15T19:30:00+07:00').getTime();
+
+        function update() {
+          const now = new Date().getTime();
+          const distance = targetDate - now;
+
+          if (distance <= 0) {
+            document.getElementById('countdown-days').innerText = '00';
+            document.getElementById('countdown-hours').innerText = '00';
+            document.getElementById('countdown-minutes').innerText = '00';
+            document.getElementById('countdown-seconds').innerText = '00';
+            return;
+          }
+
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          document.getElementById('countdown-days').innerText = days.toString().padStart(2, '0');
+          document.getElementById('countdown-hours').innerText = hours.toString().padStart(2, '0');
+          document.getElementById('countdown-minutes').innerText = minutes.toString().padStart(2, '0');
+          document.getElementById('countdown-seconds').innerText = seconds.toString().padStart(2, '0');
+        }
+
+        update();
+        setInterval(update, 1000);
+      }
+
+      // ==========================================
+      // 7. TOOLTIP LOGIC (FR-T1-02 Should-Have)
+      // ==========================================
+      const tooltip = document.getElementById('seat-tooltip');
+
+      function showSeatTooltip(e, seat) {
+        const isSelected = selectedSeatIds.has(seat.id);
+        const isSold = seat.status === 'SOLD';
+
+        document.getElementById('tooltip-seat-code').innerText = seat.id;
+        document.getElementById('tooltip-zone').innerText = seat.zoneName;
+        document.getElementById('tooltip-row').innerText = seat.row;
+        document.getElementById('tooltip-number').innerText = seat.number;
+        document.getElementById('tooltip-price').innerText = formatVND(seat.price);
+
+        const statusEl = document.getElementById('tooltip-seat-status');
+        if (isSelected) {
+          statusEl.innerText = 'Đang chọn tạm tính';
+          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+        } else if (isSold) {
+          statusEl.innerText = 'Đã bán';
+          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300';
+        } else {
+          statusEl.innerText = 'Còn trống';
+          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        }
+
+        tooltip.style.opacity = '1';
+        moveSeatTooltip(e);
+      }
+
+      function moveSeatTooltip(e) {
+        tooltip.style.left = `${e.clientX}px`;
+        tooltip.style.top = `${e.clientY - 12}px`;
+      }
+
+      function hideSeatTooltip() {
+        tooltip.style.opacity = '0';
+      }
+
+      // ==========================================
+      // 8. TOAST NOTIFICATIONS (MÃ MÀU VÀ PHẢN HỒI)
+      // ==========================================
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+
+        let borderClass = 'border-slate-700 bg-slate-900 text-slate-200';
+        let iconSvg = `<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+        if (type === 'error') {
+          borderClass = 'border-red-600/70 bg-red-950/90 text-red-200 shadow-red-900/40';
+          iconSvg = `<svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+        } else if (type === 'success') {
+          borderClass = 'border-emerald-600/70 bg-emerald-950/90 text-emerald-200 shadow-emerald-900/40';
+          iconSvg = `<svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+        } else if (type === 'warning') {
+          borderClass = 'border-amber-600/70 bg-amber-950/90 text-amber-200 shadow-amber-900/40';
+          iconSvg = `<svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        }
+
+        toast.className = `toast-animate pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border text-xs shadow-2xl backdrop-blur-md max-w-sm ${borderClass}`;
+        toast.innerHTML = `
+          ${iconSvg}
+          <span class="flex-1 font-medium leading-tight">${message}</span>
+        `;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(10px)';
+          toast.style.transition = 'all 0.25s ease';
+          setTimeout(() => toast.remove(), 250);
+        }, 3600);
+      }
+
+      // ==========================================
+      // 9. FILTERS & SEARCH (MỞ RỘNG SHOULD-HAVE)
+      // ==========================================
+      function filterByZone(zoneKey) {
+        currentZoneFilter = zoneKey;
+
+        // Update active tab styles
+        document.querySelectorAll('.zone-tab').forEach(tab => {
+          tab.classList.remove('bg-amber-500', 'text-black', 'font-semibold');
+          tab.classList.add('bg-slate-800', 'text-slate-300', 'font-medium');
+        });
+
+        const activeTab = document.getElementById(`tab-zone-${zoneKey}`);
+        if (activeTab) {
+          activeTab.classList.remove('bg-slate-800', 'text-slate-300', 'font-medium');
+          activeTab.classList.add('bg-amber-500', 'text-black', 'font-semibold');
+        }
+
+        renderSeats();
+
+        // Smooth scroll to seating section if triggered from pricing table
+        const seatingSection = document.getElementById('seating-section');
+        if (seatingSection) {
+          seatingSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+
+      // Search Seat Input Handler
+      const searchInput = document.getElementById('search-seat-input');
+      searchInput.addEventListener('input', (e) => {
+        currentSearchQuery = e.target.value.trim();
+        renderSeats();
+      });
+
+      // Zoom Controls Handler
+      let currentZoom = 1;
+      const zoomContainer = document.getElementById('map-zoom-container');
+      const zoomText = document.getElementById('zoom-level-text');
+
+      document.getElementById('btn-zoom-in').addEventListener('click', () => {
+        if (currentZoom < 1.4) {
+          currentZoom += 0.1;
+          applyZoom();
+        }
+      });
+      document.getElementById('btn-zoom-out').addEventListener('click', () => {
+        if (currentZoom > 0.7) {
+          currentZoom -= 0.1;
+          applyZoom();
+        }
+      });
+      document.getElementById('btn-zoom-reset').addEventListener('click', () => {
+        currentZoom = 1;
+        applyZoom();
+      });
+
+      function applyZoom() {
+        zoomContainer.style.transform = `scale(${currentZoom})`;
+        zoomText.innerText = `${Math.round(currentZoom * 100)}%`;
+      }
+
+      // Academic SRS Toggle Handler (safe guard)
+      const toggleSrsBtn = document.getElementById('toggle-srs-badge-btn');
+      if (toggleSrsBtn) {
+        let srsBadgesVisible = true;
+        const srsStatusText = document.getElementById('srs-status-text');
+        toggleSrsBtn.addEventListener('click', () => {
+          srsBadgesVisible = !srsBadgesVisible;
+          const badges = document.querySelectorAll('.srs-badge');
+          badges.forEach(b => {
+            b.style.display = srsBadgesVisible ? 'inline-flex' : 'none';
+          });
+          if (srsStatusText) srsStatusText.innerText = srsBadgesVisible ? 'BẬT' : 'TẮT';
+        });
+      }
+
+      // Clear all seats button
+      document.getElementById('btn-clear-all-seats').addEventListener('click', clearAllSeats);
+
+      // Modal Triggers
+      const teamModal = document.getElementById('team-modal');
+      const scheduleModal = document.getElementById('schedule-modal');
+      const bookingModal = document.getElementById('booking-modal');
+
+      const btnOpenTeam = document.getElementById('btn-open-team-info');
+      if (btnOpenTeam) {
+        btnOpenTeam.addEventListener('click', () => teamModal.classList.remove('hidden'));
+      }
+      document.getElementById('btn-close-team-modal').addEventListener('click', () => teamModal.classList.add('hidden'));
+      document.getElementById('btn-close-team-modal-2').addEventListener('click', () => teamModal.classList.add('hidden'));
+
+      document.getElementById('btn-view-schedule').addEventListener('click', () => scheduleModal.classList.remove('hidden'));
+      document.getElementById('btn-close-schedule-modal').addEventListener('click', () => scheduleModal.classList.add('hidden'));
+      document.getElementById('btn-close-schedule-modal-2').addEventListener('click', () => scheduleModal.classList.add('hidden'));
+
+      document.getElementById('btn-close-booking-modal').addEventListener('click', () => bookingModal.classList.add('hidden'));
+
+      // Proceed Booking Action (Modal Preview)
+      document.getElementById('btn-proceed-booking').addEventListener('click', () => {
+        if (selectedSeatIds.size === 0) return;
+
+        let itemsHtml = '';
+        let total = 0;
+        selectedSeatIds.forEach(id => {
+          const s = seatsData.find(x => x.id === id);
+          if (s) {
+            total += s.price;
+            itemsHtml += `
+              <div class="flex justify-between py-1 border-b border-slate-900">
+                <span class="font-mono text-amber-400">${s.id} (${s.zoneName})</span>
+                <span class="text-white">${formatVND(s.price)}</span>
+              </div>
+            `;
+          }
+        });
+
+        itemsHtml += `
+          <div class="flex justify-between font-bold text-white pt-2 text-sm">
+            <span>Tổng cộng (${selectedSeatIds.size} vé):</span>
+            <span class="text-amber-400 font-display">${formatVND(total)}</span>
+          </div>
+        `;
+
+        document.getElementById('booking-modal-summary').innerHTML = itemsHtml;
+        bookingModal.classList.remove('hidden');
+      });
+
+      function simulateNextSprint() {
+        bookingModal.classList.add('hidden');
+        showToast('Chuyển tiếp thành công: Dữ liệu ghế đã chọn sẽ chuyển tới Sprint 2 (Xác thực OTP) & Sprint 3 (Thanh toán đa kênh VNPAY/MoMo)!', 'success');
+      }
+
+      // Format Currency (VNĐ)
+      function formatVND(amount) {
+        return new Intl.NumberFormat('vi-VN').format(amount) + ' VNĐ';
+      }
+
+      // ==========================================
+      // INITIAL BOOTSTRAP
+      // ==========================================
+      window.addEventListener('DOMContentLoaded', () => {
+        generateSeats();
+        renderSeats();
+        initConcertCountdown();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "EventTicketing - Super Concert 2026",
+  "description": "Demo Prototype Sprint 1: Web giới thiệu Concert & Lịch trình - Hệ thống EventTicketing ĐH Ngoại Thương",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
