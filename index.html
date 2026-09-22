@@ -528,6 +528,21 @@
         filter: none !important;
       }
 
+      .seat-held,
+      .seat-node.seat-held {
+        background: rgba(245, 158, 11, 0.18) !important;
+        border: 1px solid rgba(245, 158, 11, 0.4) !important;
+        color: #fcd34d !important;
+        opacity: 0.7 !important;
+        cursor: not-allowed !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+      }
+      .seat-held:hover,
+      .seat-node.seat-held:hover {
+        transform: none !important;
+        filter: none !important;
+      }
+
       /* Selected (#EAB308): Vibrant amber with pulse and active highlight */
       .seat-selected,
       .seat-node.seat-selected {
@@ -1175,7 +1190,7 @@
           <div class="flex flex-wrap items-center gap-2 text-xs">
             <span class="text-slate-400 font-medium mr-1">Phân khu:</span>
             <button onclick="filterByZone('ALL')" id="tab-zone-ALL" class="zone-tab active-gold-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
-              Tất cả (96 ghế)
+              Tất cả (48 ghế)
             </button>
             <button onclick="filterByZone('VIP')" id="tab-zone-VIP" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               VIP Kim Cương
@@ -1604,38 +1619,39 @@
       // ==========================================
       // 1. DATA DEFINITIONS & SEAT CATALOG
       // ==========================================
-      const ZONES = {
-        VIP: {
-          name: 'VIP Kim Cương (Fanzone A/B)',
-          price: 3500000,
-          color: '#EAB308',
-          rows: ['VIP-A', 'VIP-B'],
-          seatsPerRow: 12
-        },
-        A: {
-          name: 'Khán đài A (Tầng 1)',
-          price: 2200000,
-          color: '#3B82F6',
-          rows: ['A1', 'A2'],
-          seatsPerRow: 12
-        },
-        B: {
-          name: 'Khán đài B (Tầng 2)',
-          price: 1500000,
-          color: '#A855F7',
-          rows: ['B1', 'B2'],
-          seatsPerRow: 12
-        },
-        C: {
-          name: 'Khán đài C (Phổ thông)',
-          price: 800000,
-          color: '#10B981',
-          rows: ['C1', 'C2'],
-          seatsPerRow: 12
-        }
+      const ZONES = {};
+      const ZONE_KEY_BY_CODE = {
+        VVIP_DIAMOND: 'VIP',
+        VIP_PLATINUM_1: 'VIP',
+        VIP_PLATINUM_2: 'VIP',
+        GA_STAND_1: 'C',
+        GA_STAND_2: 'C',
+        ZONE_A_T1: 'A',
+        ZONE_B_T2: 'B',
+        ZONE_CD_UP: 'C'
       };
 
-      // 96 Seats Catalog (Standard SRS Demo: >= 30-50 seats, perfectly balanced)
+      const FALLBACK_ZONES = [
+        { KhuVucID: 1, MaKhuVuc: 'VVIP_DIAMOND', TenKhuVuc: 'VVIP Diamond Lounge', GiaVeNiemYet: 4500000, MauSacHex: '#D500F9' },
+        { KhuVucID: 2, MaKhuVuc: 'VIP_PLATINUM_1', TenKhuVuc: 'VIP Platinum 1', GiaVeNiemYet: 3500000, MauSacHex: '#2979FF' },
+        { KhuVucID: 3, MaKhuVuc: 'VIP_PLATINUM_2', TenKhuVuc: 'VIP Platinum 2', GiaVeNiemYet: 3000000, MauSacHex: '#00B0FF' },
+        { KhuVucID: 4, MaKhuVuc: 'GA_STAND_1', TenKhuVuc: 'GA Fanzone Standing 1 (Khu A)', GiaVeNiemYet: 2200000, MauSacHex: '#00E676' },
+        { KhuVucID: 5, MaKhuVuc: 'GA_STAND_2', TenKhuVuc: 'GA Fanzone Standing 2 (Khu B)', GiaVeNiemYet: 1800000, MauSacHex: '#76FF03' },
+        { KhuVucID: 6, MaKhuVuc: 'ZONE_A_T1', TenKhuVuc: 'Khán đài A Tầng 1 (Tribune A)', GiaVeNiemYet: 1500000, MauSacHex: '#FF9100' },
+        { KhuVucID: 7, MaKhuVuc: 'ZONE_B_T2', TenKhuVuc: 'Khán đài B Tầng 2 (Tribune B)', GiaVeNiemYet: 1200000, MauSacHex: '#FFC400' },
+        { KhuVucID: 8, MaKhuVuc: 'ZONE_CD_UP', TenKhuVuc: 'Khán đài C-D Tầng cao (Upper Tier)', GiaVeNiemYet: 800000, MauSacHex: '#90A4AE' }
+      ];
+
+      // Compact fallback catalog mirrors the 48 records in data_seats.json.
+      const FALLBACK_SEAT_STATUS = {
+        1: ['DA_BAN', 'DA_BAN', 'TRONG', 'TRONG', 'DANG_GIU', 'TRONG', 'DA_BAN', 'DA_BAN', 'DA_BAN', 'TRONG', 'TRONG', 'TRONG'],
+        2: ['DA_BAN', 'DA_BAN', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'DA_BAN', 'DA_BAN', 'TRONG', 'TRONG', 'DANG_GIU', 'TRONG'],
+        6: ['DA_BAN', 'DA_BAN', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'DA_BAN', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'TRONG'],
+        7: ['DA_BAN', 'DA_BAN', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'TRONG', 'TRONG']
+      };
+      const FALLBACK_SEAT_ROWS = { 1: ['A', 'B'], 2: ['C', 'D'], 6: ['E', 'F'], 7: ['G', 'H'] };
+      const FALLBACK_SEAT_ID_OFFSETS = { 1: 0, 2: 12, 6: 24, 7: 36 };
+
       let seatsData = [];
       let selectedSeatIds = new Set();
       let currentZoneFilter = 'ALL';
@@ -1643,42 +1659,117 @@
       let holdTimerInterval = null;
       let holdTimeRemaining = 300; // 5 minutes (300 seconds)
 
-      // Initialize Seats with realistic sold/available distribution
-      function generateSeats() {
-        seatsData = [];
-        // Fixed seed indices of sold seats for consistent demo realism
-        const soldIndexesVIP = [1, 4, 7, 10, 14, 18, 20];
-        const soldIndexesA = [0, 3, 5, 8, 11, 15, 19, 21, 23];
-        const soldIndexesB = [2, 6, 9, 13, 16, 22];
-        const soldIndexesC = [5, 7, 12, 17, 18, 23];
-
-        Object.keys(ZONES).forEach(zoneKey => {
-          const zone = ZONES[zoneKey];
-          let indexInZone = 0;
-
-          zone.rows.forEach(rowCode => {
-            for (let seatNum = 1; seatNum <= zone.seatsPerRow; seatNum++) {
-              const seatId = `${rowCode}-${seatNum.toString().padStart(2, '0')}`;
-              let isSold = false;
-
-              if (zoneKey === 'VIP' && soldIndexesVIP.includes(indexInZone)) isSold = true;
-              if (zoneKey === 'A' && soldIndexesA.includes(indexInZone)) isSold = true;
-              if (zoneKey === 'B' && soldIndexesB.includes(indexInZone)) isSold = true;
-              if (zoneKey === 'C' && soldIndexesC.includes(indexInZone)) isSold = true;
-
-              seatsData.push({
-                id: seatId,
-                zoneKey: zoneKey,
-                zoneName: zone.name,
-                row: rowCode,
-                number: seatNum,
-                price: zone.price,
-                status: isSold ? 'SOLD' : 'AVAILABLE' // 'AVAILABLE' | 'SOLD' | 'SELECTED'
-              });
-
-              indexInZone++;
-            }
+      function buildFallbackSeats() {
+        return Object.entries(FALLBACK_SEAT_STATUS).flatMap(([zoneId, statuses]) => {
+          const zone = FALLBACK_ZONES.find(item => item.KhuVucID === Number(zoneId));
+          const rows = FALLBACK_SEAT_ROWS[zoneId];
+          return statuses.map((status, index) => {
+            const row = rows[Math.floor(index / 6)];
+            const number = String((index % 6) + 1).padStart(2, '0');
+            return {
+              GheID: FALLBACK_SEAT_ID_OFFSETS[zoneId] + index + 1,
+              KhuVucID: Number(zoneId),
+              TenKhuVuc: zone.TenKhuVuc,
+              SoHang: row,
+              SoGhe: number,
+              MaGheDayDu: `${zone.MaKhuVuc === 'VVIP_DIAMOND' ? 'VVIP' : zone.MaKhuVuc === 'VIP_PLATINUM_1' ? 'VIP1' : zone.MaKhuVuc === 'ZONE_A_T1' ? 'KDA' : 'KDB'}-${row}-${number}`,
+              TrangThai: status,
+              GiaVeNiemYet: zone.GiaVeNiemYet
+            };
           });
+        });
+      }
+
+      function normalizeZone(zone) {
+        const zoneKey = ZONE_KEY_BY_CODE[zone.MaKhuVuc] || 'C';
+        return {
+          id: zone.KhuVucID,
+          code: zone.MaKhuVuc,
+          name: zone.TenKhuVuc,
+          price: Number(zone.GiaVeNiemYet),
+          color: zone.MauSacHex,
+          zoneKey
+        };
+      }
+
+      function normalizeSeat(seat, zoneById) {
+        const zone = zoneById.get(Number(seat.KhuVucID));
+        const statusMap = { TRONG: 'AVAILABLE', DA_BAN: 'SOLD', DANG_GIU: 'HELD' };
+        return {
+          id: seat.MaGheDayDu,
+          dbId: seat.GheID,
+          zoneId: Number(seat.KhuVucID),
+          zoneKey: zone ? zone.zoneKey : 'C',
+          zoneName: seat.TenKhuVuc,
+          row: seat.SoHang,
+          number: seat.SoGhe,
+          price: Number(seat.GiaVeNiemYet),
+          status: statusMap[seat.TrangThai] || 'HELD',
+          sourceStatus: seat.TrangThai
+        };
+      }
+
+      async function loadDataFromDatabase() {
+        let rawZones;
+        let rawSeats;
+        try {
+          const [zonesResponse, seatsResponse] = await Promise.all([
+            fetch('./data_zones.json', { cache: 'no-store' }),
+            fetch('./data_seats.json', { cache: 'no-store' })
+          ]);
+          if (!zonesResponse.ok || !seatsResponse.ok) {
+            throw new Error('Không thể tải dữ liệu JSON');
+          }
+          [rawZones, rawSeats] = await Promise.all([
+            zonesResponse.json(),
+            seatsResponse.json()
+          ]);
+        } catch (error) {
+          rawZones = FALLBACK_ZONES;
+          rawSeats = buildFallbackSeats();
+          console.warn('Không tải được JSON, sử dụng dữ liệu mẫu dự phòng:', error.message);
+        }
+
+        Object.keys(ZONES).forEach(key => delete ZONES[key]);
+        rawZones.map(normalizeZone).forEach(zone => {
+          if (!ZONES[zone.zoneKey]) {
+            ZONES[zone.zoneKey] = zone;
+          }
+        });
+        seatsData = rawSeats.map(seat => normalizeSeat(seat, new Map(rawZones.map(zone => [Number(zone.KhuVucID), normalizeZone(zone)]))));
+        updateZonePresentation();
+      }
+
+      function updateZonePresentation() {
+        const zoneBlocks = { VIP: 'zone-block-VIP', A: 'zone-block-A', B: 'zone-block-B', C: 'zone-block-C' };
+        Object.entries(zoneBlocks).forEach(([zoneKey, blockId]) => {
+          const zone = ZONES[zoneKey];
+          const block = document.getElementById(blockId);
+          if (!block || !zone) return;
+          const heading = block.querySelector('h4');
+          const price = block.querySelector(':scope > div:first-of-type > span:last-child');
+          if (heading) heading.textContent = `PHÂN KHU: ${zone.name.toUpperCase()}`;
+          if (price) price.textContent = `${formatVND(zone.price)} / ghế`;
+        });
+
+        document.querySelectorAll('.zone-tab').forEach(tab => {
+          const zoneKey = tab.id.replace('tab-zone-', '');
+          if (zoneKey === 'ALL') {
+            tab.textContent = `Tất cả (${seatsData.length} ghế)`;
+          } else if (ZONES[zoneKey]) {
+            tab.textContent = ZONES[zoneKey].name;
+          }
+        });
+
+        const pricingCards = [...document.querySelectorAll('#pricing-section .grid > div')];
+        ['VIP', 'A', 'B', 'C'].forEach((zoneKey, index) => {
+          const card = pricingCards[index];
+          const zone = ZONES[zoneKey];
+          if (!card || !zone) return;
+          const title = card.querySelector('h3');
+          const price = card.querySelector('h3 + div span:first-child');
+          if (title) title.textContent = zone.name;
+          if (price) price.textContent = new Intl.NumberFormat('vi-VN').format(zone.price);
         });
       }
 
@@ -1701,6 +1792,7 @@
         seatsData.forEach(seat => {
           const isSelected = selectedSeatIds.has(seat.id);
           const isSold = seat.status === 'SOLD';
+          const isHeld = seat.status === 'HELD';
 
           // Check zone filter
           const zoneMatch = (currentZoneFilter === 'ALL' || currentZoneFilter === seat.zoneKey);
@@ -1723,6 +1815,8 @@
           } else if (isSold) {
             // Xám mờ (#9CA3AF): Ghế đã bán (Sold)
             stateClass = 'seat-sold';
+          } else if (isHeld) {
+            stateClass = 'seat-held';
           } else {
             // Xanh lá (#22C55E): Ghế còn trống (Available)
             stateClass = 'seat-available';
@@ -1730,7 +1824,12 @@
 
           const visibilityClass = isVisible ? 'flex opacity-100 scale-100' : 'opacity-20 scale-90 pointer-events-none';
           seatEl.className = `seat-node relative flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-lg border text-[10px] sm:text-xs font-mono select-none transition-all duration-150 cursor-pointer ${stateClass} ${visibilityClass}`;
-          seatEl.title = isSold ? `Ghế ${seat.id} đã bán (${formatVND(seat.price)})` : (isSelected ? `Đang chọn ghế ${seat.id}` : `Bấm để chọn ghế ${seat.id} (${formatVND(seat.price)})`);
+          seatEl.disabled = isSold || isHeld;
+          seatEl.title = isSold
+            ? `Ghế ${seat.id} đã bán (${formatVND(seat.price)})`
+            : isHeld
+              ? `Ghế ${seat.id} đang được giữ tạm thời`
+              : (isSelected ? `Đang chọn ghế ${seat.id}` : `Bấm để chọn ghế ${seat.id} (${formatVND(seat.price)})`);
           seatEl.setAttribute('aria-label', `Ghế ${seat.id} - ${seat.zoneName} - ${formatVND(seat.price)}`);
 
           seatEl.innerHTML = `
@@ -1779,6 +1878,11 @@
             el.classList.add('animate-ping');
             setTimeout(() => el.classList.remove('animate-ping'), 400);
           }
+          return;
+        }
+
+        if (seat.status === 'HELD') {
+          showToast(`Ghế ${seat.id} đang được giữ tạm thời. Vui lòng chọn ghế màu xanh lá.`, 'warning');
           return;
         }
 
@@ -2037,6 +2141,7 @@
         if (!tooltip) return;
         const isSelected = selectedSeatIds.has(seat.id);
         const isSold = seat.status === 'SOLD';
+        const isHeld = seat.status === 'HELD';
 
         document.getElementById('tooltip-seat-code').innerText = seat.id;
         document.getElementById('tooltip-zone').innerText = seat.zoneName;
@@ -2051,6 +2156,9 @@
         } else if (isSold) {
           statusEl.innerText = 'Đã bán';
           statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-white/[0.08] text-slate-400 border border-white/[0.08]';
+        } else if (isHeld) {
+          statusEl.innerText = 'Đang được giữ';
+          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
         } else {
           statusEl.innerText = 'Còn trống';
           statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
@@ -2329,9 +2437,9 @@
       // ==========================================
       // INITIAL BOOTSTRAP
       // ==========================================
-      function bootstrap() {
+      async function bootstrap() {
         initStarfield();
-        generateSeats();
+        await loadDataFromDatabase();
         renderSeats();
         initConcertCountdown();
       }

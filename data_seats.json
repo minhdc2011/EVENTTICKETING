@@ -1,0 +1,482 @@
+[
+	{
+		"GheID" : 1,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "A",
+		"SoGhe" : "01",
+		"MaGheDayDu" : "VVIP-A-01",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 2,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "A",
+		"SoGhe" : "02",
+		"MaGheDayDu" : "VVIP-A-02",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 3,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "A",
+		"SoGhe" : "03",
+		"MaGheDayDu" : "VVIP-A-03",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 4,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "A",
+		"SoGhe" : "04",
+		"MaGheDayDu" : "VVIP-A-04",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 5,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "A",
+		"SoGhe" : "05",
+		"MaGheDayDu" : "VVIP-A-05",
+		"TrangThai" : "DANG_GIU",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 6,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "A",
+		"SoGhe" : "06",
+		"MaGheDayDu" : "VVIP-A-06",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 7,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "B",
+		"SoGhe" : "01",
+		"MaGheDayDu" : "VVIP-B-01",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 8,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "B",
+		"SoGhe" : "02",
+		"MaGheDayDu" : "VVIP-B-02",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 9,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "B",
+		"SoGhe" : "03",
+		"MaGheDayDu" : "VVIP-B-03",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 10,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "B",
+		"SoGhe" : "04",
+		"MaGheDayDu" : "VVIP-B-04",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 11,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "B",
+		"SoGhe" : "05",
+		"MaGheDayDu" : "VVIP-B-05",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 12,
+		"KhuVucID" : 1,
+		"TenKhuVuc" : "VVIP Diamond Lounge",
+		"SoHang" : "B",
+		"SoGhe" : "06",
+		"MaGheDayDu" : "VVIP-B-06",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 4500000.00
+	},
+	{
+		"GheID" : 13,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "C",
+		"SoGhe" : "01",
+		"MaGheDayDu" : "VIP1-C-01",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 14,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "C",
+		"SoGhe" : "02",
+		"MaGheDayDu" : "VIP1-C-02",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 15,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "C",
+		"SoGhe" : "03",
+		"MaGheDayDu" : "VIP1-C-03",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 16,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "C",
+		"SoGhe" : "04",
+		"MaGheDayDu" : "VIP1-C-04",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 17,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "C",
+		"SoGhe" : "05",
+		"MaGheDayDu" : "VIP1-C-05",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 18,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "C",
+		"SoGhe" : "06",
+		"MaGheDayDu" : "VIP1-C-06",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 19,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "D",
+		"SoGhe" : "01",
+		"MaGheDayDu" : "VIP1-D-01",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 20,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "D",
+		"SoGhe" : "02",
+		"MaGheDayDu" : "VIP1-D-02",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 21,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "D",
+		"SoGhe" : "03",
+		"MaGheDayDu" : "VIP1-D-03",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 22,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "D",
+		"SoGhe" : "04",
+		"MaGheDayDu" : "VIP1-D-04",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 23,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "D",
+		"SoGhe" : "05",
+		"MaGheDayDu" : "VIP1-D-05",
+		"TrangThai" : "DANG_GIU",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 24,
+		"KhuVucID" : 2,
+		"TenKhuVuc" : "VIP Platinum 1",
+		"SoHang" : "D",
+		"SoGhe" : "06",
+		"MaGheDayDu" : "VIP1-D-06",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 3500000.00
+	},
+	{
+		"GheID" : 25,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "E",
+		"SoGhe" : "01",
+		"MaGheDayDu" : "KDA-E-01",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 26,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "E",
+		"SoGhe" : "02",
+		"MaGheDayDu" : "KDA-E-02",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 27,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "E",
+		"SoGhe" : "03",
+		"MaGheDayDu" : "KDA-E-03",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 28,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "E",
+		"SoGhe" : "04",
+		"MaGheDayDu" : "KDA-E-04",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 29,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "E",
+		"SoGhe" : "05",
+		"MaGheDayDu" : "KDA-E-05",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 30,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "E",
+		"SoGhe" : "06",
+		"MaGheDayDu" : "KDA-E-06",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 31,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "F",
+		"SoGhe" : "01",
+		"MaGheDayDu" : "KDA-F-01",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 32,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "F",
+		"SoGhe" : "02",
+		"MaGheDayDu" : "KDA-F-02",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 33,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "F",
+		"SoGhe" : "03",
+		"MaGheDayDu" : "KDA-F-03",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 34,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "F",
+		"SoGhe" : "04",
+		"MaGheDayDu" : "KDA-F-04",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 35,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "F",
+		"SoGhe" : "05",
+		"MaGheDayDu" : "KDA-F-05",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 36,
+		"KhuVucID" : 6,
+		"TenKhuVuc" : "Khán đài A Tầng 1 (Tribune A)",
+		"SoHang" : "F",
+		"SoGhe" : "06",
+		"MaGheDayDu" : "KDA-F-06",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1500000.00
+	},
+	{
+		"GheID" : 37,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "G",
+		"SoGhe" : "01",
+		"MaGheDayDu" : "KDB-G-01",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 38,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "G",
+		"SoGhe" : "02",
+		"MaGheDayDu" : "KDB-G-02",
+		"TrangThai" : "DA_BAN",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 39,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "G",
+		"SoGhe" : "03",
+		"MaGheDayDu" : "KDB-G-03",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 40,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "G",
+		"SoGhe" : "04",
+		"MaGheDayDu" : "KDB-G-04",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 41,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "G",
+		"SoGhe" : "05",
+		"MaGheDayDu" : "KDB-G-05",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 42,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "G",
+		"SoGhe" : "06",
+		"MaGheDayDu" : "KDB-G-06",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 43,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "H",
+		"SoGhe" : "01",
+		"MaGheDayDu" : "KDB-H-01",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 44,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "H",
+		"SoGhe" : "02",
+		"MaGheDayDu" : "KDB-H-02",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 45,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "H",
+		"SoGhe" : "03",
+		"MaGheDayDu" : "KDB-H-03",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 46,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "H",
+		"SoGhe" : "04",
+		"MaGheDayDu" : "KDB-H-04",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 47,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "H",
+		"SoGhe" : "05",
+		"MaGheDayDu" : "KDB-H-05",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	},
+	{
+		"GheID" : 48,
+		"KhuVucID" : 7,
+		"TenKhuVuc" : "Khán đài B Tầng 2 (Tribune B)",
+		"SoHang" : "H",
+		"SoGhe" : "06",
+		"MaGheDayDu" : "KDB-H-06",
+		"TrangThai" : "TRONG",
+		"GiaVeNiemYet" : 1200000.00
+	}
+]
