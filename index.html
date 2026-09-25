@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi" class="dark scroll-smooth">
+<html lang="vi" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -48,7 +48,7 @@
         overflow-x: clip;
       }
       body {
-        background-color: #05070B;
+        background-color: #0c1527;
         color: #f3f4f6;
         font-family: 'Be Vietnam Pro', sans-serif;
       }
@@ -68,12 +68,36 @@
         z-index: 0;
       }
 
-      /* Cinematic Ambient Stage Background */
+      /* Cinematic Ambient Stage Background - Midnight Indigo & Royal Navy Glow */
       .stage-glow {
-        background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.16) 0%, rgba(29, 48, 69, 0.25) 45%, #05070B 85%);
+        background:
+          radial-gradient(circle at 72% 24%, rgba(148, 163, 184, 0.16) 0%, transparent 28%),
+          radial-gradient(circle at 18% 8%, rgba(245, 185, 51, 0.07) 0%, transparent 25%),
+          linear-gradient(135deg, #090d15 0%, #0b1322 52%, #07090d 100%);
       }
       .spotlight {
-        background: radial-gradient(ellipse at 50% 10%, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+        background: linear-gradient(110deg, rgba(255, 255, 255, 0.035), transparent 38%, rgba(96, 165, 250, 0.04) 68%, transparent);
+      }
+      .aurora-glow-hero {
+        position: absolute;
+        top: -10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 85%;
+        height: 65%;
+        background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.14) 0%, rgba(245, 185, 51, 0.05) 42%, transparent 70%);
+        filter: blur(72px);
+        opacity: .72;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .aurora-card-glow {
+        position: absolute;
+        inset: -1px;
+        border-radius: 18px;
+        background: radial-gradient(circle at 50% 0%, rgba(96, 165, 250, 0.25), transparent 70%);
+        pointer-events: none;
+        z-index: 0;
       }
 
       /* Pixel Contract B — The Signature Glow Buttons (.btn-glow) */
@@ -143,6 +167,32 @@
       }
       .flip-leaf-bottom.flipping {
         animation: flipUnfoldDown 0.28s cubic-bezier(0.2, 0, 0.4, 1) 0.26s both;
+      }
+
+      /* Focus on Scroll (Sequential Section Dimming) */
+      .scroll-focus-section {
+        transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+        will-change: opacity, filter, transform;
+      }
+      .scroll-focus-section.section-focused {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: scale(1) !important;
+      }
+      .scroll-focus-section.section-dimmed {
+        opacity: 0.75;
+        filter: blur(1px);
+        transform: scale(0.998);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .scroll-focus-section,
+        .scroll-focus-section.section-focused,
+        .scroll-focus-section.section-dimmed {
+          opacity: 1 !important;
+          filter: none !important;
+          transform: none !important;
+          transition: none !important;
+        }
       }
 
       /* Master Optical Entrance Animations */
@@ -292,15 +342,15 @@
         }
       }
 
-      /* Dark luxury body (#0B0F17 / rgba(11, 15, 23, 0.96)) */
+      /* Royal Navy luxury countdown card body */
       .countdown-card-inner {
         position: relative;
         border-radius: 18.5px;
-        background: rgba(11, 15, 23, 0.96) !important;
+        background: rgba(15, 23, 42, 0.92) !important;
         -webkit-backdrop-filter: blur(20px) saturate(160%);
         backdrop-filter: blur(20px) saturate(160%);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
         z-index: 1;
       }
 
@@ -327,14 +377,14 @@
         animation: slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
       /* =========================================================
-         LIQUID GLASS PREMIUM SPECIFICATION
+         LIQUID GLASS PREMIUM SPECIFICATION - SYNCHRONIZED ROYAL NAVY
          ========================================================= */
       .liquid-glass {
-        background: rgba(13, 17, 23, 0.65) !important;
-        backdrop-filter: blur(16px) saturate(140%);
-        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        background: rgba(15, 23, 42, 0.75) !important;
+        backdrop-filter: blur(20px) saturate(160%);
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
         border: none !important;
-        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 16px 36px -10px rgba(0, 0, 0, 0.7) !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 20px 45px -10px rgba(0, 0, 0, 0.55) !important;
         position: relative;
         overflow: hidden;
       }
@@ -363,41 +413,69 @@
 
       /* §4 NAV & §9 MOCK STYLE: THE GLASS CONTAINER SPEC */
       .glass-panel {
-        background: rgba(13, 17, 23, 0.72) !important;
-        border: 1px solid rgba(255, 255, 255, 0.085) !important;
-        -webkit-backdrop-filter: blur(16px) saturate(140%);
-        backdrop-filter: blur(16px) saturate(140%);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 40px -15px rgba(0, 0, 0, 0.7) !important;
+        background: rgba(15, 23, 42, 0.75) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        backdrop-filter: blur(20px) saturate(160%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.55) !important;
         border-radius: 18px !important;
       }
 
       /* Sub-cells and nested tiles (10px radius) */
       .glass-tile {
-        background: rgba(13, 17, 23, 0.65) !important;
-        border: 1px solid rgba(255, 255, 255, 0.085) !important;
-        -webkit-backdrop-filter: blur(12px) saturate(140%);
-        backdrop-filter: blur(12px) saturate(140%);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(150%);
+        backdrop-filter: blur(14px) saturate(150%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
         border-radius: 10px !important;
       }
 
       /* Inset dark sub-cell (for inputs, timers, countdown digits, summary items) */
       .inset-dark-cell {
-        background: rgba(0, 0, 0, 0.45) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        background: rgba(11, 19, 38, 0.65) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         border-radius: 10px !important;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
       }
 
       /* Sleek glass strip (toolbar & legends - 14px radius) */
       .glass-strip {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border: 1px solid rgba(255, 255, 255, 0.07) !important;
-        -webkit-backdrop-filter: blur(16px) saturate(140%);
-        backdrop-filter: blur(16px) saturate(140%);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        background: rgba(15, 23, 42, 0.55) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(150%);
+        backdrop-filter: blur(16px) saturate(150%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
         border-radius: 14px !important;
       }
+
+      .seating-status-legend {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 7px 12px;
+        min-width: 0;
+        color: rgba(226, 232, 240, .72);
+        font-size: 10px;
+        line-height: 1;
+      }
+      .seating-status-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+      .seating-status-legend__swatch {
+        width: 11px;
+        height: 11px;
+        flex: 0 0 11px;
+        border: 1px solid rgba(255, 255, 255, .22);
+        border-radius: 3px;
+      }
+      .seating-status-legend__swatch.available { background: #22c55e; box-shadow: 0 0 7px rgba(34,197,94,.25); }
+      .seating-status-legend__swatch.sold { background: #334155; border-color: rgba(156,163,175,.55); }
+      .seating-status-legend__swatch.selected { background: #eab308; border-color: #fde68a; box-shadow: 0 0 7px rgba(234,179,8,.3); }
+      .seating-status-legend__swatch.blocked { background: repeating-linear-gradient(135deg,#30343a 0 3px,#17191d 3px 6px); }
 
       /* Ghost tab buttons */
       .ghost-tab {
@@ -543,6 +621,23 @@
         filter: none !important;
       }
 
+      .seat-blocked,
+      .seat-node.seat-blocked {
+        background: repeating-linear-gradient(135deg, #25282d 0 5px, #1a1c20 5px 10px) !important;
+        border: 1px solid rgba(255,255,255,.09) !important;
+        color: rgba(255,255,255,.34) !important;
+        opacity: .82 !important;
+        cursor: default !important;
+        box-shadow: none !important;
+        pointer-events: none !important;
+      }
+      .seat-blocked:hover,
+      .seat-node.seat-blocked:hover {
+        transform: translate(-50%, -50%) !important;
+        filter: none !important;
+        box-shadow: none !important;
+      }
+
       /* Selected (#EAB308): Vibrant amber with pulse and active highlight */
       .seat-selected,
       .seat-node.seat-selected {
@@ -572,17 +667,1699 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #374151;
       }
+      /* Editorial concert system: restrained structure and low-cost motion */
+      :root {
+        --ink: #07090d;
+        --paper: #f5f2e9;
+        --line: rgba(255, 255, 255, 0.13);
+        --line-strong: rgba(255, 255, 255, 0.24);
+        --accent: #f5b933;
+      }
+      html { scroll-padding-top: 72px; }
+      body {
+        background-color: var(--ink);
+        background-image:
+          radial-gradient(circle at 76% 6%, rgba(51, 65, 85, .16), transparent 24%),
+          linear-gradient(180deg, #080b11 0%, #090e18 38%, #07090d 100%);
+      }
+      section[id] { scroll-margin-top: 72px; }
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        height: 64px;
+        background: rgba(6, 8, 12, .94);
+        border-bottom: 1px solid var(--line);
+        -webkit-backdrop-filter: blur(14px) saturate(125%);
+        backdrop-filter: blur(14px) saturate(125%);
+      }
+      .site-brand {
+        font-family: 'Syne', 'Be Vietnam Pro', sans-serif;
+        font-weight: 800;
+        letter-spacing: -.04em;
+        line-height: .9;
+        white-space: nowrap;
+      }
+      .site-nav-link {
+        position: relative;
+        color: rgba(255,255,255,.68);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        transition: color .16s ease;
+      }
+      .site-nav-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 100%;
+        bottom: -7px;
+        height: 1px;
+        background: var(--accent);
+        transition: right .18s ease-out;
+      }
+      .site-nav-link:hover { color: #fff; }
+      .site-nav-link:hover::after { right: 0; }
+      .editorial-heading {
+        padding-top: 18px;
+        border-top: 1px solid var(--line-strong);
+      }
+      .editorial-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(255,255,255,.52);
+        font-family: 'Space Grotesk', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+      }
+      .editorial-kicker::before {
+        content: '';
+        width: 26px;
+        height: 1px;
+        background: var(--accent);
+      }
+      .section-number {
+        color: rgba(255,255,255,.28);
+        font-family: 'Space Grotesk', monospace;
+        font-size: 11px;
+        letter-spacing: .16em;
+      }
+      .liquid-glass {
+        background: rgba(10, 15, 25, .86) !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 8px !important;
+        -webkit-backdrop-filter: blur(12px) saturate(125%);
+        backdrop-filter: blur(12px) saturate(125%);
+        box-shadow: 0 18px 55px -28px rgba(0, 0, 0, .85) !important;
+      }
+      .liquid-glass::before {
+        background: linear-gradient(135deg, rgba(255,255,255,.16), transparent 34%, transparent 80%, rgba(245,185,51,.10));
+      }
+      .glass-panel {
+        background: rgba(10, 15, 25, .9) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 22px 60px -34px rgba(0,0,0,.9) !important;
+      }
+      .glass-tile,
+      .inset-dark-cell,
+      .glass-strip,
+      .ghost-tab,
+      .active-gold-tab,
+      .zone-block { border-radius: 5px !important; }
+      .btn-glow {
+        border-radius: 4px;
+        border: 1px solid rgba(245,185,51,.55);
+        background: linear-gradient(180deg, #121722, #090d14) !important;
+        box-shadow: inset 0 -2px 0 #d99616, 0 12px 32px -20px rgba(245,185,51,.8);
+        letter-spacing: .035em;
+        transition: transform .16s ease-out, border-color .16s ease-out;
+      }
+      .btn-glow::before {
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 1px;
+        background: rgba(255,255,255,.35);
+        filter: none;
+      }
+      .btn-glow:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: none;
+        border-color: var(--accent);
+        box-shadow: inset 0 -2px 0 #f5b933, 0 16px 34px -18px rgba(245,185,51,.65);
+      }
+      #artist-lineup .liquid-glass,
+      #pricing-section .liquid-glass {
+        transition: transform .2s ease-out, border-color .2s ease-out, background-color .2s ease-out !important;
+      }
+      #artist-lineup .liquid-glass:hover,
+      #pricing-section .liquid-glass:hover {
+        transform: translateY(-4px) !important;
+        border-color: rgba(245,185,51,.42) !important;
+        background: rgba(13, 19, 31, .96) !important;
+      }
+      #artist-lineup img {
+        filter: grayscale(.32) contrast(1.05);
+        transition: transform .35s ease-out, filter .25s ease-out !important;
+      }
+      #artist-lineup .group:hover img { filter: grayscale(0) contrast(1.02); }
+      #concert-hero .entrance-badge {
+        height: auto !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+      #concert-hero .entrance-badge > div {
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 2px !important;
+        background: rgba(245, 185, 51, .10) !important;
+        border: 1px solid rgba(245, 185, 51, .28);
+        box-shadow: none !important;
+      }
+      #concert-hero .liquid-glass {
+        background: rgba(7, 11, 18, .72) !important;
+        border-color: rgba(255,255,255,.11) !important;
+        box-shadow: none !important;
+      }
+      .countdown-ambient-glow { opacity: .38; }
+      .countdown-border-beam {
+        border-radius: 9px !important;
+        background: rgba(255,255,255,.10);
+        box-shadow: 0 24px 60px -38px rgba(0,0,0,.95);
+      }
+      .countdown-card-inner {
+        border-radius: 8px !important;
+        background: rgba(7, 11, 18, .94) !important;
+        border-color: rgba(255,255,255,.08) !important;
+        box-shadow: none !important;
+      }
+      #artist-lineup,
+      #pricing-section,
+      #seating-section {
+        background: rgba(7, 9, 13, .42);
+      }
+      #pricing-section {
+        background: rgba(9, 13, 21, .72);
+      }
+      .scroll-focus-section {
+        transition: opacity .2s ease-out;
+        will-change: opacity;
+      }
+      .scroll-focus-section.section-focused {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+      }
+      .scroll-focus-section.section-dimmed {
+        opacity: .92;
+        filter: none !important;
+        transform: none !important;
+      }
+      @media (max-width: 1023px) {
+        .site-nav-desktop { display: none !important; }
+      }
+      @media (max-width: 767px) {
+        .site-header { height: 58px; }
+        html { scroll-padding-top: 66px; }
+        section[id] { scroll-margin-top: 66px; }
+        .scroll-focus-section,
+        .scroll-focus-section.section-dimmed { opacity: 1; }
+      }
+
+      /* =========================================================
+         CONCERT EDITORIAL ART DIRECTION
+         One dominant image, one accent, fewer visible containers.
+         ========================================================= */
+      :root {
+        --ink: #070707;
+        --paper: #f1efe7;
+        --accent: #d8ff3e;
+        --line: rgba(255, 255, 255, .14);
+        --line-strong: rgba(255, 255, 255, .28);
+      }
+      body {
+        background: #070707 !important;
+        color: #f5f5f2;
+      }
+      section[id] { scroll-margin-top: 0; }
+      #stA, #stB { opacity: .09; }
+      ::-webkit-scrollbar-track { background: #070707; }
+      ::-webkit-scrollbar-thumb { background: #343434; }
+
+      .site-header {
+        height: 68px;
+        background: rgba(7, 7, 7, .94);
+        border-color: rgba(255, 255, 255, .14);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+      .site-header nav {
+        max-width: 1440px;
+      }
+      .site-header a[aria-label] > span:first-child {
+        border: 0 !important;
+        background: var(--accent) !important;
+        color: #070707 !important;
+      }
+      .site-brand { letter-spacing: -.055em; }
+      .site-brand span { color: var(--accent) !important; }
+      .site-header nav > div:last-child > a {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #080808 !important;
+      }
+      .site-header nav > div:last-child > a span:first-child {
+        background: #080808 !important;
+        animation: none !important;
+      }
+
+      #concert-hero {
+        min-height: calc(100vh - 68px);
+        display: flex;
+        align-items: center;
+        background-image:
+          linear-gradient(90deg, rgba(5, 5, 5, .98) 0%, rgba(5, 5, 5, .91) 38%, rgba(5, 5, 5, .46) 67%, rgba(5, 5, 5, .22) 100%),
+          linear-gradient(0deg, rgba(5, 5, 5, .8) 0%, transparent 45%),
+          url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1800&q=88');
+        background-size: cover;
+        background-position: center 48%;
+        background-repeat: no-repeat;
+        background-color: #101010;
+        background-blend-mode: normal, normal, luminosity;
+        border-color: rgba(255,255,255,.16) !important;
+      }
+      #concert-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: .22;
+        background-image: repeating-linear-gradient(90deg, transparent 0, transparent calc(25% - 1px), rgba(255,255,255,.08) 25%);
+      }
+      #concert-hero .spotlight,
+      #concert-hero .aurora-glow-hero { display: none; }
+      #concert-hero > .max-w-7xl { max-width: 1440px; width: 100%; }
+      #concert-hero .entrance-badge > div {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #080808 !important;
+      }
+      #concert-hero .entrance-badge span {
+        color: rgba(255,255,255,.72) !important;
+        font-weight: 600 !important;
+      }
+      #concert-hero h1 {
+        max-width: 790px;
+        font-size: clamp(3.4rem, 6.5vw, 7.2rem) !important;
+        line-height: .84 !important;
+        letter-spacing: -.075em !important;
+        text-shadow: none !important;
+      }
+      #concert-hero h1 > span {
+        color: var(--accent) !important;
+        background: none !important;
+        -webkit-text-fill-color: currentColor !important;
+        font-size: clamp(1rem, 1.8vw, 1.65rem) !important;
+        letter-spacing: .01em !important;
+        margin-top: 22px !important;
+      }
+      #concert-hero p {
+        color: rgba(255,255,255,.68) !important;
+        max-width: 620px;
+        line-height: 1.75;
+      }
+      #concert-hero .lg\:col-span-7 > .grid {
+        gap: 0 !important;
+        border-top: 1px solid rgba(255,255,255,.22);
+        border-bottom: 1px solid rgba(255,255,255,.22);
+      }
+      #concert-hero .lg\:col-span-7 > .grid > .group {
+        min-width: 0;
+      }
+      #concert-hero .lg\:col-span-7 > .grid > .group + .group {
+        border-left: 1px solid rgba(255,255,255,.22);
+      }
+      #concert-hero .lg\:col-span-7 > .grid .liquid-glass {
+        padding: 16px 18px !important;
+        background: rgba(0,0,0,.18) !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+      #concert-hero .lg\:col-span-7 > .grid .liquid-glass > div:first-child {
+        background: transparent !important;
+        border: 0 !important;
+        color: var(--accent) !important;
+        padding-left: 0 !important;
+      }
+      #concert-hero .text-amber-400\/90 { color: var(--accent) !important; }
+
+      .countdown-beam-container { isolation: isolate; }
+      .countdown-ambient-glow { display: none; }
+      .countdown-border-beam {
+        padding: 0 !important;
+        background: transparent !important;
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      .countdown-card-inner {
+        background: rgba(5,5,5,.74) !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        backdrop-filter: blur(18px) saturate(90%) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(90%) !important;
+      }
+      .countdown-card-inner > div:first-child { display: none; }
+      .countdown-card-inner .text-emerald-400 { color: var(--accent) !important; }
+      .countdown-card-inner .bg-emerald-500,
+      .countdown-card-inner .bg-emerald-400 { background: var(--accent) !important; }
+      .flip-card,
+      .flip-top-static,
+      .flip-bottom-static,
+      .flip-leaf-top,
+      .flip-leaf-bottom {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      .flip-top-static,
+      .flip-leaf-top { background: rgba(255,255,255,.06) !important; }
+      .flip-bottom-static,
+      .flip-leaf-bottom { background: rgba(255,255,255,.035) !important; }
+      .flip-num { color: var(--accent) !important; }
+
+      #artist-lineup {
+        background: var(--paper) !important;
+        color: #101010;
+        padding-top: 76px;
+        padding-bottom: 88px;
+      }
+      #artist-lineup .editorial-heading { border-color: rgba(10,10,10,.28); }
+      #artist-lineup h2 { color: #0c0c0c !important; }
+      #artist-lineup .editorial-kicker,
+      #artist-lineup .section-number { color: rgba(10,10,10,.56); }
+      #artist-lineup .editorial-kicker::before { background: #0c0c0c; }
+      #artist-lineup .group {
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: #0b0b0b !important;
+        box-shadow: none !important;
+      }
+      #artist-lineup .group:hover {
+        border-color: transparent !important;
+        background: #0b0b0b !important;
+        transform: translateY(-6px) !important;
+      }
+      #artist-lineup .aspect-square { aspect-ratio: 4 / 3; }
+      #artist-lineup img {
+        filter: grayscale(1) contrast(1.13);
+        transition: transform .55s cubic-bezier(.16,1,.3,1), filter .3s ease !important;
+      }
+      #artist-lineup .group:hover img { filter: grayscale(.15) contrast(1.05); }
+      #artist-lineup .group > .p-3 {
+        text-align: left;
+        padding: 16px 18px 18px;
+        border-top: 1px solid rgba(255,255,255,.13);
+      }
+      #artist-lineup .group h3 { font-family: 'Syne', sans-serif; font-size: 15px; }
+      #artist-lineup .group:hover h3 { color: var(--accent) !important; }
+      @media (min-width: 1024px) {
+        #artist-lineup .grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+      }
+
+      #pricing-section {
+        background: #090909 !important;
+        padding-top: 86px;
+        padding-bottom: 92px;
+      }
+      #pricing-section .liquid-glass {
+        background: #101010 !important;
+        border: 1px solid rgba(255,255,255,.14) !important;
+        border-top: 3px solid var(--accent) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #pricing-section .liquid-glass:hover {
+        background: #151515 !important;
+        border-color: rgba(255,255,255,.28) !important;
+        border-top-color: var(--accent) !important;
+      }
+      #pricing-section [data-zone-code] > .absolute.top-0 {
+        background: var(--accent) !important;
+        box-shadow: none !important;
+      }
+      #pricing-section [data-zone-code] :is(.text-amber-400, .text-amber-300, .text-amber-200, .text-blue-400, .text-purple-400, .text-emerald-400) {
+        color: var(--accent) !important;
+      }
+      #pricing-section [data-zone-code] :is(.bg-amber-400, .bg-blue-400, .bg-purple-400, .bg-emerald-400) {
+        background: var(--accent) !important;
+        color: #080808 !important;
+      }
+      #pricing-section [data-zone-code] :is(.bg-amber-500\/10, .bg-blue-500\/10, .bg-purple-500\/10, .bg-emerald-500\/10) {
+        background: rgba(216,255,62,.08) !important;
+      }
+      #pricing-section [data-zone-code] :is(.border-amber-500\/20, .border-blue-500\/20, .border-purple-500\/20, .border-emerald-500\/20) {
+        border-color: rgba(216,255,62,.26) !important;
+      }
+      #seating-section { background: #0d0d0d !important; }
+      #seating-section :is(.glass-panel, .glass-tile, .glass-strip, .inset-dark-cell, .zone-block) {
+        background: #101010 !important;
+        border-color: rgba(255,255,255,.14) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #seating-section .ghost-tab {
+        background: transparent !important;
+        border-color: rgba(255,255,255,.13) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #seating-section .active-gold-tab {
+        color: var(--accent) !important;
+        background: rgba(216,255,62,.08) !important;
+        border-color: var(--accent) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #seating-section .stage-backlight,
+      #seating-section .stage-light-beam { display: none; }
+      #seating-section .main-stage-platform {
+        color: #080808 !important;
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #seating-section .main-catwalk {
+        color: #080808 !important;
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        border-radius: 0 0 8px 8px !important;
+        box-shadow: none !important;
+      }
+      .stadium-map-shell {
+        border: 1px solid rgba(255,255,255,.14);
+        background: #090909;
+        padding: 18px;
+        margin-bottom: 26px;
+      }
+      .stadium-map-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+        color: rgba(255,255,255,.5);
+        font: 700 9px/1.4 'Space Grotesk', monospace;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+      .stadium-bowl {
+        position: relative;
+        width: min(100%, 720px);
+        aspect-ratio: 1.28 / 1;
+        margin: 0 auto;
+        border-radius: 48% / 43%;
+        background: #111;
+        border: 1px solid rgba(255,255,255,.24);
+        overflow: hidden;
+        isolation: isolate;
+      }
+      .stadium-bowl::before,
+      .stadium-bowl::after {
+        content: '';
+        position: absolute;
+        border-radius: 48% / 43%;
+        pointer-events: none;
+      }
+      .stadium-bowl::before {
+        inset: 7%;
+        border: clamp(22px, 4vw, 42px) solid #1b1b1b;
+        box-shadow: 0 0 0 1px rgba(255,255,255,.13), inset 0 0 0 1px rgba(255,255,255,.13);
+      }
+      .stadium-bowl::after {
+        inset: 18% 16%;
+        border: clamp(17px, 3vw, 30px) solid #222;
+        box-shadow: 0 0 0 1px rgba(255,255,255,.12), inset 0 0 0 1px rgba(255,255,255,.12);
+      }
+      .stadium-pitch {
+        position: absolute;
+        z-index: 2;
+        inset: 25% 25% 16%;
+        border: 1px solid rgba(216,255,62,.25);
+        background:
+          linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.08) 50%, transparent 50.3%),
+          repeating-linear-gradient(90deg, rgba(216,255,62,.025) 0 12.5%, transparent 12.5% 25%),
+          #111612;
+      }
+      .stadium-map-zone {
+        position: absolute;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border: 1px solid rgba(255,255,255,.22);
+        background: rgba(7,7,7,.92);
+        color: rgba(255,255,255,.72);
+        font-size: clamp(7px, 1.2vw, 10px);
+        font-weight: 800;
+        letter-spacing: .05em;
+        line-height: 1.25;
+        text-align: center;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color .16s ease, border-color .16s ease, background-color .16s ease, transform .16s ease;
+      }
+      .stadium-map-zone:hover,
+      .stadium-map-zone:focus-visible {
+        color: #080808;
+        border-color: var(--accent);
+        background: var(--accent);
+        outline: none;
+        transform: translateY(-2px);
+      }
+      .stadium-map-zone.is-active {
+        color: #080808;
+        border-color: var(--accent);
+        background: var(--accent);
+        box-shadow: 0 0 0 2px rgba(216,255,62,.16);
+      }
+      .stadium-zone-upper {
+        top: 3.5%; left: 29%; right: 29%;
+        color: rgba(255,255,255,.54);
+      }
+      .stadium-zone-b-left { top: 26%; left: 4%; width: 18%; }
+      .stadium-zone-b-right { top: 26%; right: 4%; width: 18%; }
+      .stadium-zone-a-left { top: 52%; left: 7.5%; width: 16%; }
+      .stadium-zone-a-right { top: 52%; right: 7.5%; width: 16%; }
+      .stadium-zone-lounge {
+        top: 21%; left: 32%; right: 32%;
+        min-height: 42px;
+        color: var(--accent);
+        border-color: rgba(216,255,62,.6);
+        background: rgba(216,255,62,.07);
+      }
+      .stadium-zone-standing-1,
+      .stadium-zone-standing-2 {
+        top: 40%; bottom: 36%;
+        color: #080808;
+        background: rgba(216,255,62,.82);
+        border-color: var(--accent);
+      }
+      .stadium-zone-standing-1 { left: 27%; width: 22%; }
+      .stadium-zone-standing-2 { right: 27%; width: 22%; background: rgba(216,255,62,.55); }
+      .stadium-stage {
+        position: absolute;
+        z-index: 6;
+        left: 31%; right: 31%; bottom: 13%;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #080808;
+        background: var(--accent);
+        font-family: 'Syne', sans-serif;
+        font-size: clamp(11px, 2vw, 17px);
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .stadium-catwalk {
+        position: absolute;
+        z-index: 6;
+        left: 46%; right: 46%; bottom: 21%; height: 22%;
+        min-width: 30px;
+        background: var(--accent);
+      }
+      .stadium-map-caption {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1px;
+        margin-top: 12px;
+        background: rgba(255,255,255,.12);
+      }
+      .stadium-map-caption > div {
+        background: #0d0d0d;
+        padding: 10px 12px;
+      }
+      .stadium-map-caption strong {
+        display: block;
+        color: #fff;
+        font-size: 10px;
+        text-transform: uppercase;
+      }
+      .stadium-map-caption span {
+        display: block;
+        margin-top: 3px;
+        color: rgba(255,255,255,.48);
+        font-size: 9px;
+        line-height: 1.45;
+      }
+      .seat-inventory-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 0;
+        border-top: 1px solid rgba(255,255,255,.15);
+        color: rgba(255,255,255,.58);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+      }
+      /* Live seat inventory mounted directly onto the stadium plan */
+      .stadium-bowl.is-live-map {
+        aspect-ratio: 1.12 / 1;
+        min-height: 610px;
+      }
+      .stadium-bowl.is-live-map > .zone-block {
+        position: absolute;
+        z-index: 8;
+        margin: 0 !important;
+        padding: 7px !important;
+        overflow: visible;
+        background: rgba(7,7,7,.92) !important;
+        border: 1px solid rgba(255,255,255,.18) !important;
+        transition: opacity .18s ease, border-color .18s ease, background-color .18s ease;
+      }
+      .stadium-bowl.is-live-map > .zone-block.map-zone-dimmed { opacity: .26; }
+      .stadium-bowl.is-live-map > .zone-block > div:first-child {
+        margin-bottom: 5px !important;
+        gap: 5px;
+      }
+      .stadium-bowl.is-live-map > .zone-block > div:first-child > div { min-width: 0; }
+      .stadium-bowl.is-live-map > .zone-block h4 {
+        overflow: hidden;
+        color: rgba(255,255,255,.78) !important;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 7px !important;
+        line-height: 1.15;
+        letter-spacing: .04em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-live-map > .zone-block > div:first-child > span:last-child {
+        color: var(--accent) !important;
+        font-size: 7px !important;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-live-map > .zone-block > .text-\[11px\] { display: none; }
+      .stadium-bowl.is-live-map .seat-node {
+        width: 100%;
+        min-width: 0;
+        height: 29px;
+        padding: 2px !important;
+        border-radius: 3px !important;
+        font-size: 6px !important;
+        line-height: .95;
+      }
+      .stadium-bowl.is-live-map .seat-node span:first-child {
+        overflow: hidden;
+        max-width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-live-map .seat-node span:last-child { display: none !important; }
+      .stadium-bowl.is-live-map :is(#grid-vvip, #grid-vip1) {
+        display: grid !important;
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        gap: 3px !important;
+      }
+      .stadium-bowl.is-live-map :is(#grid-a, #grid-b) {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 3px !important;
+      }
+      .stadium-bowl.is-live-map #zone-block-VVIP {
+        top: 13%; left: 29%; right: 29%;
+      }
+      .stadium-bowl.is-live-map #zone-block-VIP1 {
+        top: 27%; left: 29%; right: 29%;
+      }
+      .stadium-bowl.is-live-map #zone-block-A {
+        top: 33%; left: 5%; width: 20%;
+      }
+      .stadium-bowl.is-live-map #zone-block-B {
+        top: 33%; right: 5%; width: 20%;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-A, #zone-block-B) h4 {
+        font-size: 0 !important;
+      }
+      .stadium-bowl.is-live-map #zone-block-A h4::after {
+        content: 'A · TẦNG 1';
+        font-size: 7px;
+      }
+      .stadium-bowl.is-live-map #zone-block-B h4::after {
+        content: 'B · TẦNG 2';
+        font-size: 7px;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) {
+        left: 29%; right: 29%;
+        padding: 7px 9px !important;
+        background: rgba(216,255,62,.08) !important;
+        border-color: rgba(216,255,62,.48) !important;
+      }
+      .stadium-bowl.is-live-map #zone-block-stand-1 { top: 43%; }
+      .stadium-bowl.is-live-map #zone-block-stand-2 { top: 55%; }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) > div:first-child {
+        margin-bottom: 4px !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) > .glass-tile {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+        padding: 5px !important;
+        background: transparent !important;
+        border: 0 !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) > .glass-tile > div:first-child {
+        display: none;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) .shrink-0 {
+        width: 100%;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 5px !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) .shrink-0 > div {
+        gap: 3px !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) button,
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) [id^="standing-count-"] {
+        min-width: 25px !important;
+        width: auto !important;
+        height: 25px !important;
+        padding: 3px 6px !important;
+        font-size: 9px !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) .btn-glow {
+        color: #080808 !important;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-live-map .stadium-pitch {
+        inset: 40% 27% 13%;
+      }
+      .stadium-bowl.is-live-map .stadium-catwalk {
+        left: 47%; right: 47%; bottom: 16%; height: 11%;
+      }
+      .stadium-bowl.is-live-map .stadium-stage {
+        left: 32%; right: 32%; bottom: 7%; min-height: 45px;
+      }
+      .stadium-bowl.is-live-map > .stadium-map-zone:not(.stadium-zone-upper) { display: none; }
+      #seats-wrapper:empty,
+      .seat-inventory-heading { display: none; }
+
+      /* Cinema-style stadium seat picker: each cell is a real selectable seat. */
+      .stadium-bowl.is-seat-picker {
+        aspect-ratio: 1.12 / 1;
+        min-height: 620px;
+        overflow: hidden;
+      }
+      .stadium-bowl.is-seat-picker .stadium-pitch {
+        inset: 39% 27% 12%;
+      }
+      .stadium-bowl.is-seat-picker > .stadium-map-zone:not(.stadium-zone-upper):not(.stadium-zone-standing-1):not(.stadium-zone-standing-2) {
+        display: none;
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-upper {
+        z-index: 7;
+        top: 3.2%;
+        left: 31%;
+        right: 31%;
+        min-height: 30px;
+      }
+      .map-seat-cluster {
+        --cluster-color: #d8ff3e;
+        position: absolute;
+        z-index: 9;
+        padding: 7px;
+        border: 1px solid color-mix(in srgb, var(--cluster-color) 48%, transparent);
+        background: rgba(7, 7, 7, .9);
+        box-shadow: 0 8px 24px rgba(0,0,0,.24);
+        transition: opacity .16s ease, filter .16s ease;
+      }
+      .map-seat-cluster.map-cluster-dimmed { opacity: .2; filter: saturate(.4); }
+      .map-seat-cluster-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 5px;
+        color: rgba(255,255,255,.82);
+        font: 800 7px/1.2 'Space Grotesk', monospace;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .map-seat-cluster-label::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: var(--cluster-color);
+        box-shadow: 0 0 8px var(--cluster-color);
+      }
+      .map-seat-cluster-label span:first-of-type {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .map-seat-cluster-label span:last-child {
+        margin-left: auto;
+        color: var(--cluster-color);
+      }
+      .map-seat-cluster :is(#grid-vvip, #grid-vip1, #grid-a, #grid-b) {
+        display: grid !important;
+        gap: 4px !important;
+      }
+      .map-seat-cluster :is(#grid-vvip, #grid-vip1) {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+      }
+      .map-seat-cluster :is(#grid-a, #grid-b) {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      .map-seat-cluster-vvip { top: 12%; left: 29%; right: 29%; }
+      .map-seat-cluster-vip1 { top: 25.5%; left: 29%; right: 29%; }
+      .map-seat-cluster-a { top: 29%; left: 5.5%; width: 19%; }
+      .map-seat-cluster-b { top: 29%; right: 5.5%; width: 19%; }
+      .stadium-bowl.is-seat-picker .seat-node {
+        width: 100%;
+        min-width: 0;
+        min-height: 0 !important;
+        height: 30px;
+        padding: 2px !important;
+        border-radius: 3px !important;
+        font-size: 6px !important;
+        line-height: 1 !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node span:first-child {
+        overflow: hidden;
+        max-width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-seat-picker .seat-node span:last-child { display: none !important; }
+      .stadium-bowl.is-seat-picker .seat-node.seat-available {
+        background: var(--seat-zone-color) !important;
+        color: #070707 !important;
+        border-color: color-mix(in srgb, var(--seat-zone-color) 75%, white) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.38) !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node.seat-available:hover {
+        background: var(--seat-zone-color) !important;
+        transform: scale(1.12);
+        box-shadow: 0 0 13px color-mix(in srgb, var(--seat-zone-color) 70%, transparent) !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node.seat-sold {
+        background: color-mix(in srgb, var(--seat-zone-color) 9%, #0a0a0a) !important;
+        border-color: color-mix(in srgb, var(--seat-zone-color) 18%, transparent) !important;
+        color: rgba(255,255,255,.22) !important;
+        opacity: .68 !important;
+        cursor: pointer !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node.seat-held {
+        background: repeating-linear-gradient(135deg, rgba(245,158,11,.22) 0 3px, rgba(12,12,12,.95) 3px 7px) !important;
+        border-color: rgba(245,158,11,.58) !important;
+        color: #fcd34d !important;
+        opacity: .82 !important;
+        cursor: pointer !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node.seat-selected {
+        background: var(--seat-zone-color) !important;
+        color: #050505 !important;
+        border: 2px solid #fff !important;
+        box-shadow: 0 0 0 2px #d8ff3e, 0 0 14px rgba(216,255,62,.55) !important;
+        animation: none !important;
+        transform: scale(1.06);
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-1,
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-2 {
+        z-index: 8;
+        left: 29%;
+        right: 29%;
+        width: auto;
+        height: 48px;
+        bottom: auto;
+        display: flex;
+        color: #07110a;
+        border-color: rgba(255,255,255,.45);
+        font-size: 8px;
+        line-height: 1.15;
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-1 {
+        top: 44%;
+        background: #4ade80;
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-2 {
+        top: 54%;
+        background: #2dd4bf;
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-1:hover,
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-2:hover,
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-1:focus-visible,
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-2:focus-visible {
+        color: #050505;
+        background: #d8ff3e;
+      }
+      .stadium-bowl.is-seat-picker .stadium-stage {
+        left: 32%;
+        right: 32%;
+        bottom: 4%;
+        min-height: 46px;
+      }
+      .stadium-bowl.is-seat-picker .stadium-catwalk {
+        left: 47%;
+        right: 47%;
+        bottom: calc(4% + 45px);
+        height: 11%;
+        min-width: 28px;
+      }
+      /* Full oval seating bowl, modelled after real stadium concert plans. */
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-pitch {
+        inset: 25% 24% 15%;
+        border-color: rgba(216,255,62,.2);
+        background:
+          linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.08) 50%, transparent 50.3%),
+          repeating-linear-gradient(90deg, rgba(216,255,62,.035) 0 12.5%, transparent 12.5% 25%),
+          #111812;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring {
+        border-radius: 48% / 43%;
+        background: #0d100d;
+        border-color: rgba(255,255,255,.2);
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring::before,
+      .stadium-bowl.is-seat-picker.has-full-seat-ring::after {
+        border-radius: 48% / 43%;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring::before {
+        inset: 4.5%;
+        border-width: clamp(34px, 5.8vw, 54px);
+        border-color: #181d18;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.14),
+          inset 0 0 0 1px rgba(255,255,255,.12),
+          inset 0 0 0 10px rgba(255,255,255,.018);
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring::after {
+        inset: 17%;
+        border-width: clamp(25px, 4vw, 38px);
+        border-color: #202620;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.13),
+          inset 0 0 0 1px rgba(255,255,255,.1);
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-upper {
+        display: none;
+      }
+      .stadium-seat-ring {
+        position: absolute;
+        z-index: 9;
+        inset: 0;
+        pointer-events: none;
+      }
+      .stadium-ring-seat {
+        --seat-angle: 0deg;
+        --seat-text-angle: 0deg;
+        position: absolute !important;
+        z-index: 10;
+        width: 46px !important;
+        height: 29px !important;
+        min-height: 0 !important;
+        transform: translate(-50%, -50%);
+        clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%);
+        pointer-events: auto;
+      }
+      .stadium-ring-seat.ring-side-top {
+        clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+      }
+      .stadium-ring-seat.ring-side-bottom {
+        clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+      }
+      .stadium-ring-seat.ring-side-left {
+        clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 92%);
+      }
+      .stadium-ring-seat.ring-side-right {
+        clip-path: polygon(0 0, 100% 8%, 100% 92%, 0 100%);
+      }
+      .stadium-ring-seat[data-ring="inner"] {
+        width: 38px !important;
+        height: 24px !important;
+      }
+      .stadium-ring-seat[data-ring="middle"] {
+        width: 43px !important;
+        height: 27px !important;
+      }
+      .stadium-ring-seat[data-ring="outer"] {
+        width: 48px !important;
+        height: 30px !important;
+      }
+      .stadium-ring-seat > span {
+        transform: none;
+      }
+      .stadium-bowl.is-seat-picker .stadium-ring-seat.seat-available:hover {
+        transform: translate(-50%, -50%) scale(1.1) !important;
+      }
+      .stadium-bowl.is-seat-picker .stadium-ring-seat.seat-selected {
+        transform: translate(-50%, -50%) scale(1.08) !important;
+      }
+      .ring-zone-label {
+        --label-color: #d8ff3e;
+        position: absolute;
+        z-index: 8;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 7px;
+        color: rgba(255,255,255,.72);
+        background: rgba(7,7,7,.82);
+        border: 1px solid color-mix(in srgb, var(--label-color) 42%, transparent);
+        font: 800 7px/1.2 'Space Grotesk', monospace;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      .ring-zone-label::before {
+        content: '';
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--label-color);
+        box-shadow: 0 0 7px var(--label-color);
+      }
+      .ring-zone-label-vvip { top: 17%; left: 50%; transform: translateX(-50%); }
+      .ring-zone-label-vip1 { bottom: 16%; left: 50%; transform: translateX(-50%); }
+      .ring-zone-label-a { top: 50%; left: 15%; transform: translateY(-50%) rotate(-90deg); }
+      .ring-zone-label-b { top: 50%; right: 15%; transform: translateY(-50%) rotate(90deg); }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-stage {
+        left: 35%;
+        right: 35%;
+        bottom: 31%;
+        min-height: 46px;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-catwalk {
+        left: 47%;
+        right: 47%;
+        bottom: calc(31% + 45px);
+        height: 11%;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-standing-1,
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-standing-2 {
+        left: 34%;
+        right: 34%;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-standing-1 { top: 38%; }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-standing-2 { top: 48%; }
+      .map-selection-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        min-height: 82px;
+        margin-top: 12px;
+        padding: 14px 16px;
+        border: 1px solid rgba(255,255,255,.16);
+        background: #0d0d0d;
+      }
+      .map-selection-panel:not(.is-active) { display:none; }
+      .map-selection-panel.is-active { border-color: rgba(216,255,62,.48); }
+      .map-selection-eyebrow {
+        color: rgba(255,255,255,.45);
+        font: 700 8px/1.4 'Space Grotesk', monospace;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+      .map-selection-title {
+        margin-top: 4px;
+        color: #fff;
+        font-family: 'Syne', sans-serif;
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .map-selection-detail {
+        margin-top: 3px;
+        color: rgba(255,255,255,.52);
+        font-size: 10px;
+      }
+      .map-selection-price { color: #d8ff3e; font-weight: 800; }
+      .map-selection-actions { display: flex; align-items: center; gap: 8px; }
+      .map-qty-control { display: flex; align-items: center; gap: 3px; }
+      .map-qty-control button,
+      .map-qty-control span {
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border: 1px solid rgba(255,255,255,.16);
+        background: #151515;
+        color: #fff;
+        font-weight: 800;
+      }
+      .map-selection-action {
+        min-height: 34px;
+        padding: 8px 12px;
+        color: #070707;
+        background: #d8ff3e;
+        border: 1px solid #d8ff3e;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .map-selection-action:disabled {
+        color: rgba(255,255,255,.36);
+        background: #171717;
+        border-color: rgba(255,255,255,.12);
+        cursor: not-allowed;
+      }
+      #seats-wrapper { display: none; }
+
+      /* Vector stadium bowl — SVG replaces the former loose seat buttons. */
+      .stadium-vector-shell {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.12);
+        background:
+          radial-gradient(circle at 50% 44%, rgba(216,255,62,.055), transparent 43%),
+          linear-gradient(180deg, #101312 0%, #090a0a 100%);
+        box-shadow: inset 0 0 70px rgba(0,0,0,.54);
+      }
+      #stadium-svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        touch-action: manipulation;
+        overflow: visible;
+      }
+      .stadium-outline {
+        fill: rgba(255,255,255,.012);
+        stroke: rgba(255,255,255,.16);
+        stroke-width: 2;
+      }
+      .stadium-aisle {
+        fill: none;
+        stroke: rgba(255,255,255,.075);
+        stroke-width: 2;
+        stroke-dasharray: 5 10;
+        pointer-events: none;
+      }
+      .stadium-svg-zone {
+        --zone-color: #d8ff3e;
+        cursor: pointer;
+        outline: none;
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: filter .22s ease, opacity .22s ease, transform .22s ease;
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,.34));
+      }
+      .stadium-svg-zone:hover,
+      .stadium-svg-zone:focus-visible {
+        filter: brightness(1.25) drop-shadow(0 0 10px var(--zone-color));
+        transform: scale(1.01);
+      }
+      .stadium-svg-zone.is-selected {
+        filter: brightness(1.22) drop-shadow(0 0 12px var(--zone-color));
+      }
+      .stadium-svg-zone.is-filter-match {
+        filter: brightness(1.18) drop-shadow(0 0 9px var(--zone-color));
+      }
+      .stadium-svg-zone.is-selected .zone-shape {
+        stroke: #fff;
+        stroke-width: 4;
+      }
+      .stadium-svg-zone.is-dimmed {
+        opacity: .18;
+        filter: saturate(.25);
+      }
+      .stadium-svg-zone.is-search-miss { opacity: .12; }
+      .zone-shape {
+        fill: color-mix(in srgb, var(--zone-color) 72%, #111 28%);
+        stroke: color-mix(in srgb, var(--zone-color) 80%, #fff 20%);
+        stroke-width: 2.5;
+        vector-effect: non-scaling-stroke;
+      }
+      .zone-shape.zone-surface {
+        fill: color-mix(in srgb, var(--zone-color) 68%, #172019 32%);
+      }
+      .zone-divider {
+        fill: none;
+        stroke: rgba(4,6,5,.52);
+        stroke-width: 5;
+        vector-effect: non-scaling-stroke;
+        pointer-events: none;
+      }
+      .svg-zone-label,
+      .svg-zone-price,
+      .svg-zone-subtitle {
+        fill: #080b09;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 900;
+        text-anchor: middle;
+        pointer-events: none;
+      }
+      .svg-zone-label { font-size: 18px; letter-spacing: .035em; }
+      .svg-zone-price { font-size: 13px; font-weight: 800; }
+      .svg-zone-subtitle { font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+      .svg-zone-label.on-dark,
+      .svg-zone-price.on-dark,
+      .svg-zone-subtitle.on-dark { fill: rgba(255,255,255,.88); }
+      .stadium-infield {
+        fill: url(#pitchGrid);
+        stroke: rgba(216,255,62,.18);
+        stroke-width: 2;
+      }
+      .svg-catwalk {
+        fill: url(#stageGradient);
+        stroke: #edff97;
+        stroke-width: 3;
+        filter: drop-shadow(0 0 12px rgba(216,255,62,.3));
+      }
+      .svg-stage {
+        fill: url(#stageGradient);
+        stroke: #edff97;
+        stroke-width: 3;
+        filter: drop-shadow(0 0 16px rgba(216,255,62,.32));
+      }
+      .svg-stage-label {
+        fill: #050705;
+        font-family: 'Syne', sans-serif;
+        font-size: 24px;
+        font-weight: 900;
+        letter-spacing: .06em;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        pointer-events: none;
+      }
+      .stadium-blocked-zone {
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .stadium-blocked-zone .zone-shape {
+        fill: url(#blockedPattern);
+        stroke: rgba(255,255,255,.13);
+        stroke-width: 2;
+      }
+      .stadium-blocked-label {
+        fill: rgba(255,255,255,.42);
+        font: 800 12px/1 'Space Grotesk', sans-serif;
+        letter-spacing: .08em;
+        text-anchor: middle;
+        pointer-events: none;
+      }
+      .svg-zone-tooltip {
+        position: fixed;
+        z-index: 90;
+        min-width: 220px;
+        max-width: 280px;
+        padding: 12px 14px;
+        color: #fff;
+        background: rgba(8,10,9,.95);
+        border: 1px solid color-mix(in srgb, var(--tooltip-color, #d8ff3e) 62%, transparent);
+        box-shadow: 0 16px 45px rgba(0,0,0,.52), 0 0 22px color-mix(in srgb, var(--tooltip-color, #d8ff3e) 18%, transparent);
+        backdrop-filter: blur(14px);
+        pointer-events: none;
+        opacity: 0;
+        transform: translate(14px, calc(-100% - 14px)) scale(.96);
+        transition: opacity .14s ease, transform .14s ease;
+      }
+      .svg-zone-tooltip.is-visible {
+        opacity: 1;
+        transform: translate(14px, calc(-100% - 14px)) scale(1);
+      }
+      .svg-tooltip-kicker {
+        color: var(--tooltip-color, #d8ff3e);
+        font: 800 9px/1.4 'Space Grotesk', sans-serif;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+      }
+      .svg-tooltip-title { margin-top: 4px; font: 800 14px/1.25 'Syne', sans-serif; }
+      .svg-tooltip-meta { display: flex; justify-content: space-between; gap: 16px; margin-top: 8px; color: rgba(255,255,255,.58); font-size: 10px; }
+      .svg-tooltip-meta strong { color: #fff; font-size: 11px; }
+      .stadium-map-instruction {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(255,255,255,.025);
+        color: rgba(255,255,255,.52);
+        font-size: 10px;
+      }
+      .stadium-map-instruction strong { color: #d8ff3e; text-transform: uppercase; letter-spacing: .06em; }
+      .stadium-capacity-chip {
+        flex: 0 0 auto;
+        padding: 5px 8px;
+        border: 1px solid rgba(216,255,62,.22);
+        color: #d8ff3e;
+        background: rgba(216,255,62,.04);
+        font: 800 9px/1 'Space Grotesk', sans-serif;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .zone-detail-panel {
+        margin-top: 14px;
+        min-height: 126px;
+        padding: 18px;
+        border: 1px solid rgba(255,255,255,.13);
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.045), rgba(255,255,255,.012)),
+          rgba(8,10,12,.86);
+        box-shadow: inset 0 1px rgba(255,255,255,.045), 0 18px 42px rgba(0,0,0,.2);
+        backdrop-filter: blur(18px);
+      }
+      .zone-detail-panel.is-active { border-color: color-mix(in srgb, var(--detail-color, #d8ff3e) 45%, rgba(255,255,255,.12)); }
+      .zone-detail-empty {
+        min-height: 88px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+        color: rgba(255,255,255,.46);
+      }
+      .zone-detail-empty-icon {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        color: #d8ff3e;
+        border: 1px solid rgba(216,255,62,.32);
+        background: rgba(216,255,62,.05);
+        font-size: 22px;
+      }
+      .zone-detail-empty strong { color: rgba(255,255,255,.86); font-size: 13px; }
+      .zone-detail-empty p { margin-top: 3px; font-size: 10px; }
+      .zone-detail-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255,255,255,.09);
+      }
+      .zone-detail-kicker {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--detail-color, #d8ff3e);
+        font: 800 9px/1.3 'Space Grotesk', sans-serif;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+      }
+      .zone-detail-kicker::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--detail-color, #d8ff3e);
+        box-shadow: 0 0 10px var(--detail-color, #d8ff3e);
+      }
+      .zone-detail-name { margin-top: 6px; color: #fff; font: 800 17px/1.2 'Syne', sans-serif; }
+      .zone-detail-stats { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+      .zone-detail-stat {
+        min-width: 118px;
+        padding: 8px 10px;
+        border: 1px solid rgba(255,255,255,.11);
+        background: rgba(255,255,255,.025);
+        text-align: right;
+      }
+      .zone-detail-stat span { display: block; color: rgba(255,255,255,.4); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+      .zone-detail-stat strong { display: block; margin-top: 3px; color: #fff; font-size: 12px; }
+      .zone-detail-stat strong.accent { color: var(--detail-color, #d8ff3e); }
+      .detail-seat-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 13px 0 10px; color: rgba(255,255,255,.5); font-size: 9px; }
+      .detail-seat-legend span { display: flex; align-items: center; gap: 5px; }
+      .detail-seat-legend i { width: 9px; height: 9px; border: 1px solid rgba(255,255,255,.22); }
+      .detail-seat-legend .legend-available { background:#22c55e; }
+      .detail-seat-legend .legend-sold { background:repeating-linear-gradient(135deg,#3f4650 0 4px,#171a1f 4px 8px); }
+      .detail-seat-legend .legend-held { background:repeating-linear-gradient(135deg,#d38b21 0 4px,#5c3a0c 4px 8px); }
+      .detail-seat-rows { display: grid; gap: 10px; margin-top: 12px; }
+      .detail-seat-row {
+        display: grid;
+        grid-template-columns: 58px minmax(0,1fr);
+        align-items: center;
+        gap: 10px;
+      }
+      .detail-row-label {
+        color: rgba(255,255,255,.5);
+        font: 800 10px/1 'Space Grotesk', sans-serif;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+      .detail-row-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 8px; }
+      .detail-seat {
+        position: relative;
+        min-height: 54px;
+        padding: 6px 4px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.16);
+        color: #071009;
+        background: #22c55e;
+        font-family: 'Space Grotesk', sans-serif;
+        text-align: center;
+        transition: transform .16s ease, filter .16s ease, border-color .16s ease;
+      }
+      .detail-seat.available:hover,
+      .detail-seat.available:focus-visible { transform: translateY(-2px); filter: brightness(1.18); border-color: #d7ffe3; }
+      .detail-seat.selected { color:#090909; background:#eab308; border-color:#fff4a8; box-shadow:0 0 13px rgba(234,179,8,.34); }
+      .detail-seat.sold {
+        color:rgba(255,255,255,.34);
+        background:repeating-linear-gradient(135deg,#31363e 0 7px,#171a1f 7px 14px);
+        border-color:rgba(156,163,175,.3);
+        cursor:not-allowed;
+      }
+      .detail-seat.sold::after { content:''; position:absolute; inset:50% 9%; height:1px; background:rgba(255,255,255,.38); transform:rotate(-18deg); }
+      .detail-seat.held {
+        color:#ffe6b3;
+        background:repeating-linear-gradient(135deg,#b87014 0 7px,#4d300a 7px 14px);
+        border-color:rgba(251,191,36,.5);
+        cursor:not-allowed;
+      }
+      .detail-seat.blocked { color:rgba(255,255,255,.26); background:#17191c; cursor:not-allowed; }
+      .detail-seat-number { display:block; font-size:14px; font-weight:900; line-height:1; }
+      .detail-seat-code { display:block; margin-top:4px; overflow:hidden; font-size:7px; font-weight:800; text-overflow:ellipsis; white-space:nowrap; }
+      .detail-standing-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 14px;
+        padding: 16px;
+        border: 1px solid color-mix(in srgb, var(--detail-color, #d8ff3e) 35%, transparent);
+        background: color-mix(in srgb, var(--detail-color, #d8ff3e) 7%, #0c0e0d 93%);
+      }
+      .detail-standing-copy strong { color:#fff; font-size:13px; }
+      .detail-standing-copy p { margin-top:4px; color:rgba(255,255,255,.47); font-size:10px; }
+      .detail-standing-actions { display:flex; align-items:center; gap:10px; }
+      .detail-standing-qty { display:flex; align-items:center; }
+      .detail-standing-qty button,
+      .detail-standing-qty span { display:grid; width:36px; height:36px; place-items:center; border:1px solid rgba(255,255,255,.14); background:#141715; color:#fff; font-weight:900; }
+      .detail-standing-add { min-height:36px; padding:8px 13px; color:#080a08; background:var(--detail-color,#d8ff3e); font-size:9px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
+      .stadium-svg-zone.is-active-zone { filter:brightness(1.28) drop-shadow(0 0 14px var(--zone-color)); stroke:#fff; stroke-width:4; }
+
+      /* index_3: true oval bowl + animated SVG camera. */
+      #stadium-svg > :not(defs):not(title):not(desc):not(#oval-stadium-root) { display:none; }
+      #zone-detail-panel { display:none !important; }
+      .stadium-vector-shell { overflow:hidden; }
+      .stadium-reset-view {
+        position:absolute;
+        z-index:12;
+        top:14px;
+        right:14px;
+        min-height:34px;
+        padding:7px 11px;
+        color:#eaff9a;
+        background:rgba(8,10,9,.78);
+        border:1px solid rgba(216,255,62,.34);
+        backdrop-filter:blur(14px);
+        font:800 9px/1 'Space Grotesk',sans-serif;
+        letter-spacing:.05em;
+        text-transform:uppercase;
+        opacity:0;
+        pointer-events:none;
+        transform:translateY(-6px);
+        transition:opacity .2s ease,transform .2s ease,background .2s ease;
+      }
+      .stadium-reset-view.is-visible { opacity:1; pointer-events:auto; transform:none; }
+      .stadium-reset-view:hover { color:#090b08; background:#d8ff3e; }
+      .oval-bowl-backdrop { fill:#0c100e; stroke:rgba(255,255,255,.17); stroke-width:3; }
+      .oval-pitch { fill:url(#pitchGrid); stroke:rgba(216,255,62,.2); stroke-width:2; pointer-events:none; }
+      .oval-sector {
+        --zone-color:#b8dc79;
+        fill:color-mix(in srgb,var(--zone-color) 72%,#111 28%);
+        stroke:rgba(4,6,5,.9);
+        stroke-width:5;
+        vector-effect:non-scaling-stroke;
+        cursor:pointer;
+        transform-box:fill-box;
+        transform-origin:center;
+        transition:filter .2s ease,opacity .2s ease,transform .2s ease,stroke .2s ease;
+      }
+      #stadium-svg.is-camera-moving .oval-sector,
+      #stadium-svg.is-camera-moving .oval-standing-shape,
+      #stadium-svg.is-camera-moving .oval-stage,
+      #stadium-svg.is-camera-moving .oval-catwalk {
+        filter:none !important;
+        transition:none !important;
+      }
+      #stadium-svg.is-camera-moving .master-sector-labels,
+      #stadium-svg.is-camera-moving #stadium-seat-layer {
+        opacity:0 !important;
+        transition:none !important;
+      }
+      .oval-sector:hover,.oval-sector:focus-visible,.oval-sector.is-active-zone {
+        filter:brightness(1.24) drop-shadow(0 0 12px var(--zone-color));
+        stroke:#fff;
+        stroke-width:4;
+        outline:none;
+      }
+      .oval-sector.is-dimmed { opacity:.18; filter:saturate(.25); }
+      .oval-sector.blocked-sector { fill:url(#blockedPattern); stroke:rgba(255,255,255,.09); pointer-events:none; cursor:default; }
+      .oval-standing-shape { fill:#78d683; stroke:#c8ffb6; stroke-width:3; }
+      .oval-zone-title,.oval-zone-price,.oval-tier-label,.oval-blocked-label {
+        text-anchor:middle;
+        pointer-events:none;
+        font-family:'Space Grotesk',sans-serif;
+        font-weight:900;
+      }
+      .oval-zone-title { fill:#071008; font-size:23px; letter-spacing:.03em; dominant-baseline:middle; }
+      .oval-zone-price { fill:#17391b; font-size:16px; }
+      .oval-tier-label { fill:rgba(255,255,255,.86); font-size:17px; letter-spacing:.07em; }
+      .oval-tier-curve {
+        fill:rgba(255,255,255,.9);
+        font:800 17px/1 'Space Grotesk',sans-serif;
+        letter-spacing:.08em;
+        text-anchor:middle;
+        pointer-events:none;
+        paint-order:stroke;
+        stroke:rgba(5,8,6,.55);
+        stroke-width:3px;
+      }
+      .oval-blocked-label { fill:rgba(255,255,255,.4); font-size:14px; letter-spacing:.1em; }
+      .oval-catwalk,.oval-stage { vector-effect:non-scaling-stroke; }
+      .master-sector-labels { opacity:1; transition:opacity .3s ease; }
+      #stadium-svg.is-camera-zoomed .master-sector-labels { opacity:0; }
+      #stadium-seat-layer { opacity:0; transition:opacity .22s ease .18s; }
+      #stadium-svg.is-camera-zoomed #stadium-seat-layer { opacity:1; }
+      .camera-seat-cell { cursor:pointer; outline:none; }
+      .camera-seat-cell path {
+        fill:#22c55e;
+        stroke:#caffd8;
+        stroke-width:2.25;
+        vector-effect:non-scaling-stroke;
+        filter:drop-shadow(0 2px 3px rgba(0,0,0,.38));
+        transition:filter .16s ease,fill .16s ease,stroke .16s ease;
+      }
+      .camera-seat-cell:hover path,.camera-seat-cell:focus-visible path {
+        filter:brightness(1.24) drop-shadow(0 0 7px #22c55e);
+        stroke:#fff;
+      }
+      .camera-seat-cell.sold,.camera-seat-cell.held { cursor:not-allowed; }
+      .camera-seat-cell.sold path { fill:url(#seatSoldPattern); stroke:#64748b; }
+      .camera-seat-cell.held path { fill:url(#seatHeldPattern); stroke:#fbbf24; }
+      .camera-seat-cell.selected path { fill:#eab308; stroke:#fff3a2; filter:drop-shadow(0 0 8px rgba(234,179,8,.82)); }
+      .camera-seat-cell text {
+        fill:#071008;
+        font:900 6.5px/1 'Space Grotesk',sans-serif;
+        text-anchor:middle;
+        dominant-baseline:middle;
+        pointer-events:none;
+      }
+      .camera-seat-cell.sold text,.camera-seat-cell.held text { fill:rgba(255,255,255,.76); }
+      .seat-cell-slash { stroke:rgba(226,232,240,.72); stroke-width:2; vector-effect:non-scaling-stroke; pointer-events:none; }
+      .camera-zone-header-bg { fill:rgba(7,11,12,.88); stroke:rgba(216,255,62,.42); stroke-width:1.25; vector-effect:non-scaling-stroke; }
+      .camera-zone-heading { fill:#fff; font:900 7px/1 'Syne',sans-serif; text-anchor:middle; }
+      .camera-zone-subheading { fill:#d8ff3e; font:800 5.5px/1 'Space Grotesk',sans-serif; text-anchor:middle; }
+      @media (max-width: 639px) {
+        .stadium-map-shell { padding: 8px; }
+        .stadium-map-meta { align-items: flex-start; flex-direction: column; gap: 4px; }
+        .stadium-map-caption { grid-template-columns: 1fr; }
+        .map-selection-panel { grid-template-columns: 1fr; }
+        .svg-zone-label { font-size: 22px; }
+        .svg-zone-price { font-size: 16px; }
+        .stadium-map-instruction { align-items: flex-start; flex-direction: column; }
+        .zone-detail-panel { padding:12px; }
+        .zone-detail-header { flex-direction:column; }
+        .zone-detail-stats { justify-content:flex-start; width:100%; }
+        .zone-detail-stat { flex:1; text-align:left; }
+        .detail-seat-row { grid-template-columns:1fr; gap:6px; }
+        .detail-row-grid { gap:5px; }
+        .detail-seat { min-height:48px; }
+        .detail-standing-card { align-items:flex-start; flex-direction:column; }
+        .detail-standing-actions { width:100%; justify-content:space-between; }
+      }
+      .editorial-heading { border-color: rgba(255,255,255,.24); }
+      .editorial-kicker::before { background: var(--accent); }
+      .btn-glow {
+        color: #090909 !important;
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      .btn-glow svg { color: #090909 !important; }
+      #pricing-section [data-zone-code] .btn-glow,
+      #pricing-section [data-zone-code] .btn-glow span { color: #090909 !important; }
+      .btn-glow::before { display: none; }
+      footer { background: #070707 !important; }
+
+      @media (max-width: 1023px) {
+        #concert-hero {
+          min-height: auto;
+          background-image:
+            linear-gradient(90deg, rgba(5,5,5,.95), rgba(5,5,5,.72)),
+            linear-gradient(0deg, rgba(5,5,5,.94), transparent 60%),
+            url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1400&q=86');
+          background-blend-mode: normal, normal, luminosity;
+        }
+      }
+      @media (max-width: 639px) {
+        #concert-hero { background-position: 62% center; }
+        #concert-hero h1 { font-size: clamp(2.7rem, 14vw, 4rem) !important; }
+        #concert-hero .lg\:col-span-7 > .grid > .group + .group {
+          border-left: 0;
+          border-top: 1px solid rgba(255,255,255,.22);
+        }
+        #artist-lineup { padding-top: 56px; padding-bottom: 64px; }
+        #artist-lineup .aspect-square { aspect-ratio: 1 / 1; }
+      }
     </style>
   </head>
-  <body class="min-h-screen bg-[#05070B] text-slate-100 antialiased selection:bg-amber-400 selection:text-black relative">
+  <body class="min-h-screen bg-[#070707] text-slate-100 antialiased selection:bg-lime-300 selection:text-black relative">
 
     <!-- Starfield Dynamic Background Containers (Layer A & B) -->
     <div id="stA" aria-hidden="true"></div>
     <div id="stB" aria-hidden="true"></div>
 
+    <!-- Editorial navigation: compact, structured and always accessible -->
+    <header class="site-header">
+      <nav class="max-w-7xl mx-auto h-full px-4 sm:px-6 flex items-center justify-between gap-5" aria-label="Điều hướng chính">
+        <a href="#concert-hero" class="flex items-center gap-3 group" aria-label="Super Concert 2026 - Về đầu trang">
+          <span class="w-8 h-8 border border-amber-400/60 bg-amber-400 text-black flex items-center justify-center font-black text-xs">SC</span>
+          <span class="site-brand text-white text-sm sm:text-base">SUPER CONCERT <span class="text-amber-400">2026</span></span>
+        </a>
+
+        <div class="site-nav-desktop flex items-center gap-7">
+          <a href="#artist-lineup" class="site-nav-link">Nghệ sĩ</a>
+          <a href="#pricing-section" class="site-nav-link">Hạng vé</a>
+          <a href="#seating-section" class="site-nav-link">Sơ đồ ghế</a>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button id="btn-view-schedule" type="button" class="h-9 px-2.5 sm:px-3.5 border border-white/10 hover:border-white/30 text-[10px] sm:text-[11px] font-bold tracking-[.1em] uppercase text-white/70 hover:text-white transition-colors">
+            <span class="hidden sm:inline">Timeline</span>
+            <span class="sm:hidden">Lịch</span>
+          </button>
+          <a href="#seating-section" class="h-9 px-2.5 sm:px-4 border border-white/20 hover:border-amber-400 bg-white/[.035] text-[10px] sm:text-[11px] font-bold tracking-[.1em] uppercase text-white flex items-center gap-2 transition-colors">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="hidden sm:inline">Chọn vé ngay</span>
+            <span class="sm:hidden">Vé</span>
+          </a>
+        </div>
+      </nav>
+    </header>
+
     <!-- MAIN HERO BANNER & CONCERT INFO (FR-T1-01) -->
-    <section id="concert-hero" class="relative overflow-hidden stage-glow border-b border-white/[0.08] pt-10 pb-16 sm:pt-16 sm:pb-24">
+    <section id="concert-hero" class="scroll-focus-section section-focused relative overflow-hidden stage-glow border-b border-white/[0.08] pt-10 pb-16 sm:pt-16 sm:pb-24">
       <div class="absolute inset-0 spotlight pointer-events-none"></div>
+      <div class="aurora-glow-hero pointer-events-none" aria-hidden="true"></div>
 
       <!-- Hero content -->
       <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -594,13 +2371,13 @@
             
             <!-- Pixel Contract A: Status Badge -->
             <div>
-              <div class="entrance-badge inline-flex items-center h-8 sm:h-9 px-3 rounded-xl border border-white/[0.115] bg-gradient-to-t from-amber-500/[0.12] to-white/[0.015] backdrop-blur-md shadow-inner gap-2 sm:gap-2.5">
+              <div class="entrance-badge inline-flex items-center h-8 sm:h-9 px-3.5 rounded-xl border border-white/[0.115] bg-gradient-to-t from-amber-500/[0.12] to-white/[0.015] backdrop-blur-md shadow-inner gap-2 sm:gap-2.5">
                 <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-br from-[#f59e0b] to-[#0a1120] flex items-center justify-center shadow-inner text-amber-300 shrink-0">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
                 </div>
-                <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.08em] text-white/90 whitespace-nowrap">
+                <span class="text-[11px] sm:text-xs font-normal uppercase tracking-[0.22em] text-white/90 whitespace-nowrap">
                   SỰ KIỆN ÂM NHẠC TRỌNG ĐIỂM 2026
                 </span>
               </div>
@@ -608,77 +2385,54 @@
 
             <!-- H1 Typography with metallic gold gradient & entrance animation -->
             <div class="entrance-headline">
-              <h1 class="text-3xl sm:text-4xl lg:text-[40px] xl:text-5xl font-black font-display tracking-tight text-white leading-tight uppercase">
+              <h1 class="text-4xl sm:text-5xl lg:text-[54px] xl:text-[62px] font-black font-syne tracking-[-0.055em] text-white leading-[.94] uppercase [text-shadow:0_0_35px_rgba(255,255,255,0.18)]">
                 SUPER CONCERT 2026
-                <span class="block text-lg sm:text-2xl lg:text-[25px] xl:text-[32px] font-extrabold tracking-normal mt-2 sm:mt-2.5 pt-1 pb-0.5 leading-snug bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-500 font-['Be_Vietnam_Pro'] whitespace-nowrap">
+                <span class="block text-base sm:text-xl lg:text-[23px] xl:text-[27px] font-extrabold tracking-[.01em] mt-3 pt-1 pb-0.5 leading-snug bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-500 font-['Be_Vietnam_Pro'] whitespace-nowrap">
                   ĐẠI NHẠC HỘI NGOẠI THƯƠNG
                 </span>
               </h1>
             </div>
 
-            <p class="text-slate-300/90 text-sm sm:text-[15px] leading-relaxed max-w-xl font-normal">
+            <p class="text-slate-300/90 text-sm sm:text-[15px] leading-relaxed max-w-xl font-light">
               Đêm đại nhạc hội quy mô 40.000 khán giả hội tụ dàn nghệ sĩ hàng đầu Việt Nam, hệ thống âm thanh ánh sáng D&B Audiotechnik chuẩn quốc tế và trải nghiệm chọn vé thời gian thực.
             </p>
 
-            <!-- Event Details Cards -->
+            <!-- Event Details Cards with Aurora Glow Highlights -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-              <div class="p-3.5 rounded-2xl liquid-glass flex items-start space-x-3">
-                <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
-                  <!-- Calendar icon -->
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-[11px] uppercase tracking-wider text-slate-400">Thời gian diễn ra</div>
-                  <div class="text-sm font-semibold text-white mt-0.5">19:30, Ngày 15/10/2026</div>
-                  <div class="text-[11px] text-amber-400/90 mt-0.5">Mở cổng check-in từ 16:30</div>
+              <div class="relative group">
+                <div class="relative p-3.5 rounded-2xl liquid-glass flex items-start space-x-3">
+                  <div class="p-2 rounded bg-amber-400/[.08] text-amber-300 border border-amber-400/20 shrink-0">
+                    <!-- Calendar icon -->
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-[11px] uppercase tracking-wider text-slate-400">Thời gian diễn ra</div>
+                    <div class="text-sm font-semibold text-white mt-0.5">19:30, Ngày 15/10/2026</div>
+                    <div class="text-[11px] text-amber-400/90 mt-0.5">Mở cổng check-in từ 16:30</div>
+                  </div>
                 </div>
               </div>
 
-              <div class="p-3.5 rounded-2xl liquid-glass flex items-start space-x-3">
-                <div class="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">
-                  <!-- Map Pin icon -->
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-[11px] uppercase tracking-wider text-slate-400">Địa điểm tổ chức</div>
-                  <div class="text-sm font-semibold text-white mt-0.5">SVĐ Quốc gia Mỹ Đình</div>
-                  <div class="text-[11px] text-slate-400 mt-0.5">Đường Lê Đức Thọ, Nam Từ Liêm, Hà Nội</div>
+              <div class="relative group">
+                <div class="relative p-3.5 rounded-2xl liquid-glass flex items-start space-x-3">
+                  <div class="p-2 rounded bg-white/[.045] text-slate-300 border border-white/10 shrink-0">
+                    <!-- Map Pin icon -->
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-[11px] uppercase tracking-wider text-slate-400">Địa điểm tổ chức</div>
+                    <div class="text-sm font-semibold text-white mt-0.5">SVĐ Quốc gia Mỹ Đình</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Đường Lê Đức Thọ, Nam Từ Liêm, Hà Nội</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Action buttons with Pixel Contract B signature glow button -->
-            <div class="flex flex-wrap items-center gap-3 pt-2">
-              <a
-                href="#seating-section"
-                id="btn-hero-select-seats"
-                class="btn-glow px-6 py-3.5 text-sm sm:text-base font-bold gap-2.5 shadow-xl cursor-pointer"
-              >
-                <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
-                </svg>
-                <span>BẤM ĐỂ CHỌN CHỖ NGỒI</span>
-              </a>
-
-              <a
-                href="#pricing-section"
-                class="px-5 py-3 rounded-xl font-medium text-sm border border-white/[0.085] bg-white/[0.03] hover:bg-white/[0.08] text-slate-200 transition flex items-center gap-2 cursor-pointer backdrop-blur-sm shadow-md"
-              >
-                <span>Bảng giá các hạng vé</span>
-              </a>
-
-              <button
-                id="btn-view-schedule"
-                class="px-4 py-3 rounded-xl font-medium text-xs border border-white/[0.085] bg-white/[0.02] hover:bg-white/[0.06] text-slate-400 hover:text-slate-200 transition cursor-pointer backdrop-blur-sm"
-              >
-                Xem timeline lịch trình
-              </button>
-            </div>
           </div>
 
           <!-- Right Column (lg:col-span-5): Realtime Countdown Box with Animated Glowing Border Beam -->
@@ -836,10 +2590,14 @@
     </section>
 
     <!-- ARTIST LINEUP SECTION (DÀN NGHỆ SĨ KHÁCH MỜI) -->
-    <section id="artist-lineup" class="py-12 border-b border-white/[0.085]">
+    <section id="artist-lineup" class="scroll-focus-section section-dimmed py-12 border-b border-white/[0.085]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="mb-8">
-          <h2 class="text-2xl sm:text-3xl font-bold font-display text-white">DÀN NGHỆ SĨ KHÁCH MỜI (ARTIST LINEUP)</h2>
+        <div class="editorial-heading mb-8 flex items-end justify-between gap-4">
+          <div>
+            <span class="editorial-kicker">Live performance</span>
+            <h2 class="text-2xl sm:text-3xl font-bold font-syne tracking-[-.025em] text-white mt-2">DÀN NGHỆ SĨ KHÁCH MỜI</h2>
+          </div>
+          <span class="section-number hidden sm:block">01 / 03</span>
         </div>
 
         <!-- Artist Cards Grid (6-column on desktop) -->
@@ -950,10 +2708,14 @@
     </section>
 
     <!-- PRICING & TIER SPECS (FR-T1-01) -->
-    <section id="pricing-section" class="py-16 border-b border-white/[0.085] relative">
+    <section id="pricing-section" class="scroll-focus-section section-dimmed py-16 border-b border-white/[0.085] relative">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="text-center max-w-3xl mx-auto mb-10">
-          <h2 class="text-2xl sm:text-4xl font-extrabold font-display text-white">BẢNG GIÁ VÉ & QUYỀN LỢI PHÂN KHU</h2>
+        <div class="editorial-heading mb-10 flex items-end justify-between gap-4">
+          <div>
+            <span class="editorial-kicker">Ticket tiers & privileges</span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold font-syne tracking-[-.035em] text-white mt-2">BẢNG GIÁ VÉ & QUYỀN LỢI</h2>
+          </div>
+          <span class="section-number hidden sm:block">02 / 03</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -964,7 +2726,7 @@
             
             <div class="pt-2">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold text-amber-400 tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">Fanzone A / B</span>
+                <span class="text-[11px] font-bold text-amber-400 tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">Premium Lounge</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-400 text-black shadow-sm">VIP</span>
               </div>
               <h3 class="text-xl font-bold text-white mb-2 font-display">VIP Kim Cương</h3>
@@ -976,7 +2738,7 @@
               <ul class="space-y-2.5 text-xs text-slate-300 border-t border-white/[0.08] pt-4">
                 <li class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                  <span>Vị trí Fanzone sát sân khấu trung tâm</span>
+                  <span>Vị trí chính diện, cao và bao quát sân khấu</span>
                 </li>
                 <li class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -1184,31 +2946,17 @@
     </section>
 
     <!-- INTERACTIVE SEATING MAP (FR-T1-02 & SHOULD-HAVE EXTENSIONS) -->
-    <section id="seating-section" class="py-14">
+    <section id="seating-section" class="scroll-focus-section section-dimmed py-14">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <!-- Section Header -->
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-7 gap-4">
+        <div class="editorial-heading flex flex-col lg:flex-row lg:items-end justify-between mb-7 gap-4">
           <div class="shrink-0">
-            <h2 class="text-base sm:text-xl md:text-2xl lg:text-2xl xl:text-[28px] font-extrabold font-display text-white tracking-tight whitespace-nowrap">
+            <span class="editorial-kicker">Interactive ticket map · 03 / 03</span>
+            <h2 class="text-base sm:text-xl md:text-2xl lg:text-2xl xl:text-[28px] font-extrabold font-syne text-white tracking-[-.025em] whitespace-nowrap mt-2">
               SƠ ĐỒ CHỖ NGỒI & CHỌN VÉ TRỰC QUAN
             </h2>
           </div>
 
-          <!-- Color Legends (Mã màu chuẩn SRS) -->
-          <div class="flex flex-nowrap items-center gap-3 sm:gap-4 glass-strip px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs whitespace-nowrap overflow-x-auto shrink-0">
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="w-3.5 h-3.5 rounded-[5px] bg-[#22C55E] border border-white/20 shadow-sm shadow-emerald-500/30"></span>
-              <span class="text-slate-300">Còn trống (#22C55E)</span>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="w-3.5 h-3.5 rounded-[5px] bg-slate-800/80 border border-slate-400/60 shadow-sm"></span>
-              <span class="text-slate-400">Đã bán (#9CA3AF)</span>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="w-3.5 h-3.5 rounded-[5px] bg-[#EAB308] border border-amber-200 shadow-sm shadow-amber-500/30"></span>
-              <span class="text-slate-200 font-semibold">Đang chọn (#EAB308)</span>
-            </div>
-          </div>
         </div>
 
         <!-- Filter & Search Toolbar (Mở rộng Should-Have) -->
@@ -1224,6 +2972,9 @@
             </button>
             <button onclick="filterByZone('VIP_PLATINUM_1')" id="tab-zone-VIP_PLATINUM_1" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               VIP Platinum 1
+            </button>
+            <button onclick="filterByZone('STANDING')" id="tab-zone-STANDING" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+              Fanzone Standing
             </button>
             <button onclick="filterByZone('A')" id="tab-zone-A" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Khán đài A
@@ -1243,7 +2994,7 @@
               <input
                 type="text"
                 id="search-seat-input"
-                placeholder="Tìm mã ghế (VD: VIP-A, A1-02)..."
+                placeholder="Tìm phân khu (VIP, A, B, C)..."
                 class="w-48 sm:w-56 px-3 py-1.5 pl-8 rounded-xl inset-dark-cell text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
               />
               <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1258,6 +3009,14 @@
               <button id="btn-zoom-in" class="px-2 py-1 hover:bg-white/[0.08] rounded-lg text-slate-300 cursor-pointer" title="Phóng to sơ đồ">+</button>
               <button id="btn-zoom-reset" class="px-2 py-1 hover:bg-white/[0.08] rounded-lg text-amber-400 ml-1 text-[11px] cursor-pointer" title="Reset tỉ lệ">Reset</button>
             </div>
+
+            <!-- Compact seat-status legend, kept beside the zoom controls -->
+            <div class="seating-status-legend" aria-label="Chú thích trạng thái chỗ ngồi">
+              <span class="seating-status-legend__item"><i class="seating-status-legend__swatch available"></i>Còn trống</span>
+              <span class="seating-status-legend__item"><i class="seating-status-legend__swatch sold"></i>Đã bán</span>
+              <span class="seating-status-legend__item"><i class="seating-status-legend__swatch selected"></i>Đang chọn</span>
+              <span class="seating-status-legend__item"><i class="seating-status-legend__swatch blocked"></i>Không mở bán</span>
+            </div>
           </div>
         </div>
 
@@ -1268,21 +3027,184 @@
             <!-- Stage Map Canvas Wrapper -->
             <div id="map-zoom-container" class="transition-transform duration-200 origin-top min-h-[560px]">
               
-              <!-- SÂN KHẤU TRUNG TÂM (STAGE HEADER) -->
-              <div class="relative w-full max-w-xl mx-auto mb-10 text-center">
-                <!-- Light beams -->
-                <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-gradient-to-b from-amber-400/20 via-blue-500/10 to-transparent blur-md pointer-events-none"></div>
-
-                <!-- Stage Platform -->
-                <div class="relative py-4 px-8 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-black text-base sm:text-lg tracking-widest uppercase shadow-xl shadow-amber-500/20 border border-amber-300">
-                  ★ SÂN KHẤU TRUNG TÂM (MAIN STAGE) ★
-                  <div class="text-[10px] tracking-normal font-medium text-slate-900 mt-0.5">Hệ thống LED màn cong 360° & Bàn nâng nghệ sĩ</div>
+              <!-- STADIUM ORIENTATION MAP — inspired by end-stage stadium concert layouts -->
+              <div class="stadium-map-shell" aria-label="Sơ đồ tổng quan sân vận động">
+                <div class="stadium-map-meta">
+                  <span>Sơ đồ chọn vé · Bấm trực tiếp vào từng phân khu</span>
+                  <span>Sơ đồ minh họa · Không theo tỷ lệ</span>
                 </div>
 
-                <!-- Catwalk runway extending forward -->
-                <div class="w-20 h-10 mx-auto bg-gradient-to-b from-amber-500 to-amber-700/80 border-x border-b border-amber-400/50 rounded-b-md flex items-center justify-center text-[9px] font-bold text-slate-950">
-                  CATWALK
+                <div class="stadium-vector-shell">
+                  <button id="stadium-reset-view" type="button" class="stadium-reset-view" aria-label="Thu nhỏ về toàn cảnh">⤺ Thu nhỏ toàn cảnh</button>
+                  <svg id="stadium-svg" viewBox="0 0 1000 1000" class="w-full h-auto select-none" role="img" aria-labelledby="stadium-svg-title stadium-svg-desc">
+                    <title id="stadium-svg-title">Sơ đồ mặt bằng sân vận động Mỹ Đình</title>
+                    <desc id="stadium-svg-desc">Sơ đồ vector tương tác dạng móng ngựa với sân khấu ở phía dưới, hai khu vé đứng trong lòng sân và các tầng khán đài bao quanh.</desc>
+                    <defs>
+                      <linearGradient id="stageGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#ecff70"/>
+                        <stop offset="1" stop-color="#b9df22"/>
+                      </linearGradient>
+                      <pattern id="pitchGrid" width="64" height="64" patternUnits="userSpaceOnUse">
+                        <rect width="64" height="64" fill="#111812"/>
+                        <rect width="32" height="64" fill="#151e16"/>
+                      </pattern>
+                      <pattern id="blockedPattern" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                        <rect width="18" height="18" fill="#151719"/>
+                        <rect width="7" height="18" fill="#292c30"/>
+                      </pattern>
+                      <pattern id="seatSoldPattern" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                        <rect width="10" height="10" fill="#30353c"/>
+                        <rect width="4" height="10" fill="#171a1e"/>
+                      </pattern>
+                      <pattern id="seatHeldPattern" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                        <rect width="10" height="10" fill="#bd7419"/>
+                        <rect width="4" height="10" fill="#523109"/>
+                      </pattern>
+                      <radialGradient id="bowlGlow" cx="50%" cy="40%" r="62%">
+                        <stop offset="0" stop-color="#d8ff3e" stop-opacity=".08"/>
+                        <stop offset="1" stop-color="#d8ff3e" stop-opacity="0"/>
+                      </radialGradient>
+                      <path id="label-arc-vvip" d="M354.23 293.63 A248 218 0 0 1 645.77 293.63"/>
+                      <path id="label-arc-vip" d="M314.85 242.67 A315 281 0 0 1 685.15 242.67"/>
+                      <path id="label-arc-tribune-a" d="M227.20 610.50 A315 281 0 0 1 314.85 242.67"/>
+                      <path id="label-arc-tribune-b" d="M685.15 242.67 A315 281 0 0 1 772.80 610.50"/>
+                      <path id="label-arc-upper" d="M128.46 315.73 A410 365 0 0 1 871.54 315.73"/>
+                    </defs>
+
+                    <ellipse cx="500" cy="425" rx="460" ry="390" fill="url(#bowlGlow)" class="stadium-outline"/>
+                    <ellipse cx="500" cy="420" rx="382" ry="315" class="stadium-aisle"/>
+                    <ellipse cx="500" cy="420" rx="300" ry="245" class="stadium-aisle"/>
+
+                    <!-- Upper tier C: continuous segmented arch -->
+                    <g class="svg-zone-group" style="--zone-color:#b8dc79">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D phía Tây" d="M72 465 A445 360 0 0 1 195 190 L270 245 A350 275 0 0 0 160 475 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D vòm trái" d="M195 190 A445 360 0 0 1 385 76 L415 164 A350 275 0 0 0 270 245 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D chính diện trái" d="M385 76 A445 360 0 0 1 500 58 L500 150 A350 275 0 0 0 415 164 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D chính diện phải" d="M500 58 A445 360 0 0 1 615 76 L585 164 A350 275 0 0 0 500 150 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D vòm phải" d="M615 76 A445 360 0 0 1 805 190 L730 245 A350 275 0 0 0 585 164 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D phía Đông" d="M805 190 A445 360 0 0 1 928 465 L840 475 A350 275 0 0 0 730 245 Z"/>
+                    </g>
+
+                    <!-- Tribune A, left wing -->
+                    <g class="svg-zone-group" style="--zone-color:#f3b64e">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="A" data-zone-code="ZONE_A_T1" data-price="1500000" data-name="Khán đài A · Tầng 1" data-tier="Tribune A" data-available="9" aria-label="Khán đài A block A1" d="M160 475 A350 275 0 0 1 214 330 L300 372 A255 200 0 0 0 276 482 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="A" data-zone-code="ZONE_A_T1" data-price="1500000" data-name="Khán đài A · Tầng 1" data-tier="Tribune A" data-available="9" aria-label="Khán đài A block A2" d="M214 330 A350 275 0 0 1 292 240 L350 316 A255 200 0 0 0 300 372 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="A" data-zone-code="ZONE_A_T1" data-price="1500000" data-name="Khán đài A · Tầng 1" data-tier="Tribune A" data-available="9" aria-label="Khán đài A block A3" d="M292 240 A350 275 0 0 1 392 190 L425 278 A255 200 0 0 0 350 316 Z"/>
+                    </g>
+
+                    <!-- Tribune B, mirrored right wing -->
+                    <g class="svg-zone-group" style="--zone-color:#9d7df5">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="B" data-zone-code="ZONE_B_T2" data-price="1200000" data-name="Khán đài B · Tầng 2" data-tier="Tribune B" data-available="10" aria-label="Khán đài B block B1" d="M840 475 A350 275 0 0 0 786 330 L700 372 A255 200 0 0 1 724 482 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="B" data-zone-code="ZONE_B_T2" data-price="1200000" data-name="Khán đài B · Tầng 2" data-tier="Tribune B" data-available="10" aria-label="Khán đài B block B2" d="M786 330 A350 275 0 0 0 708 240 L650 316 A255 200 0 0 1 700 372 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="B" data-zone-code="ZONE_B_T2" data-price="1200000" data-name="Khán đài B · Tầng 2" data-tier="Tribune B" data-available="10" aria-label="Khán đài B block B3" d="M708 240 A350 275 0 0 0 608 190 L575 278 A255 200 0 0 1 650 316 Z"/>
+                    </g>
+
+                    <!-- Premium front-facing lounge -->
+                    <g style="--zone-color:#f2d02f">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="VIP" data-zone-code="VVIP_DIAMOND" data-price="4500000" data-name="VVIP Diamond Lounge" data-tier="Premium Lounge" data-available="6" aria-label="VVIP Diamond Lounge chính diện" d="M392 190 Q500 150 608 190 L575 278 Q500 250 425 278 Z"/>
+                      <text x="500" y="207" class="svg-zone-label">VVIP LOUNGE</text>
+                      <text x="500" y="228" class="svg-zone-price">4.500.000 VNĐ</text>
+                    </g>
+                    <g style="--zone-color:#7097f2">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="VIP_PLATINUM_1" data-zone-code="VIP_PLATINUM_1" data-price="3500000" data-name="VIP Platinum 1" data-tier="VIP Platinum" data-available="7" aria-label="VIP Platinum 1 phía trước lounge" d="M350 316 Q500 260 650 316 L612 362 Q500 326 388 362 Z"/>
+                      <text x="500" y="315" class="svg-zone-label">VIP PLATINUM</text>
+                      <text x="500" y="337" class="svg-zone-price">3.500.000 VNĐ</text>
+                    </g>
+
+                    <path class="stadium-infield" d="M300 372 Q500 304 700 372 L724 482 Q748 592 670 680 L330 680 Q252 592 276 482 Z"/>
+
+                    <!-- Standing 2: wide block above the catwalk -->
+                    <g style="--zone-color:#7fd2bf">
+                      <rect class="stadium-svg-zone zone-shape zone-surface" tabindex="0" role="button" data-zone-filter="STANDING" data-zone-code="GA_STAND_2" data-price="1800000" data-name="Standing 2 · Fanzone B" data-tier="Vé đứng phía trên" data-available="200" aria-label="Standing 2 Fanzone B" x="330" y="370" width="340" height="92" rx="14"/>
+                      <text x="500" y="407" class="svg-zone-label">STANDING 2 · FANZONE B</text>
+                      <text x="500" y="432" class="svg-zone-price">1.800.000 VNĐ</text>
+                    </g>
+
+                    <!-- Standing 1 hugs both sides of the catwalk -->
+                    <g style="--zone-color:#88db80">
+                      <rect class="stadium-svg-zone zone-shape zone-surface" tabindex="0" role="button" data-zone-filter="STANDING" data-zone-code="GA_STAND_1" data-price="2200000" data-name="Standing 1 · Fanzone A" data-tier="Sát Catwalk" data-available="200" aria-label="Standing 1 Fanzone A bên trái" x="310" y="478" width="145" height="112" rx="14"/>
+                      <rect class="stadium-svg-zone zone-shape zone-surface" tabindex="0" role="button" data-zone-filter="STANDING" data-zone-code="GA_STAND_1" data-price="2200000" data-name="Standing 1 · Fanzone A" data-tier="Sát Catwalk" data-available="200" aria-label="Standing 1 Fanzone A bên phải" x="545" y="478" width="145" height="112" rx="14"/>
+                      <text x="382" y="522" class="svg-zone-label">STANDING 1</text>
+                      <text x="382" y="546" class="svg-zone-price">2.200.000</text>
+                      <text x="618" y="522" class="svg-zone-label">STANDING 1</text>
+                      <text x="618" y="546" class="svg-zone-price">2.200.000</text>
+                    </g>
+
+                    <!-- Catwalk and stage, joined as one continuous structure -->
+                    <path class="svg-catwalk" d="M475 445 Q475 428 492 428 L508 428 Q525 428 525 445 L525 560 L475 560 Z"/>
+                    <rect class="svg-stage" x="380" y="560" width="240" height="70" rx="12"/>
+                    <text x="500" y="593" class="svg-stage-label">STAGE</text>
+                    <text x="500" y="616" class="svg-zone-subtitle">SÂN KHẤU</text>
+
+                    <!-- Realistic unsold sightline-obstructed blocks behind stage -->
+                    <g class="stadium-blocked-zone">
+                      <path class="zone-shape" d="M175 650 Q258 720 372 748 L350 824 Q205 790 112 688 Z"/>
+                      <path class="zone-shape" d="M372 748 Q500 775 628 748 L650 824 Q500 855 350 824 Z"/>
+                      <path class="zone-shape" d="M628 748 Q742 720 825 650 L888 688 Q795 790 650 824 Z"/>
+                      <text x="500" y="793" class="stadium-blocked-label">KHÔNG MỞ BÁN · KHUẤT TẦM NHÌN</text>
+                    </g>
+
+                    <text x="235" y="300" class="svg-zone-label" transform="rotate(-53 235 300)">KHÁN ĐÀI A</text>
+                    <text x="765" y="300" class="svg-zone-label" transform="rotate(53 765 300)">KHÁN ĐÀI B</text>
+                    <text x="500" y="105" class="svg-zone-label">KHÁN ĐÀI C · UPPER TIER</text>
+
+                    <!-- TRUE OVAL BOWL: generated sectors use one shared ellipse equation for perfect symmetry. -->
+                    <g id="oval-stadium-root">
+                      <ellipse cx="500" cy="470" rx="455" ry="405" class="oval-bowl-backdrop"/>
+                      <ellipse cx="500" cy="475" rx="258" ry="246" class="oval-pitch"/>
+                      <g id="oval-sector-layer"></g>
+
+                      <g class="oval-standing-zone" style="--zone-color:#78d683">
+                        <rect class="stadium-svg-zone oval-standing-shape" tabindex="0" role="button" data-zone-filter="STANDING" data-zone-code="GA_STAND_1" data-price="2200000" data-name="GA Fanzone Standing 1 (Khu A)" data-tier="Standing · Fanzone" data-available="200" x="330" y="330" width="340" height="160" rx="14"/>
+                        <text x="500" y="410" class="oval-zone-title">STANDING · FANZONE</text>
+                      </g>
+
+                      <path class="svg-catwalk oval-catwalk" d="M475 540 Q475 520 500 520 Q525 520 525 540 L525 670 L475 670 Z"/>
+                      <rect class="svg-stage oval-stage" x="380" y="670" width="240" height="70" rx="12"/>
+                      <text x="500" y="705" class="svg-stage-label">STAGE</text>
+
+                      <g id="stadium-seat-layer" aria-label="Các ghế database trong phân khu đang zoom"></g>
+                      <g class="master-sector-labels" aria-hidden="true">
+                        <text class="oval-tier-curve"><textPath href="#label-arc-vvip" startOffset="50%">VVIP LOUNGE</textPath></text>
+                        <text class="oval-tier-curve"><textPath href="#label-arc-vip" startOffset="50%">VIP PLATINUM 1</textPath></text>
+                        <text class="oval-tier-curve"><textPath href="#label-arc-tribune-a" startOffset="50%">KHÁN ĐÀI A</textPath></text>
+                        <text class="oval-tier-curve"><textPath href="#label-arc-tribune-b" startOffset="50%">KHÁN ĐÀI B</textPath></text>
+                        <text class="oval-tier-curve"><textPath href="#label-arc-upper" startOffset="50%">KHÁN ĐÀI C · UPPER TIER</textPath></text>
+                        <text x="500" y="902" class="oval-blocked-label">KHUẤT TẦM NHÌN · KHÔNG BÁN</text>
+                      </g>
+                    </g>
+                  </svg>
+                  <div id="svg-zone-tooltip" class="svg-zone-tooltip" role="tooltip" aria-hidden="true"></div>
                 </div>
+
+                <div id="map-selection-panel" class="map-selection-panel" aria-live="polite"></div>
+
+                <div class="stadium-map-instruction">
+                  <div><strong>Bấm trực tiếp lên phân khu</strong> · Camera SVG sẽ zoom vào khán đài và hiện ghế database ngay trên đường cong.</div>
+                  <span class="stadium-capacity-chip">ANIMATED VIEWBOX · 360MS</span>
+                </div>
+
+                <div id="zone-detail-panel" aria-hidden="true"></div>
+
+                <div class="stadium-map-caption">
+                  <div>
+                    <strong>Standing / Fanzone</strong>
+                    <span>Mặt sân, gần sân khấu và catwalk nhất; không đánh số ghế.</span>
+                  </div>
+                  <div>
+                    <strong>VVIP Lounge</strong>
+                    <span>Khu premium chính diện, có độ cao tốt để quan sát tổng thể sân khấu.</span>
+                  </div>
+                  <div>
+                    <strong>Khán đài A · B · C–D</strong>
+                    <span>Xếp theo các vành từ tầng thấp đến tầng cao quanh lòng sân.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="seat-inventory-heading">
+                <span>Danh sách ghế & số lượng vé theo phân khu</span>
+                <span id="inventory-zone-label">Hiển thị tất cả</span>
               </div>
 
               <!-- ZONES & SEATING GRIDS -->
@@ -1297,7 +3219,7 @@
                     </div>
                     <span class="text-xs font-semibold text-amber-300">4.500.000 VNĐ / ghế</span>
                   </div>
-                  <div class="text-[11px] text-slate-400 mb-3">Sát chân sân khấu, tầm nhìn chân thực nhất</div>
+                  <div class="text-[11px] text-slate-400 mb-3">Khu premium chính diện sân khấu, tầm nhìn cao và bao quát</div>
                   
                   <div id="grid-vvip" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
                     <!-- Injected via JS -->
@@ -1453,7 +3375,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                   </svg>
                   <span>Chưa có ghế nào được chọn.</span>
-                  <p class="text-[11px] text-slate-600 mt-1">Hãy click vào các ghế màu xanh lá trên sơ đồ.</p>
+                  <p class="text-[11px] text-slate-600 mt-1">Hãy zoom vào một phân khu rồi bấm trực tiếp lên ghế còn trống.</p>
                 </div>
               </div>
 
@@ -1505,23 +3427,8 @@
       </div>
     </section>
 
-    <!-- FLOATING ACTION BUTTON (ALWAYS ACCESSIBLE "CHỌN CHỖ NGỒI") -->
-    <aside aria-label="Nút chọn chỗ ngồi nhanh" class="fixed bottom-6 right-6 z-40">
-      <a
-        href="#seating-section"
-        id="fab-select-seats"
-        class="btn-glow px-4 py-3 sm:px-5 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold shadow-2xl flex items-center gap-2.5 cursor-pointer border border-amber-400/50 backdrop-blur-md hover:scale-105 transition-transform"
-      >
-        <svg class="w-5 h-5 text-amber-300 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
-        </svg>
-        <span class="tracking-wide">CHỌN CHỖ NGỒI</span>
-        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span>
-      </a>
-    </aside>
-
     <!-- FOOTER -->
-    <footer class="border-t border-white/[0.085] bg-[#05070B] py-8 text-xs text-slate-400">
+    <footer class="border-t border-white/[0.085] bg-[#0c1527]/90 backdrop-blur-md py-8 text-xs text-slate-400">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="text-center md:text-left text-slate-500 text-xs">
           © 2026 SUPER CONCERT — ĐẠI NHẠC HỘI NGOẠI THƯƠNG. All rights reserved.
@@ -1532,7 +3439,7 @@
             Thông tin đề tài & nhóm 4
           </button>
           <span>•</span>
-          <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-amber-400 transition flex items-center gap-1 cursor-pointer">
+          <button onclick="window.scrollTo({top: 0, behavior: 'auto'})" class="hover:text-amber-400 transition flex items-center gap-1 cursor-pointer">
             <span>Lên đầu trang</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
@@ -1717,11 +3624,21 @@
         VVIP_DIAMOND: 'VIP',
         VIP_PLATINUM_1: 'VIP',
         VIP_PLATINUM_2: 'VIP',
-        GA_STAND_1: 'C',
-        GA_STAND_2: 'C',
+        GA_STAND_1: 'STANDING',
+        GA_STAND_2: 'STANDING',
         ZONE_A_T1: 'A',
         ZONE_B_T2: 'B',
         ZONE_CD_UP: 'C'
+      };
+      const ZONE_VISUAL_COLORS = {
+        VVIP_DIAMOND: '#d8ff3e',
+        VIP_PLATINUM_1: '#6ea8ff',
+        VIP_PLATINUM_2: '#58c7ff',
+        GA_STAND_1: '#4ade80',
+        GA_STAND_2: '#2dd4bf',
+        ZONE_A_T1: '#ffb454',
+        ZONE_B_T2: '#b98cff',
+        ZONE_CD_UP: '#b9e986'
       };
 
       const FALLBACK_ZONES = [
@@ -1748,11 +3665,18 @@
       let seatsData = [];
       let selectedSeatIds = new Set();
       const standingQuantities = { GA_STAND_1: 0, GA_STAND_2: 0 };
+      const STANDING_CAPACITY = { GA_STAND_1: 200, GA_STAND_2: 200 };
       const standingTickets = new Map();
       let currentZoneFilter = 'ALL';
       let currentSearchQuery = '';
       let holdTimerInterval = null;
       let holdTimeRemaining = 300; // 5 minutes (300 seconds)
+      let pendingMapSeat = null;
+      let pendingStandingZoneCode = null;
+      let activeDetailZoneCode = null;
+      let activeCameraZoneCode = null;
+      let stadiumCameraFrame = null;
+      let currentStadiumViewBox = [0, 0, 1000, 1000];
 
       function buildFallbackSeats() {
         return Object.entries(FALLBACK_SEAT_STATUS).flatMap(([zoneId, statuses]) => {
@@ -1805,6 +3729,31 @@
         };
       }
 
+      function buildUpperTierVisualSeats() {
+        const zone = ZONES.ZONE_CD_UP;
+        if (!zone) return [];
+        return Array.from({ length: 32 }, (_, index) => {
+          const seatNumber = index + 1;
+          const isBehindStage = seatNumber >= 13 && seatNumber <= 20;
+          const isHeld = seatNumber % 13 === 0;
+          const isSold = !isHeld && seatNumber % 7 === 0;
+          return {
+            id: `KDC-${String(301 + index)}`,
+            dbId: `visual-upper-${seatNumber}`,
+            zoneId: zone.id,
+            zoneCode: zone.code,
+            zoneKey: zone.zoneKey,
+            zoneName: zone.name,
+            row: 'U',
+            number: String(seatNumber).padStart(2, '0'),
+            price: zone.price,
+            status: isBehindStage ? 'BLOCKED' : isHeld ? 'HELD' : isSold ? 'SOLD' : 'AVAILABLE',
+            sourceStatus: isBehindStage ? 'KHONG_MO_BAN' : isHeld ? 'DANG_GIU' : isSold ? 'DA_BAN' : 'TRONG',
+            visualOnly: true
+          };
+        });
+      }
+
       async function loadDataFromDatabase() {
         let rawZones;
         let rawSeats;
@@ -1834,6 +3783,9 @@
           }
         });
         seatsData = rawSeats.map(seat => normalizeSeat(seat, new Map(rawZones.map(zone => [Number(zone.KhuVucID), normalizeZone(zone)]))));
+        if (!seatsData.some(seat => seat.zoneCode === 'ZONE_CD_UP')) {
+          seatsData.push(...buildUpperTierVisualSeats());
+        }
         updateZonePresentation();
       }
 
@@ -1850,7 +3802,8 @@
         document.querySelectorAll('.zone-tab').forEach(tab => {
           const zoneKey = tab.id.replace('tab-zone-', '');
           if (zoneKey === 'ALL') {
-            tab.textContent = `Tất cả (${seatsData.length} ghế)`;
+            const sellableSeatCount = seatsData.filter(seat => seat.status !== 'BLOCKED').length;
+            tab.textContent = `Tất cả (${sellableSeatCount} ghế mở bán)`;
           } else if (ZONES[zoneKey]) {
             tab.textContent = ZONES[zoneKey].name;
           }
@@ -1866,97 +3819,585 @@
         });
       }
 
+      function mountZonesOnStadiumMap() {
+        const svg = document.getElementById('stadium-svg');
+        if (!svg || svg.dataset.ready === 'true') return;
+        buildOvalStadiumSectors();
+        svg.dataset.ready = 'true';
+
+        svg.querySelectorAll('#oval-stadium-root .stadium-svg-zone').forEach(zoneShape => {
+          const zoneCode = zoneShape.dataset.zoneCode;
+          const zone = ZONES[zoneCode];
+          if (zone) {
+            zoneShape.dataset.price = zone.price;
+            zoneShape.dataset.name = zone.name;
+          }
+
+          zoneShape.addEventListener('mouseenter', showSvgZoneTooltip);
+          zoneShape.addEventListener('mousemove', moveSvgZoneTooltip);
+          zoneShape.addEventListener('mouseleave', hideSvgZoneTooltip);
+          zoneShape.addEventListener('focus', showSvgZoneTooltip);
+          zoneShape.addEventListener('blur', hideSvgZoneTooltip);
+          zoneShape.addEventListener('click', () => selectTicketFromSvgZone(zoneCode));
+          zoneShape.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              selectTicketFromSvgZone(zoneCode);
+            }
+          });
+        });
+        document.getElementById('stadium-reset-view')?.addEventListener('click', resetStadiumCamera);
+      }
+
+      function pointOnEllipse(cx, cy, rx, ry, angle) {
+        const radians = angle * Math.PI / 180;
+        return [cx + rx * Math.cos(radians), cy + ry * Math.sin(radians)];
+      }
+
+      function ellipticalSectorPath(cx, cy, outerRx, outerRy, innerRx, innerRy, startAngle, endAngle) {
+        const outerStart = pointOnEllipse(cx, cy, outerRx, outerRy, startAngle);
+        const outerEnd = pointOnEllipse(cx, cy, outerRx, outerRy, endAngle);
+        const innerEnd = pointOnEllipse(cx, cy, innerRx, innerRy, endAngle);
+        const innerStart = pointOnEllipse(cx, cy, innerRx, innerRy, startAngle);
+        const largeArc = Math.abs(endAngle - startAngle) > 180 ? 1 : 0;
+        return `M ${outerStart[0].toFixed(2)} ${outerStart[1].toFixed(2)} A ${outerRx} ${outerRy} 0 ${largeArc} 1 ${outerEnd[0].toFixed(2)} ${outerEnd[1].toFixed(2)} L ${innerEnd[0].toFixed(2)} ${innerEnd[1].toFixed(2)} A ${innerRx} ${innerRy} 0 ${largeArc} 0 ${innerStart[0].toFixed(2)} ${innerStart[1].toFixed(2)} Z`;
+      }
+
+      function buildOvalStadiumSectors() {
+        const layer = document.getElementById('oval-sector-layer');
+        if (!layer || layer.children.length) return;
+        const ns = 'http://www.w3.org/2000/svg';
+        const sectorConfigs = [];
+
+        for (let index = 0; index < 10; index++) {
+          sectorConfigs.push({
+            start: 150 + index * 24,
+            end: 150 + (index + 1) * 24,
+            radii: [455, 405, 365, 325],
+            zoneCode: 'ZONE_CD_UP',
+            zoneFilter: 'C',
+            color: '#a9cb73',
+            tier: 'Khán đài C · Upper Tier'
+          });
+        }
+
+        [[150,178],[178,206],[206,234]].forEach(([start,end]) => sectorConfigs.push({ start,end,radii:[350,315,280,247],zoneCode:'ZONE_A_T1',zoneFilter:'A',color:'#f0b44e',tier:'Khán đài A · Tầng 1' }));
+        [[306,334],[334,362],[362,390]].forEach(([start,end]) => sectorConfigs.push({ start,end,radii:[350,315,280,247],zoneCode:'ZONE_B_T2',zoneFilter:'B',color:'#9b7af0',tier:'Khán đài B · Tầng 2' }));
+
+        const vvipCodes = ['105','104','106'];
+        [[234,258],[258,282],[282,306]].forEach(([start,end],index) => sectorConfigs.push({ start,end,radii:[272,240,224,196],zoneCode:'VVIP_DIAMOND',zoneFilter:'VIP',color:'#e5bc38',tier:`VVIP Lounge · Sector ${vvipCodes[index]}`,sectorCode:vvipCodes[index] }));
+        [[234,258],[258,282],[282,306]].forEach(([start,end]) => sectorConfigs.push({ start,end,radii:[350,315,280,247],zoneCode:'VIP_PLATINUM_1',zoneFilter:'VIP_PLATINUM_1',color:'#6f95ed',tier:'VIP Platinum 1' }));
+
+        sectorConfigs.forEach((config,index) => {
+          const [outerRx,outerRy,innerRx,innerRy] = config.radii;
+          const path = document.createElementNS(ns,'path');
+          path.setAttribute('d', ellipticalSectorPath(500,470,outerRx,outerRy,innerRx,innerRy,config.start,config.end));
+          path.setAttribute('class','stadium-svg-zone oval-sector');
+          path.setAttribute('tabindex','0');
+          path.setAttribute('role','button');
+          path.dataset.zoneCode = config.zoneCode;
+          path.dataset.zoneFilter = config.zoneFilter;
+          path.dataset.tier = config.tier;
+          path.dataset.name = config.tier;
+          path.dataset.price = ZONES[config.zoneCode]?.price || 0;
+          path.dataset.available = getZoneAvailability(config.zoneCode);
+          if (config.sectorCode) path.dataset.sectorCode = config.sectorCode;
+          path.style.setProperty('--zone-color',config.color);
+          path.setAttribute('aria-label',config.tier);
+          layer.appendChild(path);
+        });
+
+        [[30,70],[70,110],[110,150]].forEach(([start,end]) => {
+          const path = document.createElementNS(ns,'path');
+          path.setAttribute('d', ellipticalSectorPath(500,470,455,405,365,325,start,end));
+          path.setAttribute('class','oval-sector blocked-sector');
+          path.setAttribute('aria-hidden','true');
+          layer.appendChild(path);
+        });
+      }
+
+      function getZoneAvailability(zoneCode) {
+        if (zoneCode in STANDING_CAPACITY) return Math.max(0, STANDING_CAPACITY[zoneCode] - [...standingTickets.values()].filter(ticket => ticket.zoneCode === zoneCode).length);
+        return seatsData.filter(seat => seat.zoneCode === zoneCode && seat.status === 'AVAILABLE' && !selectedSeatIds.has(seat.id)).length;
+      }
+
+      function showSvgZoneTooltip(event) {
+        const target = event.currentTarget;
+        const tooltipEl = document.getElementById('svg-zone-tooltip');
+        if (!target || !tooltipEl) return;
+        const zoneCode = target.dataset.zoneCode;
+        const zone = ZONES[zoneCode];
+        const color = ZONE_VISUAL_COLORS[zoneCode] || zone?.color || '#d8ff3e';
+        const available = getZoneAvailability(zoneCode);
+        tooltipEl.style.setProperty('--tooltip-color', color);
+        tooltipEl.innerHTML = `
+          <div class="svg-tooltip-kicker">${target.dataset.tier || 'Phân khu sân vận động'}</div>
+          <div class="svg-tooltip-title">${zone?.name || target.dataset.name}</div>
+          <div class="svg-tooltip-meta"><span>Giá niêm yết</span><strong>${formatVND(zone?.price || Number(target.dataset.price))}</strong></div>
+          <div class="svg-tooltip-meta"><span>Còn trống</span><strong>${available} chỗ</strong></div>
+        `;
+        tooltipEl.classList.add('is-visible');
+        tooltipEl.setAttribute('aria-hidden', 'false');
+        moveSvgZoneTooltip(event);
+      }
+
+      function moveSvgZoneTooltip(event) {
+        const tooltipEl = document.getElementById('svg-zone-tooltip');
+        if (!tooltipEl || !tooltipEl.classList.contains('is-visible')) return;
+        const fallbackRect = event.currentTarget?.getBoundingClientRect?.();
+        const clientX = Number.isFinite(event.clientX) && event.clientX > 0 ? event.clientX : (fallbackRect?.left || 0) + (fallbackRect?.width || 0) / 2;
+        const clientY = Number.isFinite(event.clientY) && event.clientY > 0 ? event.clientY : (fallbackRect?.top || 0);
+        tooltipEl.style.left = `${Math.min(clientX, window.innerWidth - 300)}px`;
+        tooltipEl.style.top = `${Math.max(clientY, 120)}px`;
+      }
+
+      function hideSvgZoneTooltip() {
+        const tooltipEl = document.getElementById('svg-zone-tooltip');
+        if (!tooltipEl) return;
+        tooltipEl.classList.remove('is-visible');
+        tooltipEl.setAttribute('aria-hidden', 'true');
+      }
+
+      function selectTicketFromSvgZone(zoneCode) {
+        const zone = ZONES[zoneCode];
+        if (!zone) return;
+        currentZoneFilter = ZONE_KEY_BY_CODE[zoneCode] || zoneCode;
+        updateActiveZoneTab(currentZoneFilter);
+        focusStadiumZone(zoneCode);
+      }
+
+      function getCameraViewBox(zoneCode) {
+        const views = {
+          VVIP_DIAMOND: [300, 165, 400, 260],
+          VIP_PLATINUM_1: [265, 85, 470, 260],
+          ZONE_A_T1: [40, 160, 400, 520],
+          ZONE_B_T2: [560, 160, 400, 520],
+          ZONE_CD_UP: [170, 35, 660, 300],
+          GA_STAND_1: [280, 285, 440, 330],
+          GA_STAND_2: [280, 285, 440, 330]
+        };
+        return views[zoneCode] || [0,0,1000,1000];
+      }
+
+      function animateStadiumViewBox(targetViewBox, duration = 360, onComplete = null) {
+        const svg = document.getElementById('stadium-svg');
+        if (!svg) return;
+        if (stadiumCameraFrame) clearTimeout(stadiumCameraFrame);
+        svg.querySelector(':scope > animate[data-camera-animation]')?.remove();
+        svg.classList.add('is-camera-moving');
+        const startViewBox = svg.getAttribute('viewBox') || currentStadiumViewBox.join(' ');
+        const targetValue = targetViewBox.join(' ');
+        const animation = document.createElementNS('http://www.w3.org/2000/svg','animate');
+        animation.dataset.cameraAnimation = 'true';
+        animation.setAttribute('attributeName','viewBox');
+        animation.setAttribute('from',startViewBox);
+        animation.setAttribute('to',targetValue);
+        animation.setAttribute('dur',`${duration}ms`);
+        animation.setAttribute('calcMode','spline');
+        animation.setAttribute('keySplines','.22 1 .36 1');
+        animation.setAttribute('fill','freeze');
+        svg.appendChild(animation);
+        animation.beginElement();
+        stadiumCameraFrame = setTimeout(() => {
+          svg.setAttribute('viewBox',targetViewBox.map(value => value.toFixed(2)).join(' '));
+          currentStadiumViewBox = [...targetViewBox];
+          animation.remove();
+          svg.classList.remove('is-camera-moving');
+          stadiumCameraFrame = null;
+          if (typeof onComplete === 'function') onComplete();
+        }, duration + 20);
+      }
+
+      function focusStadiumZone(zoneCode) {
+        const svg = document.getElementById('stadium-svg');
+        if (!svg) return;
+        activeCameraZoneCode = zoneCode;
+        activeDetailZoneCode = null;
+        svg.classList.add('is-camera-zoomed');
+        document.getElementById('stadium-reset-view')?.classList.add('is-visible');
+        document.getElementById('stadium-seat-layer')?.replaceChildren();
+        animateStadiumViewBox(getCameraViewBox(zoneCode), 360, () => {
+          if (activeCameraZoneCode === zoneCode && !zoneCode.startsWith('GA_STAND')) {
+            renderCameraSeats(zoneCode);
+          }
+        });
+        if (zoneCode.startsWith('GA_STAND')) {
+          showStandingSelectionPanel(zoneCode);
+        } else {
+          pendingStandingZoneCode = null;
+          pendingMapSeat = null;
+          renderMapSelectionPanel();
+        }
+        renderSeats();
+      }
+
+      function resetStadiumCamera() {
+        const svg = document.getElementById('stadium-svg');
+        activeCameraZoneCode = null;
+        activeDetailZoneCode = null;
+        pendingStandingZoneCode = null;
+        pendingMapSeat = null;
+        currentZoneFilter = 'ALL';
+        updateActiveZoneTab('ALL');
+        document.getElementById('stadium-reset-view')?.classList.remove('is-visible');
+        document.getElementById('stadium-seat-layer')?.replaceChildren();
+        renderMapSelectionPanel();
+        svg?.classList.remove('is-camera-zoomed');
+        renderSeats();
+        animateStadiumViewBox([0,0,1000,1000], 320);
+      }
+
+      function renderCameraSeats(zoneCode) {
+        const layer = document.getElementById('stadium-seat-layer');
+        const zone = ZONES[zoneCode];
+        if (!layer || !zone) return;
+        layer.replaceChildren();
+        const ns = 'http://www.w3.org/2000/svg';
+        const zoneSeats = seatsData.filter(seat => seat.zoneCode === zoneCode && !seat.visualOnly);
+        if (!zoneSeats.length) return;
+
+        const heading = document.createElementNS(ns,'text');
+        heading.setAttribute('class','camera-zone-heading');
+        const subheading = document.createElementNS(ns,'text');
+        subheading.setAttribute('class','camera-zone-subheading');
+        heading.textContent = zone.name;
+        subheading.textContent = `Giá vé: ${formatVND(zone.price)} | Còn trống: ${getZoneAvailability(zoneCode)} ghế`;
+
+        const layoutByZone = {
+          VVIP_DIAMOND: {
+            header:[310,175,220,32], heading:[420,188], headingWidth:170, angles:[234,306],
+            rows:{ A:{ outer:[248,218], inner:[224,196] }, B:{ outer:[272,240], inner:[248,218] } }
+          },
+          VIP_PLATINUM_1: {
+            header:[282,96,226,34], heading:[395,109], headingWidth:160, angles:[234,306],
+            rows:{ C:{ outer:[315,281], inner:[280,247] }, D:{ outer:[350,315], inner:[315,281] } }
+          },
+          ZONE_A_T1: {
+            header:[55,171,236,34], heading:[173,184], headingWidth:180, angles:[150,234],
+            rows:{ E:{ outer:[315,281], inner:[280,247] }, F:{ outer:[350,315], inner:[315,281] } }
+          },
+          ZONE_B_T2: {
+            header:[575,171,236,34], heading:[693,184], headingWidth:180, angles:[306,390],
+            rows:{ G:{ outer:[315,281], inner:[280,247] }, H:{ outer:[350,315], inner:[315,281] } }
+          }
+        };
+        const layout = layoutByZone[zoneCode];
+        if (!layout) return;
+        heading.setAttribute('x',layout.heading[0]); heading.setAttribute('y',layout.heading[1]);
+        heading.setAttribute('textLength',layout.headingWidth);
+        heading.setAttribute('lengthAdjust','spacingAndGlyphs');
+        subheading.setAttribute('x',layout.heading[0]); subheading.setAttribute('y',layout.heading[1]+11);
+        const headerBackdrop = document.createElementNS(ns,'rect');
+        headerBackdrop.setAttribute('class','camera-zone-header-bg');
+        headerBackdrop.setAttribute('x',layout.header[0]);
+        headerBackdrop.setAttribute('y',layout.header[1]);
+        headerBackdrop.setAttribute('width',layout.header[2]);
+        headerBackdrop.setAttribute('height',layout.header[3]);
+        headerBackdrop.setAttribute('rx','5');
+
+        [...new Set(zoneSeats.map(seat => String(seat.row).toUpperCase()))].forEach(row => {
+          const rowLayout = layout.rows[row];
+          if (!rowLayout) return;
+          const rowSeats = zoneSeats.filter(seat => String(seat.row).toUpperCase() === row).sort((a,b) => Number(a.number)-Number(b.number));
+          const angleStep = (layout.angles[1] - layout.angles[0]) / rowSeats.length;
+          rowSeats.forEach((seat,index) => {
+            const startAngle = layout.angles[0] + angleStep * index;
+            const endAngle = startAngle + angleStep;
+            const middleAngle = (startAngle + endAngle) / 2;
+            const center = pointOnEllipse(
+              500,470,
+              (rowLayout.outer[0] + rowLayout.inner[0]) / 2,
+              (rowLayout.outer[1] + rowLayout.inner[1]) / 2,
+              middleAngle
+            );
+            const group = document.createElementNS(ns,'g');
+            const selected = selectedSeatIds.has(seat.id);
+            const stateClass = selected ? 'selected' : seat.status === 'SOLD' ? 'sold' : seat.status === 'HELD' ? 'held' : 'available';
+            group.setAttribute('class',`camera-seat-cell ${stateClass}`);
+            group.setAttribute('tabindex',seat.status === 'AVAILABLE' ? '0' : '-1');
+            group.setAttribute('role','button');
+            group.dataset.seatId = seat.id;
+            group.setAttribute('aria-label',`Ghế ${seat.id}, ${seat.sourceStatus}, ${formatVND(seat.price)}`);
+            const nativeTitle = document.createElementNS(ns,'title');
+            nativeTitle.textContent = `${seat.id} · ${seat.sourceStatus} · ${formatVND(seat.price)}`;
+            const tile = document.createElementNS(ns,'path');
+            tile.setAttribute('d',ellipticalSectorPath(
+              500,470,
+              rowLayout.outer[0],rowLayout.outer[1],
+              rowLayout.inner[0],rowLayout.inner[1],
+              startAngle,endAngle
+            ));
+            const label = document.createElementNS(ns,'text');
+            label.setAttribute('x',center[0].toFixed(1));
+            label.setAttribute('y',center[1].toFixed(1));
+            label.textContent = `${row}-${String(seat.number).padStart(2,'0')}`;
+            group.append(nativeTitle,tile,label);
+            if (seat.status === 'SOLD') {
+              const slash = document.createElementNS(ns,'line');
+              slash.setAttribute('class','seat-cell-slash');
+              slash.setAttribute('x1',(center[0]-8).toFixed(1));
+              slash.setAttribute('y1',(center[1]+5).toFixed(1));
+              slash.setAttribute('x2',(center[0]+8).toFixed(1));
+              slash.setAttribute('y2',(center[1]-5).toFixed(1));
+              group.appendChild(slash);
+            }
+            if (seat.status === 'AVAILABLE') {
+              group.addEventListener('click',event => { event.stopPropagation(); handleSeatClick(seat); });
+              group.addEventListener('keydown',event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleSeatClick(seat); } });
+            }
+            layer.appendChild(group);
+          });
+
+        });
+        layer.append(headerBackdrop,heading,subheading);
+      }
+
+      function updateActiveZoneTab(zoneKey) {
+        document.querySelectorAll('.zone-tab').forEach(tab => {
+          const isActive = tab.id === `tab-zone-${zoneKey}`;
+          tab.classList.toggle('active-gold-tab', isActive);
+          tab.classList.toggle('ghost-tab', !isActive);
+        });
+      }
+
+      function renderZoneDetailPanel() {
+        const panel = document.getElementById('zone-detail-panel');
+        const zone = ZONES[activeDetailZoneCode];
+        if (!panel || !zone) return;
+
+        const color = ZONE_VISUAL_COLORS[zone.code] || zone.color || '#d8ff3e';
+        const zoneSeats = seatsData.filter(seat => seat.zoneCode === zone.code && !seat.visualOnly);
+        const availableCount = zone.code.startsWith('GA_STAND')
+          ? getZoneAvailability(zone.code)
+          : zoneSeats.filter(seat => seat.status === 'AVAILABLE' && !selectedSeatIds.has(seat.id)).length;
+        panel.classList.add('is-active');
+        panel.style.setProperty('--detail-color', color);
+
+        const header = `
+          <div class="zone-detail-header">
+            <div>
+              <div class="zone-detail-kicker">Chi tiết phân khu · Database drilldown</div>
+              <h3 class="zone-detail-name">${zone.name}</h3>
+            </div>
+            <div class="zone-detail-stats">
+              <div class="zone-detail-stat"><span>Giá niêm yết</span><strong class="accent">${formatVND(zone.price)}</strong></div>
+              <div class="zone-detail-stat"><span>Còn trống</span><strong>${availableCount} ${zone.code.startsWith('GA_STAND') ? 'vé' : 'ghế'}</strong></div>
+            </div>
+          </div>
+        `;
+
+        if (zone.code.startsWith('GA_STAND')) {
+          panel.innerHTML = `${header}
+            <div class="detail-standing-card">
+              <div class="detail-standing-copy">
+                <strong>Vé đứng tự do · Không đánh số ghế</strong>
+                <p>Chọn số lượng, sau đó thêm vào tạm tính. Giới hạn tối đa 4 vé mỗi tài khoản.</p>
+              </div>
+              <div class="detail-standing-actions">
+                <div class="detail-standing-qty" aria-label="Số lượng vé ${zone.name}">
+                  <button type="button" id="detail-standing-minus" aria-label="Giảm số lượng">−</button>
+                  <span id="detail-standing-count-${zone.code}">${standingQuantities[zone.code]}</span>
+                  <button type="button" id="detail-standing-plus" aria-label="Tăng số lượng">+</button>
+                </div>
+                <button type="button" id="detail-standing-add" class="detail-standing-add">Thêm vào tạm tính</button>
+              </div>
+            </div>`;
+          panel.querySelector('#detail-standing-minus')?.addEventListener('click', () => window.updateStandingQuantity(zone.code, -1));
+          panel.querySelector('#detail-standing-plus')?.addEventListener('click', () => window.updateStandingQuantity(zone.code, 1));
+          panel.querySelector('#detail-standing-add')?.addEventListener('click', () => window.addStandingTickets(zone.code));
+          return;
+        }
+
+        if (zoneSeats.length === 0) {
+          panel.innerHTML = `${header}<div class="zone-detail-empty"><span class="zone-detail-empty-icon">DB</span><div><strong>Chưa có bản ghi ghế mẫu trong bảng GHE</strong><p>Phân khu vẫn được hiển thị trên sơ đồ tổng quan nhưng chưa có dữ liệu hàng/cột để chọn chi tiết.</p></div></div>`;
+          return;
+        }
+
+        const rows = [...new Set(zoneSeats.map(seat => String(seat.row).toUpperCase()))];
+        const rowsMarkup = rows.map(row => {
+          const seats = zoneSeats
+            .filter(seat => String(seat.row).toUpperCase() === row)
+            .sort((a, b) => Number.parseInt(a.number, 10) - Number.parseInt(b.number, 10));
+          const seatsMarkup = seats.map(seat => {
+            const selected = selectedSeatIds.has(seat.id);
+            const stateClass = selected ? 'selected' : seat.status === 'SOLD' ? 'sold' : seat.status === 'HELD' ? 'held' : seat.status === 'BLOCKED' ? 'blocked' : 'available';
+            const sourceLabel = selected ? 'Đang chọn' : seat.sourceStatus === 'DA_BAN' ? 'Đã bán' : seat.sourceStatus === 'DANG_GIU' ? 'Đang giữ' : 'Còn trống';
+            const disabled = seat.status !== 'AVAILABLE' ? 'disabled' : '';
+            return `<button type="button" class="detail-seat ${stateClass}" data-detail-seat-id="${seat.id}" ${disabled} aria-label="Ghế ${seat.id}, ${sourceLabel}, ${formatVND(seat.price)}">
+              <span class="detail-seat-number">${seat.number}</span>
+              <span class="detail-seat-code">${seat.id}</span>
+            </button>`;
+          }).join('');
+          return `<div class="detail-seat-row"><div class="detail-row-label">Hàng ${row}</div><div class="detail-row-grid">${seatsMarkup}</div></div>`;
+        }).join('');
+
+        panel.innerHTML = `${header}
+          <div class="detail-seat-legend">
+            <span><i class="legend-available"></i>Trống · TRONG</span>
+            <span><i class="legend-sold"></i>Đã bán · DA_BAN</span>
+            <span><i class="legend-held"></i>Đang giữ · DANG_GIU</span>
+          </div>
+          <div class="detail-seat-rows">${rowsMarkup}</div>`;
+
+        panel.querySelectorAll('[data-detail-seat-id]').forEach(button => {
+          const seat = seatsData.find(item => item.id === button.dataset.detailSeatId);
+          if (seat && seat.status === 'AVAILABLE') button.addEventListener('click', () => handleSeatClick(seat));
+        });
+      }
+
+      function positionSeatOnStadiumRing(seatEl, seat) {
+        const seatNumber = Number.parseInt(seat.number, 10) || 1;
+        let ring = 'inner';
+        let angle = 0;
+        let radiusX = 29;
+        let radiusY = 27;
+
+        if (seat.zoneCode === 'ZONE_CD_UP') {
+          ring = 'outer';
+          const step = 360 / 32;
+          angle = -90 + step * (seatNumber - 0.5);
+          radiusX = 43;
+          radiusY = 40.5;
+        } else {
+          const row = String(seat.row).toUpperCase();
+          const outerRowOrder = { E: 0, A: 1, C: 2, G: 3 };
+          const innerRowOrder = { F: 0, B: 1, D: 2, H: 3 };
+          const isMiddleRing = Object.prototype.hasOwnProperty.call(outerRowOrder, row);
+          const groupIndex = isMiddleRing
+            ? outerRowOrder[row]
+            : (innerRowOrder[row] ?? 1);
+          const groupArc = 75;
+          const groupStart = 120 + groupIndex * groupArc;
+          const step = groupArc / 6;
+
+          // Hai vòng ghế đang bán chỉ chạy trên cung 300°, chừa trống hoàn toàn
+          // phần phía sau Main Stage. Mỗi phân khu chiếm một phần cung bằng nhau.
+          angle = groupStart + step * (Math.max(1, Math.min(6, seatNumber)) - 0.5);
+          ring = isMiddleRing ? 'middle' : 'inner';
+          radiusX = isMiddleRing ? 35.5 : 28.5;
+          radiusY = isMiddleRing ? 33 : 26;
+        }
+
+        const radians = angle * Math.PI / 180;
+        const x = 50 + radiusX * Math.cos(radians);
+        const y = 50 + radiusY * Math.sin(radians);
+        const tangentAngle = angle + 90;
+
+        seatEl.classList.add('stadium-ring-seat');
+        seatEl.style.left = `${x.toFixed(2)}%`;
+        seatEl.style.top = `${y.toFixed(2)}%`;
+        seatEl.style.setProperty('--seat-angle', `${tangentAngle.toFixed(2)}deg`);
+        seatEl.style.setProperty('--seat-text-angle', `${(-tangentAngle).toFixed(2)}deg`);
+        seatEl.dataset.ring = ring;
+      }
+
+      function renderMapSelectionPanel() {
+        const panel = document.getElementById('map-selection-panel');
+        if (!panel) return;
+
+        if (pendingMapSeat) {
+          const seat = seatsData.find(item => item.id === pendingMapSeat.id) || pendingMapSeat;
+          const isSelected = selectedSeatIds.has(seat.id);
+          const unavailable = seat.status === 'SOLD' || seat.status === 'HELD';
+          const statusLabel = seat.status === 'SOLD'
+            ? 'Đã bán'
+            : seat.status === 'HELD'
+              ? 'Đang được giữ'
+              : isSelected ? 'Đang chọn' : 'Còn trống';
+          const actionLabel = unavailable
+            ? statusLabel
+            : isSelected ? 'Bỏ chọn ghế' : 'Chọn ghế này';
+          panel.classList.add('is-active');
+          panel.innerHTML = `
+            <div>
+              <div class="map-selection-eyebrow">${seat.zoneName} · ${statusLabel}</div>
+              <div class="map-selection-title">Ghế ${seat.id}</div>
+              <div class="map-selection-detail">Giá vé: <span class="map-selection-price">${formatVND(seat.price)}</span></div>
+            </div>
+            <div class="map-selection-actions">
+              <button id="map-seat-action" type="button" class="map-selection-action" ${unavailable ? 'disabled' : ''}>${actionLabel}</button>
+            </div>
+          `;
+          const action = document.getElementById('map-seat-action');
+          if (action && !unavailable) action.addEventListener('click', () => handleSeatClick(seat));
+          return;
+        }
+
+        if (pendingStandingZoneCode) {
+          const zone = ZONES[pendingStandingZoneCode];
+          if (!zone) return;
+          panel.classList.add('is-active');
+          panel.innerHTML = `
+            <div>
+              <div class="map-selection-eyebrow">Vé đứng tự do · Không đánh số ghế</div>
+              <div class="map-selection-title">${zone.name}</div>
+              <div class="map-selection-detail">Giá vé: <span class="map-selection-price">${formatVND(zone.price)}</span> / vé · Còn trống: ${getZoneAvailability(pendingStandingZoneCode)}/${STANDING_CAPACITY[pendingStandingZoneCode]}</div>
+            </div>
+            <div class="map-selection-actions">
+              <div class="map-qty-control" aria-label="Chọn số lượng vé đứng">
+                <button id="map-standing-minus" type="button" aria-label="Giảm số lượng">−</button>
+                <span id="map-standing-count">${standingQuantities[pendingStandingZoneCode]}</span>
+                <button id="map-standing-plus" type="button" aria-label="Tăng số lượng">+</button>
+              </div>
+              <button id="map-standing-action" type="button" class="map-selection-action">Thêm vào tạm tính</button>
+            </div>
+          `;
+          document.getElementById('map-standing-minus')?.addEventListener('click', () => window.updateStandingQuantity(pendingStandingZoneCode, -1));
+          document.getElementById('map-standing-plus')?.addEventListener('click', () => window.updateStandingQuantity(pendingStandingZoneCode, 1));
+          document.getElementById('map-standing-action')?.addEventListener('click', () => window.addStandingTickets(pendingStandingZoneCode));
+          return;
+        }
+
+        panel.classList.remove('is-active');
+        panel.replaceChildren();
+      }
+
+      function showSeatSelectionPanel(seat) {
+        pendingMapSeat = seat;
+        pendingStandingZoneCode = null;
+        renderMapSelectionPanel();
+      }
+
+      function showStandingSelectionPanel(zoneCode) {
+        pendingMapSeat = null;
+        pendingStandingZoneCode = zoneCode;
+        renderMapSelectionPanel();
+      }
+
       // ==========================================
       // 2. RENDER SEATS INTO GRIDS
       // ==========================================
       function renderSeats() {
-        const gridVVIP = document.getElementById('grid-vvip');
-        const gridVIP1 = document.getElementById('grid-vip1');
-        const gridA = document.getElementById('grid-a');
-        const gridB = document.getElementById('grid-b');
-        const gridC = document.getElementById('grid-c');
+        const normalizedSearch = currentSearchQuery.toLocaleLowerCase('vi');
+        document.querySelectorAll('.stadium-svg-zone[data-zone-code]').forEach(zoneShape => {
+          const zoneCode = zoneShape.dataset.zoneCode;
+          const zone = ZONES[zoneCode];
+          const zoneFilter = zoneShape.dataset.zoneFilter || ZONE_KEY_BY_CODE[zoneCode] || 'C';
+          const matchesFilter = currentZoneFilter === 'ALL' || currentZoneFilter === zoneFilter || currentZoneFilter === zoneCode;
+          const searchableText = `${zoneCode} ${zone?.name || zoneShape.dataset.name || ''}`.toLocaleLowerCase('vi');
+          const matchesSearch = !normalizedSearch || searchableText.includes(normalizedSearch);
+          const hasSelectedTicket = [...selectedSeatIds].some(ticketId => {
+            const standingTicket = standingTickets.get(ticketId);
+            if (standingTicket) return standingTicket.zoneCode === zoneCode;
+            return seatsData.find(seat => seat.id === ticketId)?.zoneCode === zoneCode;
+          });
+          const available = getZoneAvailability(zoneCode);
 
-        if (!gridVVIP || !gridVIP1 || !gridA || !gridB || !gridC) return;
-
-        gridVVIP.innerHTML = '';
-        gridVIP1.innerHTML = '';
-        gridA.innerHTML = '';
-        gridB.innerHTML = '';
-        gridC.innerHTML = '';
-
-        seatsData.forEach(seat => {
-          const isSelected = selectedSeatIds.has(seat.id);
-          const isSold = seat.status === 'SOLD';
-          const isHeld = seat.status === 'HELD';
-
-          // Check zone filter
-          const zoneMatch = (currentZoneFilter === 'ALL' || currentZoneFilter === seat.zoneKey || currentZoneFilter === seat.zoneCode);
-          // Check search query
-          const searchMatch = !currentSearchQuery || seat.id.toLowerCase().includes(currentSearchQuery.toLowerCase());
-
-          const isVisible = zoneMatch && searchMatch;
-
-          // Seat element
-          const seatEl = document.createElement('button');
-          seatEl.type = 'button';
-          seatEl.id = `seat-btn-${seat.id}`;
-          seatEl.setAttribute('data-seat-id', seat.id);
-
-          // Seat classes according to SRS color specification and MotionSites glass spec
-          let stateClass = '';
-          if (isSelected) {
-            // Vàng (#EAB308): Ghế đang được click chọn tạm tính
-            stateClass = 'seat-selected';
-          } else if (isSold) {
-            // Xám mờ (#9CA3AF): Ghế đã bán (Sold)
-            stateClass = 'seat-sold';
-          } else if (isHeld) {
-            stateClass = 'seat-held';
-          } else {
-            // Xanh lá (#22C55E): Ghế còn trống (Available)
-            stateClass = 'seat-available';
-          }
-
-          const visibilityClass = isVisible ? 'flex opacity-100 scale-100' : 'opacity-20 scale-90 pointer-events-none';
-          seatEl.className = `seat-node relative flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-lg border text-[10px] sm:text-xs font-mono select-none transition-all duration-150 cursor-pointer ${stateClass} ${visibilityClass}`;
-          seatEl.disabled = isSold || isHeld;
-          seatEl.title = isSold
-            ? `Ghế ${seat.id} đã bán (${formatVND(seat.price)})`
-            : isHeld
-              ? `Ghế ${seat.id} đang được giữ tạm thời`
-              : (isSelected ? `Đang chọn ghế ${seat.id}` : `Bấm để chọn ghế ${seat.id} (${formatVND(seat.price)})`);
-          seatEl.setAttribute('aria-label', `Ghế ${seat.id} - ${seat.zoneName} - ${formatVND(seat.price)}`);
-
-          seatEl.innerHTML = `
-            <span class="leading-none font-bold">${seat.id}</span>
-            <span class="text-[8px] leading-tight opacity-75 hidden sm:inline">${(seat.price / 1000000).toFixed(1)}M</span>
-          `;
-
-          // Event Listeners: Hover Tooltip
-          seatEl.addEventListener('mouseenter', (e) => showSeatTooltip(e, seat));
-          seatEl.addEventListener('mousemove', (e) => moveSeatTooltip(e));
-          seatEl.addEventListener('mouseleave', hideSeatTooltip);
-
-          // Event Listener: Click Interaction
-          seatEl.addEventListener('click', () => handleSeatClick(seat));
-
-          // Route by the source zone code so VVIP and VIP Platinum keep separate prices.
-          if (seat.zoneId === 1) gridVVIP.appendChild(seatEl);
-          else if (seat.zoneId === 2) gridVIP1.appendChild(seatEl);
-          else if (seat.zoneKey === 'A') gridA.appendChild(seatEl);
-          else if (seat.zoneKey === 'B') gridB.appendChild(seatEl);
-          else if (seat.zoneKey === 'C') gridC.appendChild(seatEl);
+          zoneShape.dataset.available = available;
+          zoneShape.style.setProperty('--zone-color', ZONE_VISUAL_COLORS[zoneCode] || zone?.color || '#d8ff3e');
+          zoneShape.classList.toggle('is-dimmed', !matchesFilter);
+          zoneShape.classList.toggle('is-search-miss', !matchesSearch);
+          zoneShape.classList.toggle('is-selected', hasSelectedTicket);
+          zoneShape.classList.toggle('is-filter-match', currentZoneFilter !== 'ALL' && matchesFilter);
+          zoneShape.classList.toggle('is-active-zone', activeCameraZoneCode === zoneCode);
+          zoneShape.setAttribute('aria-label', `${zone?.name || zoneShape.dataset.name}, ${formatVND(zone?.price || Number(zoneShape.dataset.price))}, còn ${available} chỗ. Bấm để phóng to phân khu.`);
         });
 
-        // Keep standing blocks visible as information panels, and hide empty seat-only blocks.
-        document.querySelectorAll('#seats-wrapper > .zone-block').forEach(zoneContainer => {
-          const zoneCode = zoneContainer.dataset.zoneCode;
-          const zoneKey = ZONE_KEY_BY_CODE[zoneCode] || 'C';
-          const grid = zoneContainer.querySelector('[id^="grid-"]');
-          const hasSeats = !grid || grid.children.length > 0;
-          const matchesFilter = currentZoneFilter === 'ALL' || currentZoneFilter === zoneKey || currentZoneFilter === zoneCode;
-          zoneContainer.classList.toggle('hidden', !matchesFilter || !hasSeats);
-        });
+        if (
+          activeCameraZoneCode &&
+          !activeCameraZoneCode.startsWith('GA_STAND') &&
+          !document.getElementById('stadium-svg')?.classList.contains('is-camera-moving')
+        ) renderCameraSeats(activeCameraZoneCode);
       }
 
       // ==========================================
@@ -2002,6 +4443,13 @@
       function updateStandingQuantityDisplay(zoneCode) {
         const countEl = document.getElementById(`standing-count-${zoneCode}`);
         if (countEl) countEl.innerText = standingQuantities[zoneCode];
+        const detailCountEl = document.getElementById(`detail-standing-count-${zoneCode}`);
+        if (detailCountEl) detailCountEl.innerText = standingQuantities[zoneCode];
+        if (pendingStandingZoneCode === zoneCode) {
+          const mapCountEl = document.getElementById('map-standing-count');
+          if (mapCountEl) mapCountEl.innerText = standingQuantities[zoneCode];
+        }
+        if (activeDetailZoneCode === zoneCode) renderZoneDetailPanel();
       }
 
       window.updateStandingQuantity = function(zoneCode, delta) {
@@ -2044,8 +4492,10 @@
         }
         standingQuantities[zoneCode] = 0;
         updateStandingQuantityDisplay(zoneCode);
+        if (pendingStandingZoneCode === zoneCode) renderMapSelectionPanel();
         showToast(`Đã thêm ${added} vé ${zone.name} vào tạm tính.`, 'success');
         updateSidebar();
+        renderSeats();
       };
 
       // ==========================================
@@ -2387,8 +4837,17 @@
       // ==========================================
       // 9. FILTERS & SEARCH (MỞ RỘNG SHOULD-HAVE)
       // ==========================================
-      function filterByZone(zoneKey) {
+      function filterByZone(zoneKey, shouldScroll = true) {
         currentZoneFilter = zoneKey;
+        const detailZoneByFilter = {
+          VIP: 'VVIP_DIAMOND',
+          VIP_PLATINUM_1: 'VIP_PLATINUM_1',
+          STANDING: 'GA_STAND_1',
+          A: 'ZONE_A_T1',
+          B: 'ZONE_B_T2',
+          C: 'ZONE_CD_UP'
+        };
+        const cameraZoneCode = detailZoneByFilter[zoneKey] || null;
 
         // Update active tab styles
         document.querySelectorAll('.zone-tab').forEach(tab => {
@@ -2402,12 +4861,27 @@
           activeTab.classList.add('active-gold-tab');
         }
 
-        renderSeats();
+        const inventoryLabel = document.getElementById('inventory-zone-label');
+        if (inventoryLabel) {
+          const labels = {
+            ALL: 'Hiển thị tất cả',
+            VIP: 'VVIP Lounge & VIP Platinum',
+            VIP_PLATINUM_1: 'VIP Platinum 1',
+            STANDING: 'Fanzone Standing 1 & 2',
+            A: 'Khán đài A · Tầng 1',
+            B: 'Khán đài B · Tầng 2',
+            C: 'Khán đài C–D · Tầng cao'
+          };
+          inventoryLabel.textContent = labels[zoneKey] || zoneKey;
+        }
+
+        if (cameraZoneCode) focusStadiumZone(cameraZoneCode);
+        else resetStadiumCamera();
 
         // Smooth scroll to seating section if triggered from pricing table
         const seatingSection = document.getElementById('seating-section');
-        if (seatingSection) {
-          seatingSection.scrollIntoView({ behavior: 'smooth' });
+        if (seatingSection && shouldScroll) {
+          seatingSection.scrollIntoView({ behavior: 'auto' });
         }
       }
 
@@ -2585,20 +5059,64 @@
           return stars.join(', ');
         }
 
-        // Layer A: 120 points, size 1px, opacity ~0.45 (White & Gold)
+        // Layer A: 120 fine ambient points
         stA.style.boxShadow = generateStars(120, 0, [
-          'rgba(255, 255, 255, 0.45)',
-          'rgba(254, 240, 138, 0.42)',
-          'rgba(253, 230, 138, 0.38)',
-          'rgba(240, 249, 255, 0.35)'
+          'rgba(255, 255, 255, 0.18)',
+          'rgba(254, 240, 138, 0.15)',
+          'rgba(253, 230, 138, 0.12)',
+          'rgba(240, 249, 255, 0.22)',
+          'rgba(255, 255, 255, 0.08)'
         ]);
 
-        // Layer B: 50 points, size 1.5px, opacity ~0.65 (Gleaming Gold & Crisp White)
-        stB.style.boxShadow = generateStars(50, 0.5, [
-          'rgba(255, 255, 255, 0.65)',
-          'rgba(253, 224, 71, 0.62)',
-          'rgba(250, 204, 21, 0.58)'
+        // Layer B: sparse glittering highlights
+        stB.style.boxShadow = generateStars(20, 0.5, [
+          'rgba(255, 255, 255, 0.55)',
+          'rgba(253, 224, 71, 0.48)',
+          'rgba(250, 204, 21, 0.42)',
+          'rgba(255, 255, 255, 0.60)'
         ]);
+      }
+
+      // ==========================================
+      // 11. FOCUS ON SCROLL (Sequential Section Dimming)
+      // ==========================================
+      function initFocusOnScroll() {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const sectionIds = ['concert-hero', 'artist-lineup', 'pricing-section', 'seating-section'];
+        const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+        if (sections.length === 0) return;
+
+        let activeSectionId = 'concert-hero';
+        const ratios = new Map(sections.map(section => [section.id, 0]));
+
+        function applyFocus(targetId) {
+          if (!targetId || activeSectionId === targetId) return;
+          activeSectionId = targetId;
+          sections.forEach(section => {
+            const isActive = section.id === targetId;
+            section.classList.toggle('section-focused', isActive);
+            section.classList.toggle('section-dimmed', !isActive);
+          });
+        }
+
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0));
+          let bestId = activeSectionId;
+          let bestRatio = 0;
+          ratios.forEach((ratio, id) => {
+            if (ratio > bestRatio) {
+              bestRatio = ratio;
+              bestId = id;
+            }
+          });
+          if (bestRatio > 0) applyFocus(bestId);
+        }, {
+          rootMargin: '-22% 0px -22% 0px',
+          threshold: [0, 0.15, 0.35]
+        });
+
+        sections.forEach(section => observer.observe(section));
       }
 
       // ==========================================
@@ -2607,8 +5125,10 @@
       async function bootstrap() {
         initStarfield();
         await loadDataFromDatabase();
+        mountZonesOnStadiumMap();
         renderSeats();
         initConcertCountdown();
+        initFocusOnScroll();
       }
 
       if (document.readyState === 'loading') {
