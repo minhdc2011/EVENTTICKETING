@@ -1,5 +1,8 @@
 // Transitional runtime retained during the component-by-component React migration.
 import {loadTicketingCatalog} from '../services/ticketDataService';
+import {runtimeConfig} from '../config/runtime';
+import {createSeatHold, releaseSeatHold} from '../services/bookingService';
+import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
 
 // ==========================================
       // 1. DATA DEFINITIONS & SEAT CATALOG
@@ -24,6 +27,12 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
         ZONE_A_T1: '#ffb454',
         ZONE_B_T2: '#b98cff',
         ZONE_CD_UP: '#b9e986'
+      };
+      const DATABASE_STATUS_TO_UI = {
+        TRONG: 'AVAILABLE',
+        DA_BAN: 'SOLD',
+        DANG_GIU: 'HELD',
+        KHONG_MO_BAN: 'BLOCKED'
       };
 
       const FALLBACK_ZONES = [
@@ -62,6 +71,8 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
       let activeCameraZoneCode = null;
       let stadiumCameraFrame = null;
       let currentStadiumViewBox = [0, 0, 1000, 1000];
+      let activeHoldId = null;
+      let stopSeatRealtimeUpdates = null;
 
       function buildFallbackSeats() {
         return Object.entries(FALLBACK_SEAT_STATUS).flatMap(([zoneId, statuses]) => {
@@ -98,7 +109,6 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
 
       function normalizeSeat(seat, zoneById) {
         const zone = zoneById.get(Number(seat.KhuVucID));
-        const statusMap = { TRONG: 'AVAILABLE', DA_BAN: 'SOLD', DANG_GIU: 'HELD' };
         return {
           id: seat.MaGheDayDu,
           dbId: seat.GheID,
@@ -109,9 +119,29 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
           row: seat.SoHang,
           number: seat.SoGhe,
           price: Number(seat.GiaVeNiemYet),
-          status: statusMap[seat.TrangThai] || 'HELD',
+          status: DATABASE_STATUS_TO_UI[seat.TrangThai] || 'HELD',
           sourceStatus: seat.TrangThai
         };
+      }
+
+      function applyRealtimeSeatUpdate(event) {
+        const seat = seatsData.find(item =>
+          item.id === event.seatCode ||
+          (event.seatId != null && String(item.dbId) === String(event.seatId))
+        );
+        if (!seat || seat.visualOnly) return;
+
+        seat.sourceStatus = event.status;
+        seat.status = DATABASE_STATUS_TO_UI[event.status] || 'HELD';
+
+        if (seat.status !== 'AVAILABLE' && selectedSeatIds.has(seat.id)) {
+          selectedSeatIds.delete(seat.id);
+          showToast(`Ghế ${seat.id} vừa thay đổi trạng thái và đã được bỏ khỏi tạm tính.`, 'warning');
+          updateSidebar();
+        }
+
+        renderSeats();
+        updateZonePresentation();
       }
 
       function buildUpperTierVisualSeats() {
@@ -966,6 +996,7 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
       }
 
       window.removeSingleSeat = function(ticketId) {
+        void releaseActiveHold();
         selectedSeatIds.delete(ticketId);
         standingTickets.delete(ticketId);
         showToast(`Đã bỏ chọn vé ${ticketId}`, 'info');
@@ -974,6 +1005,7 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
       };
 
       window.clearAllSeats = function() {
+        void releaseActiveHold();
         selectedSeatIds.clear();
         standingTickets.clear();
         standingQuantities.GA_STAND_1 = 0;
@@ -988,8 +1020,19 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
       // ==========================================
       // 5. COUNTDOWN TIMER SIMULATION (FR-T3-01 5 PHÚT GIỮ CHỖ)
       // ==========================================
-      function startHoldCountdown() {
-        holdTimeRemaining = 300; // 5 minutes
+      async function releaseActiveHold() {
+        if (!activeHoldId) return;
+        const holdId = activeHoldId;
+        activeHoldId = null;
+        try {
+          await releaseSeatHold(holdId);
+        } catch (error) {
+          console.warn('Không thể giải phóng lượt giữ chỗ:', error);
+        }
+      }
+
+      function startHoldCountdown(durationSeconds = 300) {
+        holdTimeRemaining = Math.max(0, Math.min(300, durationSeconds));
         updateHoldTimerDisplay();
         clearInterval(holdTimerInterval);
         holdTimerInterval = setInterval(() => {
@@ -997,6 +1040,7 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
           updateHoldTimerDisplay();
           if (holdTimeRemaining <= 0) {
             stopHoldCountdown();
+            void releaseActiveHold();
             selectedSeatIds.clear();
             standingTickets.clear();
             standingQuantities.GA_STAND_1 = 0;
@@ -1374,15 +1418,24 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
       // Proceed Booking Action (Modal Preview)
       const btnProceedBooking = document.getElementById('btn-proceed-booking');
       if (btnProceedBooking) {
-        btnProceedBooking.addEventListener('click', () => {
+        btnProceedBooking.addEventListener('click', async () => {
           if (selectedSeatIds.size === 0 || !bookingModal) return;
+
+          btnProceedBooking.disabled = true;
+          btnProceedBooking.setAttribute('aria-busy', 'true');
 
           let itemsHtml = '';
           let total = 0;
+          const holdItems = [];
           selectedSeatIds.forEach(id => {
             const ticket = standingTickets.get(id) || seatsData.find(x => x.id === id);
             if (ticket) {
               total += ticket.price;
+              holdItems.push({
+                ticketCode: ticket.id,
+                zoneCode: ticket.zoneCode,
+                quantity: standingTickets.has(id) ? 1 : undefined
+              });
               itemsHtml += `
                 <div class="flex justify-between py-1 border-b border-slate-900">
                   <span class="font-mono text-amber-400">${ticket.id} (${ticket.zoneName})</span>
@@ -1399,9 +1452,26 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
             </div>
           `;
 
-          const summaryEl = document.getElementById('booking-modal-summary');
-          if (summaryEl) summaryEl.innerHTML = itemsHtml;
-          bookingModal.classList.remove('hidden');
+          try {
+            const hold = await createSeatHold({
+              eventId: runtimeConfig.eventId,
+              items: holdItems
+            });
+            activeHoldId = hold.holdId;
+            bookingModal.dataset.holdId = hold.holdId;
+            const remainingSeconds = Math.ceil((new Date(hold.expiresAt).getTime() - Date.now()) / 1000);
+            startHoldCountdown(remainingSeconds);
+
+            const summaryEl = document.getElementById('booking-modal-summary');
+            if (summaryEl) summaryEl.innerHTML = itemsHtml;
+            bookingModal.classList.remove('hidden');
+          } catch (error) {
+            console.error('Không thể giữ chỗ:', error);
+            showToast('Không thể giữ chỗ lúc này. Vui lòng tải lại trạng thái ghế và thử lại.', 'error');
+          } finally {
+            btnProceedBooking.disabled = selectedSeatIds.size === 0;
+            btnProceedBooking.removeAttribute('aria-busy');
+          }
         });
       }
 
@@ -1509,6 +1579,8 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
         await loadDataFromDatabase();
         mountZonesOnStadiumMap();
         renderSeats();
+        if (stopSeatRealtimeUpdates) stopSeatRealtimeUpdates();
+        stopSeatRealtimeUpdates = subscribeToSeatUpdates(applyRealtimeSeatUpdate);
         initConcertCountdown();
         initFocusOnScroll();
       }

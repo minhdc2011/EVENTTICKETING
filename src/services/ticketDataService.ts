@@ -1,4 +1,6 @@
-import type {SeatRecord, TicketingCatalog, ZoneRecord} from '../types/ticketing';
+import {runtimeConfig} from '../config/runtime';
+import type {ApiEnvelope, SeatRecord, TicketingCatalog, ZoneRecord} from '../types/ticketing';
+import {apiRequest} from './apiClient';
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, {cache: 'no-store'});
@@ -13,6 +15,15 @@ async function fetchJson<T>(url: string): Promise<T> {
  * replace these URLs with REST endpoints without changing presentation code.
  */
 export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
+  if (!runtimeConfig.useMockData) {
+    const eventPath = `/api/v1/events/${encodeURIComponent(runtimeConfig.eventId)}`;
+    const [zonesResult, seatsResult] = await Promise.all([
+      apiRequest<ApiEnvelope<ZoneRecord[]>>(`${eventPath}/zones`),
+      apiRequest<ApiEnvelope<SeatRecord[]>>(`${eventPath}/seats`),
+    ]);
+    return {zones: zonesResult.data, seats: seatsResult.data};
+  }
+
   const [zones, seats] = await Promise.all([
     fetchJson<ZoneRecord[]>('/data_zones.json'),
     fetchJson<SeatRecord[]>('/data_seats.json'),
