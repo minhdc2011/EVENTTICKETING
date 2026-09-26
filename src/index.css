@@ -1,1 +1,2437 @@
 @import "tailwindcss";
+@source "./legacy/fragments";
+
+/* Global Reset & Overflow Protection (overflow-x: clip preserves position: sticky) */
+      html, body {
+        overflow-x: clip;
+      }
+      body {
+        background-color: #0c1527;
+        color: #f3f4f6;
+        font-family: 'Be Vietnam Pro', sans-serif;
+      }
+      .font-display {
+        font-family: 'Be Vietnam Pro', 'Syne', sans-serif;
+        font-weight: 800;
+      }
+
+      /* Starfield Layers (Pixel Contract JS-driven) */
+      #stA, #stB {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Cinematic Ambient Stage Background - Midnight Indigo & Royal Navy Glow */
+      .stage-glow {
+        background:
+          radial-gradient(circle at 72% 24%, rgba(148, 163, 184, 0.16) 0%, transparent 28%),
+          radial-gradient(circle at 18% 8%, rgba(245, 185, 51, 0.07) 0%, transparent 25%),
+          linear-gradient(135deg, #090d15 0%, #0b1322 52%, #07090d 100%);
+      }
+      .spotlight {
+        background: linear-gradient(110deg, rgba(255, 255, 255, 0.035), transparent 38%, rgba(96, 165, 250, 0.04) 68%, transparent);
+      }
+      .aurora-glow-hero {
+        position: absolute;
+        top: -10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 85%;
+        height: 65%;
+        background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.14) 0%, rgba(245, 185, 51, 0.05) 42%, transparent 70%);
+        filter: blur(72px);
+        opacity: .72;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .aurora-card-glow {
+        position: absolute;
+        inset: -1px;
+        border-radius: 18px;
+        background: radial-gradient(circle at 50% 0%, rgba(96, 165, 250, 0.25), transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Pixel Contract B — The Signature Glow Buttons (.btn-glow) */
+      .btn-glow {
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: linear-gradient(to top, #f59e0b 1px, #d97706 3px, #b45309 6px, #78350f 10px, #1c1917 18px, #0a111d 28px, #0a111d 100%);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 0 12px rgba(245,158,11,.15), 0 2px 6px -2px rgba(245,158,11,.5);
+        color: #ffffff;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease, box-shadow 0.2s ease;
+      }
+      .btn-glow::before {
+        content: '';
+        position: absolute;
+        left: 20%;
+        right: 20%;
+        top: 0.8px;
+        height: 1.5px;
+        background: linear-gradient(90deg, transparent, rgba(255,235,180,0.8), transparent);
+        filter: blur(0.5px);
+        pointer-events: none;
+      }
+      .btn-glow:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 20px rgba(245,158,11,.45);
+      }
+      .btn-glow:active:not(:disabled) {
+        transform: translateY(0);
+        filter: brightness(0.95);
+      }
+
+      /* Countdown Digits Glow & 3D Mechanical Split-Flap Clock */
+      .countdown-digit, .flip-num {
+        text-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+      }
+      .flip-leaf-top, .flip-leaf-bottom {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+      @keyframes flipFoldDown {
+        0% {
+          transform: rotateX(0deg);
+          filter: brightness(1);
+        }
+        100% {
+          transform: rotateX(-90deg);
+          filter: brightness(0.55);
+        }
+      }
+      @keyframes flipUnfoldDown {
+        0% {
+          transform: rotateX(90deg);
+          filter: brightness(1.25);
+        }
+        100% {
+          transform: rotateX(0deg);
+          filter: brightness(1);
+        }
+      }
+      .flip-leaf-top.flipping {
+        animation: flipFoldDown 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      .flip-leaf-bottom.flipping {
+        animation: flipUnfoldDown 0.28s cubic-bezier(0.2, 0, 0.4, 1) 0.26s both;
+      }
+
+      /* Focus on Scroll (Sequential Section Dimming) */
+      .scroll-focus-section {
+        transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+        will-change: opacity, filter, transform;
+      }
+      .scroll-focus-section.section-focused {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: scale(1) !important;
+      }
+      .scroll-focus-section.section-dimmed {
+        opacity: 0.75;
+        filter: blur(1px);
+        transform: scale(0.998);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .scroll-focus-section,
+        .scroll-focus-section.section-focused,
+        .scroll-focus-section.section-dimmed {
+          opacity: 1 !important;
+          filter: none !important;
+          transform: none !important;
+          transition: none !important;
+        }
+      }
+
+      /* Master Optical Entrance Animations */
+      .entrance-badge {
+        animation: settleDown 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .entrance-headline {
+        animation: wipeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+      }
+      .entrance-countdown {
+        animation: floatUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+      }
+
+      @keyframes settleDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes wipeUp {
+        from {
+          opacity: 0;
+          clip-path: inset(100% 0 -30% 0);
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          clip-path: inset(-30% 0 -30% 0);
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes floatUp {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .entrance-badge,
+        .entrance-headline,
+        .entrance-countdown,
+        .countdown-border-beam::before,
+        .countdown-ambient-glow::before {
+          animation: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+          clip-path: none !important;
+        }
+      }
+
+      /* =========================================================
+         COUNTDOWN ANIMATED GLOWING BORDER BEAM (BORDER TRAIL)
+         ========================================================= */
+      .countdown-beam-container {
+        position: relative;
+        border-radius: 20px;
+      }
+
+      /* Ambient soft halo that rotates synchronously with the laser beam */
+      .countdown-ambient-glow {
+        position: absolute;
+        inset: -3px;
+        border-radius: 23px;
+        overflow: hidden;
+        filter: blur(14px);
+        opacity: 0.7;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .countdown-ambient-glow::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 320%;
+        height: 320%;
+        transform: translate(-50%, -50%);
+        background: conic-gradient(
+          from 0deg,
+          transparent 0deg,
+          transparent 100deg,
+          rgba(245, 158, 11, 0.2) 130deg,
+          rgba(234, 179, 8, 0.75) 165deg,
+          #FDE047 180deg,
+          rgba(234, 179, 8, 0.75) 195deg,
+          rgba(245, 158, 11, 0.2) 230deg,
+          transparent 260deg,
+          transparent 360deg
+        );
+        animation: borderBeamSpin 5s linear infinite;
+      }
+
+      /* Border beam precision rim (1.5px hairline gap) */
+      .countdown-border-beam {
+        position: relative;
+        border-radius: 20px;
+        padding: 1.5px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.85);
+        z-index: 1;
+      }
+
+      /* Rotating high-intensity gold laser trail */
+      .countdown-border-beam::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 350%;
+        height: 350%;
+        transform: translate(-50%, -50%);
+        background: conic-gradient(
+          from 0deg,
+          transparent 0deg,
+          transparent 105deg,
+          rgba(245, 158, 11, 0.25) 135deg,
+          rgba(234, 179, 8, 0.95) 165deg,
+          #FFFBEB 180deg,
+          rgba(234, 179, 8, 0.95) 195deg,
+          rgba(245, 158, 11, 0.25) 225deg,
+          transparent 255deg,
+          transparent 360deg
+        );
+        animation: borderBeamSpin 5s linear infinite;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      @keyframes borderBeamSpin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      /* Royal Navy luxury countdown card body */
+      .countdown-card-inner {
+        position: relative;
+        border-radius: 18.5px;
+        background: rgba(15, 23, 42, 0.92) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        backdrop-filter: blur(20px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        z-index: 1;
+      }
+
+      /* Custom Tooltip */
+      #seat-tooltip {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+        transform: translate(-50%, -115%);
+      }
+      /* Toast Animation */
+      @keyframes slideInUp {
+        from {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .toast-animate {
+        animation: slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      /* =========================================================
+         LIQUID GLASS PREMIUM SPECIFICATION - SYNCHRONIZED ROYAL NAVY
+         ========================================================= */
+      .liquid-glass {
+        background: rgba(15, 23, 42, 0.75) !important;
+        backdrop-filter: blur(20px) saturate(160%);
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        border: none !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 20px 45px -10px rgba(0, 0, 0, 0.55) !important;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .liquid-glass::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.35) 0%,
+          rgba(255, 255, 255, 0.10) 25%,
+          rgba(255, 255, 255, 0) 45%,
+          rgba(255, 255, 255, 0) 65%,
+          rgba(255, 255, 255, 0.08) 85%,
+          rgba(255, 255, 255, 0.25) 100%
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      /* §4 NAV & §9 MOCK STYLE: THE GLASS CONTAINER SPEC */
+      .glass-panel {
+        background: rgba(15, 23, 42, 0.75) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        backdrop-filter: blur(20px) saturate(160%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.55) !important;
+        border-radius: 18px !important;
+      }
+
+      /* Sub-cells and nested tiles (10px radius) */
+      .glass-tile {
+        background: rgba(15, 23, 42, 0.65) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(150%);
+        backdrop-filter: blur(14px) saturate(150%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+        border-radius: 10px !important;
+      }
+
+      /* Inset dark sub-cell (for inputs, timers, countdown digits, summary items) */
+      .inset-dark-cell {
+        background: rgba(11, 19, 38, 0.65) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 10px !important;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+      }
+
+      /* Sleek glass strip (toolbar & legends - 14px radius) */
+      .glass-strip {
+        background: rgba(15, 23, 42, 0.55) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(150%);
+        backdrop-filter: blur(16px) saturate(150%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+        border-radius: 14px !important;
+      }
+
+      .seating-status-legend {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 7px 12px;
+        min-width: 0;
+        color: rgba(226, 232, 240, .72);
+        font-size: 10px;
+        line-height: 1;
+      }
+      .seating-status-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+      .seating-status-legend__swatch {
+        width: 11px;
+        height: 11px;
+        flex: 0 0 11px;
+        border: 1px solid rgba(255, 255, 255, .22);
+        border-radius: 3px;
+      }
+      .seating-status-legend__swatch.available { background: #22c55e; box-shadow: 0 0 7px rgba(34,197,94,.25); }
+      .seating-status-legend__swatch.sold { background: #334155; border-color: rgba(156,163,175,.55); }
+      .seating-status-legend__swatch.selected { background: #eab308; border-color: #fde68a; box-shadow: 0 0 7px rgba(234,179,8,.3); }
+      .seating-status-legend__swatch.blocked { background: repeating-linear-gradient(135deg,#30343a 0 3px,#17191d 3px 6px); }
+
+      /* Ghost tab buttons */
+      .ghost-tab {
+        background: transparent !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 10px !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .ghost-tab:hover {
+        background: rgba(255, 255, 255, 0.04) !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.14) !important;
+      }
+
+      /* Active tab with signature dark button bloom & gold foot-light */
+      .active-gold-tab {
+        position: relative !important;
+        background: linear-gradient(to top, #f59e0b 1px, #d97706 2px, #b45309 4px, #78350f 7px, #1c1917 12px, #0a111d 20px, #0a111d 100%) !important;
+        border: 1px solid rgba(245, 158, 11, 0.5) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border-radius: 10px !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 12px rgba(245, 158, 11, 0.25), 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+      }
+      .active-gold-tab::after {
+        content: '';
+        position: absolute;
+        bottom: 0px;
+        left: 20%;
+        right: 20%;
+        height: 1.5px;
+        background: #f59e0b;
+        box-shadow: 0 0 8px #f59e0b;
+        border-radius: 9999px;
+      }
+
+      /* §2 ZONE BLOCKS & SEATING REFACTOR */
+      .zone-block {
+        background: rgba(255, 255, 255, 0.015) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 14px !important;
+        transition: border-color 0.2s ease;
+      }
+      #zone-block-VIP {
+        --zone-accent-color: rgba(234, 179, 8, 0.3);
+        box-shadow: inset 0 1px 0 var(--zone-accent-color) !important;
+      }
+      #zone-block-A {
+        --zone-accent-color: rgba(59, 130, 246, 0.3);
+        box-shadow: inset 0 1px 0 var(--zone-accent-color) !important;
+      }
+      #zone-block-B {
+        --zone-accent-color: rgba(168, 85, 247, 0.3);
+        box-shadow: inset 0 1px 0 var(--zone-accent-color) !important;
+      }
+      #zone-block-C {
+        --zone-accent-color: rgba(34, 197, 94, 0.3);
+        box-shadow: inset 0 1px 0 var(--zone-accent-color) !important;
+      }
+
+      /* 6x6px rounded glow dot beside zone titles */
+      .zone-glow-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 9999px;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .zone-glow-dot-vip {
+        background: #EAB308;
+        box-shadow: 0 0 6px rgba(234, 179, 8, 0.85);
+      }
+      .zone-glow-dot-a {
+        background: #3B82F6;
+        box-shadow: 0 0 6px rgba(59, 130, 246, 0.85);
+      }
+      .zone-glow-dot-b {
+        background: #A855F7;
+        box-shadow: 0 0 6px rgba(168, 85, 247, 0.85);
+      }
+      .zone-glow-dot-c {
+        background: #22C55E;
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.85);
+      }
+
+      /* SEAT NODES SPECIFICATION */
+      .seat-node {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        min-height: 42px !important;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        box-sizing: border-box;
+      }
+      /* Available (#22C55E): Clean, vibrant, with box-shadow: inset 0 1px 0 rgba(255,255,255,0.3) */
+      .seat-available,
+      .seat-node.seat-available {
+        background: #22C55E !important;
+        color: #020617 !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+        font-weight: 700 !important;
+      }
+      .seat-available:hover,
+      .seat-node.seat-available:hover {
+        background: #16a34a !important;
+        transform: scale(1.15);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 12px rgba(34, 197, 94, 0.7) !important;
+      }
+
+      /* Sold (#9CA3AF): Recede deeply into the background */
+      .seat-sold,
+      .seat-node.seat-sold {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.04) !important;
+        color: rgba(255, 255, 255, 0.2) !important;
+        opacity: 0.45 !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+      }
+      .seat-sold:hover,
+      .seat-node.seat-sold:hover {
+        transform: none !important;
+        filter: none !important;
+      }
+
+      .seat-held,
+      .seat-node.seat-held {
+        background: rgba(245, 158, 11, 0.18) !important;
+        border: 1px solid rgba(245, 158, 11, 0.4) !important;
+        color: #fcd34d !important;
+        opacity: 0.7 !important;
+        cursor: not-allowed !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+      }
+      .seat-held:hover,
+      .seat-node.seat-held:hover {
+        transform: none !important;
+        filter: none !important;
+      }
+
+      .seat-blocked,
+      .seat-node.seat-blocked {
+        background: repeating-linear-gradient(135deg, #25282d 0 5px, #1a1c20 5px 10px) !important;
+        border: 1px solid rgba(255,255,255,.09) !important;
+        color: rgba(255,255,255,.34) !important;
+        opacity: .82 !important;
+        cursor: default !important;
+        box-shadow: none !important;
+        pointer-events: none !important;
+      }
+      .seat-blocked:hover,
+      .seat-node.seat-blocked:hover {
+        transform: translate(-50%, -50%) !important;
+        filter: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Selected (#EAB308): Vibrant amber with pulse and active highlight */
+      .seat-selected,
+      .seat-node.seat-selected {
+        background: #EAB308 !important;
+        color: #020617 !important;
+        border: 1px solid #fef08a !important;
+        font-weight: 700 !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 12px rgba(234, 179, 8, 0.7) !important;
+        animation: pulseSelect 1.8s infinite !important;
+      }
+      @keyframes pulseSelect {
+        0%, 100% { transform: scale(1.1); }
+        50% { transform: scale(1.25); }
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0d1117;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #1f2937;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #374151;
+      }
+      /* Editorial concert system: restrained structure and low-cost motion */
+      :root {
+        --ink: #07090d;
+        --paper: #f5f2e9;
+        --line: rgba(255, 255, 255, 0.13);
+        --line-strong: rgba(255, 255, 255, 0.24);
+        --accent: #f5b933;
+      }
+      html { scroll-padding-top: 72px; }
+      body {
+        background-color: var(--ink);
+        background-image:
+          radial-gradient(circle at 76% 6%, rgba(51, 65, 85, .16), transparent 24%),
+          linear-gradient(180deg, #080b11 0%, #090e18 38%, #07090d 100%);
+      }
+      section[id] { scroll-margin-top: 72px; }
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        height: 64px;
+        background: rgba(6, 8, 12, .94);
+        border-bottom: 1px solid var(--line);
+        -webkit-backdrop-filter: blur(14px) saturate(125%);
+        backdrop-filter: blur(14px) saturate(125%);
+      }
+      .site-brand {
+        font-family: 'Syne', 'Be Vietnam Pro', sans-serif;
+        font-weight: 800;
+        letter-spacing: -.04em;
+        line-height: .9;
+        white-space: nowrap;
+      }
+      .site-nav-link {
+        position: relative;
+        color: rgba(255,255,255,.68);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        transition: color .16s ease;
+      }
+      .site-nav-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 100%;
+        bottom: -7px;
+        height: 1px;
+        background: var(--accent);
+        transition: right .18s ease-out;
+      }
+      .site-nav-link:hover { color: #fff; }
+      .site-nav-link:hover::after { right: 0; }
+      .editorial-heading {
+        padding-top: 18px;
+        border-top: 1px solid var(--line-strong);
+      }
+      .editorial-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(255,255,255,.52);
+        font-family: 'Space Grotesk', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+      }
+      .editorial-kicker::before {
+        content: '';
+        width: 26px;
+        height: 1px;
+        background: var(--accent);
+      }
+      .section-number {
+        color: rgba(255,255,255,.28);
+        font-family: 'Space Grotesk', monospace;
+        font-size: 11px;
+        letter-spacing: .16em;
+      }
+      .liquid-glass {
+        background: rgba(10, 15, 25, .86) !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 8px !important;
+        -webkit-backdrop-filter: blur(12px) saturate(125%);
+        backdrop-filter: blur(12px) saturate(125%);
+        box-shadow: 0 18px 55px -28px rgba(0, 0, 0, .85) !important;
+      }
+      .liquid-glass::before {
+        background: linear-gradient(135deg, rgba(255,255,255,.16), transparent 34%, transparent 80%, rgba(245,185,51,.10));
+      }
+      .glass-panel {
+        background: rgba(10, 15, 25, .9) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 22px 60px -34px rgba(0,0,0,.9) !important;
+      }
+      .glass-tile,
+      .inset-dark-cell,
+      .glass-strip,
+      .ghost-tab,
+      .active-gold-tab,
+      .zone-block { border-radius: 5px !important; }
+      .btn-glow {
+        border-radius: 4px;
+        border: 1px solid rgba(245,185,51,.55);
+        background: linear-gradient(180deg, #121722, #090d14) !important;
+        box-shadow: inset 0 -2px 0 #d99616, 0 12px 32px -20px rgba(245,185,51,.8);
+        letter-spacing: .035em;
+        transition: transform .16s ease-out, border-color .16s ease-out;
+      }
+      .btn-glow::before {
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 1px;
+        background: rgba(255,255,255,.35);
+        filter: none;
+      }
+      .btn-glow:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: none;
+        border-color: var(--accent);
+        box-shadow: inset 0 -2px 0 #f5b933, 0 16px 34px -18px rgba(245,185,51,.65);
+      }
+      #artist-lineup .liquid-glass,
+      #pricing-section .liquid-glass {
+        transition: transform .2s ease-out, border-color .2s ease-out, background-color .2s ease-out !important;
+      }
+      #artist-lineup .liquid-glass:hover,
+      #pricing-section .liquid-glass:hover {
+        transform: translateY(-4px) !important;
+        border-color: rgba(245,185,51,.42) !important;
+        background: rgba(13, 19, 31, .96) !important;
+      }
+      #artist-lineup img {
+        filter: grayscale(.32) contrast(1.05);
+        transition: transform .35s ease-out, filter .25s ease-out !important;
+      }
+      #artist-lineup .group:hover img { filter: grayscale(0) contrast(1.02); }
+      #concert-hero .entrance-badge {
+        height: auto !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+      #concert-hero .entrance-badge > div {
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 2px !important;
+        background: rgba(245, 185, 51, .10) !important;
+        border: 1px solid rgba(245, 185, 51, .28);
+        box-shadow: none !important;
+      }
+      #concert-hero .liquid-glass {
+        background: rgba(7, 11, 18, .72) !important;
+        border-color: rgba(255,255,255,.11) !important;
+        box-shadow: none !important;
+      }
+      .countdown-ambient-glow { opacity: .38; }
+      .countdown-border-beam {
+        border-radius: 9px !important;
+        background: rgba(255,255,255,.10);
+        box-shadow: 0 24px 60px -38px rgba(0,0,0,.95);
+      }
+      .countdown-card-inner {
+        border-radius: 8px !important;
+        background: rgba(7, 11, 18, .94) !important;
+        border-color: rgba(255,255,255,.08) !important;
+        box-shadow: none !important;
+      }
+      #artist-lineup,
+      #pricing-section,
+      #seating-section {
+        background: rgba(7, 9, 13, .42);
+      }
+      #pricing-section {
+        background: rgba(9, 13, 21, .72);
+      }
+      .scroll-focus-section {
+        transition: opacity .2s ease-out;
+        will-change: opacity;
+      }
+      .scroll-focus-section.section-focused {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+      }
+      .scroll-focus-section.section-dimmed {
+        opacity: .92;
+        filter: none !important;
+        transform: none !important;
+      }
+      @media (max-width: 1023px) {
+        .site-nav-desktop { display: none !important; }
+      }
+      @media (max-width: 767px) {
+        .site-header { height: 58px; }
+        html { scroll-padding-top: 66px; }
+        section[id] { scroll-margin-top: 66px; }
+        .scroll-focus-section,
+        .scroll-focus-section.section-dimmed { opacity: 1; }
+      }
+
+      /* =========================================================
+         CONCERT EDITORIAL ART DIRECTION
+         One dominant image, one accent, fewer visible containers.
+         ========================================================= */
+      :root {
+        --ink: #070707;
+        --paper: #f1efe7;
+        --accent: #d8ff3e;
+        --line: rgba(255, 255, 255, .14);
+        --line-strong: rgba(255, 255, 255, .28);
+      }
+      body {
+        background: #070707 !important;
+        color: #f5f5f2;
+      }
+      section[id] { scroll-margin-top: 0; }
+      #stA, #stB { opacity: .09; }
+      ::-webkit-scrollbar-track { background: #070707; }
+      ::-webkit-scrollbar-thumb { background: #343434; }
+
+      .site-header {
+        height: 68px;
+        background: rgba(7, 7, 7, .94);
+        border-color: rgba(255, 255, 255, .14);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+      .site-header nav {
+        max-width: 1440px;
+      }
+      .site-header a[aria-label] > span:first-child {
+        border: 0 !important;
+        background: var(--accent) !important;
+        color: #070707 !important;
+      }
+      .site-brand { letter-spacing: -.055em; }
+      .site-brand span { color: var(--accent) !important; }
+      .site-header nav > div:last-child > a {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #080808 !important;
+      }
+      .site-header nav > div:last-child > a span:first-child {
+        background: #080808 !important;
+        animation: none !important;
+      }
+
+      #concert-hero {
+        min-height: calc(100vh - 68px);
+        display: flex;
+        align-items: center;
+        background-image:
+          linear-gradient(90deg, rgba(5, 5, 5, .98) 0%, rgba(5, 5, 5, .91) 38%, rgba(5, 5, 5, .46) 67%, rgba(5, 5, 5, .22) 100%),
+          linear-gradient(0deg, rgba(5, 5, 5, .8) 0%, transparent 45%),
+          url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1800&q=88');
+        background-size: cover;
+        background-position: center 48%;
+        background-repeat: no-repeat;
+        background-color: #101010;
+        background-blend-mode: normal, normal, luminosity;
+        border-color: rgba(255,255,255,.16) !important;
+      }
+      #concert-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: .22;
+        background-image: repeating-linear-gradient(90deg, transparent 0, transparent calc(25% - 1px), rgba(255,255,255,.08) 25%);
+      }
+      #concert-hero .spotlight,
+      #concert-hero .aurora-glow-hero { display: none; }
+      #concert-hero > .max-w-7xl { max-width: 1440px; width: 100%; }
+      #concert-hero .entrance-badge > div {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #080808 !important;
+      }
+      #concert-hero .entrance-badge span {
+        color: rgba(255,255,255,.72) !important;
+        font-weight: 600 !important;
+      }
+      #concert-hero h1 {
+        max-width: 720px;
+        overflow: visible;
+        font-size: clamp(3.2rem, 4.9vw, 4.9rem) !important;
+        line-height: .87 !important;
+        letter-spacing: -.065em !important;
+        text-shadow: none !important;
+      }
+      #concert-hero .entrance-headline { overflow: visible; padding-block: 4px 8px; }
+      #concert-hero .hero-title-primary,
+      #concert-hero .hero-title-year { display:block; color:#fff; }
+      #concert-hero .hero-title-subtitle {
+        display:block;
+        color: var(--accent) !important;
+        background: none !important;
+        -webkit-text-fill-color: currentColor !important;
+        font-size: clamp(1rem, 1.8vw, 1.65rem) !important;
+        letter-spacing: .01em !important;
+        margin-top: 22px !important;
+        line-height: 1.28 !important;
+        white-space: normal !important;
+      }
+      #concert-hero p {
+        color: rgba(255,255,255,.68) !important;
+        max-width: 620px;
+        line-height: 1.75;
+      }
+      #concert-hero .lg\:col-span-7 > .grid {
+        gap: 0 !important;
+        border-top: 1px solid rgba(255,255,255,.22);
+        border-bottom: 1px solid rgba(255,255,255,.22);
+      }
+      #concert-hero .lg\:col-span-7 > .grid > .group {
+        min-width: 0;
+      }
+      #concert-hero .lg\:col-span-7 > .grid > .group + .group {
+        border-left: 1px solid rgba(255,255,255,.22);
+      }
+      #concert-hero .lg\:col-span-7 > .grid .liquid-glass {
+        padding: 16px 18px !important;
+        background: rgba(0,0,0,.18) !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+      #concert-hero .lg\:col-span-7 > .grid .liquid-glass > div:first-child {
+        background: transparent !important;
+        border: 0 !important;
+        color: var(--accent) !important;
+        padding-left: 0 !important;
+      }
+      #concert-hero .text-amber-400\/90 { color: var(--accent) !important; }
+
+      .countdown-beam-container { isolation: isolate; }
+      .countdown-ambient-glow { display: none; }
+      .countdown-border-beam {
+        padding: 0 !important;
+        background: transparent !important;
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      .countdown-card-inner {
+        background: rgba(5,5,5,.74) !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        backdrop-filter: blur(18px) saturate(90%) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(90%) !important;
+      }
+      .countdown-card-inner > div:first-child { display: none; }
+      .countdown-card-inner .text-emerald-400 { color: var(--accent) !important; }
+      .countdown-card-inner .bg-emerald-500,
+      .countdown-card-inner .bg-emerald-400 { background: var(--accent) !important; }
+      .flip-card,
+      .flip-top-static,
+      .flip-bottom-static,
+      .flip-leaf-top,
+      .flip-leaf-bottom {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      .flip-top-static,
+      .flip-leaf-top { background: rgba(255,255,255,.06) !important; }
+      .flip-bottom-static,
+      .flip-leaf-bottom { background: rgba(255,255,255,.035) !important; }
+      .flip-num { color: var(--accent) !important; }
+
+      #artist-lineup {
+        background: var(--paper) !important;
+        color: #101010;
+        padding-top: 76px;
+        padding-bottom: 88px;
+      }
+      #artist-lineup .editorial-heading { border-color: rgba(10,10,10,.28); }
+      #artist-lineup h2 { color: #0c0c0c !important; }
+      #artist-lineup .editorial-kicker,
+      #artist-lineup .section-number { color: rgba(10,10,10,.56); }
+      #artist-lineup .editorial-kicker::before { background: #0c0c0c; }
+      #artist-lineup .group {
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: #0b0b0b !important;
+        box-shadow: none !important;
+      }
+      #artist-lineup .group:hover {
+        border-color: transparent !important;
+        background: #0b0b0b !important;
+        transform: translateY(-6px) !important;
+      }
+      #artist-lineup .aspect-square { aspect-ratio: 4 / 3; }
+      #artist-lineup img {
+        filter: grayscale(1) contrast(1.13);
+        transition: transform .55s cubic-bezier(.16,1,.3,1), filter .3s ease !important;
+      }
+      #artist-lineup .group:hover img { filter: grayscale(.15) contrast(1.05); }
+      #artist-lineup .group > .p-3 {
+        text-align: left;
+        padding: 16px 18px 18px;
+        border-top: 1px solid rgba(255,255,255,.13);
+      }
+      #artist-lineup .group h3 { font-family: 'Syne', sans-serif; font-size: 15px; }
+      #artist-lineup .group:hover h3 { color: var(--accent) !important; }
+      @media (min-width: 1024px) {
+        #artist-lineup .grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+      }
+
+      #pricing-section {
+        background: #090909 !important;
+        padding-top: 86px;
+        padding-bottom: 92px;
+      }
+      #pricing-section .liquid-glass {
+        background: #101010 !important;
+        border: 1px solid rgba(255,255,255,.14) !important;
+        border-top: 3px solid var(--accent) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #pricing-section .liquid-glass:hover {
+        background: #151515 !important;
+        border-color: rgba(255,255,255,.28) !important;
+        border-top-color: var(--accent) !important;
+      }
+      #pricing-section [data-zone-code] > .absolute.top-0 {
+        background: var(--accent) !important;
+        box-shadow: none !important;
+      }
+      #pricing-section [data-zone-code] :is(.text-amber-400, .text-amber-300, .text-amber-200, .text-blue-400, .text-purple-400, .text-emerald-400) {
+        color: var(--accent) !important;
+      }
+      #pricing-section [data-zone-code] :is(.bg-amber-400, .bg-blue-400, .bg-purple-400, .bg-emerald-400) {
+        background: var(--accent) !important;
+        color: #080808 !important;
+      }
+      #pricing-section [data-zone-code] :is(.bg-amber-500\/10, .bg-blue-500\/10, .bg-purple-500\/10, .bg-emerald-500\/10) {
+        background: rgba(216,255,62,.08) !important;
+      }
+      #pricing-section [data-zone-code] :is(.border-amber-500\/20, .border-blue-500\/20, .border-purple-500\/20, .border-emerald-500\/20) {
+        border-color: rgba(216,255,62,.26) !important;
+      }
+      #seating-section { background: #0d0d0d !important; }
+      #seating-section :is(.glass-panel, .glass-tile, .glass-strip, .inset-dark-cell, .zone-block) {
+        background: #101010 !important;
+        border-color: rgba(255,255,255,.14) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #seating-section .ghost-tab {
+        background: transparent !important;
+        border-color: rgba(255,255,255,.13) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #seating-section .active-gold-tab {
+        color: var(--accent) !important;
+        background: rgba(216,255,62,.08) !important;
+        border-color: var(--accent) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #seating-section .stage-backlight,
+      #seating-section .stage-light-beam { display: none; }
+      #seating-section .main-stage-platform {
+        color: #080808 !important;
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #seating-section .main-catwalk {
+        color: #080808 !important;
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        border-radius: 0 0 8px 8px !important;
+        box-shadow: none !important;
+      }
+      .stadium-map-shell {
+        border: 1px solid rgba(255,255,255,.14);
+        background: #090909;
+        padding: 18px;
+        margin-bottom: 26px;
+      }
+      .stadium-map-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+        color: rgba(255,255,255,.5);
+        font: 700 9px/1.4 'Space Grotesk', monospace;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+      .stadium-bowl {
+        position: relative;
+        width: min(100%, 720px);
+        aspect-ratio: 1.28 / 1;
+        margin: 0 auto;
+        border-radius: 48% / 43%;
+        background: #111;
+        border: 1px solid rgba(255,255,255,.24);
+        overflow: hidden;
+        isolation: isolate;
+      }
+      .stadium-bowl::before,
+      .stadium-bowl::after {
+        content: '';
+        position: absolute;
+        border-radius: 48% / 43%;
+        pointer-events: none;
+      }
+      .stadium-bowl::before {
+        inset: 7%;
+        border: clamp(22px, 4vw, 42px) solid #1b1b1b;
+        box-shadow: 0 0 0 1px rgba(255,255,255,.13), inset 0 0 0 1px rgba(255,255,255,.13);
+      }
+      .stadium-bowl::after {
+        inset: 18% 16%;
+        border: clamp(17px, 3vw, 30px) solid #222;
+        box-shadow: 0 0 0 1px rgba(255,255,255,.12), inset 0 0 0 1px rgba(255,255,255,.12);
+      }
+      .stadium-pitch {
+        position: absolute;
+        z-index: 2;
+        inset: 25% 25% 16%;
+        border: 1px solid rgba(216,255,62,.25);
+        background:
+          linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.08) 50%, transparent 50.3%),
+          repeating-linear-gradient(90deg, rgba(216,255,62,.025) 0 12.5%, transparent 12.5% 25%),
+          #111612;
+      }
+      .stadium-map-zone {
+        position: absolute;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border: 1px solid rgba(255,255,255,.22);
+        background: rgba(7,7,7,.92);
+        color: rgba(255,255,255,.72);
+        font-size: clamp(7px, 1.2vw, 10px);
+        font-weight: 800;
+        letter-spacing: .05em;
+        line-height: 1.25;
+        text-align: center;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color .16s ease, border-color .16s ease, background-color .16s ease, transform .16s ease;
+      }
+      .stadium-map-zone:hover,
+      .stadium-map-zone:focus-visible {
+        color: #080808;
+        border-color: var(--accent);
+        background: var(--accent);
+        outline: none;
+        transform: translateY(-2px);
+      }
+      .stadium-map-zone.is-active {
+        color: #080808;
+        border-color: var(--accent);
+        background: var(--accent);
+        box-shadow: 0 0 0 2px rgba(216,255,62,.16);
+      }
+      .stadium-zone-upper {
+        top: 3.5%; left: 29%; right: 29%;
+        color: rgba(255,255,255,.54);
+      }
+      .stadium-zone-b-left { top: 26%; left: 4%; width: 18%; }
+      .stadium-zone-b-right { top: 26%; right: 4%; width: 18%; }
+      .stadium-zone-a-left { top: 52%; left: 7.5%; width: 16%; }
+      .stadium-zone-a-right { top: 52%; right: 7.5%; width: 16%; }
+      .stadium-zone-lounge {
+        top: 21%; left: 32%; right: 32%;
+        min-height: 42px;
+        color: var(--accent);
+        border-color: rgba(216,255,62,.6);
+        background: rgba(216,255,62,.07);
+      }
+      .stadium-zone-standing-1,
+      .stadium-zone-standing-2 {
+        top: 40%; bottom: 36%;
+        color: #080808;
+        background: rgba(216,255,62,.82);
+        border-color: var(--accent);
+      }
+      .stadium-zone-standing-1 { left: 27%; width: 22%; }
+      .stadium-zone-standing-2 { right: 27%; width: 22%; background: rgba(216,255,62,.55); }
+      .stadium-stage {
+        position: absolute;
+        z-index: 6;
+        left: 31%; right: 31%; bottom: 13%;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #080808;
+        background: var(--accent);
+        font-family: 'Syne', sans-serif;
+        font-size: clamp(11px, 2vw, 17px);
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .stadium-catwalk {
+        position: absolute;
+        z-index: 6;
+        left: 46%; right: 46%; bottom: 21%; height: 22%;
+        min-width: 30px;
+        background: var(--accent);
+      }
+      .stadium-map-caption {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1px;
+        margin-top: 12px;
+        background: rgba(255,255,255,.12);
+      }
+      .stadium-map-caption > div {
+        background: #0d0d0d;
+        padding: 10px 12px;
+      }
+      .stadium-map-caption strong {
+        display: block;
+        color: #fff;
+        font-size: 10px;
+        text-transform: uppercase;
+      }
+      .stadium-map-caption span {
+        display: block;
+        margin-top: 3px;
+        color: rgba(255,255,255,.48);
+        font-size: 9px;
+        line-height: 1.45;
+      }
+      .seat-inventory-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 0;
+        border-top: 1px solid rgba(255,255,255,.15);
+        color: rgba(255,255,255,.58);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+      }
+      /* Live seat inventory mounted directly onto the stadium plan */
+      .stadium-bowl.is-live-map {
+        aspect-ratio: 1.12 / 1;
+        min-height: 610px;
+      }
+      .stadium-bowl.is-live-map > .zone-block {
+        position: absolute;
+        z-index: 8;
+        margin: 0 !important;
+        padding: 7px !important;
+        overflow: visible;
+        background: rgba(7,7,7,.92) !important;
+        border: 1px solid rgba(255,255,255,.18) !important;
+        transition: opacity .18s ease, border-color .18s ease, background-color .18s ease;
+      }
+      .stadium-bowl.is-live-map > .zone-block.map-zone-dimmed { opacity: .26; }
+      .stadium-bowl.is-live-map > .zone-block > div:first-child {
+        margin-bottom: 5px !important;
+        gap: 5px;
+      }
+      .stadium-bowl.is-live-map > .zone-block > div:first-child > div { min-width: 0; }
+      .stadium-bowl.is-live-map > .zone-block h4 {
+        overflow: hidden;
+        color: rgba(255,255,255,.78) !important;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 7px !important;
+        line-height: 1.15;
+        letter-spacing: .04em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-live-map > .zone-block > div:first-child > span:last-child {
+        color: var(--accent) !important;
+        font-size: 7px !important;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-live-map > .zone-block > .text-\[11px\] { display: none; }
+      .stadium-bowl.is-live-map .seat-node {
+        width: 100%;
+        min-width: 0;
+        height: 29px;
+        padding: 2px !important;
+        border-radius: 3px !important;
+        font-size: 6px !important;
+        line-height: .95;
+      }
+      .stadium-bowl.is-live-map .seat-node span:first-child {
+        overflow: hidden;
+        max-width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-live-map .seat-node span:last-child { display: none !important; }
+      .stadium-bowl.is-live-map :is(#grid-vvip, #grid-vip1) {
+        display: grid !important;
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        gap: 3px !important;
+      }
+      .stadium-bowl.is-live-map :is(#grid-a, #grid-b) {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 3px !important;
+      }
+      .stadium-bowl.is-live-map #zone-block-VVIP {
+        top: 13%; left: 29%; right: 29%;
+      }
+      .stadium-bowl.is-live-map #zone-block-VIP1 {
+        top: 27%; left: 29%; right: 29%;
+      }
+      .stadium-bowl.is-live-map #zone-block-A {
+        top: 33%; left: 5%; width: 20%;
+      }
+      .stadium-bowl.is-live-map #zone-block-B {
+        top: 33%; right: 5%; width: 20%;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-A, #zone-block-B) h4 {
+        font-size: 0 !important;
+      }
+      .stadium-bowl.is-live-map #zone-block-A h4::after {
+        content: 'A · TẦNG 1';
+        font-size: 7px;
+      }
+      .stadium-bowl.is-live-map #zone-block-B h4::after {
+        content: 'B · TẦNG 2';
+        font-size: 7px;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) {
+        left: 29%; right: 29%;
+        padding: 7px 9px !important;
+        background: rgba(216,255,62,.08) !important;
+        border-color: rgba(216,255,62,.48) !important;
+      }
+      .stadium-bowl.is-live-map #zone-block-stand-1 { top: 43%; }
+      .stadium-bowl.is-live-map #zone-block-stand-2 { top: 55%; }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) > div:first-child {
+        margin-bottom: 4px !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) > .glass-tile {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+        padding: 5px !important;
+        background: transparent !important;
+        border: 0 !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) > .glass-tile > div:first-child {
+        display: none;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) .shrink-0 {
+        width: 100%;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 5px !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) .shrink-0 > div {
+        gap: 3px !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) button,
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) [id^="standing-count-"] {
+        min-width: 25px !important;
+        width: auto !important;
+        height: 25px !important;
+        padding: 3px 6px !important;
+        font-size: 9px !important;
+      }
+      .stadium-bowl.is-live-map :is(#zone-block-stand-1, #zone-block-stand-2) .btn-glow {
+        color: #080808 !important;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-live-map .stadium-pitch {
+        inset: 40% 27% 13%;
+      }
+      .stadium-bowl.is-live-map .stadium-catwalk {
+        left: 47%; right: 47%; bottom: 16%; height: 11%;
+      }
+      .stadium-bowl.is-live-map .stadium-stage {
+        left: 32%; right: 32%; bottom: 7%; min-height: 45px;
+      }
+      .stadium-bowl.is-live-map > .stadium-map-zone:not(.stadium-zone-upper) { display: none; }
+      #seats-wrapper:empty,
+      .seat-inventory-heading { display: none; }
+
+      /* Cinema-style stadium seat picker: each cell is a real selectable seat. */
+      .stadium-bowl.is-seat-picker {
+        aspect-ratio: 1.12 / 1;
+        min-height: 620px;
+        overflow: hidden;
+      }
+      .stadium-bowl.is-seat-picker .stadium-pitch {
+        inset: 39% 27% 12%;
+      }
+      .stadium-bowl.is-seat-picker > .stadium-map-zone:not(.stadium-zone-upper):not(.stadium-zone-standing-1):not(.stadium-zone-standing-2) {
+        display: none;
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-upper {
+        z-index: 7;
+        top: 3.2%;
+        left: 31%;
+        right: 31%;
+        min-height: 30px;
+      }
+      .map-seat-cluster {
+        --cluster-color: #d8ff3e;
+        position: absolute;
+        z-index: 9;
+        padding: 7px;
+        border: 1px solid color-mix(in srgb, var(--cluster-color) 48%, transparent);
+        background: rgba(7, 7, 7, .9);
+        box-shadow: 0 8px 24px rgba(0,0,0,.24);
+        transition: opacity .16s ease, filter .16s ease;
+      }
+      .map-seat-cluster.map-cluster-dimmed { opacity: .2; filter: saturate(.4); }
+      .map-seat-cluster-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 5px;
+        color: rgba(255,255,255,.82);
+        font: 800 7px/1.2 'Space Grotesk', monospace;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .map-seat-cluster-label::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: var(--cluster-color);
+        box-shadow: 0 0 8px var(--cluster-color);
+      }
+      .map-seat-cluster-label span:first-of-type {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .map-seat-cluster-label span:last-child {
+        margin-left: auto;
+        color: var(--cluster-color);
+      }
+      .map-seat-cluster :is(#grid-vvip, #grid-vip1, #grid-a, #grid-b) {
+        display: grid !important;
+        gap: 4px !important;
+      }
+      .map-seat-cluster :is(#grid-vvip, #grid-vip1) {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+      }
+      .map-seat-cluster :is(#grid-a, #grid-b) {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      .map-seat-cluster-vvip { top: 12%; left: 29%; right: 29%; }
+      .map-seat-cluster-vip1 { top: 25.5%; left: 29%; right: 29%; }
+      .map-seat-cluster-a { top: 29%; left: 5.5%; width: 19%; }
+      .map-seat-cluster-b { top: 29%; right: 5.5%; width: 19%; }
+      .stadium-bowl.is-seat-picker .seat-node {
+        width: 100%;
+        min-width: 0;
+        min-height: 0 !important;
+        height: 30px;
+        padding: 2px !important;
+        border-radius: 3px !important;
+        font-size: 6px !important;
+        line-height: 1 !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node span:first-child {
+        overflow: hidden;
+        max-width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stadium-bowl.is-seat-picker .seat-node span:last-child { display: none !important; }
+      .stadium-bowl.is-seat-picker .seat-node.seat-available {
+        background: var(--seat-zone-color) !important;
+        color: #070707 !important;
+        border-color: color-mix(in srgb, var(--seat-zone-color) 75%, white) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.38) !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node.seat-available:hover {
+        background: var(--seat-zone-color) !important;
+        transform: scale(1.12);
+        box-shadow: 0 0 13px color-mix(in srgb, var(--seat-zone-color) 70%, transparent) !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node.seat-sold {
+        background: color-mix(in srgb, var(--seat-zone-color) 9%, #0a0a0a) !important;
+        border-color: color-mix(in srgb, var(--seat-zone-color) 18%, transparent) !important;
+        color: rgba(255,255,255,.22) !important;
+        opacity: .68 !important;
+        cursor: pointer !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node.seat-held {
+        background: repeating-linear-gradient(135deg, rgba(245,158,11,.22) 0 3px, rgba(12,12,12,.95) 3px 7px) !important;
+        border-color: rgba(245,158,11,.58) !important;
+        color: #fcd34d !important;
+        opacity: .82 !important;
+        cursor: pointer !important;
+      }
+      .stadium-bowl.is-seat-picker .seat-node.seat-selected {
+        background: var(--seat-zone-color) !important;
+        color: #050505 !important;
+        border: 2px solid #fff !important;
+        box-shadow: 0 0 0 2px #d8ff3e, 0 0 14px rgba(216,255,62,.55) !important;
+        animation: none !important;
+        transform: scale(1.06);
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-1,
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-2 {
+        z-index: 8;
+        left: 29%;
+        right: 29%;
+        width: auto;
+        height: 48px;
+        bottom: auto;
+        display: flex;
+        color: #07110a;
+        border-color: rgba(255,255,255,.45);
+        font-size: 8px;
+        line-height: 1.15;
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-1 {
+        top: 44%;
+        background: #4ade80;
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-2 {
+        top: 54%;
+        background: #2dd4bf;
+      }
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-1:hover,
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-2:hover,
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-1:focus-visible,
+      .stadium-bowl.is-seat-picker .stadium-zone-standing-2:focus-visible {
+        color: #050505;
+        background: #d8ff3e;
+      }
+      .stadium-bowl.is-seat-picker .stadium-stage {
+        left: 32%;
+        right: 32%;
+        bottom: 4%;
+        min-height: 46px;
+      }
+      .stadium-bowl.is-seat-picker .stadium-catwalk {
+        left: 47%;
+        right: 47%;
+        bottom: calc(4% + 45px);
+        height: 11%;
+        min-width: 28px;
+      }
+      /* Full oval seating bowl, modelled after real stadium concert plans. */
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-pitch {
+        inset: 25% 24% 15%;
+        border-color: rgba(216,255,62,.2);
+        background:
+          linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.08) 50%, transparent 50.3%),
+          repeating-linear-gradient(90deg, rgba(216,255,62,.035) 0 12.5%, transparent 12.5% 25%),
+          #111812;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring {
+        border-radius: 48% / 43%;
+        background: #0d100d;
+        border-color: rgba(255,255,255,.2);
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring::before,
+      .stadium-bowl.is-seat-picker.has-full-seat-ring::after {
+        border-radius: 48% / 43%;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring::before {
+        inset: 4.5%;
+        border-width: clamp(34px, 5.8vw, 54px);
+        border-color: #181d18;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.14),
+          inset 0 0 0 1px rgba(255,255,255,.12),
+          inset 0 0 0 10px rgba(255,255,255,.018);
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring::after {
+        inset: 17%;
+        border-width: clamp(25px, 4vw, 38px);
+        border-color: #202620;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.13),
+          inset 0 0 0 1px rgba(255,255,255,.1);
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-upper {
+        display: none;
+      }
+      .stadium-seat-ring {
+        position: absolute;
+        z-index: 9;
+        inset: 0;
+        pointer-events: none;
+      }
+      .stadium-ring-seat {
+        --seat-angle: 0deg;
+        --seat-text-angle: 0deg;
+        position: absolute !important;
+        z-index: 10;
+        width: 46px !important;
+        height: 29px !important;
+        min-height: 0 !important;
+        transform: translate(-50%, -50%);
+        clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%);
+        pointer-events: auto;
+      }
+      .stadium-ring-seat.ring-side-top {
+        clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+      }
+      .stadium-ring-seat.ring-side-bottom {
+        clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+      }
+      .stadium-ring-seat.ring-side-left {
+        clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 92%);
+      }
+      .stadium-ring-seat.ring-side-right {
+        clip-path: polygon(0 0, 100% 8%, 100% 92%, 0 100%);
+      }
+      .stadium-ring-seat[data-ring="inner"] {
+        width: 38px !important;
+        height: 24px !important;
+      }
+      .stadium-ring-seat[data-ring="middle"] {
+        width: 43px !important;
+        height: 27px !important;
+      }
+      .stadium-ring-seat[data-ring="outer"] {
+        width: 48px !important;
+        height: 30px !important;
+      }
+      .stadium-ring-seat > span {
+        transform: none;
+      }
+      .stadium-bowl.is-seat-picker .stadium-ring-seat.seat-available:hover {
+        transform: translate(-50%, -50%) scale(1.1) !important;
+      }
+      .stadium-bowl.is-seat-picker .stadium-ring-seat.seat-selected {
+        transform: translate(-50%, -50%) scale(1.08) !important;
+      }
+      .ring-zone-label {
+        --label-color: #d8ff3e;
+        position: absolute;
+        z-index: 8;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 7px;
+        color: rgba(255,255,255,.72);
+        background: rgba(7,7,7,.82);
+        border: 1px solid color-mix(in srgb, var(--label-color) 42%, transparent);
+        font: 800 7px/1.2 'Space Grotesk', monospace;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      .ring-zone-label::before {
+        content: '';
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--label-color);
+        box-shadow: 0 0 7px var(--label-color);
+      }
+      .ring-zone-label-vvip { top: 17%; left: 50%; transform: translateX(-50%); }
+      .ring-zone-label-vip1 { bottom: 16%; left: 50%; transform: translateX(-50%); }
+      .ring-zone-label-a { top: 50%; left: 15%; transform: translateY(-50%) rotate(-90deg); }
+      .ring-zone-label-b { top: 50%; right: 15%; transform: translateY(-50%) rotate(90deg); }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-stage {
+        left: 35%;
+        right: 35%;
+        bottom: 31%;
+        min-height: 46px;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-catwalk {
+        left: 47%;
+        right: 47%;
+        bottom: calc(31% + 45px);
+        height: 11%;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-standing-1,
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-standing-2 {
+        left: 34%;
+        right: 34%;
+      }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-standing-1 { top: 38%; }
+      .stadium-bowl.is-seat-picker.has-full-seat-ring .stadium-zone-standing-2 { top: 48%; }
+      .map-selection-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        min-height: 82px;
+        margin-top: 12px;
+        padding: 14px 16px;
+        border: 1px solid rgba(255,255,255,.16);
+        background: #0d0d0d;
+      }
+      .map-selection-panel:not(.is-active) { display:none; }
+      .map-selection-panel.is-active { border-color: rgba(216,255,62,.48); }
+      .map-selection-eyebrow {
+        color: rgba(255,255,255,.45);
+        font: 700 8px/1.4 'Space Grotesk', monospace;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+      .map-selection-title {
+        margin-top: 4px;
+        color: #fff;
+        font-family: 'Syne', sans-serif;
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .map-selection-detail {
+        margin-top: 3px;
+        color: rgba(255,255,255,.52);
+        font-size: 10px;
+      }
+      .map-selection-price { color: #d8ff3e; font-weight: 800; }
+      .map-selection-actions { display: flex; align-items: center; gap: 8px; }
+      .map-qty-control { display: flex; align-items: center; gap: 3px; }
+      .map-qty-control button,
+      .map-qty-control span {
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border: 1px solid rgba(255,255,255,.16);
+        background: #151515;
+        color: #fff;
+        font-weight: 800;
+      }
+      .map-selection-action {
+        min-height: 34px;
+        padding: 8px 12px;
+        color: #070707;
+        background: #d8ff3e;
+        border: 1px solid #d8ff3e;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .map-selection-action:disabled {
+        color: rgba(255,255,255,.36);
+        background: #171717;
+        border-color: rgba(255,255,255,.12);
+        cursor: not-allowed;
+      }
+      #seats-wrapper { display: none; }
+
+      /* Vector stadium bowl — SVG replaces the former loose seat buttons. */
+      .stadium-vector-shell {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.12);
+        background:
+          radial-gradient(circle at 50% 44%, rgba(216,255,62,.055), transparent 43%),
+          linear-gradient(180deg, #101312 0%, #090a0a 100%);
+        box-shadow: inset 0 0 70px rgba(0,0,0,.54);
+      }
+      #stadium-svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        touch-action: manipulation;
+        overflow: visible;
+      }
+      .stadium-outline {
+        fill: rgba(255,255,255,.012);
+        stroke: rgba(255,255,255,.16);
+        stroke-width: 2;
+      }
+      .stadium-aisle {
+        fill: none;
+        stroke: rgba(255,255,255,.075);
+        stroke-width: 2;
+        stroke-dasharray: 5 10;
+        pointer-events: none;
+      }
+      .stadium-svg-zone {
+        --zone-color: #d8ff3e;
+        cursor: pointer;
+        outline: none;
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: filter .22s ease, opacity .22s ease, transform .22s ease;
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,.34));
+      }
+      .stadium-svg-zone:hover,
+      .stadium-svg-zone:focus-visible {
+        filter: brightness(1.25) drop-shadow(0 0 10px var(--zone-color));
+        transform: scale(1.01);
+      }
+      .stadium-svg-zone.is-selected {
+        filter: brightness(1.22) drop-shadow(0 0 12px var(--zone-color));
+      }
+      .stadium-svg-zone.is-filter-match {
+        filter: brightness(1.18) drop-shadow(0 0 9px var(--zone-color));
+      }
+      .stadium-svg-zone.is-selected .zone-shape {
+        stroke: #fff;
+        stroke-width: 4;
+      }
+      .stadium-svg-zone.is-dimmed {
+        opacity: .18;
+        filter: saturate(.25);
+      }
+      .stadium-svg-zone.is-search-miss { opacity: .12; }
+      .zone-shape {
+        fill: color-mix(in srgb, var(--zone-color) 72%, #111 28%);
+        stroke: color-mix(in srgb, var(--zone-color) 80%, #fff 20%);
+        stroke-width: 2.5;
+        vector-effect: non-scaling-stroke;
+      }
+      .zone-shape.zone-surface {
+        fill: color-mix(in srgb, var(--zone-color) 68%, #172019 32%);
+      }
+      .zone-divider {
+        fill: none;
+        stroke: rgba(4,6,5,.52);
+        stroke-width: 5;
+        vector-effect: non-scaling-stroke;
+        pointer-events: none;
+      }
+      .svg-zone-label,
+      .svg-zone-price,
+      .svg-zone-subtitle {
+        fill: #080b09;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 900;
+        text-anchor: middle;
+        pointer-events: none;
+      }
+      .svg-zone-label { font-size: 18px; letter-spacing: .035em; }
+      .svg-zone-price { font-size: 13px; font-weight: 800; }
+      .svg-zone-subtitle { font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+      .svg-zone-label.on-dark,
+      .svg-zone-price.on-dark,
+      .svg-zone-subtitle.on-dark { fill: rgba(255,255,255,.88); }
+      .stadium-infield {
+        fill: url(#pitchGrid);
+        stroke: rgba(216,255,62,.18);
+        stroke-width: 2;
+      }
+      .svg-catwalk {
+        fill: url(#stageGradient);
+        stroke: #edff97;
+        stroke-width: 3;
+        filter: drop-shadow(0 0 12px rgba(216,255,62,.3));
+      }
+      .svg-stage {
+        fill: url(#stageGradient);
+        stroke: #edff97;
+        stroke-width: 3;
+        filter: drop-shadow(0 0 16px rgba(216,255,62,.32));
+      }
+      .svg-stage-label {
+        fill: #050705;
+        font-family: 'Syne', sans-serif;
+        font-size: 24px;
+        font-weight: 900;
+        letter-spacing: .06em;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        pointer-events: none;
+      }
+      .stadium-blocked-zone {
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .stadium-blocked-zone .zone-shape {
+        fill: url(#blockedPattern);
+        stroke: rgba(255,255,255,.13);
+        stroke-width: 2;
+      }
+      .stadium-blocked-label {
+        fill: rgba(255,255,255,.42);
+        font: 800 12px/1 'Space Grotesk', sans-serif;
+        letter-spacing: .08em;
+        text-anchor: middle;
+        pointer-events: none;
+      }
+      .svg-zone-tooltip {
+        position: fixed;
+        z-index: 90;
+        min-width: 220px;
+        max-width: 280px;
+        padding: 12px 14px;
+        color: #fff;
+        background: rgba(8,10,9,.95);
+        border: 1px solid color-mix(in srgb, var(--tooltip-color, #d8ff3e) 62%, transparent);
+        box-shadow: 0 16px 45px rgba(0,0,0,.52), 0 0 22px color-mix(in srgb, var(--tooltip-color, #d8ff3e) 18%, transparent);
+        backdrop-filter: blur(14px);
+        pointer-events: none;
+        opacity: 0;
+        transform: translate(14px, calc(-100% - 14px)) scale(.96);
+        transition: opacity .14s ease, transform .14s ease;
+      }
+      .svg-zone-tooltip.is-visible {
+        opacity: 1;
+        transform: translate(14px, calc(-100% - 14px)) scale(1);
+      }
+      .svg-tooltip-kicker {
+        color: var(--tooltip-color, #d8ff3e);
+        font: 800 9px/1.4 'Space Grotesk', sans-serif;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+      }
+      .svg-tooltip-title { margin-top: 4px; font: 800 14px/1.25 'Syne', sans-serif; }
+      .svg-tooltip-meta { display: flex; justify-content: space-between; gap: 16px; margin-top: 8px; color: rgba(255,255,255,.58); font-size: 10px; }
+      .svg-tooltip-meta strong { color: #fff; font-size: 11px; }
+      .stadium-map-instruction {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(255,255,255,.025);
+        color: rgba(255,255,255,.52);
+        font-size: 10px;
+      }
+      .stadium-map-instruction strong { color: #d8ff3e; text-transform: uppercase; letter-spacing: .06em; }
+      .stadium-capacity-chip {
+        flex: 0 0 auto;
+        padding: 5px 8px;
+        border: 1px solid rgba(216,255,62,.22);
+        color: #d8ff3e;
+        background: rgba(216,255,62,.04);
+        font: 800 9px/1 'Space Grotesk', sans-serif;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .zone-detail-panel {
+        margin-top: 14px;
+        min-height: 126px;
+        padding: 18px;
+        border: 1px solid rgba(255,255,255,.13);
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.045), rgba(255,255,255,.012)),
+          rgba(8,10,12,.86);
+        box-shadow: inset 0 1px rgba(255,255,255,.045), 0 18px 42px rgba(0,0,0,.2);
+        backdrop-filter: blur(18px);
+      }
+      .zone-detail-panel.is-active { border-color: color-mix(in srgb, var(--detail-color, #d8ff3e) 45%, rgba(255,255,255,.12)); }
+      .zone-detail-empty {
+        min-height: 88px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+        color: rgba(255,255,255,.46);
+      }
+      .zone-detail-empty-icon {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        color: #d8ff3e;
+        border: 1px solid rgba(216,255,62,.32);
+        background: rgba(216,255,62,.05);
+        font-size: 22px;
+      }
+      .zone-detail-empty strong { color: rgba(255,255,255,.86); font-size: 13px; }
+      .zone-detail-empty p { margin-top: 3px; font-size: 10px; }
+      .zone-detail-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255,255,255,.09);
+      }
+      .zone-detail-kicker {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--detail-color, #d8ff3e);
+        font: 800 9px/1.3 'Space Grotesk', sans-serif;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+      }
+      .zone-detail-kicker::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--detail-color, #d8ff3e);
+        box-shadow: 0 0 10px var(--detail-color, #d8ff3e);
+      }
+      .zone-detail-name { margin-top: 6px; color: #fff; font: 800 17px/1.2 'Syne', sans-serif; }
+      .zone-detail-stats { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+      .zone-detail-stat {
+        min-width: 118px;
+        padding: 8px 10px;
+        border: 1px solid rgba(255,255,255,.11);
+        background: rgba(255,255,255,.025);
+        text-align: right;
+      }
+      .zone-detail-stat span { display: block; color: rgba(255,255,255,.4); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+      .zone-detail-stat strong { display: block; margin-top: 3px; color: #fff; font-size: 12px; }
+      .zone-detail-stat strong.accent { color: var(--detail-color, #d8ff3e); }
+      .detail-seat-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 13px 0 10px; color: rgba(255,255,255,.5); font-size: 9px; }
+      .detail-seat-legend span { display: flex; align-items: center; gap: 5px; }
+      .detail-seat-legend i { width: 9px; height: 9px; border: 1px solid rgba(255,255,255,.22); }
+      .detail-seat-legend .legend-available { background:#22c55e; }
+      .detail-seat-legend .legend-sold { background:repeating-linear-gradient(135deg,#3f4650 0 4px,#171a1f 4px 8px); }
+      .detail-seat-legend .legend-held { background:repeating-linear-gradient(135deg,#d38b21 0 4px,#5c3a0c 4px 8px); }
+      .detail-seat-rows { display: grid; gap: 10px; margin-top: 12px; }
+      .detail-seat-row {
+        display: grid;
+        grid-template-columns: 58px minmax(0,1fr);
+        align-items: center;
+        gap: 10px;
+      }
+      .detail-row-label {
+        color: rgba(255,255,255,.5);
+        font: 800 10px/1 'Space Grotesk', sans-serif;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+      .detail-row-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 8px; }
+      .detail-seat {
+        position: relative;
+        min-height: 54px;
+        padding: 6px 4px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.16);
+        color: #071009;
+        background: #22c55e;
+        font-family: 'Space Grotesk', sans-serif;
+        text-align: center;
+        transition: transform .16s ease, filter .16s ease, border-color .16s ease;
+      }
+      .detail-seat.available:hover,
+      .detail-seat.available:focus-visible { transform: translateY(-2px); filter: brightness(1.18); border-color: #d7ffe3; }
+      .detail-seat.selected { color:#090909; background:#eab308; border-color:#fff4a8; box-shadow:0 0 13px rgba(234,179,8,.34); }
+      .detail-seat.sold {
+        color:rgba(255,255,255,.34);
+        background:repeating-linear-gradient(135deg,#31363e 0 7px,#171a1f 7px 14px);
+        border-color:rgba(156,163,175,.3);
+        cursor:not-allowed;
+      }
+      .detail-seat.sold::after { content:''; position:absolute; inset:50% 9%; height:1px; background:rgba(255,255,255,.38); transform:rotate(-18deg); }
+      .detail-seat.held {
+        color:#ffe6b3;
+        background:repeating-linear-gradient(135deg,#b87014 0 7px,#4d300a 7px 14px);
+        border-color:rgba(251,191,36,.5);
+        cursor:not-allowed;
+      }
+      .detail-seat.blocked { color:rgba(255,255,255,.26); background:#17191c; cursor:not-allowed; }
+      .detail-seat-number { display:block; font-size:14px; font-weight:900; line-height:1; }
+      .detail-seat-code { display:block; margin-top:4px; overflow:hidden; font-size:7px; font-weight:800; text-overflow:ellipsis; white-space:nowrap; }
+      .detail-standing-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 14px;
+        padding: 16px;
+        border: 1px solid color-mix(in srgb, var(--detail-color, #d8ff3e) 35%, transparent);
+        background: color-mix(in srgb, var(--detail-color, #d8ff3e) 7%, #0c0e0d 93%);
+      }
+      .detail-standing-copy strong { color:#fff; font-size:13px; }
+      .detail-standing-copy p { margin-top:4px; color:rgba(255,255,255,.47); font-size:10px; }
+      .detail-standing-actions { display:flex; align-items:center; gap:10px; }
+      .detail-standing-qty { display:flex; align-items:center; }
+      .detail-standing-qty button,
+      .detail-standing-qty span { display:grid; width:36px; height:36px; place-items:center; border:1px solid rgba(255,255,255,.14); background:#141715; color:#fff; font-weight:900; }
+      .detail-standing-add { min-height:36px; padding:8px 13px; color:#080a08; background:var(--detail-color,#d8ff3e); font-size:9px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
+      .stadium-svg-zone.is-active-zone { filter:brightness(1.28) drop-shadow(0 0 14px var(--zone-color)); stroke:#fff; stroke-width:4; }
+
+      /* index_3: true oval bowl + animated SVG camera. */
+      #stadium-svg > :not(defs):not(title):not(desc):not(#oval-stadium-root) { display:none; }
+      #zone-detail-panel { display:none !important; }
+      .stadium-vector-shell { overflow:hidden; }
+      .stadium-reset-view {
+        position:absolute;
+        z-index:12;
+        top:14px;
+        right:14px;
+        min-height:34px;
+        padding:7px 11px;
+        color:#eaff9a;
+        background:rgba(8,10,9,.78);
+        border:1px solid rgba(216,255,62,.34);
+        backdrop-filter:blur(14px);
+        font:800 9px/1 'Space Grotesk',sans-serif;
+        letter-spacing:.05em;
+        text-transform:uppercase;
+        opacity:0;
+        pointer-events:none;
+        transform:translateY(-6px);
+        transition:opacity .2s ease,transform .2s ease,background .2s ease;
+      }
+      .stadium-reset-view.is-visible { opacity:1; pointer-events:auto; transform:none; }
+      .stadium-reset-view:hover { color:#090b08; background:#d8ff3e; }
+      .oval-bowl-backdrop { fill:#0c100e; stroke:rgba(255,255,255,.17); stroke-width:3; }
+      .oval-pitch { fill:url(#pitchGrid); stroke:rgba(216,255,62,.2); stroke-width:2; pointer-events:none; }
+      .oval-sector {
+        --zone-color:#b8dc79;
+        fill:color-mix(in srgb,var(--zone-color) 72%,#111 28%);
+        stroke:rgba(4,6,5,.9);
+        stroke-width:5;
+        vector-effect:non-scaling-stroke;
+        cursor:pointer;
+        transform-box:fill-box;
+        transform-origin:center;
+        transition:filter .2s ease,opacity .2s ease,transform .2s ease,stroke .2s ease;
+      }
+      #stadium-svg.is-camera-moving .oval-sector,
+      #stadium-svg.is-camera-moving .oval-standing-shape,
+      #stadium-svg.is-camera-moving .oval-stage,
+      #stadium-svg.is-camera-moving .oval-catwalk {
+        filter:none !important;
+        transition:none !important;
+      }
+      #stadium-svg.is-camera-moving .master-sector-labels,
+      #stadium-svg.is-camera-moving #stadium-seat-layer {
+        opacity:0 !important;
+        transition:none !important;
+      }
+      .oval-sector:hover,.oval-sector:focus-visible,.oval-sector.is-active-zone {
+        filter:brightness(1.24) drop-shadow(0 0 12px var(--zone-color));
+        stroke:#fff;
+        stroke-width:4;
+        outline:none;
+      }
+      .oval-sector.is-dimmed { opacity:.18; filter:saturate(.25); }
+      .oval-sector.blocked-sector { fill:url(#blockedPattern); stroke:rgba(255,255,255,.09); pointer-events:none; cursor:default; }
+      .oval-standing-shape { fill:#78d683; stroke:#c8ffb6; stroke-width:3; }
+      .oval-zone-title,.oval-zone-price,.oval-tier-label,.oval-blocked-label {
+        text-anchor:middle;
+        pointer-events:none;
+        font-family:'Space Grotesk',sans-serif;
+        font-weight:900;
+      }
+      .oval-zone-title { fill:#071008; font-size:23px; letter-spacing:.03em; dominant-baseline:middle; }
+      .oval-zone-price { fill:#17391b; font-size:16px; }
+      .oval-tier-label { fill:rgba(255,255,255,.86); font-size:17px; letter-spacing:.07em; }
+      .oval-tier-curve {
+        fill:rgba(255,255,255,.9);
+        font:800 17px/1 'Space Grotesk',sans-serif;
+        letter-spacing:.08em;
+        text-anchor:middle;
+        pointer-events:none;
+        paint-order:stroke;
+        stroke:rgba(5,8,6,.55);
+        stroke-width:3px;
+      }
+      .oval-blocked-label { fill:rgba(255,255,255,.4); font-size:14px; letter-spacing:.1em; }
+      .oval-catwalk,.oval-stage { vector-effect:non-scaling-stroke; }
+      .master-sector-labels { opacity:1; transition:opacity .3s ease; }
+      #stadium-svg.is-camera-zoomed .master-sector-labels { opacity:0; }
+      #stadium-seat-layer { opacity:0; transition:opacity .22s ease .18s; }
+      #stadium-svg.is-camera-zoomed #stadium-seat-layer { opacity:1; }
+      .camera-seat-cell { cursor:pointer; outline:none; }
+      .camera-seat-cell path {
+        fill:#22c55e;
+        stroke:#caffd8;
+        stroke-width:2.25;
+        vector-effect:non-scaling-stroke;
+        filter:drop-shadow(0 2px 3px rgba(0,0,0,.38));
+        transition:filter .16s ease,fill .16s ease,stroke .16s ease;
+      }
+      .camera-seat-cell:hover path,.camera-seat-cell:focus-visible path {
+        filter:brightness(1.24) drop-shadow(0 0 7px #22c55e);
+        stroke:#fff;
+      }
+      .camera-seat-cell.sold,.camera-seat-cell.held { cursor:not-allowed; }
+      .camera-seat-cell.sold path { fill:url(#seatSoldPattern); stroke:#64748b; }
+      .camera-seat-cell.held path { fill:url(#seatHeldPattern); stroke:#fbbf24; }
+      .camera-seat-cell.selected path { fill:#eab308; stroke:#fff3a2; filter:drop-shadow(0 0 8px rgba(234,179,8,.82)); }
+      .camera-seat-cell text {
+        fill:#071008;
+        font:900 6.5px/1 'Space Grotesk',sans-serif;
+        text-anchor:middle;
+        dominant-baseline:middle;
+        pointer-events:none;
+      }
+      .camera-seat-cell.sold text,.camera-seat-cell.held text { fill:rgba(255,255,255,.76); }
+      .seat-cell-slash { stroke:rgba(226,232,240,.72); stroke-width:2; vector-effect:non-scaling-stroke; pointer-events:none; }
+      .camera-zone-header-bg { fill:rgba(7,11,12,.88); stroke:rgba(216,255,62,.42); stroke-width:1.25; vector-effect:non-scaling-stroke; }
+      .camera-zone-heading { fill:#fff; font:900 7px/1 'Syne',sans-serif; text-anchor:middle; }
+      .camera-zone-subheading { fill:#d8ff3e; font:800 5.5px/1 'Space Grotesk',sans-serif; text-anchor:middle; }
+      @media (max-width: 639px) {
+        .stadium-map-shell { padding: 8px; }
+        .stadium-map-meta { align-items: flex-start; flex-direction: column; gap: 4px; }
+        .stadium-map-caption { grid-template-columns: 1fr; }
+        .map-selection-panel { grid-template-columns: 1fr; }
+        .svg-zone-label { font-size: 22px; }
+        .svg-zone-price { font-size: 16px; }
+        .stadium-map-instruction { align-items: flex-start; flex-direction: column; }
+        .zone-detail-panel { padding:12px; }
+        .zone-detail-header { flex-direction:column; }
+        .zone-detail-stats { justify-content:flex-start; width:100%; }
+        .zone-detail-stat { flex:1; text-align:left; }
+        .detail-seat-row { grid-template-columns:1fr; gap:6px; }
+        .detail-row-grid { gap:5px; }
+        .detail-seat { min-height:48px; }
+        .detail-standing-card { align-items:flex-start; flex-direction:column; }
+        .detail-standing-actions { width:100%; justify-content:space-between; }
+      }
+      .editorial-heading { border-color: rgba(255,255,255,.24); }
+      .editorial-kicker::before { background: var(--accent); }
+      .btn-glow {
+        color: #090909 !important;
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      .btn-glow svg { color: #090909 !important; }
+      #pricing-section [data-zone-code] .btn-glow,
+      #pricing-section [data-zone-code] .btn-glow span { color: #090909 !important; }
+      .btn-glow::before { display: none; }
+      footer { background: #070707 !important; }
+
+      /* Editorial concert timeline — aligned with the current visual system. */
+      .schedule-overlay {
+        background:rgba(2,3,3,.88);
+        -webkit-backdrop-filter:blur(14px) saturate(80%);
+        backdrop-filter:blur(14px) saturate(80%);
+      }
+      .schedule-dialog {
+        position:relative;
+        width:min(920px,100%);
+        max-height:calc(100vh - 32px);
+        overflow:auto;
+        background:linear-gradient(145deg,rgba(14,17,15,.98),rgba(7,8,8,.99));
+        border:1px solid rgba(255,255,255,.16);
+        border-radius:2px;
+        box-shadow:0 32px 90px rgba(0,0,0,.65),inset 0 1px rgba(255,255,255,.08);
+      }
+      .schedule-dialog::before {
+        content:'';
+        position:absolute;
+        inset:0 auto 0 0;
+        width:3px;
+        background:linear-gradient(#d8ff3e,#f5c63d 58%,#fff0 92%);
+      }
+      .schedule-header {
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        gap:24px;
+        padding:28px 30px 24px;
+        border-bottom:1px solid rgba(255,255,255,.12);
+      }
+      .schedule-kicker {
+        display:flex;
+        align-items:center;
+        gap:9px;
+        color:#d8ff3e;
+        font:800 10px/1 'Space Grotesk',sans-serif;
+        letter-spacing:.18em;
+        text-transform:uppercase;
+      }
+      .schedule-kicker::before { content:''; width:24px; height:2px; background:#d8ff3e; }
+      .schedule-title {
+        margin-top:12px;
+        color:#fff;
+        font:900 clamp(28px,4vw,48px)/.96 'Syne',sans-serif;
+        letter-spacing:-.045em;
+        text-transform:uppercase;
+      }
+      .schedule-title span { color:rgba(255,255,255,.28); }
+      .schedule-meta {
+        align-self:end;
+        color:rgba(255,255,255,.56);
+        font-size:11px;
+        line-height:1.65;
+        text-align:right;
+      }
+      .schedule-meta strong { display:block; color:#fff; font-size:12px; letter-spacing:.04em; }
+      .schedule-close {
+        position:absolute;
+        z-index:2;
+        top:16px;
+        right:16px;
+        display:grid;
+        width:36px;
+        height:36px;
+        place-items:center;
+        color:rgba(255,255,255,.6);
+        border:1px solid rgba(255,255,255,.12);
+        background:#0a0c0b;
+        transition:color .18s ease,border-color .18s ease,background-color .18s ease;
+      }
+      .schedule-close:hover { color:#d8ff3e; border-color:rgba(216,255,62,.5); background:#11150d; }
+      .schedule-list { padding:12px 30px 6px; }
+      .schedule-item {
+        --item-accent:#d8ff3e;
+        display:grid;
+        grid-template-columns:74px 26px minmax(0,1fr);
+        min-height:88px;
+      }
+      .schedule-time {
+        padding-top:22px;
+        color:var(--item-accent);
+        font:800 14px/1 'Space Grotesk',sans-serif;
+        letter-spacing:.02em;
+      }
+      .schedule-rail { position:relative; }
+      .schedule-rail::before {
+        content:'';
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:12px;
+        width:1px;
+        background:rgba(255,255,255,.13);
+      }
+      .schedule-dot {
+        position:absolute;
+        z-index:1;
+        top:22px;
+        left:7px;
+        width:11px;
+        height:11px;
+        border:2px solid #090b0a;
+        border-radius:50%;
+        background:var(--item-accent);
+        box-shadow:0 0 0 1px color-mix(in srgb,var(--item-accent) 50%,transparent),0 0 12px color-mix(in srgb,var(--item-accent) 38%,transparent);
+      }
+      .schedule-content {
+        margin:8px 0 10px 12px;
+        padding:14px 16px;
+        border:1px solid rgba(255,255,255,.09);
+        background:rgba(255,255,255,.025);
+        transition:border-color .18s ease,background .18s ease,transform .18s ease;
+      }
+      .schedule-item:hover .schedule-content {
+        transform:translateX(3px);
+        border-color:color-mix(in srgb,var(--item-accent) 42%,transparent);
+        background:color-mix(in srgb,var(--item-accent) 5%,rgba(255,255,255,.025));
+      }
+      .schedule-phase {
+        color:var(--item-accent);
+        font:800 9px/1 'Space Grotesk',sans-serif;
+        letter-spacing:.14em;
+        text-transform:uppercase;
+      }
+      .schedule-content h4 { margin-top:7px; color:#fff; font-size:14px; font-weight:800; }
+      .schedule-content p { margin-top:5px; color:rgba(226,232,240,.6); font-size:11px; line-height:1.55; }
+      .schedule-footer { display:flex; justify-content:flex-end; padding:16px 30px 24px; }
+      .schedule-dismiss {
+        min-height:38px;
+        padding:0 18px;
+        color:#090b09;
+        background:#d8ff3e;
+        border:1px solid #d8ff3e;
+        font:900 10px/1 'Space Grotesk',sans-serif;
+        letter-spacing:.1em;
+        text-transform:uppercase;
+      }
+      .schedule-dismiss:hover { background:#efffb2; }
+
+      @media (max-width: 1023px) {
+        #concert-hero {
+          min-height: auto;
+          background-image:
+            linear-gradient(90deg, rgba(5,5,5,.95), rgba(5,5,5,.72)),
+            linear-gradient(0deg, rgba(5,5,5,.94), transparent 60%),
+            url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1400&q=86');
+          background-blend-mode: normal, normal, luminosity;
+        }
+      }
+      @media (max-width: 639px) {
+        #concert-hero { background-position: 62% center; }
+        #concert-hero h1 { font-size: clamp(2.7rem, 14vw, 4rem) !important; }
+        #concert-hero .lg\:col-span-7 > .grid > .group + .group {
+          border-left: 0;
+          border-top: 1px solid rgba(255,255,255,.22);
+        }
+        #artist-lineup { padding-top: 56px; padding-bottom: 64px; }
+        #artist-lineup .aspect-square { aspect-ratio: 1 / 1; }
+        .schedule-header { grid-template-columns:1fr; gap:12px; padding:24px 20px 18px; }
+        .schedule-meta { text-align:left; }
+        .schedule-list { padding-inline:18px; }
+        .schedule-item { grid-template-columns:55px 20px minmax(0,1fr); }
+        .schedule-time { font-size:12px; }
+        .schedule-rail::before { left:9px; }
+        .schedule-dot { left:4px; }
+        .schedule-content { margin-left:8px; padding:12px; }
+        .schedule-footer { padding:14px 18px 20px; }
+      }
+
+.font-syne { font-family: 'Syne', 'Be Vietnam Pro', sans-serif; }

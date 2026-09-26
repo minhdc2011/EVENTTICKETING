@@ -1,10 +1,11 @@
-import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
+import App from './App';
 import './index.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  throw new Error('Không tìm thấy phần tử #root để khởi tạo ứng dụng React.');
+}
+
+createRoot(rootElement).render(<App />);

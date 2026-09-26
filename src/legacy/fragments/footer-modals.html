@@ -1,0 +1,172 @@
+<!-- FOOTER -->
+    <footer class="border-t border-white/[0.085] bg-[#0c1527]/90 backdrop-blur-md py-8 text-xs text-slate-400">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="text-center md:text-left text-slate-500 text-xs">
+          © 2026 SUPER CONCERT — ĐẠI NHẠC HỘI NGOẠI THƯƠNG. All rights reserved.
+        </div>
+
+        <div class="flex items-center gap-4 text-slate-300">
+          <button onclick="document.getElementById('team-modal').classList.remove('hidden')" class="hover:text-amber-400 transition cursor-pointer">
+            Thông tin đề tài & nhóm 4
+          </button>
+          <span>•</span>
+          <button onclick="window.scrollTo({top: 0, behavior: 'auto'})" class="hover:text-amber-400 transition flex items-center gap-1 cursor-pointer">
+            <span>Lên đầu trang</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <!-- DYNAMIC TOOLTIP FOR SEAT HOVER (FR-T1-02 Should-Have) -->
+    <div id="seat-tooltip" class="opacity-0 liquid-glass !rounded-xl text-white text-xs p-3 pointer-events-none min-w-[200px] shadow-2xl">
+      <div class="flex items-center justify-between gap-2 border-b border-white/[0.08] pb-1.5 mb-1.5">
+        <span id="tooltip-seat-code" class="font-black text-amber-400 font-mono text-sm">VIP-A-01</span>
+        <span id="tooltip-seat-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">Còn trống</span>
+      </div>
+      <div class="space-y-1 text-slate-300 text-[11px]">
+        <div>Phân khu: <strong id="tooltip-zone" class="text-white">VIP Kim Cương</strong></div>
+        <div>Vị trí: Hàng <strong id="tooltip-row" class="text-white">A</strong>, Ghế <strong id="tooltip-number" class="text-white">01</strong></div>
+        <div class="text-amber-300 pt-1 text-xs">Giá vé: <strong id="tooltip-price" class="text-sm font-bold text-white">3.500.000 VNĐ</strong></div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER (For click sold seat or validation) -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none">
+      <!-- Toasts dynamically appended here -->
+    </div>
+
+    <!-- MODAL 1: TEAM & PROJECT INFO (BÁO CÁO NHÓM 4 FTU) -->
+    <div id="team-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+      <div class="relative w-full max-w-xl rounded-2xl liquid-glass p-6 shadow-2xl">
+        <button id="btn-close-team-modal" class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-red-950/80 border border-red-700/60 flex items-center justify-center font-bold text-red-400">FTU</div>
+          <div>
+            <h3 class="font-bold text-base text-white">THÔNG TIN ĐỒ ÁN & THÀNH VIÊN NHÓM 4</h3>
+            <p class="text-xs text-slate-400">Báo cáo Đặc tả Yêu cầu Hệ thống (SRS) — Tháng 9/2026</p>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs text-slate-300 mb-6 inset-dark-cell p-3.5 rounded-xl">
+          <div><strong>Trường:</strong> Đại học Ngoại Thương (Foreign Trade University)</div>
+          <div><strong>Khoa:</strong> Công nghệ và Khoa học Dữ liệu</div>
+          <div><strong>Đề tài:</strong> EventTicketing — Nền tảng Quản lý Bán vé Sự kiện & Tối ưu Doanh thu Tự động</div>
+          <div><strong>Lớp tín chỉ:</strong> COSH301(2627 - HK1)GĐ1+2.1</div>
+          <div><strong>Giảng viên hướng dẫn:</strong> TS. Phạm Thị Kim Dung</div>
+        </div>
+
+        <div class="mb-5">
+          <h4 class="font-semibold text-xs text-slate-200 uppercase tracking-wider mb-2">Danh sách thành viên nhóm 4:</h4>
+          <div class="space-y-1.5 text-xs">
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
+              <span>1. Nguyễn Sỹ Bách</span>
+              <span class="font-mono text-slate-400">MSV: 2412960004</span>
+            </div>
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
+              <span>2. Trần Khánh Bình</span>
+              <span class="font-mono text-slate-400">MSV: 2412960005</span>
+            </div>
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
+              <span>3. Nguyễn Khánh Huyền</span>
+              <span class="font-mono text-slate-400">MSV: 2412960012</span>
+            </div>
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
+              <span class="text-amber-400 font-medium">4. Đặng Công Minh (Lead)</span>
+              <span class="font-mono text-amber-400">MSV: 2412960016</span>
+            </div>
+            <div class="p-2 rounded-lg inset-dark-cell flex justify-between">
+              <span>5. Đỗ Nhật Quang</span>
+              <span class="font-mono text-slate-400">MSV: 2412960021</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-close-team-modal-2" class="w-full py-2.5 rounded-xl ghost-tab text-white font-medium text-xs transition cursor-pointer">
+          Đóng cửa sổ
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 2: EDITORIAL TIMELINE / RUN OF SHOW -->
+    <div id="schedule-modal" class="schedule-overlay fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+      <div class="schedule-dialog" role="dialog" aria-modal="true" aria-labelledby="schedule-title">
+        <button type="button" id="btn-close-schedule-modal" class="schedule-close cursor-pointer" aria-label="Đóng lịch trình" onclick="document.getElementById('schedule-modal').classList.add('hidden')">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <header class="schedule-header">
+          <div>
+            <div class="schedule-kicker">Run of show · 15.10.2026</div>
+            <h3 id="schedule-title" class="schedule-title">Concert <span>Timeline</span></h3>
+          </div>
+          <div class="schedule-meta">
+            <strong>SVĐ QUỐC GIA MỸ ĐÌNH</strong>
+            Thứ Năm · Mở cổng từ 16:30<br />Chương trình chính thức từ 19:30
+          </div>
+        </header>
+
+        <div class="schedule-list">
+          <article class="schedule-item" style="--item-accent:#94a3b8">
+            <time class="schedule-time">16:30</time><div class="schedule-rail"><i class="schedule-dot"></i></div>
+            <div class="schedule-content"><span class="schedule-phase">Gate open</span><h4>Mở cổng check-in an ninh</h4><p>Quét mã QR, soát vé và phát vòng tay dành cho khu VIP/Fanzone.</p></div>
+          </article>
+          <article class="schedule-item" style="--item-accent:#f5c63d">
+            <time class="schedule-time">17:45</time><div class="schedule-rail"><i class="schedule-dot"></i></div>
+            <div class="schedule-content"><span class="schedule-phase">VIP access</span><h4>Soundcheck VIP Exclusive</h4><p>Giao lưu sớm cùng nghệ sĩ dành riêng cho chủ nhân vé VVIP Diamond Lounge.</p></div>
+          </article>
+          <article class="schedule-item" style="--item-accent:#8bd3ff">
+            <time class="schedule-time">18:30</time><div class="schedule-rail"><i class="schedule-dot"></i></div>
+            <div class="schedule-content"><span class="schedule-phase">Pre-show</span><h4>Warm-up DJ Set</h4><p>DJ Mie khởi động sân vận động với set nhạc EDM mở màn.</p></div>
+          </article>
+          <article class="schedule-item" style="--item-accent:#d8ff3e">
+            <time class="schedule-time">19:30</time><div class="schedule-rail"><i class="schedule-dot"></i></div>
+            <div class="schedule-content"><span class="schedule-phase">Main show</span><h4>Khai mạc Đại nhạc hội Ngoại Thương</h4><p>Chuỗi tiết mục mở màn cùng Chillies, MONO và Suboi.</p></div>
+          </article>
+          <article class="schedule-item" style="--item-accent:#ff7777">
+            <time class="schedule-time">21:15</time><div class="schedule-rail"><i class="schedule-dot"></i></div>
+            <div class="schedule-content"><span class="schedule-phase">Headliner</span><h4>Sơn Tùng M-TP × Soobin</h4><p>Chuỗi hit đỉnh cao kết hợp pháo hoa và màn trình diễn drone.</p></div>
+          </article>
+          <article class="schedule-item" style="--item-accent:#94a3b8">
+            <time class="schedule-time">22:30</time><div class="schedule-rail"><i class="schedule-dot"></i></div>
+            <div class="schedule-content"><span class="schedule-phase">Closing</span><h4>Bế mạc & hướng dẫn ra về an toàn</h4><p>Điều phối khán giả theo từng khu vực và cổng ra tương ứng.</p></div>
+          </article>
+        </div>
+
+        <footer class="schedule-footer">
+          <button type="button" id="btn-close-schedule-modal-2" class="schedule-dismiss cursor-pointer">Đóng timeline</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- MODAL 3: BOOKING SIMULATION SUCCESS (SPRINT 3 PREVIEW) -->
+    <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
+      <div class="relative w-full max-w-md rounded-2xl liquid-glass p-6 shadow-2xl text-center">
+        <div class="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center mb-4">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+
+        <h3 class="text-xl font-extrabold text-white mb-1 font-display">GIỮ CHỖ THÀNH CÔNG!</h3>
+        <p class="text-xs text-slate-400 mb-4">
+          Ghế của bạn đã được khóa độc quyền trong <strong>5 phút (300 giây)</strong> theo chuẩn cơ chế Distributed Lock (FR-T3-01).
+        </p>
+
+        <div id="booking-modal-summary" class="text-left inset-dark-cell p-4 rounded-xl text-xs space-y-2 mb-5">
+          <!-- Dynamic details -->
+        </div>
+
+        <div class="flex gap-3">
+          <button id="btn-close-booking-modal" class="w-full py-2.5 rounded-xl ghost-tab text-slate-200 text-xs font-semibold cursor-pointer">
+            Tiếp tục xem sơ đồ
+          </button>
+          <button onclick="simulateNextSprint()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-lg shadow-amber-500/20 cursor-pointer">
+            Mô phỏng Sprint 3
+          </button>
+        </div>
+      </div>
+    </div>
