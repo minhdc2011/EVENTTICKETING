@@ -23,3 +23,37 @@ export interface TicketingCatalog {
   zones: ZoneRecord[];
   seats: SeatRecord[];
 }
+
+export interface ApiEnvelope<T> {
+  data: T;
+  message?: string;
+}
+
+export interface HoldItem {
+  ticketCode: string;
+  zoneCode: string;
+  quantity?: number;
+}
+
+export interface CreateHoldRequest {
+  eventId: string;
+  items: HoldItem[];
+}
+
+export interface HoldRecord {
+  holdId: string;
+  eventId: string;
+  status: 'ACTIVE' | 'EXPIRED' | 'RELEASED' | 'CONVERTED';
+  expiresAt: string;
+  items: HoldItem[];
+}
+
+export interface SeatStatusEvent {
+  type: 'SEAT_STATUS_CHANGED';
+  eventId: string;
+  seatId?: number | string;
+  seatCode: string;
+  zoneCode: string;
+  status: DatabaseSeatStatus;
+  occurredAt: string;
+}
