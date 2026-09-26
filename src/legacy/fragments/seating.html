@@ -1,0 +1,476 @@
+<!-- INTERACTIVE SEATING MAP (FR-T1-02 & SHOULD-HAVE EXTENSIONS) -->
+    <section id="seating-section" class="scroll-focus-section section-dimmed py-14">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <!-- Section Header -->
+        <div class="editorial-heading flex flex-col lg:flex-row lg:items-end justify-between mb-7 gap-4">
+          <div class="shrink-0">
+            <span class="editorial-kicker">Interactive ticket map · 03 / 03</span>
+            <h2 class="text-base sm:text-xl md:text-2xl lg:text-2xl xl:text-[28px] font-extrabold font-syne text-white tracking-[-.025em] whitespace-nowrap mt-2">
+              SƠ ĐỒ CHỖ NGỒI & CHỌN VÉ TRỰC QUAN
+            </h2>
+          </div>
+
+        </div>
+
+        <!-- Filter & Search Toolbar (Mở rộng Should-Have) -->
+        <div class="mb-6 p-4 rounded-2xl liquid-glass flex flex-wrap items-center justify-between gap-4">
+          <!-- Zone Filter Tabs -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 font-medium mr-1">Phân khu:</span>
+            <button onclick="filterByZone('ALL')" id="tab-zone-ALL" class="zone-tab active-gold-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+              Tất cả (48 ghế)
+            </button>
+            <button onclick="filterByZone('VIP')" id="tab-zone-VIP" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+              VIP Kim Cương
+            </button>
+            <button onclick="filterByZone('VIP_PLATINUM_1')" id="tab-zone-VIP_PLATINUM_1" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+              VIP Platinum 1
+            </button>
+            <button onclick="filterByZone('STANDING')" id="tab-zone-STANDING" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+              Fanzone Standing
+            </button>
+            <button onclick="filterByZone('A')" id="tab-zone-A" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+              Khán đài A
+            </button>
+            <button onclick="filterByZone('B')" id="tab-zone-B" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+              Khán đài B
+            </button>
+            <button onclick="filterByZone('C')" id="tab-zone-C" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+              Khán đài C
+            </button>
+          </div>
+
+          <!-- Status Filter & Search -->
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Search input -->
+            <div class="relative">
+              <input
+                type="text"
+                id="search-seat-input"
+                placeholder="Tìm phân khu (VIP, A, B, C)..."
+                class="w-48 sm:w-56 px-3 py-1.5 pl-8 rounded-xl inset-dark-cell text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
+              />
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+
+            <!-- Zoom Controls -->
+            <div class="flex items-center inset-dark-cell rounded-xl p-1 text-xs">
+              <button id="btn-zoom-out" class="px-2 py-1 hover:bg-white/[0.08] rounded-lg text-slate-300 cursor-pointer" title="Thu nhỏ sơ đồ">-</button>
+              <span id="zoom-level-text" class="px-2 font-mono text-slate-400">100%</span>
+              <button id="btn-zoom-in" class="px-2 py-1 hover:bg-white/[0.08] rounded-lg text-slate-300 cursor-pointer" title="Phóng to sơ đồ">+</button>
+              <button id="btn-zoom-reset" class="px-2 py-1 hover:bg-white/[0.08] rounded-lg text-amber-400 ml-1 text-[11px] cursor-pointer" title="Reset tỉ lệ">Reset</button>
+            </div>
+
+            <!-- Compact seat-status legend, kept beside the zoom controls -->
+            <div class="seating-status-legend" aria-label="Chú thích trạng thái chỗ ngồi">
+              <span class="seating-status-legend__item"><i class="seating-status-legend__swatch available"></i>Còn trống</span>
+              <span class="seating-status-legend__item"><i class="seating-status-legend__swatch sold"></i>Đã bán</span>
+              <span class="seating-status-legend__item"><i class="seating-status-legend__swatch selected"></i>Đang chọn</span>
+              <span class="seating-status-legend__item"><i class="seating-status-legend__swatch blocked"></i>Không mở bán</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN LAYOUT: MAP (LEFT) + SIDEBAR SUMMARY (RIGHT) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <!-- LEFT 8 COLS: INTERACTIVE STAGE & SEAT MAP -->
+          <div class="lg:col-span-8 rounded-2xl liquid-glass p-4 sm:p-6 overflow-hidden relative shadow-2xl">
+            <!-- Stage Map Canvas Wrapper -->
+            <div id="map-zoom-container" class="transition-transform duration-200 origin-top min-h-[560px]">
+              
+              <!-- STADIUM ORIENTATION MAP — inspired by end-stage stadium concert layouts -->
+              <div class="stadium-map-shell" aria-label="Sơ đồ tổng quan sân vận động">
+                <div class="stadium-map-meta">
+                  <span>Sơ đồ chọn vé · Bấm trực tiếp vào từng phân khu</span>
+                  <span>Sơ đồ minh họa · Không theo tỷ lệ</span>
+                </div>
+
+                <div class="stadium-vector-shell">
+                  <button id="stadium-reset-view" type="button" class="stadium-reset-view" aria-label="Thu nhỏ về toàn cảnh">⤺ Thu nhỏ toàn cảnh</button>
+                  <svg id="stadium-svg" viewBox="0 0 1000 1000" class="w-full h-auto select-none" role="img" aria-labelledby="stadium-svg-title stadium-svg-desc">
+                    <title id="stadium-svg-title">Sơ đồ mặt bằng sân vận động Mỹ Đình</title>
+                    <desc id="stadium-svg-desc">Sơ đồ vector tương tác dạng móng ngựa với sân khấu ở phía dưới, hai khu vé đứng trong lòng sân và các tầng khán đài bao quanh.</desc>
+                    <defs>
+                      <linearGradient id="stageGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#ecff70"/>
+                        <stop offset="1" stop-color="#b9df22"/>
+                      </linearGradient>
+                      <pattern id="pitchGrid" width="64" height="64" patternUnits="userSpaceOnUse">
+                        <rect width="64" height="64" fill="#111812"/>
+                        <rect width="32" height="64" fill="#151e16"/>
+                      </pattern>
+                      <pattern id="blockedPattern" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                        <rect width="18" height="18" fill="#151719"/>
+                        <rect width="7" height="18" fill="#292c30"/>
+                      </pattern>
+                      <pattern id="seatSoldPattern" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                        <rect width="10" height="10" fill="#30353c"/>
+                        <rect width="4" height="10" fill="#171a1e"/>
+                      </pattern>
+                      <pattern id="seatHeldPattern" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                        <rect width="10" height="10" fill="#bd7419"/>
+                        <rect width="4" height="10" fill="#523109"/>
+                      </pattern>
+                      <radialGradient id="bowlGlow" cx="50%" cy="40%" r="62%">
+                        <stop offset="0" stop-color="#d8ff3e" stop-opacity=".08"/>
+                        <stop offset="1" stop-color="#d8ff3e" stop-opacity="0"/>
+                      </radialGradient>
+                      <path id="label-arc-vvip" d="M354.23 293.63 A248 218 0 0 1 645.77 293.63"/>
+                      <path id="label-arc-vip" d="M314.85 242.67 A315 281 0 0 1 685.15 242.67"/>
+                      <path id="label-arc-tribune-a" d="M227.20 610.50 A315 281 0 0 1 314.85 242.67"/>
+                      <path id="label-arc-tribune-b" d="M685.15 242.67 A315 281 0 0 1 772.80 610.50"/>
+                      <path id="label-arc-upper" d="M128.46 315.73 A410 365 0 0 1 871.54 315.73"/>
+                    </defs>
+
+                    <ellipse cx="500" cy="425" rx="460" ry="390" fill="url(#bowlGlow)" class="stadium-outline"/>
+                    <ellipse cx="500" cy="420" rx="382" ry="315" class="stadium-aisle"/>
+                    <ellipse cx="500" cy="420" rx="300" ry="245" class="stadium-aisle"/>
+
+                    <!-- Upper tier C: continuous segmented arch -->
+                    <g class="svg-zone-group" style="--zone-color:#b8dc79">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D phía Tây" d="M72 465 A445 360 0 0 1 195 190 L270 245 A350 275 0 0 0 160 475 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D vòm trái" d="M195 190 A445 360 0 0 1 385 76 L415 164 A350 275 0 0 0 270 245 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D chính diện trái" d="M385 76 A445 360 0 0 1 500 58 L500 150 A350 275 0 0 0 415 164 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D chính diện phải" d="M500 58 A445 360 0 0 1 615 76 L585 164 A350 275 0 0 0 500 150 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D vòm phải" d="M615 76 A445 360 0 0 1 805 190 L730 245 A350 275 0 0 0 585 164 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="C" data-zone-code="ZONE_CD_UP" data-price="800000" data-name="Khán đài C-D · Upper Tier" data-tier="Phổ thông tầng cao" data-available="24" aria-label="Khán đài C-D phía Đông" d="M805 190 A445 360 0 0 1 928 465 L840 475 A350 275 0 0 0 730 245 Z"/>
+                    </g>
+
+                    <!-- Tribune A, left wing -->
+                    <g class="svg-zone-group" style="--zone-color:#f3b64e">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="A" data-zone-code="ZONE_A_T1" data-price="1500000" data-name="Khán đài A · Tầng 1" data-tier="Tribune A" data-available="9" aria-label="Khán đài A block A1" d="M160 475 A350 275 0 0 1 214 330 L300 372 A255 200 0 0 0 276 482 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="A" data-zone-code="ZONE_A_T1" data-price="1500000" data-name="Khán đài A · Tầng 1" data-tier="Tribune A" data-available="9" aria-label="Khán đài A block A2" d="M214 330 A350 275 0 0 1 292 240 L350 316 A255 200 0 0 0 300 372 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="A" data-zone-code="ZONE_A_T1" data-price="1500000" data-name="Khán đài A · Tầng 1" data-tier="Tribune A" data-available="9" aria-label="Khán đài A block A3" d="M292 240 A350 275 0 0 1 392 190 L425 278 A255 200 0 0 0 350 316 Z"/>
+                    </g>
+
+                    <!-- Tribune B, mirrored right wing -->
+                    <g class="svg-zone-group" style="--zone-color:#9d7df5">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="B" data-zone-code="ZONE_B_T2" data-price="1200000" data-name="Khán đài B · Tầng 2" data-tier="Tribune B" data-available="10" aria-label="Khán đài B block B1" d="M840 475 A350 275 0 0 0 786 330 L700 372 A255 200 0 0 1 724 482 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="B" data-zone-code="ZONE_B_T2" data-price="1200000" data-name="Khán đài B · Tầng 2" data-tier="Tribune B" data-available="10" aria-label="Khán đài B block B2" d="M786 330 A350 275 0 0 0 708 240 L650 316 A255 200 0 0 1 700 372 Z"/>
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="B" data-zone-code="ZONE_B_T2" data-price="1200000" data-name="Khán đài B · Tầng 2" data-tier="Tribune B" data-available="10" aria-label="Khán đài B block B3" d="M708 240 A350 275 0 0 0 608 190 L575 278 A255 200 0 0 1 650 316 Z"/>
+                    </g>
+
+                    <!-- Premium front-facing lounge -->
+                    <g style="--zone-color:#f2d02f">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="VIP" data-zone-code="VVIP_DIAMOND" data-price="4500000" data-name="VVIP Diamond Lounge" data-tier="Premium Lounge" data-available="6" aria-label="VVIP Diamond Lounge chính diện" d="M392 190 Q500 150 608 190 L575 278 Q500 250 425 278 Z"/>
+                      <text x="500" y="207" class="svg-zone-label">VVIP LOUNGE</text>
+                      <text x="500" y="228" class="svg-zone-price">4.500.000 VNĐ</text>
+                    </g>
+                    <g style="--zone-color:#7097f2">
+                      <path class="stadium-svg-zone zone-shape" tabindex="0" role="button" data-zone-filter="VIP_PLATINUM_1" data-zone-code="VIP_PLATINUM_1" data-price="3500000" data-name="VIP Platinum 1" data-tier="VIP Platinum" data-available="7" aria-label="VIP Platinum 1 phía trước lounge" d="M350 316 Q500 260 650 316 L612 362 Q500 326 388 362 Z"/>
+                      <text x="500" y="315" class="svg-zone-label">VIP PLATINUM</text>
+                      <text x="500" y="337" class="svg-zone-price">3.500.000 VNĐ</text>
+                    </g>
+
+                    <path class="stadium-infield" d="M300 372 Q500 304 700 372 L724 482 Q748 592 670 680 L330 680 Q252 592 276 482 Z"/>
+
+                    <!-- Standing 2: wide block above the catwalk -->
+                    <g style="--zone-color:#7fd2bf">
+                      <rect class="stadium-svg-zone zone-shape zone-surface" tabindex="0" role="button" data-zone-filter="STANDING" data-zone-code="GA_STAND_2" data-price="1800000" data-name="Standing 2 · Fanzone B" data-tier="Vé đứng phía trên" data-available="200" aria-label="Standing 2 Fanzone B" x="330" y="370" width="340" height="92" rx="14"/>
+                      <text x="500" y="407" class="svg-zone-label">STANDING 2 · FANZONE B</text>
+                      <text x="500" y="432" class="svg-zone-price">1.800.000 VNĐ</text>
+                    </g>
+
+                    <!-- Standing 1 hugs both sides of the catwalk -->
+                    <g style="--zone-color:#88db80">
+                      <rect class="stadium-svg-zone zone-shape zone-surface" tabindex="0" role="button" data-zone-filter="STANDING" data-zone-code="GA_STAND_1" data-price="2200000" data-name="Standing 1 · Fanzone A" data-tier="Sát Catwalk" data-available="200" aria-label="Standing 1 Fanzone A bên trái" x="310" y="478" width="145" height="112" rx="14"/>
+                      <rect class="stadium-svg-zone zone-shape zone-surface" tabindex="0" role="button" data-zone-filter="STANDING" data-zone-code="GA_STAND_1" data-price="2200000" data-name="Standing 1 · Fanzone A" data-tier="Sát Catwalk" data-available="200" aria-label="Standing 1 Fanzone A bên phải" x="545" y="478" width="145" height="112" rx="14"/>
+                      <text x="382" y="522" class="svg-zone-label">STANDING 1</text>
+                      <text x="382" y="546" class="svg-zone-price">2.200.000</text>
+                      <text x="618" y="522" class="svg-zone-label">STANDING 1</text>
+                      <text x="618" y="546" class="svg-zone-price">2.200.000</text>
+                    </g>
+
+                    <!-- Catwalk and stage, joined as one continuous structure -->
+                    <path class="svg-catwalk" d="M475 445 Q475 428 492 428 L508 428 Q525 428 525 445 L525 560 L475 560 Z"/>
+                    <rect class="svg-stage" x="380" y="560" width="240" height="70" rx="12"/>
+                    <text x="500" y="593" class="svg-stage-label">STAGE</text>
+                    <text x="500" y="616" class="svg-zone-subtitle">SÂN KHẤU</text>
+
+                    <!-- Realistic unsold sightline-obstructed blocks behind stage -->
+                    <g class="stadium-blocked-zone">
+                      <path class="zone-shape" d="M175 650 Q258 720 372 748 L350 824 Q205 790 112 688 Z"/>
+                      <path class="zone-shape" d="M372 748 Q500 775 628 748 L650 824 Q500 855 350 824 Z"/>
+                      <path class="zone-shape" d="M628 748 Q742 720 825 650 L888 688 Q795 790 650 824 Z"/>
+                      <text x="500" y="793" class="stadium-blocked-label">KHÔNG MỞ BÁN · KHUẤT TẦM NHÌN</text>
+                    </g>
+
+                    <text x="235" y="300" class="svg-zone-label" transform="rotate(-53 235 300)">KHÁN ĐÀI A</text>
+                    <text x="765" y="300" class="svg-zone-label" transform="rotate(53 765 300)">KHÁN ĐÀI B</text>
+                    <text x="500" y="105" class="svg-zone-label">KHÁN ĐÀI C · UPPER TIER</text>
+
+                    <!-- TRUE OVAL BOWL: generated sectors use one shared ellipse equation for perfect symmetry. -->
+                    <g id="oval-stadium-root">
+                      <ellipse cx="500" cy="470" rx="455" ry="405" class="oval-bowl-backdrop"/>
+                      <ellipse cx="500" cy="475" rx="258" ry="246" class="oval-pitch"/>
+                      <g id="oval-sector-layer"></g>
+
+                      <g class="oval-standing-zone" style="--zone-color:#78d683">
+                        <rect class="stadium-svg-zone oval-standing-shape" tabindex="0" role="button" data-zone-filter="STANDING" data-zone-code="GA_STAND_1" data-price="2200000" data-name="GA Fanzone Standing 1 (Khu A)" data-tier="Standing · Fanzone" data-available="200" x="330" y="330" width="340" height="160" rx="14"/>
+                        <text x="500" y="410" class="oval-zone-title">STANDING · FANZONE</text>
+                      </g>
+
+                      <path class="svg-catwalk oval-catwalk" d="M475 540 Q475 520 500 520 Q525 520 525 540 L525 670 L475 670 Z"/>
+                      <rect class="svg-stage oval-stage" x="380" y="670" width="240" height="70" rx="12"/>
+                      <text x="500" y="705" class="svg-stage-label">STAGE</text>
+
+                      <g id="stadium-seat-layer" aria-label="Các ghế database trong phân khu đang zoom"></g>
+                      <g class="master-sector-labels" aria-hidden="true">
+                        <text class="oval-tier-curve"><textPath href="#label-arc-vvip" startOffset="50%">VVIP LOUNGE</textPath></text>
+                        <text class="oval-tier-curve"><textPath href="#label-arc-vip" startOffset="50%">VIP PLATINUM 1</textPath></text>
+                        <text class="oval-tier-curve"><textPath href="#label-arc-tribune-a" startOffset="50%">KHÁN ĐÀI A</textPath></text>
+                        <text class="oval-tier-curve"><textPath href="#label-arc-tribune-b" startOffset="50%">KHÁN ĐÀI B</textPath></text>
+                        <text class="oval-tier-curve"><textPath href="#label-arc-upper" startOffset="50%">KHÁN ĐÀI C · UPPER TIER</textPath></text>
+                        <text x="500" y="902" class="oval-blocked-label">KHUẤT TẦM NHÌN · KHÔNG BÁN</text>
+                      </g>
+                    </g>
+                  </svg>
+                  <div id="svg-zone-tooltip" class="svg-zone-tooltip" role="tooltip" aria-hidden="true"></div>
+                </div>
+
+                <div id="map-selection-panel" class="map-selection-panel" aria-live="polite"></div>
+
+                <div class="stadium-map-instruction">
+                  <div><strong>Bấm trực tiếp lên phân khu</strong> · Camera SVG sẽ zoom vào khán đài và hiện ghế database ngay trên đường cong.</div>
+                  <span class="stadium-capacity-chip">ANIMATED VIEWBOX · 360MS</span>
+                </div>
+
+                <div id="zone-detail-panel" aria-hidden="true"></div>
+
+                <div class="stadium-map-caption">
+                  <div>
+                    <strong>Standing / Fanzone</strong>
+                    <span>Mặt sân, gần sân khấu và catwalk nhất; không đánh số ghế.</span>
+                  </div>
+                  <div>
+                    <strong>VVIP Lounge</strong>
+                    <span>Khu premium chính diện, có độ cao tốt để quan sát tổng thể sân khấu.</span>
+                  </div>
+                  <div>
+                    <strong>Khán đài A · B · C–D</strong>
+                    <span>Xếp theo các vành từ tầng thấp đến tầng cao quanh lòng sân.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="seat-inventory-heading">
+                <span>Danh sách ghế & số lượng vé theo phân khu</span>
+                <span id="inventory-zone-label">Hiển thị tất cả</span>
+              </div>
+
+              <!-- ZONES & SEATING GRIDS -->
+              <div id="seats-wrapper" class="space-y-6">
+                
+                <!-- ZONE 1: VVIP DIAMOND -->
+                <div id="zone-block-VVIP" data-zone-code="VVIP_DIAMOND" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-vip"></span>
+                      <h4 class="font-bold text-sm text-amber-400">PHÂN KHU: VVIP DIAMOND LOUNGE</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-amber-300">4.500.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Khu premium chính diện sân khấu, tầm nhìn cao và bao quát</div>
+                  
+                  <div id="grid-vvip" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- ZONE 2: VIP PLATINUM 1 -->
+                <div id="zone-block-VIP1" data-zone-code="VIP_PLATINUM_1" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-a"></span>
+                      <h4 class="font-bold text-sm text-blue-400">PHÂN KHU: VIP PLATINUM 1</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-blue-300">3.500.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Khu VIP Platinum 1, gồm hàng ghế VIP1-C và VIP1-D</div>
+                  <div id="grid-vip1" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- ZONE 3: GA FANZONE STANDING -->
+                <div id="zone-block-stand-1" data-zone-code="GA_STAND_1" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-c"></span>
+                      <h4 class="font-bold text-sm text-emerald-400">PHÂN KHU: GA FANZONE STANDING 1 (KHU A)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-300">2.200.000 VNĐ / vé</span>
+                  </div>
+                  <div class="glass-tile p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div class="font-semibold text-white text-sm">Khu vực vé đứng tự do (Standing Zone)</div>
+                      <div class="text-[11px] text-slate-400 mt-1">Không đánh số ghế cố định. Vé được kiểm soát theo số lượng.</div>
+                    </div>
+                    <div class="shrink-0 flex flex-col items-stretch sm:items-end gap-2">
+                      <div class="flex items-center gap-2">
+                        <button type="button" onclick="window.updateStandingQuantity('GA_STAND_1', -1)" class="w-8 h-8 rounded-lg ghost-tab text-lg leading-none" aria-label="Giảm số lượng vé đứng khu A">-</button>
+                        <span id="standing-count-GA_STAND_1" class="inset-dark-cell min-w-10 px-3 py-1.5 text-center font-bold text-white">0</span>
+                        <button type="button" onclick="window.updateStandingQuantity('GA_STAND_1', 1)" class="w-8 h-8 rounded-lg ghost-tab text-lg leading-none" aria-label="Tăng số lượng vé đứng khu A">+</button>
+                      </div>
+                      <button type="button" onclick="window.addStandingTickets('GA_STAND_1')" class="btn-glow px-3 py-2 text-[11px] font-bold">Thêm vào tạm tính</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="zone-block-stand-2" data-zone-code="GA_STAND_2" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-c"></span>
+                      <h4 class="font-bold text-sm text-emerald-400">PHÂN KHU: GA FANZONE STANDING 2 (KHU B)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-300">1.800.000 VNĐ / vé</span>
+                  </div>
+                  <div class="glass-tile p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div class="font-semibold text-white text-sm">Khu vực vé đứng tự do (Standing Zone)</div>
+                      <div class="text-[11px] text-slate-400 mt-1">Không đánh số ghế cố định. Vé được kiểm soát theo số lượng.</div>
+                    </div>
+                    <div class="shrink-0 flex flex-col items-stretch sm:items-end gap-2">
+                      <div class="flex items-center gap-2">
+                        <button type="button" onclick="window.updateStandingQuantity('GA_STAND_2', -1)" class="w-8 h-8 rounded-lg ghost-tab text-lg leading-none" aria-label="Giảm số lượng vé đứng khu B">-</button>
+                        <span id="standing-count-GA_STAND_2" class="inset-dark-cell min-w-10 px-3 py-1.5 text-center font-bold text-white">0</span>
+                        <button type="button" onclick="window.updateStandingQuantity('GA_STAND_2', 1)" class="w-8 h-8 rounded-lg ghost-tab text-lg leading-none" aria-label="Tăng số lượng vé đứng khu B">+</button>
+                      </div>
+                      <button type="button" onclick="window.addStandingTickets('GA_STAND_2')" class="btn-glow px-3 py-2 text-[11px] font-bold">Thêm vào tạm tính</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ZONE 4: KHÁN ĐÀI A (TẦNG 1) -->
+                <div id="zone-block-A" data-zone-code="ZONE_A_T1" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-a"></span>
+                      <h4 class="font-bold text-sm text-blue-400">PHÂN KHU: KHÁN ĐÀI A (TẦNG 1 - CHÍNH DIỆN)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-blue-300">2.200.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Ghế đệm ngồi trung tâm đối diện sân khấu</div>
+
+                  <!-- Grid seats A -->
+                  <div id="grid-a" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- ZONE 5: KHÁN ĐÀI B (TẦNG 2) -->
+                <div id="zone-block-B" data-zone-code="ZONE_B_T2" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-b"></span>
+                      <h4 class="font-bold text-sm text-purple-400">PHÂN KHU: KHÁN ĐÀI B (TẦNG 2 - TOÀN CẢNH)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-purple-300">1.500.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Tầm nhìn cao toàn diện bao quát sân vận động</div>
+
+                  <!-- Grid seats B -->
+                  <div id="grid-b" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- ZONE 6: KHÁN ĐÀI C (PHỔ THÔNG) -->
+                <div id="zone-block-C" data-zone-code="ZONE_CD_UP" class="zone-block p-4 sm:p-5 rounded-2xl liquid-glass">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="zone-glow-dot zone-glow-dot-c"></span>
+                      <h4 class="font-bold text-sm text-emerald-400">PHÂN KHU: KHÁN ĐÀI C (PHỔ THÔNG TIÊU CHUẨN)</h4>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-300">800.000 VNĐ / ghế</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mb-3">Không gian sôi động phù hợp cho đông đảo sinh viên</div>
+
+                  <!-- Grid seats C -->
+                  <div id="grid-c" class="grid grid-cols-6 sm:grid-cols-12 gap-2 sm:gap-2.5 justify-center">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT 4 COLS: SELECTED TICKETS SUMMARY SIDEBAR (TẠM TÍNH VÉ ĐÃ CHỌN) -->
+          <div class="lg:col-span-4 sticky top-24 z-20 space-y-4 self-start">
+            
+            <div id="selected-tickets-summary-card" class="p-5 sm:p-6 rounded-2xl liquid-glass shadow-2xl">
+              <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span>
+                  <h3 class="font-bold text-base text-white">TẠM TÍNH VÉ ĐÃ CHỌN</h3>
+                </div>
+                <button
+                  id="btn-clear-all-seats"
+                  class="text-xs text-red-400 hover:text-red-300 transition hidden cursor-pointer"
+                >
+                  Xóa tất cả
+                </button>
+              </div>
+
+              <!-- Selected Seats List Container -->
+              <div id="selected-seats-list" class="my-4 space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                <!-- Empty State -->
+                <div id="empty-seats-msg" class="py-8 text-center text-slate-500 text-xs">
+                  <svg class="w-8 h-8 mx-auto mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                  </svg>
+                  <span>Chưa có ghế nào được chọn.</span>
+                  <p class="text-[11px] text-slate-600 mt-1">Hãy zoom vào một phân khu rồi bấm trực tiếp lên ghế còn trống.</p>
+                </div>
+              </div>
+
+              <!-- Total calculation -->
+              <div class="border-t border-white/[0.08] pt-4 space-y-2 text-xs">
+                <div class="flex justify-between text-slate-400">
+                  <span>Số lượng vé:</span>
+                  <span id="summary-count" class="font-bold text-white">0 / 4 vé</span>
+                </div>
+                <div class="flex justify-between items-baseline pt-1">
+                  <span class="font-medium text-slate-300">Tổng tiền tạm tính:</span>
+                  <span id="summary-total" class="text-xl font-black text-amber-400 font-display">0 VNĐ</span>
+                </div>
+              </div>
+
+              <!-- 5-Minute Hold Countdown Simulation (FR-T3-01 / US-T1-01) -->
+              <div id="hold-timer-container" class="mt-4 p-3 rounded-xl inset-dark-cell border-amber-500/30 hidden">
+                <div class="flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-1.5 text-amber-300 font-semibold">
+                    <svg class="w-4 h-4 animate-spin text-amber-400" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Mô phỏng Khóa giữ chỗ:</span>
+                  </div>
+                  <span id="hold-countdown" class="font-mono font-bold text-amber-400 text-sm">05:00</span>
+                </div>
+                <div class="text-[10px] text-slate-400 mt-1">
+                  (Theo FR-T3-01: Giữ chỗ đúng 300 giây độc quyền, chống Double-booking)
+                </div>
+              </div>
+
+              <!-- Proceed Button with Pixel Contract B Signature Glow Button -->
+              <div class="mt-5">
+                <button
+                  id="btn-proceed-booking"
+                  disabled
+                  class="btn-glow w-full py-3.5 px-4 text-sm font-bold gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:filter-none shadow-xl"
+                >
+                  <span>Tiến hành giữ chỗ & Thanh toán</span>
+                  <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
