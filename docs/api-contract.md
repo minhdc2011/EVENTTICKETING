@@ -1,5 +1,10 @@
 # Hợp đồng API EventTicketing
 
+Frontend ưu tiên Supabase khi đã cấu hình URL và anon key. Trong chế độ này,
+phân khu/ghế được đọc qua PostgREST, thay đổi ghế nhận qua Supabase
+Realtime, cò giữ chỗ gọi RPC `tao_giu_cho`/`huy_giu_cho`. Hợp đồng REST
+bên dưới là phương án dự phòng khi dùng backend riêng.
+
 Frontend dùng `VITE_EVENT_ID` làm mã sự kiện công khai. Mọi REST response
 thành công trả về dạng `{ "data": ... }`; phiên đăng nhập truyền bằng cookie
 `HttpOnly`, vì frontend luôn gửi request với `credentials: include`.

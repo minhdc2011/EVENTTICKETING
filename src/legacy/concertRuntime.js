@@ -179,7 +179,7 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
         } catch (error) {
           rawZones = FALLBACK_ZONES;
           rawSeats = buildFallbackSeats();
-          console.warn('Không tải được JSON, sử dụng dữ liệu mẫu dự phòng:', error.message);
+          console.warn('Không tải được nguồn dữ liệu, sử dụng dữ liệu mẫu dự phòng:', error.message);
         }
 
         Object.keys(ZONES).forEach(key => delete ZONES[key]);

@@ -305,7 +305,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      huy_giu_cho: {
+        Args: {
+          p_giu_cho_id: string
+          p_phien_id: string
+        }
+        Returns: boolean
+      }
+      tao_giu_cho: {
+        Args: {
+          p_items: Json
+          p_phien_id: string
+          p_su_kien_id: number
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
