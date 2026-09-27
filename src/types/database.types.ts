@@ -39,6 +39,55 @@ export type Database = {
   }
   public: {
     Tables: {
+      CHI_TIET_GIU_CHO: {
+        Row: {
+          GheID: number | null
+          GiuChoID: string
+          ID: number
+          KhuVucID: number
+          MaVe: string
+          SoLuong: number
+        }
+        Insert: {
+          GheID?: number | null
+          GiuChoID: string
+          ID?: number
+          KhuVucID: number
+          MaVe: string
+          SoLuong?: number
+        }
+        Update: {
+          GheID?: number | null
+          GiuChoID?: string
+          ID?: number
+          KhuVucID?: number
+          MaVe?: string
+          SoLuong?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "CHI_TIET_GIU_CHO_GheID_fkey"
+            columns: ["GheID"]
+            isOneToOne: false
+            referencedRelation: "GHE"
+            referencedColumns: ["GheID"]
+          },
+          {
+            foreignKeyName: "CHI_TIET_GIU_CHO_GiuChoID_fkey"
+            columns: ["GiuChoID"]
+            isOneToOne: false
+            referencedRelation: "GIU_CHO"
+            referencedColumns: ["GiuChoID"]
+          },
+          {
+            foreignKeyName: "CHI_TIET_GIU_CHO_KhuVucID_fkey"
+            columns: ["KhuVucID"]
+            isOneToOne: false
+            referencedRelation: "KHU_VUC"
+            referencedColumns: ["KhuVucID"]
+          },
+        ]
+      }
       GHE: {
         Row: {
           GheID: number
@@ -77,6 +126,44 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "KHU_VUC"
             referencedColumns: ["KhuVucID"]
+          },
+        ]
+      }
+      GIU_CHO: {
+        Row: {
+          GiuChoID: string
+          HetHanLuc: string
+          NgayCapNhat: string
+          NgayTao: string
+          PhienNguoiDung: string
+          SuKienID: number
+          TrangThai: string
+        }
+        Insert: {
+          GiuChoID?: string
+          HetHanLuc?: string
+          NgayCapNhat?: string
+          NgayTao?: string
+          PhienNguoiDung: string
+          SuKienID: number
+          TrangThai?: string
+        }
+        Update: {
+          GiuChoID?: string
+          HetHanLuc?: string
+          NgayCapNhat?: string
+          NgayTao?: string
+          PhienNguoiDung?: string
+          SuKienID?: number
+          TrangThai?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "GIU_CHO_SuKienID_fkey"
+            columns: ["SuKienID"]
+            isOneToOne: false
+            referencedRelation: "SU_KIEN"
+            referencedColumns: ["SuKienID"]
           },
         ]
       }
@@ -306,18 +393,11 @@ export type Database = {
     }
     Functions: {
       huy_giu_cho: {
-        Args: {
-          p_giu_cho_id: string
-          p_phien_id: string
-        }
+        Args: { p_giu_cho_id: string; p_phien_id: string }
         Returns: boolean
       }
       tao_giu_cho: {
-        Args: {
-          p_items: Json
-          p_phien_id: string
-          p_su_kien_id: number
-        }
+        Args: { p_items: Json; p_phien_id: string; p_su_kien_id: number }
         Returns: Json
       }
     }
