@@ -1,10 +1,43 @@
-import {runtimeConfig} from '../config/runtime';
+import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import type {SeatStatusEvent} from '../types/ticketing';
+import {requireSupabaseClient} from './supabaseClient';
 
 type SeatUpdateListener = (event: SeatStatusEvent) => void;
 
 export function subscribeToSeatUpdates(listener: SeatUpdateListener): () => void {
   if (runtimeConfig.useMockData) return () => undefined;
+
+  if (isSupabaseConfigured()) {
+    const supabase = requireSupabaseClient();
+    const channel = supabase
+      .channel(`event-${runtimeConfig.eventDatabaseId}-seats`)
+      .on(
+        'postgres_changes',
+        {event: 'UPDATE', schema: 'public', table: 'GHE'},
+        (payload) => {
+          const seat = payload.new as {
+            GheID?: number;
+            MaGheDayDu?: string;
+            TrangThai?: SeatStatusEvent['status'];
+          };
+          if (!seat.MaGheDayDu || !seat.TrangThai) return;
+          listener({
+            type: 'SEAT_STATUS_CHANGED',
+            eventId: runtimeConfig.eventId,
+            seatId: seat.GheID,
+            seatCode: seat.MaGheDayDu,
+            zoneCode: '',
+            status: seat.TrangThai,
+            occurredAt: new Date().toISOString(),
+          });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }
 
   const eventId = encodeURIComponent(runtimeConfig.eventId);
   const sameOriginSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;

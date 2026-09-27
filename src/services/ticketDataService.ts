@@ -1,6 +1,7 @@
-import {runtimeConfig} from '../config/runtime';
+import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import type {ApiEnvelope, SeatRecord, TicketingCatalog, ZoneRecord} from '../types/ticketing';
 import {apiRequest} from './apiClient';
+import {requireSupabaseClient} from './supabaseClient';
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, {cache: 'no-store'});
@@ -15,6 +16,59 @@ async function fetchJson<T>(url: string): Promise<T> {
  * replace these URLs with REST endpoints without changing presentation code.
  */
 export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
+  if (!runtimeConfig.useMockData && isSupabaseConfigured()) {
+    const supabase = requireSupabaseClient();
+    const {data: zoneRows, error: zoneError} = await supabase
+      .from('KHU_VUC')
+      .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex')
+      .eq('SuKienID', runtimeConfig.eventDatabaseId)
+      .order('KhuVucID');
+
+    if (zoneError) throw zoneError;
+
+    const zones: ZoneRecord[] = (zoneRows ?? []).map((zone) => ({
+      KhuVucID: zone.KhuVucID,
+      MaKhuVuc: zone.MaKhuVuc,
+      TenKhuVuc: zone.TenKhuVuc,
+      GiaVeNiemYet: Number(zone.GiaVeNiemYet),
+      MauSacHex: zone.MauSacHex,
+    }));
+
+    if (zones.length === 0) {
+      throw new Error(
+        `Supabase không có phân khu cho SuKienID=${runtimeConfig.eventDatabaseId}.`,
+      );
+    }
+
+    const zoneById = new Map(zones.map((zone) => [zone.KhuVucID, zone]));
+    const zoneIds = zones.map((zone) => zone.KhuVucID);
+    if (zoneIds.length === 0) return {zones, seats: []};
+
+    const {data: seatRows, error: seatError} = await supabase
+      .from('GHE')
+      .select('GheID, KhuVucID, SoHang, SoGhe, MaGheDayDu, TrangThai')
+      .in('KhuVucID', zoneIds)
+      .order('GheID');
+
+    if (seatError) throw seatError;
+
+    const seats: SeatRecord[] = (seatRows ?? []).map((seat) => {
+      const zone = zoneById.get(seat.KhuVucID);
+      return {
+        GheID: seat.GheID,
+        KhuVucID: seat.KhuVucID,
+        TenKhuVuc: zone?.TenKhuVuc,
+        SoHang: seat.SoHang,
+        SoGhe: seat.SoGhe,
+        MaGheDayDu: seat.MaGheDayDu,
+        TrangThai: seat.TrangThai as SeatRecord['TrangThai'],
+        GiaVeNiemYet: zone?.GiaVeNiemYet,
+      };
+    });
+
+    return {zones, seats};
+  }
+
   if (!runtimeConfig.useMockData) {
     const eventPath = `/api/v1/events/${encodeURIComponent(runtimeConfig.eventId)}`;
     const [zonesResult, seatsResult] = await Promise.all([
