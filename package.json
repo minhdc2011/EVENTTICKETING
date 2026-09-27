@@ -4,26 +4,29 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
+    "dev": "node -e \"require('fs').copyFileSync('index.html.template','index.html')\" && vite --port=3000 --host=0.0.0.0",
+    "build": "node -e \"require('fs').copyFileSync('index.html.template','index.html')\" && vite build && node -e \"const fs=require('fs'); fs.rmSync('assets',{recursive:true,force:true}); fs.copyFileSync('dist/index.html','index.html'); fs.cpSync('dist/assets','assets',{recursive:true});\"",
     "preview": "vite preview",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
-    "@tailwindcss/vite": "^4.1.14",
-    "@vitejs/plugin-react": "^5.0.4",
-    "react": "^19.0.1",
-    "react-dom": "^19.0.1",
-    "vite": "^6.2.3"
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^5.2.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "vite": "^6.4.3"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "autoprefixer": "^10.4.21",
-    "esbuild": "^0.25.0",
+    "@types/node": "^22.20.4",
+    "autoprefixer": "^10.6.1",
+    "esbuild": "^0.25.12",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "vite": "^6.4.3"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true
   }
 }

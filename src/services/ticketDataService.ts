@@ -78,7 +78,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
     return {zones: zonesResult.data, seats: seatsResult.data};
   }
 
-  const baseUrl = import.meta.env.BASE_URL || '/';
+  const baseUrl = import.meta.env.BASE_URL || './';
   const prefix = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
   const [zones, seats] = await Promise.all([
