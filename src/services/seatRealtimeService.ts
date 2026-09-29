@@ -3,14 +3,23 @@ import type {SeatStatusEvent} from '../types/ticketing';
 import {requireSupabaseClient} from './supabaseClient';
 
 type SeatUpdateListener = (event: SeatStatusEvent) => void;
+export type RealtimeConnectionStatus = 'CONNECTING' | 'CONNECTED' | 'DISCONNECTED' | 'ERROR';
+type ConnectionStatusListener = (status: RealtimeConnectionStatus) => void;
 
-export function subscribeToSeatUpdates(listener: SeatUpdateListener): () => void {
-  if (runtimeConfig.useMockData) return () => undefined;
+export function subscribeToSeatUpdates(
+  listener: SeatUpdateListener,
+  onConnectionStatus: ConnectionStatusListener = () => undefined,
+): () => void {
+  if (runtimeConfig.useMockData) {
+    onConnectionStatus('CONNECTED');
+    return () => undefined;
+  }
 
   if (isSupabaseConfigured()) {
     const supabase = requireSupabaseClient();
+    onConnectionStatus('CONNECTING');
     const channel = supabase
-      .channel(`event-${runtimeConfig.eventDatabaseId}-seats`)
+      .channel(`event-${runtimeConfig.eventDatabaseId}-seats-${crypto.randomUUID()}`)
       .on(
         'postgres_changes',
         {event: 'UPDATE', schema: 'public', table: 'GHE'},
@@ -32,7 +41,11 @@ export function subscribeToSeatUpdates(listener: SeatUpdateListener): () => void
           });
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') onConnectionStatus('CONNECTED');
+        else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') onConnectionStatus('ERROR');
+        else if (status === 'CLOSED') onConnectionStatus('DISCONNECTED');
+      });
 
     return () => {
       void supabase.removeChannel(channel);
@@ -48,10 +61,12 @@ export function subscribeToSeatUpdates(listener: SeatUpdateListener): () => void
   let stopped = false;
 
   const connect = () => {
+    onConnectionStatus('CONNECTING');
     socket = new WebSocket(`${socketOrigin}/ws/events/${eventId}/seats`);
 
     socket.addEventListener('open', () => {
       reconnectAttempt = 0;
+      onConnectionStatus('CONNECTED');
     });
 
     socket.addEventListener('message', (message) => {
@@ -67,10 +82,13 @@ export function subscribeToSeatUpdates(listener: SeatUpdateListener): () => void
 
     socket.addEventListener('close', () => {
       if (stopped) return;
+      onConnectionStatus('DISCONNECTED');
       const delay = Math.min(1000 * 2 ** reconnectAttempt, 15_000);
       reconnectAttempt += 1;
       reconnectTimer = window.setTimeout(connect, delay);
     });
+
+    socket.addEventListener('error', () => onConnectionStatus('ERROR'));
   };
 
   connect();

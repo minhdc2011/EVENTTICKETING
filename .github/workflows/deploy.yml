@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Verify and build project
         env:
           VITE_BASE_URL: './'
           VITE_USE_MOCK_DATA: 'false'
@@ -41,7 +41,7 @@ jobs:
           VITE_SUPABASE_ANON_KEY: 'sb_publishable_mCPTLgmw3RBji1qcZ9urKw_rAWc-igK'
           VITE_EVENT_DATABASE_ID: '1'
           VITE_EVENT_ID: 'SUPER_CONCERT_2026'
-        run: npm run build
+        run: npm run check
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
