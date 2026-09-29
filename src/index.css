@@ -2416,7 +2416,11 @@
       }
       @media (max-width: 639px) {
         #concert-hero { background-position: 62% center; }
-        #concert-hero h1 { font-size: clamp(2.7rem, 14vw, 4rem) !important; }
+        #concert-hero h1 {
+          max-width: 100%;
+          font-size: clamp(2.15rem, 10.5vw, 3rem) !important;
+          letter-spacing: -.07em !important;
+        }
         #concert-hero .lg\:col-span-7 > .grid > .group + .group {
           border-left: 0;
           border-top: 1px solid rgba(255,255,255,.22);
@@ -2435,3 +2439,110 @@
       }
 
 .font-syne { font-family: 'Syne', 'Be Vietnam Pro', sans-serif; }
+
+/* Sprint 1 hardening: explicit public/sale/data/realtime states. */
+.sale-status-banner {
+  position: relative;
+  z-index: 35;
+  margin-top: 64px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  background: rgba(8,10,9,.96);
+}
+.sale-status-banner__inner {
+  width: min(1280px, calc(100% - 32px));
+  min-height: 54px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(226,232,240,.72);
+  font-size: 11px;
+}
+.sale-status-banner__inner > div { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.sale-status-banner__inner strong {
+  color: #fff;
+  font: 900 11px/1 'Space Grotesk','Be Vietnam Pro',sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.sale-status-banner__inner time {
+  margin-left: auto;
+  color: #fef08a;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.sale-status-banner__dot { width:8px; height:8px; flex:0 0 auto; border-radius:50%; background:#fbbf24; box-shadow:0 0 14px rgba(251,191,36,.55); }
+.sale-status-banner--on-sale .sale-status-banner__dot { background:#22c55e; box-shadow:0 0 14px rgba(34,197,94,.6); }
+.sale-status-banner--sold-out .sale-status-banner__dot,
+.sale-status-banner--closed .sale-status-banner__dot { background:#94a3b8; box-shadow:none; }
+
+.app-state-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at 50% 30%, rgba(216,255,62,.08), transparent 36%), #070807;
+}
+.app-state-card {
+  width: min(620px,100%);
+  padding: clamp(28px,5vw,54px);
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(13,16,14,.96);
+  box-shadow: 0 28px 90px rgba(0,0,0,.45);
+  text-align: center;
+}
+.app-state-kicker { color:#d8ff3e; font:900 10px/1 'Space Grotesk',sans-serif; letter-spacing:.18em; text-transform:uppercase; }
+.app-state-card h1 { margin-top:12px; color:#fff; font:900 clamp(25px,5vw,42px)/1.05 'Syne','Be Vietnam Pro',sans-serif; }
+.app-state-card > p:last-of-type { margin:14px auto 0; max-width:480px; color:#94a3b8; font-size:14px; line-height:1.65; }
+.app-state-card button,.app-state-card a {
+  display:inline-flex; align-items:center; justify-content:center; min-height:44px; margin-top:24px; padding:0 20px;
+  border:1px solid #d8ff3e; background:#d8ff3e; color:#080a08; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em;
+}
+.app-state-spinner,.seating-data-spinner { display:inline-block; width:26px; height:26px; border:2px solid rgba(216,255,62,.2); border-top-color:#d8ff3e; border-radius:50%; animation:sprintOneSpin .8s linear infinite; }
+@keyframes sprintOneSpin { to { transform:rotate(360deg); } }
+
+.realtime-connection-status {
+  min-height:32px; display:inline-flex; align-items:center; gap:8px; padding:0 10px;
+  border:1px solid rgba(255,255,255,.12); background:#0c0f0d; color:#94a3b8;
+  font-size:10px; letter-spacing:.04em; white-space:nowrap;
+}
+.realtime-connection-status > span { width:7px; height:7px; border-radius:50%; background:#fbbf24; }
+.realtime-connection-status.is-connected { color:#bbf7d0; border-color:rgba(34,197,94,.3); }
+.realtime-connection-status.is-connected > span { background:#22c55e; box-shadow:0 0 9px rgba(34,197,94,.55); }
+.realtime-connection-status.is-disconnected { color:#fecaca; border-color:rgba(248,113,113,.34); }
+.realtime-connection-status.is-disconnected > span { background:#f87171; }
+
+.seating-data-state { margin-bottom:16px; }
+.seating-data-message {
+  min-height:64px; display:flex; align-items:center; gap:13px; padding:14px 16px;
+  border:1px solid rgba(216,255,62,.22); background:rgba(216,255,62,.035);
+}
+.seating-data-message > div { display:grid; gap:3px; }
+.seating-data-message strong { color:#fff; font-size:12px; }
+.seating-data-message span { color:#94a3b8; font-size:11px; }
+.seating-data-message--error { justify-content:space-between; border-color:rgba(248,113,113,.35); background:rgba(127,29,29,.12); }
+.seating-data-message--error button { min-height:36px; flex:0 0 auto; padding:0 14px; border:1px solid rgba(248,113,113,.55); color:#fecaca; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+.seating-data-unavailable #map-zoom-container,
+.seating-data-unavailable #selected-tickets-summary-card { opacity:.25; pointer-events:none; filter:grayscale(1); }
+.is-sale-readonly .detail-seat.available,
+.is-sale-readonly [data-camera-seat],
+.is-sale-readonly .map-standing-action { cursor:not-allowed !important; }
+.is-sale-readonly #btn-proceed-booking { opacity:.38; cursor:not-allowed; }
+.stadium-svg-zone.is-sold-out { filter:grayscale(1) brightness(.48) !important; opacity:.72; }
+#stadium-svg { overflow:hidden; }
+.svg-zone-tooltip:not(.is-visible) { display:none; }
+.svg-zone-tooltip { max-width:calc(100vw - 24px); }
+
+@media (max-width:639px) {
+  .sale-status-banner__inner { align-items:flex-start; padding:12px 0; }
+  .sale-status-banner__inner > div { display:grid; gap:4px; }
+  .sale-status-banner__inner time { display:none; }
+  .seating-data-message--error { align-items:flex-start; flex-direction:column; }
+  .seating-data-message--error button { width:100%; }
+}
+@media (max-width:479px) {
+  .site-header nav { gap:8px !important; }
+  .site-header .site-brand { display:none; }
+  .site-header nav > div:last-child { gap:6px !important; min-width:0; }
+  .site-header nav > div:last-child > :is(button,a) { padding-inline:8px !important; }
+}

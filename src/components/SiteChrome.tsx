@@ -1,4 +1,5 @@
-export function SiteChrome() {
+export function SiteChrome({saleStatus}: {saleStatus: string}) {
+  const saleOpen = saleStatus === 'ON_SALE';
   return (
     <>
       <div id="stA" aria-hidden="true" />
@@ -32,6 +33,7 @@ export function SiteChrome() {
             <button
               id="btn-view-schedule"
               type="button"
+              onClick={() => document.getElementById('schedule-modal')?.classList.remove('hidden')}
               className="h-9 px-2.5 sm:px-3.5 border border-white/10 hover:border-white/30 text-[10px] sm:text-[11px] font-bold tracking-[.1em] uppercase text-white/70 hover:text-white transition-colors"
             >
               <span className="hidden sm:inline">Timeline</span>
@@ -39,11 +41,12 @@ export function SiteChrome() {
             </button>
             <a
               href="#seating-section"
+              aria-disabled={!saleOpen}
               className="h-9 px-2.5 sm:px-4 border border-white/20 hover:border-amber-400 bg-white/[.035] text-[10px] sm:text-[11px] font-bold tracking-[.1em] uppercase text-white flex items-center gap-2 transition-colors"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="hidden sm:inline">Chọn vé ngay</span>
-              <span className="sm:hidden">Vé</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${saleOpen ? 'bg-emerald-400 animate-pulse' : 'bg-amber-300'}`} />
+              <span className="hidden sm:inline">{saleOpen ? 'Chọn vé ngay' : 'Xem sơ đồ vé'}</span>
+              <span className="sm:hidden">{saleOpen ? 'Vé' : 'Sơ đồ'}</span>
             </a>
           </div>
         </nav>

@@ -302,6 +302,7 @@ export type Database = {
           ThoiGianKetThuc: string
           ThoiGianMoBanVe: string
           TrailerURL: string | null
+          TrangThaiCongBo: string
           TrangThaiMoBan: string
         }
         Insert: {
@@ -323,6 +324,7 @@ export type Database = {
           ThoiGianKetThuc: string
           ThoiGianMoBanVe: string
           TrailerURL?: string | null
+          TrangThaiCongBo?: string
           TrangThaiMoBan?: string
         }
         Update: {
@@ -344,6 +346,7 @@ export type Database = {
           ThoiGianKetThuc?: string
           ThoiGianMoBanVe?: string
           TrailerURL?: string | null
+          TrangThaiCongBo?: string
           TrangThaiMoBan?: string
         }
         Relationships: []

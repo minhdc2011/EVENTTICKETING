@@ -73,6 +73,94 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       let currentStadiumViewBox = [0, 0, 1000, 1000];
       let activeHoldId = null;
       let stopSeatRealtimeUpdates = null;
+      let lastRealtimeConnectionStatus = null;
+
+      function getSaleStatus() {
+        return document.body.dataset.saleStatus || 'UPCOMING';
+      }
+
+      function isTicketSelectionEnabled() {
+        return getSaleStatus() === 'ON_SALE';
+      }
+
+      function getSaleRestrictionMessage() {
+        const messages = {
+          UPCOMING: 'Vé chưa mở bán. Bạn vẫn có thể zoom và xem chi tiết sơ đồ.',
+          SOLD_OUT: 'Sự kiện hiện đã hết vé. Sơ đồ chỉ còn ở chế độ xem.',
+          CLOSED: 'Thời gian bán vé đã kết thúc. Sơ đồ chỉ còn ở chế độ xem.'
+        };
+        return messages[getSaleStatus()] || 'Hiện chưa thể chọn vé.';
+      }
+
+      function syncSaleAvailabilityUI({announce = false} = {}) {
+        const enabled = isTicketSelectionEnabled();
+        const section = document.getElementById('seating-section');
+        section?.classList.toggle('is-sale-readonly', !enabled);
+        section?.setAttribute('data-sale-status', getSaleStatus());
+
+        document.querySelectorAll('[data-camera-seat], .detail-seat, #detail-standing-minus, #detail-standing-plus, #detail-standing-add, #map-standing-minus, #map-standing-plus, #map-standing-action')
+          .forEach(control => {
+            if ('disabled' in control) control.disabled = !enabled;
+            control.setAttribute('aria-disabled', String(!enabled));
+          });
+
+        const proceedButton = document.getElementById('btn-proceed-booking');
+        if (proceedButton) proceedButton.disabled = !enabled || selectedSeatIds.size === 0;
+
+        if (!enabled && selectedSeatIds.size > 0) {
+          selectedSeatIds.clear();
+          standingTickets.clear();
+          standingQuantities.GA_STAND_1 = 0;
+          standingQuantities.GA_STAND_2 = 0;
+          updateSidebar();
+          renderSeats();
+        }
+        if (announce && !enabled) showToast(getSaleRestrictionMessage(), 'warning');
+      }
+
+      function setSeatingDataState(state, error) {
+        const section = document.getElementById('seating-section');
+        const container = document.getElementById('seating-data-state');
+        const loading = document.getElementById('seating-data-loading');
+        const errorPanel = document.getElementById('seating-data-error');
+        container?.classList.toggle('hidden', state === 'ready');
+        loading?.classList.toggle('hidden', state !== 'loading');
+        errorPanel?.classList.toggle('hidden', state !== 'error');
+        section?.classList.toggle('seating-data-unavailable', state === 'error');
+        if (state === 'error') {
+          console.error('Không thể tải dữ liệu sơ đồ:', error);
+        }
+      }
+
+      function updateRealtimeConnectionStatus(status) {
+        const badge = document.getElementById('realtime-connection-status');
+        if (!badge) return;
+        const content = {
+          CONNECTING: ['is-connecting', 'Đang kết nối dữ liệu ghế'],
+          CONNECTED: ['is-connected', 'Dữ liệu ghế trực tuyến'],
+          DISCONNECTED: ['is-disconnected', 'Mất kết nối · đang thử lại'],
+          ERROR: ['is-disconnected', 'Dữ liệu có thể chưa cập nhật']
+        }[status] || ['is-connecting', 'Đang kết nối dữ liệu ghế'];
+        badge.className = `realtime-connection-status ${content[0]}`;
+        const text = badge.querySelector('strong');
+        if (text) text.textContent = content[1];
+        const shouldResync = status === 'CONNECTED' &&
+          (lastRealtimeConnectionStatus === 'DISCONNECTED' || lastRealtimeConnectionStatus === 'ERROR');
+        lastRealtimeConnectionStatus = status;
+        if (shouldResync) void resyncSeatSnapshot();
+      }
+
+      async function resyncSeatSnapshot() {
+        try {
+          await loadDataFromDatabase();
+          renderSeats();
+          syncSaleAvailabilityUI();
+          showToast('Đã đồng bộ lại trạng thái ghế mới nhất.', 'success');
+        } catch (error) {
+          console.warn('Không thể đồng bộ lại snapshot ghế:', error);
+          updateRealtimeConnectionStatus('ERROR');
+        }
+      }
 
       function buildFallbackSeats() {
         return Object.entries(FALLBACK_SEAT_STATUS).flatMap(([zoneId, statuses]) => {
@@ -177,9 +265,10 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
           rawZones = catalog.zones;
           rawSeats = catalog.seats;
         } catch (error) {
+          if (!runtimeConfig.useMockData) throw error;
           rawZones = FALLBACK_ZONES;
           rawSeats = buildFallbackSeats();
-          console.warn('Không tải được nguồn dữ liệu, sử dụng dữ liệu mẫu dự phòng:', error.message);
+          console.warn('Không tải được dữ liệu mock, sử dụng catalog dự phòng:', error.message);
         }
 
         Object.keys(ZONES).forEach(key => delete ZONES[key]);
@@ -336,12 +425,13 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
         const zone = ZONES[zoneCode];
         const color = ZONE_VISUAL_COLORS[zoneCode] || zone?.color || '#d8ff3e';
         const available = getZoneAvailability(zoneCode);
+        const availabilityText = available === 0 ? 'Hết vé' : `${available} chỗ`;
         tooltipEl.style.setProperty('--tooltip-color', color);
         tooltipEl.innerHTML = `
           <div class="svg-tooltip-kicker">${target.dataset.tier || 'Phân khu sân vận động'}</div>
           <div class="svg-tooltip-title">${zone?.name || target.dataset.name}</div>
           <div class="svg-tooltip-meta"><span>Giá niêm yết</span><strong>${formatVND(zone?.price || Number(target.dataset.price))}</strong></div>
-          <div class="svg-tooltip-meta"><span>Còn trống</span><strong>${available} chỗ</strong></div>
+          <div class="svg-tooltip-meta"><span>Trạng thái</span><strong>${availabilityText}</strong></div>
         `;
         tooltipEl.classList.add('is-visible');
         tooltipEl.setAttribute('aria-hidden', 'false');
@@ -797,7 +887,10 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
           zoneShape.classList.toggle('is-selected', hasSelectedTicket);
           zoneShape.classList.toggle('is-filter-match', currentZoneFilter !== 'ALL' && matchesFilter);
           zoneShape.classList.toggle('is-active-zone', activeCameraZoneCode === zoneCode);
-          zoneShape.setAttribute('aria-label', `${zone?.name || zoneShape.dataset.name}, ${formatVND(zone?.price || Number(zoneShape.dataset.price))}, còn ${available} chỗ. Bấm để phóng to phân khu.`);
+          zoneShape.classList.toggle('is-sold-out', available === 0);
+          zoneShape.setAttribute('aria-label', available === 0
+            ? `${zone?.name || zoneShape.dataset.name}, hết vé. Bấm để xem phân khu.`
+            : `${zone?.name || zoneShape.dataset.name}, ${formatVND(zone?.price || Number(zoneShape.dataset.price))}, còn ${available} chỗ. Bấm để phóng to phân khu.`);
         });
 
         if (
@@ -811,6 +904,10 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       // 3. SEAT INTERACTION & LOGIC
       // ==========================================
       function handleSeatClick(seat) {
+        if (!isTicketSelectionEnabled()) {
+          showToast(getSaleRestrictionMessage(), 'warning');
+          return;
+        }
         if (seat.status === 'SOLD') {
           // SRS REQUIREMENT: Nếu click vào ghế màu xám: Hiển thị toast thông báo "Ghế này đã có người mua!"
           showToast(`Ghế ${seat.id} này đã có người mua! Vui lòng chọn ghế màu xanh lá.`, 'error');
@@ -860,6 +957,10 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       }
 
       window.updateStandingQuantity = function(zoneCode, delta) {
+        if (!isTicketSelectionEnabled()) {
+          showToast(getSaleRestrictionMessage(), 'warning');
+          return;
+        }
         if (!(zoneCode in standingQuantities)) return;
         const selectedStandingCount = Object.values(standingQuantities).reduce((sum, count) => sum + count, 0);
         const nextQuantity = standingQuantities[zoneCode] + delta;
@@ -872,6 +973,10 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       };
 
       window.addStandingTickets = function(zoneCode) {
+        if (!isTicketSelectionEnabled()) {
+          showToast(getSaleRestrictionMessage(), 'warning');
+          return;
+        }
         const quantity = standingQuantities[zoneCode] || 0;
         const zone = ZONES[zoneCode];
         if (!zone || quantity === 0) {
@@ -992,7 +1097,7 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
 
         summaryCount.innerText = `${selectedSeatIds.size} / 4 vé`;
         summaryTotal.innerText = formatVND(totalAmount);
-        proceedBtn.disabled = false;
+        proceedBtn.disabled = !isTicketSelectionEnabled();
       }
 
       window.removeSingleSeat = function(ticketId) {
@@ -1125,8 +1230,8 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       }
 
       function initConcertCountdown() {
-        // Date: 10:00, Ngày 01/10/2026
-        const targetDate = new Date('2026-10-01T10:00:00+07:00').getTime();
+        const configuredSaleStart = document.body.dataset.saleStartsAt || '2026-10-01T10:00:00+07:00';
+        const targetDate = new Date(configuredSaleStart).getTime();
 
         function update() {
           const now = new Date().getTime();
@@ -1419,6 +1524,10 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       const btnProceedBooking = document.getElementById('btn-proceed-booking');
       if (btnProceedBooking) {
         btnProceedBooking.addEventListener('click', async () => {
+          if (!isTicketSelectionEnabled()) {
+            showToast(getSaleRestrictionMessage(), 'warning');
+            return;
+          }
           if (selectedSeatIds.size === 0 || !bookingModal) return;
 
           btnProceedBooking.disabled = true;
@@ -1571,18 +1680,68 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
         sections.forEach(section => observer.observe(section));
       }
 
+      function initStableModalDelegation() {
+        if (document.body.dataset.modalDelegationReady === 'true') return;
+        document.body.dataset.modalDelegationReady = 'true';
+        const modalActions = {
+          'btn-open-team-info': ['team-modal', 'open'],
+          'btn-close-team-modal': ['team-modal', 'close'],
+          'btn-close-team-modal-2': ['team-modal', 'close'],
+          'btn-view-schedule': ['schedule-modal', 'open'],
+          'btn-close-schedule-modal': ['schedule-modal', 'close'],
+          'btn-close-schedule-modal-2': ['schedule-modal', 'close'],
+          'btn-close-booking-modal': ['booking-modal', 'close']
+        };
+        document.addEventListener('click', event => {
+          const trigger = event.target.closest('button[id]');
+          if (!trigger) return;
+          const action = modalActions[trigger.id];
+          if (!action) return;
+          const modal = document.getElementById(action[0]);
+          if (!modal) return;
+          modal.classList.toggle('hidden', action[1] !== 'open');
+        });
+      }
+
       // ==========================================
       // INITIAL BOOTSTRAP
       // ==========================================
       async function bootstrap() {
         initStarfield();
-        await loadDataFromDatabase();
-        mountZonesOnStadiumMap();
-        renderSeats();
-        if (stopSeatRealtimeUpdates) stopSeatRealtimeUpdates();
-        stopSeatRealtimeUpdates = subscribeToSeatUpdates(applyRealtimeSeatUpdate);
         initConcertCountdown();
         initFocusOnScroll();
+        initStableModalDelegation();
+        document.body.addEventListener('eventticketing:sale-status', () => syncSaleAvailabilityUI({announce: true}));
+        document.getElementById('btn-retry-seating-data')?.addEventListener('click', initializeTicketingData);
+        if (typeof SVGSVGElement === 'undefined' || !document.createElementNS) {
+          setSeatingDataState('error', new Error('Trình duyệt không hỗ trợ SVG.'));
+          const errorText = document.querySelector('#seating-data-error span');
+          if (errorText) errorText.textContent = 'Trình duyệt hiện tại không hỗ trợ sơ đồ SVG. Vui lòng cập nhật trình duyệt để tiếp tục.';
+          return;
+        }
+        await initializeTicketingData();
+      }
+
+      async function initializeTicketingData() {
+        setSeatingDataState('loading');
+        updateRealtimeConnectionStatus('CONNECTING');
+        try {
+          await loadDataFromDatabase();
+          mountZonesOnStadiumMap();
+          renderSeats();
+          syncSaleAvailabilityUI();
+          if (stopSeatRealtimeUpdates) stopSeatRealtimeUpdates();
+          stopSeatRealtimeUpdates = subscribeToSeatUpdates(
+            applyRealtimeSeatUpdate,
+            updateRealtimeConnectionStatus
+          );
+          setSeatingDataState('ready');
+        } catch (error) {
+          if (stopSeatRealtimeUpdates) stopSeatRealtimeUpdates();
+          stopSeatRealtimeUpdates = null;
+          updateRealtimeConnectionStatus('ERROR');
+          setSeatingDataState('error', error);
+        }
       }
 
       if (document.readyState === 'loading') {

@@ -40,6 +40,20 @@ npm run build
 3. Tích hợp Supabase Auth/OTP và phân quyền người dùng.
 4. Chuyển lượt giữ chỗ thành đơn hàng và tích hợp thanh toán ở Sprint 2–3.
 
+## Trạng thái nghiệm thu Sprint 1
+
+Vòng hardening ngày 29/09/2026 đã bổ sung:
+
+- Trạng thái `Sắp mở bán`, `Đang mở bán`, `Hết vé`, `Đã đóng bán` tính từ thời gian server và trạng thái database.
+- Chế độ chỉ xem trước giờ mở bán; camera zoom và tooltip vẫn hoạt động nhưng không thể chọn/giữ vé.
+- Trang 404 cho sự kiện không tồn tại hoặc chưa công bố.
+- Loading, lỗi cục bộ và nút tải lại riêng cho sơ đồ; không âm thầm dùng dữ liệu mẫu khi nguồn thật lỗi.
+- Chỉ báo Supabase Realtime, reconnect và tải lại snapshot khi kết nối phục hồi.
+- RLS publication policy tại migration `20260929090000_sprint1_publication_policy.sql`.
+- Unit test cho sale-state và kiểm tra production build.
+
+Chạy toàn bộ kiểm tra cục bộ bằng `npm run check`. Kết quả kiểm tra và các giới hạn NFR được ghi trong `docs/SPRINT1_CLOSURE.md`.
+
 ## Kết nối Supabase
 
 1. Chạy các migration trong `supabase/migrations` trên Supabase project.
@@ -51,6 +65,11 @@ Chỉ dùng `anon`/publishable key trong frontend. Tuyệt đối không đưa
 `service_role` key vào file bắt đầu bằng `VITE_`. RLS chỉ cho phép đọc
 dữ liệu công khai; việc khóa và nhả ghế đi qua hai RPC `tao_giu_cho` và
 `huy_giu_cho` để được xử lý trong transaction phía PostgreSQL.
+
+Sau hai migration hardening ngày 29/09/2026, chạy
+`supabase/tests/sprint1_hardening.sql` trên staging rồi dùng
+`npm run verify:staging` để xác minh public contract bằng anon key. Trạng thái
+nghiệm thu và bằng chứng nằm tại `docs/SPRINT1_VERIFICATION_REPORT.md`.
 
 ## REST API dự phòng
 

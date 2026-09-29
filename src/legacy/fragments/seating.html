@@ -42,6 +42,10 @@
 
           <!-- Status Filter & Search -->
           <div class="flex flex-wrap items-center gap-3">
+            <div id="realtime-connection-status" class="realtime-connection-status is-connecting" role="status" aria-live="polite">
+              <span aria-hidden="true"></span>
+              <strong>Đang kết nối dữ liệu ghế</strong>
+            </div>
             <!-- Search input -->
             <div class="relative">
               <input
@@ -70,6 +74,17 @@
               <span class="seating-status-legend__item"><i class="seating-status-legend__swatch selected"></i>Đang chọn</span>
               <span class="seating-status-legend__item"><i class="seating-status-legend__swatch blocked"></i>Không mở bán</span>
             </div>
+          </div>
+        </div>
+
+        <div id="seating-data-state" class="seating-data-state" role="status" aria-live="polite">
+          <div id="seating-data-loading" class="seating-data-message">
+            <span class="seating-data-spinner" aria-hidden="true"></span>
+            <div><strong>Đang tải sơ đồ chỗ ngồi</strong><span>Đồng bộ phân khu và trạng thái ghế mới nhất…</span></div>
+          </div>
+          <div id="seating-data-error" class="seating-data-message seating-data-message--error hidden" role="alert">
+            <div><strong>Không thể tải sơ đồ chỗ ngồi</strong><span>Thông tin sự kiện vẫn khả dụng. Hệ thống không hiển thị dữ liệu mẫu thay thế để tránh sai lệch.</span></div>
+            <button id="btn-retry-seating-data" type="button">Tải lại sơ đồ</button>
           </div>
         </div>
 
