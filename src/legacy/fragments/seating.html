@@ -13,29 +13,29 @@
         </div>
 
         <!-- Filter & Search Toolbar (Mở rộng Should-Have) -->
-        <div class="mb-6 p-4 rounded-2xl liquid-glass flex flex-wrap items-center justify-between gap-4">
+        <div id="seating-toolbar" class="mb-6 p-4 rounded-2xl liquid-glass flex flex-wrap items-center justify-between gap-4">
           <!-- Zone Filter Tabs -->
           <div class="flex flex-wrap items-center gap-2 text-xs">
             <span class="text-slate-400 font-medium mr-1">Phân khu:</span>
-            <button onclick="filterByZone('ALL')" id="tab-zone-ALL" class="zone-tab active-gold-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+            <button onclick="filterByZone('ALL', false)" id="tab-zone-ALL" class="zone-tab active-gold-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Tất cả (48 ghế)
             </button>
-            <button onclick="filterByZone('VIP')" id="tab-zone-VIP" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+            <button onclick="filterByZone('VIP', false)" id="tab-zone-VIP" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               VIP Kim Cương
             </button>
-            <button onclick="filterByZone('VIP_PLATINUM_1')" id="tab-zone-VIP_PLATINUM_1" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+            <button onclick="filterByZone('VIP_PLATINUM_1', false)" id="tab-zone-VIP_PLATINUM_1" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               VIP Platinum 1
             </button>
-            <button onclick="filterByZone('STANDING')" id="tab-zone-STANDING" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+            <button onclick="filterByZone('STANDING', false)" id="tab-zone-STANDING" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Fanzone Standing
             </button>
-            <button onclick="filterByZone('A')" id="tab-zone-A" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+            <button onclick="filterByZone('A', false)" id="tab-zone-A" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Khán đài A
             </button>
-            <button onclick="filterByZone('B')" id="tab-zone-B" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+            <button onclick="filterByZone('B', false)" id="tab-zone-B" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Khán đài B
             </button>
-            <button onclick="filterByZone('C')" id="tab-zone-C" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
+            <button onclick="filterByZone('C', false)" id="tab-zone-C" class="zone-tab ghost-tab px-3 py-1.5 rounded-xl text-xs transition cursor-pointer">
               Khán đài C
             </button>
           </div>
