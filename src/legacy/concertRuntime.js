@@ -318,6 +318,10 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       function mountZonesOnStadiumMap() {
         const svg = document.getElementById('stadium-svg');
         if (!svg || svg.dataset.ready === 'true') return;
+        const tooltipEl = document.getElementById('svg-zone-tooltip');
+        if (tooltipEl && tooltipEl.parentElement !== document.body) {
+          document.body.appendChild(tooltipEl);
+        }
         buildOvalStadiumSectors();
         svg.dataset.ready = 'true';
 
@@ -443,9 +447,26 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
         if (!tooltipEl || !tooltipEl.classList.contains('is-visible')) return;
         const fallbackRect = event.currentTarget?.getBoundingClientRect?.();
         const clientX = Number.isFinite(event.clientX) && event.clientX > 0 ? event.clientX : (fallbackRect?.left || 0) + (fallbackRect?.width || 0) / 2;
-        const clientY = Number.isFinite(event.clientY) && event.clientY > 0 ? event.clientY : (fallbackRect?.top || 0);
-        tooltipEl.style.left = `${Math.min(clientX, window.innerWidth - 300)}px`;
-        tooltipEl.style.top = `${Math.max(clientY, 120)}px`;
+        const clientY = Number.isFinite(event.clientY) && event.clientY > 0 ? event.clientY : (fallbackRect?.top || 0) + (fallbackRect?.height || 0) / 2;
+        const viewportPadding = 12;
+        const pointerGap = 16;
+        const tooltipWidth = tooltipEl.offsetWidth || 280;
+        const tooltipHeight = tooltipEl.offsetHeight || 150;
+
+        let left = clientX + pointerGap;
+        if (left + tooltipWidth > window.innerWidth - viewportPadding) {
+          left = clientX - tooltipWidth - pointerGap;
+        }
+        left = Math.max(viewportPadding, Math.min(left, window.innerWidth - tooltipWidth - viewportPadding));
+
+        let top = clientY - tooltipHeight - pointerGap;
+        if (top < viewportPadding) {
+          top = clientY + pointerGap;
+        }
+        top = Math.max(viewportPadding, Math.min(top, window.innerHeight - tooltipHeight - viewportPadding));
+
+        tooltipEl.style.left = `${Math.round(left)}px`;
+        tooltipEl.style.top = `${Math.round(top)}px`;
       }
 
       function hideSvgZoneTooltip() {
