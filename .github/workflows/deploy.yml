@@ -27,8 +27,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22'
           cache: 'npm'
+
+      - name: Verify Node.js version
+        run: |
+          node -v
+          npm -v
+          node --test-isolation=none -e "console.log('Node runtime supports --test-isolation=none')"
 
       - name: Install dependencies
         run: npm ci
