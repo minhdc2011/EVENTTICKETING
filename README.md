@@ -1,8 +1,11 @@
 # EventTicketing
 
-Frontend Sprint 1 hiện chạy bằng React 19, TypeScript và Vite. Giao diện concert
-đã được đưa vào React root, chia theo ranh giới chức năng và giữ nguyên prototype
-đã kiểm thử trong quá trình chuyển đổi.
+Ứng dụng React 19, TypeScript và Vite gồm ba trải nghiệm dùng chung một miền dữ liệu:
+
+- marketplace công khai tại `/` và `/events`;
+- mẫu sự kiện chung tại `/events/:eventSlug`;
+- giao diện riêng của Super Concert qua `TemplateKey=SUPER_CONCERT_2026`;
+- Organizer Studio tại `/organizer`.
 
 ## Chạy dự án
 
@@ -16,11 +19,17 @@ Kiểm tra kiểu dữ liệu và bản build production:
 ```bash
 npm run lint
 npm run build
+npm run test:uat
+npm run check
 ```
 
 ## Cấu trúc hiện tại
 
 - `src/App.tsx`: composition root của trang sự kiện.
+- `src/components/EventCatalog.tsx`: marketplace, tìm kiếm và lọc thể loại.
+- `src/components/GenericEventPage.tsx`: mẫu mặc định cho sự kiện mới.
+- `src/components/OrganizerPortal.tsx`: đăng nhập, workspace, tạo draft và công bố.
+- `src/services/organizerService.ts`: ranh giới Supabase Auth và RPC phía BTC.
 - `src/components/ConcertSections.tsx`: các component cấp khu vực.
 - `src/services/ticketDataService.ts`: ranh giới tải dữ liệu khu vực và ghế.
 - `src/services/supabaseClient.ts`: Supabase browser client có kiểu dữ liệu.
@@ -32,6 +41,41 @@ npm run build
 - `src/legacy/`: markup và runtime đã được kiểm chứng, tạm giữ để chuyển đổi dần
   mà không làm hỏng SVG camera zoom, countdown và logic chọn ghế.
 - `prototype/index-static.html`: bản HTML trước khi chuyển sang React để đối chiếu.
+
+## Product Foundation sau Sprint 1
+
+Migration `20261005090000_product_foundation.sql` mở rộng theo hướng additive,
+không mở lại hay làm mất trạng thái `VERIFIED` của Sprint 1:
+
+- `SU_KIEN` có slug công khai và thuộc một `TO_CHUC`.
+- `SU_KIEN 1:N SUAT_DIEN`; lịch diễn, cửa sổ bán và trạng thái tồn kho nằm ở từng suất.
+- `KHU_VUC` và `GIU_CHO` được gắn với `SuatDienID`; RPC mới
+  `tao_giu_cho_theo_suat` khóa tồn kho theo đúng suất diễn.
+- `HO_SO_NGUOI_DUNG`, `THANH_VIEN_TO_CHUC`, địa điểm và phiên bản sơ đồ là nền
+  cho Supabase Auth, phân quyền Ban tổ chức và tái sử dụng mặt bằng.
+- RLS chỉ công khai sự kiện đã xuất bản; thành viên chỉ quản lý dữ liệu tổ chức của mình.
+- RPC `tao_giu_cho` cũ được giữ như adapter trong một chu kỳ chuyển đổi.
+
+Các tuyến frontend không cần React Router:
+
+- `/` và `/events`: danh mục sự kiện đã công bố.
+- `/events/:eventSlug`: chi tiết sự kiện và suất đầu tiên.
+- `/events/:eventSlug/shows/:showSlug`: chi tiết một suất diễn cụ thể.
+- `/organizer/login`: Supabase Auth cho Ban tổ chức.
+- `/organizer`: workspace theo organization.
+
+Ứng dụng đọc được cả clean path ở máy chủ có SPA rewrite, hash route cũ và query
+route. Liên kết được sinh dạng `/?route=/events/...` để refresh vẫn hoạt động trên
+GitHub Pages mà không cần cấu hình rewrite.
+
+Migration `20261005150000_marketplace_organizer_mvp.sql` bổ sung `TemplateKey`,
+thể loại marketplace và ba RPC có kiểm tra quyền: tạo tổ chức, tạo nhanh bản nháp
+sự kiện + suất diễn + hạng vé, và công bố sau khi validation. Sau khi chạy migration
+trên staging, chạy lần lượt
+`supabase/tests/sprint1_hardening.sql` và
+`supabase/tests/product_foundation.sql`, `supabase/tests/marketplace_organizer_mvp.sql`.
+Không chạy migration Product Foundation
+riêng lẻ trước bốn migration Sprint 1.
 
 ## Lộ trình chuyển đổi tiếp theo
 
@@ -70,6 +114,22 @@ Sau hai migration hardening ngày 29/09/2026, chạy
 `supabase/tests/sprint1_hardening.sql` trên staging rồi dùng
 `npm run verify:staging` để xác minh public contract bằng anon key. Trạng thái
 nghiệm thu và bằng chứng nằm tại `docs/SPRINT1_VERIFICATION_REPORT.md`.
+
+Sau hai migration Product Foundation ngày 05/10/2026, dùng
+`npm run verify:foundation` để xác minh slug/template/show backfill và biên
+anonymous của Organizer RPC. Bằng chứng staging ngày 06/10/2026 nằm tại
+`docs/MARKETPLACE_ORGANIZER_MVP_2026-10-05.md`.
+
+Kịch bản UAT xác thực dành cho Ban tổ chức nằm tại
+`docs/ORGANIZER_AUTHENTICATED_UAT_RUNBOOK.md`. Bộ test `npm run test:uat` kiểm tra
+validation, cô lập dữ liệu nhiều tổ chức, quyền ghi theo từng tổ chức và việc
+khôi phục tổ chức đang chọn sau khi tải lại trang. Việc nghiệm thu giao diện Auth
+trên staging vẫn cần hai hộp thư kiểm thử thật mà nhóm có quyền truy cập.
+
+Chạy `npm run verify:auth-config` để kiểm tra cấu hình Supabase Auth công khai
+trước buổi UAT. Staging hiện yêu cầu xác nhận email, vì vậy có thể dùng hai địa
+chỉ plus-alias từ cùng một hộp thư thật, nhưng không thể dùng địa chỉ giả không
+nhận được thư xác nhận.
 
 ## REST API dự phòng
 

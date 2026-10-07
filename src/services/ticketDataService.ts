@@ -1,4 +1,4 @@
-import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
+import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import type {ApiEnvelope, SeatRecord, TicketingCatalog, ZoneRecord} from '../types/ticketing';
 import {apiRequest} from './apiClient';
 import {requireSupabaseClient} from './supabaseClient';
@@ -16,17 +16,25 @@ async function fetchJson<T>(url: string): Promise<T> {
  * replace these URLs with REST endpoints without changing presentation code.
  */
 export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
+  const active = getActiveEventContext();
   if (!runtimeConfig.useMockData && isSupabaseConfigured()) {
-    const supabase = requireSupabaseClient();
-    const {data: zoneRows, error: zoneError} = await supabase
+    const supabase = requireSupabaseClient() as any;
+    let {data: zoneRows, error: zoneError} = await supabase
       .from('KHU_VUC')
       .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex')
-      .eq('SuKienID', runtimeConfig.eventDatabaseId)
+      .eq('SuatDienID', active.showId)
       .order('KhuVucID');
 
+    if (zoneError && ['42703', 'PGRST204'].includes(String(zoneError.code))) {
+      const legacyResult = await supabase.from('KHU_VUC')
+        .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex')
+        .eq('SuKienID', active.eventDatabaseId).order('KhuVucID');
+      zoneRows = legacyResult.data;
+      zoneError = legacyResult.error;
+    }
     if (zoneError) throw zoneError;
 
-    const zones: ZoneRecord[] = (zoneRows ?? []).map((zone) => ({
+    const zones: ZoneRecord[] = (zoneRows ?? []).map((zone: any) => ({
       KhuVucID: zone.KhuVucID,
       MaKhuVuc: zone.MaKhuVuc,
       TenKhuVuc: zone.TenKhuVuc,
@@ -36,7 +44,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
 
     if (zones.length === 0) {
       throw new Error(
-        `Supabase không có phân khu cho SuKienID=${runtimeConfig.eventDatabaseId}.`,
+        `Supabase không có phân khu cho SuatDienID=${active.showId}.`,
       );
     }
 
@@ -52,7 +60,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
 
     if (seatError) throw seatError;
 
-    const seats: SeatRecord[] = (seatRows ?? []).map((seat) => {
+    const seats: SeatRecord[] = (seatRows ?? []).map((seat: any) => {
       const zone = zoneById.get(seat.KhuVucID);
       return {
         GheID: seat.GheID,
@@ -70,7 +78,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
   }
 
   if (!runtimeConfig.useMockData) {
-    const eventPath = `/api/v1/events/${encodeURIComponent(runtimeConfig.eventId)}`;
+    const eventPath = `/api/v1/events/${encodeURIComponent(active.eventId)}/shows/${encodeURIComponent(active.showSlug)}`;
     const [zonesResult, seatsResult] = await Promise.all([
       apiRequest<ApiEnvelope<ZoneRecord[]>>(`${eventPath}/zones`),
       apiRequest<ApiEnvelope<SeatRecord[]>>(`${eventPath}/seats`),

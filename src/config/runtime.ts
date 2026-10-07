@@ -10,6 +10,28 @@ export const runtimeConfig = {
   useMockData: import.meta.env.VITE_USE_MOCK_DATA !== 'false',
 } as const;
 
+export type ActiveEventContext = {
+  eventId: string;
+  eventDatabaseId: number;
+  showId: number;
+  showSlug: string;
+};
+
+let activeEventContext: ActiveEventContext = {
+  eventId: runtimeConfig.eventId,
+  eventDatabaseId: runtimeConfig.eventDatabaseId,
+  showId: Number(import.meta.env.VITE_SHOW_DATABASE_ID || 1),
+  showSlug: import.meta.env.VITE_SHOW_SLUG?.trim() || 'dem-chinh',
+};
+
+export function setActiveEventContext(context: ActiveEventContext) {
+  activeEventContext = {...context};
+}
+
+export function getActiveEventContext(): ActiveEventContext {
+  return activeEventContext;
+}
+
 export const isApiConfigured = () => runtimeConfig.apiBaseUrl.length > 0;
 export const isWebSocketConfigured = () => runtimeConfig.websocketUrl.length > 0;
 export const isSupabaseConfigured = () =>

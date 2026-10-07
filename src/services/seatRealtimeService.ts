@@ -1,4 +1,4 @@
-import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
+import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import type {SeatStatusEvent} from '../types/ticketing';
 import {requireSupabaseClient} from './supabaseClient';
 
@@ -10,6 +10,7 @@ export function subscribeToSeatUpdates(
   listener: SeatUpdateListener,
   onConnectionStatus: ConnectionStatusListener = () => undefined,
 ): () => void {
+  const active = getActiveEventContext();
   if (runtimeConfig.useMockData) {
     onConnectionStatus('CONNECTED');
     return () => undefined;
@@ -19,7 +20,7 @@ export function subscribeToSeatUpdates(
     const supabase = requireSupabaseClient();
     onConnectionStatus('CONNECTING');
     const channel = supabase
-      .channel(`event-${runtimeConfig.eventDatabaseId}-seats-${crypto.randomUUID()}`)
+      .channel(`show-${active.showId}-seats-${crypto.randomUUID()}`)
       .on(
         'postgres_changes',
         {event: 'UPDATE', schema: 'public', table: 'GHE'},
@@ -32,7 +33,7 @@ export function subscribeToSeatUpdates(
           if (!seat.MaGheDayDu || !seat.TrangThai) return;
           listener({
             type: 'SEAT_STATUS_CHANGED',
-            eventId: runtimeConfig.eventId,
+            eventId: active.eventId,
             seatId: seat.GheID,
             seatCode: seat.MaGheDayDu,
             zoneCode: '',
@@ -52,7 +53,7 @@ export function subscribeToSeatUpdates(
     };
   }
 
-  const eventId = encodeURIComponent(runtimeConfig.eventId);
+  const eventId = encodeURIComponent(active.eventId);
   const sameOriginSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
   const socketOrigin = runtimeConfig.websocketUrl || sameOriginSocketUrl;
   let socket: WebSocket | undefined;
@@ -72,7 +73,7 @@ export function subscribeToSeatUpdates(
     socket.addEventListener('message', (message) => {
       try {
         const event = JSON.parse(String(message.data)) as SeatStatusEvent;
-        if (event.type === 'SEAT_STATUS_CHANGED' && event.eventId === runtimeConfig.eventId) {
+        if (event.type === 'SEAT_STATUS_CHANGED' && event.eventId === active.eventId) {
           listener(event);
         }
       } catch (error) {
