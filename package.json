@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": ">=22.8.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "node -e \"require('fs').copyFileSync('index.html.template','index.html')\" && vite --port=3000 --host=0.0.0.0",
-    "build": "node -e \"require('fs').copyFileSync('index.html.template','index.html')\" && vite build && node -e \"const fs=require('fs'); fs.rmSync('assets',{recursive:true,force:true}); fs.copyFileSync('dist/index.html','index.html'); fs.writeFileSync('index.html',fs.readFileSync('index.html','utf8').replace(/\\r\\n/g,'\\n')); fs.cpSync('dist/assets','assets',{recursive:true});\"",
+    "dev": "vite --port=3000 --host=0.0.0.0",
+    "build": "vite build",
     "preview": "vite preview",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "lint": "tsc --noEmit",
