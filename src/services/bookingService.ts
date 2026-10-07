@@ -1,4 +1,4 @@
-import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
+import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import type {Json} from '../types/database.types';
 import type {ApiEnvelope, CreateHoldRequest, HoldRecord} from '../types/ticketing';
 import {apiRequest} from './apiClient';
@@ -17,9 +17,10 @@ function getBrowserSessionId(): string {
 
 export async function createSeatHold(request: CreateHoldRequest): Promise<HoldRecord> {
   if (!runtimeConfig.useMockData && isSupabaseConfigured()) {
+    const active = getActiveEventContext();
     const supabase = requireSupabaseClient();
-    const {data, error} = await supabase.rpc('tao_giu_cho', {
-      p_su_kien_id: runtimeConfig.eventDatabaseId,
+    let {data, error} = await (supabase as any).rpc('tao_giu_cho_theo_suat', {
+      p_suat_dien_id: active.showId,
       p_phien_id: getBrowserSessionId(),
       p_items: request.items.map((item) => ({
         ticketCode: item.ticketCode,
@@ -27,6 +28,19 @@ export async function createSeatHold(request: CreateHoldRequest): Promise<HoldRe
         ...(item.quantity ? {quantity: item.quantity} : {}),
       })) as Json,
     });
+    if (error && ['42883', 'PGRST202'].includes(String(error.code))) {
+      const legacyResult = await supabase.rpc('tao_giu_cho', {
+        p_su_kien_id: active.eventDatabaseId,
+        p_phien_id: getBrowserSessionId(),
+        p_items: request.items.map((item) => ({
+          ticketCode: item.ticketCode,
+          zoneCode: item.zoneCode,
+          ...(item.quantity ? {quantity: item.quantity} : {}),
+        })) as Json,
+      });
+      data = legacyResult.data;
+      error = legacyResult.error;
+    }
     if (error) throw error;
     return data as unknown as HoldRecord;
   }
