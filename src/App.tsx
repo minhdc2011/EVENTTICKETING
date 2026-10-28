@@ -1,23 +1,14 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {
-  ArtistLineup,
-  FooterAndModals,
-  HeroSection,
-  PricingSection,
-  SeatingSection,
-} from './components/ConcertSections';
-import {SiteChrome} from './components/SiteChrome';
-import {EventCatalog, ShowSwitcher} from './components/EventCatalog';
+import {useCallback, useEffect, useState} from 'react';
+import {EventCatalog} from './components/EventCatalog';
 import {GenericEventPage} from './components/GenericEventPage';
+import './components/event-template/event-template.css';
 import {OrganizerPortal} from './components/OrganizerPortal';
 import {BuyerAuth} from './components/BuyerAuth';
 import {
   AppErrorState,
   AppLoadingState,
   EventNotFoundState,
-  SaleStatusBanner,
 } from './components/SprintOneStates';
-import {deriveSaleStatus} from './domain/eventStatus';
 import {
   loadPublicEvent,
   PublicEventNotFoundError,
@@ -39,7 +30,6 @@ export default function App() {
   const [route, setRoute] = useState(readRoute);
   const [event, setEvent] = useState<PublicEventRecord | null>(null);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error' | 'not-found'>('loading');
-  const [clock, setClock] = useState(() => Date.now());
 
   useEffect(() => {
     const handleRouteChange = () => setRoute(readRoute());
@@ -107,36 +97,6 @@ export default function App() {
     void loadEvent();
   }, [loadEvent, route.kind]);
 
-  useEffect(() => {
-    const timer = window.setInterval(() => setClock(Date.now()), 30_000);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  const saleStatus = useMemo(() => event ? deriveSaleStatus({
-    now: new Date(clock),
-    saleStartsAt: event.saleStartsAt,
-    saleEndsAt: event.saleEndsAt,
-    databaseStatus: event.databaseSaleStatus,
-    hasAvailability: true,
-  }) : 'UPCOMING', [clock, event]);
-
-  useEffect(() => {
-    if (loadState !== 'ready' || !event) return;
-    document.title = `${event.name} | EventTicketing`;
-    document.body.dataset.saleStatus = saleStatus;
-    document.body.dataset.saleStartsAt = event.saleStartsAt;
-    document.body.dispatchEvent(new CustomEvent('eventticketing:sale-status', {
-      detail: {status: saleStatus},
-    }));
-  }, [event, loadState, saleStatus]);
-
-  useEffect(() => {
-    if (loadState !== 'ready' || route.kind !== 'detail' || event?.templateKey !== 'SUPER_CONCERT_2026') return;
-    void import('./legacy/concertRuntime.js').catch((error) => {
-      console.error('Không thể khởi tạo trải nghiệm concert:', error);
-    });
-  }, [event?.templateKey, loadState, route.kind]);
-
   if (route.kind === 'catalog') return <EventCatalog />;
   if (route.kind === 'organizer') return <OrganizerPortal page={route.page} />;
   if (route.kind === 'account') return <BuyerAuth page={route.page} />;
@@ -145,20 +105,5 @@ export default function App() {
   if (loadState === 'not-found') return <EventNotFoundState />;
   if (loadState === 'error' || !event) return <AppErrorState onRetry={loadEvent} />;
 
-  if (event.templateKey !== 'SUPER_CONCERT_2026') return <GenericEventPage event={event} />;
-
-  return (
-    <>
-      <SiteChrome saleStatus={saleStatus} />
-      <main>
-        <SaleStatusBanner event={event} status={saleStatus} />
-        <ShowSwitcher event={event} />
-        <HeroSection />
-        <ArtistLineup />
-        <PricingSection />
-        <SeatingSection />
-      </main>
-      <FooterAndModals />
-    </>
-  );
+  return <GenericEventPage event={event} />;
 }

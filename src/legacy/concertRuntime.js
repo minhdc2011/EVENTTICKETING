@@ -3,6 +3,11 @@ import {loadTicketingCatalog} from '../services/ticketDataService';
 import {runtimeConfig} from '../config/runtime';
 import {createSeatHold, releaseSeatHold} from '../services/bookingService';
 import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
+import {
+  dispatchToast,
+  dispatchSeatTooltip,
+  dispatchBookingModal,
+} from '../domain/runtimeOverlays.js';
 
 // ==========================================
       // 1. DATA DEFINITIONS & SEAT CATALOG
@@ -663,6 +668,11 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
               group.addEventListener('click',event => { event.stopPropagation(); handleSeatClick(seat); });
               group.addEventListener('keydown',event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleSeatClick(seat); } });
             }
+            group.addEventListener('mouseenter', event => showSeatTooltip(event, seat));
+            group.addEventListener('mousemove', moveSeatTooltip);
+            group.addEventListener('mouseleave', hideSeatTooltip);
+            group.addEventListener('focus', event => showSeatTooltip(event, seat));
+            group.addEventListener('blur', hideSeatTooltip);
             layer.appendChild(group);
           });
 
@@ -759,7 +769,16 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
 
         panel.querySelectorAll('[data-detail-seat-id]').forEach(button => {
           const seat = seatsData.find(item => item.id === button.dataset.detailSeatId);
-          if (seat && seat.status === 'AVAILABLE') button.addEventListener('click', () => handleSeatClick(seat));
+          if (seat) {
+            if (seat.status === 'AVAILABLE') {
+              button.addEventListener('click', () => handleSeatClick(seat));
+            }
+            button.addEventListener('mouseenter', event => showSeatTooltip(event, seat));
+            button.addEventListener('mousemove', moveSeatTooltip);
+            button.addEventListener('mouseleave', hideSeatTooltip);
+            button.addEventListener('focus', event => showSeatTooltip(event, seat));
+            button.addEventListener('blur', hideSeatTooltip);
+          }
         });
       }
 
@@ -1088,7 +1107,7 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
               <span class="w-2.5 h-2.5 rounded-full bg-[#EAB308] shadow-sm shadow-amber-400/50"></span>
               <div>
                 <div class="font-mono font-bold text-white">${ticketName}</div>
-                <div class="text-[10px] text-slate-400">${zoneName}</div>
+                <div class="text-xs text-slate-400">${zoneName}</div>
               </div>
             </div>
             <div class="flex items-center gap-3">
@@ -1175,6 +1194,7 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
             updateStandingQuantityDisplay('GA_STAND_2');
             updateSidebar();
             renderSeats();
+            dispatchBookingModal({ open: false });
             showToast('Đã hết hạn giữ chỗ 5 phút! Ghế đã được tự động mở lại theo chuẩn FR-T3-01.', 'warning');
           }
         }, 1000);
@@ -1299,86 +1319,58 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       // ==========================================
       // 7. TOOLTIP LOGIC (FR-T1-02 Should-Have)
       // ==========================================
-      const tooltip = document.getElementById('seat-tooltip');
-
       function showSeatTooltip(e, seat) {
-        if (!tooltip) return;
+        if (!seat) return;
         const isSelected = selectedSeatIds.has(seat.id);
         const isSold = seat.status === 'SOLD';
         const isHeld = seat.status === 'HELD';
-
-        document.getElementById('tooltip-seat-code').innerText = seat.id;
-        document.getElementById('tooltip-zone').innerText = seat.zoneName;
-        document.getElementById('tooltip-row').innerText = seat.row;
-        document.getElementById('tooltip-number').innerText = seat.number;
-        document.getElementById('tooltip-price').innerText = formatVND(seat.price);
-
-        const statusEl = document.getElementById('tooltip-seat-status');
+        let status = 'available';
+        let statusText = 'Còn trống';
         if (isSelected) {
-          statusEl.innerText = 'Đang chọn tạm tính';
-          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          status = 'selected';
+          statusText = 'Đang chọn tạm tính';
         } else if (isSold) {
-          statusEl.innerText = 'Đã bán';
-          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-white/[0.08] text-slate-400 border border-white/[0.08]';
+          status = 'sold';
+          statusText = 'Đã bán';
         } else if (isHeld) {
-          statusEl.innerText = 'Đang được giữ';
-          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
-        } else {
-          statusEl.innerText = 'Còn trống';
-          statusEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          status = 'held';
+          statusText = 'Đang được giữ';
         }
 
-        tooltip.style.opacity = '1';
-        moveSeatTooltip(e);
+        dispatchSeatTooltip({
+          visible: true,
+          x: e.clientX,
+          y: e.clientY,
+          seatCode: seat.id,
+          zoneName: seat.zoneName,
+          row: String(seat.row),
+          number: seat.number,
+          price: seat.price,
+          priceFormatted: formatVND(seat.price),
+          status,
+          statusText,
+        });
       }
 
       function moveSeatTooltip(e) {
-        if (!tooltip) return;
-        tooltip.style.left = `${e.clientX}px`;
-        tooltip.style.top = `${e.clientY - 12}px`;
+        dispatchSeatTooltip({
+          visible: true,
+          x: e.clientX,
+          y: e.clientY,
+        });
       }
 
       function hideSeatTooltip() {
-        if (!tooltip) return;
-        tooltip.style.opacity = '0';
+        dispatchSeatTooltip({
+          visible: false,
+        });
       }
 
       // ==========================================
       // 8. TOAST NOTIFICATIONS (MÃ MÀU VÀ PHẢN HỒI)
       // ==========================================
       function showToast(message, type = 'info') {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
-        const toast = document.createElement('div');
-
-        let borderClass = 'border-white/[0.1] bg-[#0D1117]/95 text-slate-200';
-        let iconSvg = `<svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-
-        if (type === 'error') {
-          borderClass = 'border-red-500/50 bg-[#160b0e]/95 text-red-200 shadow-red-950/50';
-          iconSvg = `<svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
-        } else if (type === 'success') {
-          borderClass = 'border-emerald-500/50 bg-[#0a1610]/95 text-emerald-200 shadow-emerald-950/50';
-          iconSvg = `<svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
-        } else if (type === 'warning') {
-          borderClass = 'border-amber-500/50 bg-[#191409]/95 text-amber-200 shadow-amber-950/50';
-          iconSvg = `<svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-        }
-
-        toast.className = `toast-animate pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-[12px] border text-xs shadow-2xl backdrop-blur-md max-w-sm ${borderClass}`;
-        toast.innerHTML = `
-          ${iconSvg}
-          <span class="flex-1 font-medium leading-tight">${message}</span>
-        `;
-
-        container.appendChild(toast);
-
-        setTimeout(() => {
-          toast.style.opacity = '0';
-          toast.style.transform = 'translateY(10px)';
-          toast.style.transition = 'all 0.25s ease';
-          setTimeout(() => toast.remove(), 250);
-        }, 3600);
+        dispatchToast({ message, type });
       }
 
       // ==========================================
@@ -1501,47 +1493,7 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
         clearBtn.addEventListener('click', window.clearAllSeats);
       }
 
-      // Modal Triggers
-      const teamModal = document.getElementById('team-modal');
-      const scheduleModal = document.getElementById('schedule-modal');
-      const bookingModal = document.getElementById('booking-modal');
-
-      const btnOpenTeam = document.getElementById('btn-open-team-info');
-      if (btnOpenTeam && teamModal) {
-        btnOpenTeam.addEventListener('click', () => teamModal.classList.remove('hidden'));
-      }
-
-      const btnCloseTeam = document.getElementById('btn-close-team-modal');
-      if (btnCloseTeam && teamModal) {
-        btnCloseTeam.addEventListener('click', () => teamModal.classList.add('hidden'));
-      }
-
-      const btnCloseTeam2 = document.getElementById('btn-close-team-modal-2');
-      if (btnCloseTeam2 && teamModal) {
-        btnCloseTeam2.addEventListener('click', () => teamModal.classList.add('hidden'));
-      }
-
-      const btnViewSchedule = document.getElementById('btn-view-schedule');
-      if (btnViewSchedule && scheduleModal) {
-        btnViewSchedule.addEventListener('click', () => scheduleModal.classList.remove('hidden'));
-      }
-
-      const btnCloseSchedule = document.getElementById('btn-close-schedule-modal');
-      if (btnCloseSchedule && scheduleModal) {
-        btnCloseSchedule.addEventListener('click', () => scheduleModal.classList.add('hidden'));
-      }
-
-      const btnCloseSchedule2 = document.getElementById('btn-close-schedule-modal-2');
-      if (btnCloseSchedule2 && scheduleModal) {
-        btnCloseSchedule2.addEventListener('click', () => scheduleModal.classList.add('hidden'));
-      }
-
-      const btnCloseBooking = document.getElementById('btn-close-booking-modal');
-      if (btnCloseBooking && bookingModal) {
-        btnCloseBooking.addEventListener('click', () => bookingModal.classList.add('hidden'));
-      }
-
-      // Proceed Booking Action (Modal Preview)
+      // Proceed Booking Action (Modal Preview via React Adapter)
       const btnProceedBooking = document.getElementById('btn-proceed-booking');
       if (btnProceedBooking) {
         btnProceedBooking.addEventListener('click', async () => {
@@ -1549,14 +1501,14 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
             showToast(getSaleRestrictionMessage(), 'warning');
             return;
           }
-          if (selectedSeatIds.size === 0 || !bookingModal) return;
+          if (selectedSeatIds.size === 0) return;
 
           btnProceedBooking.disabled = true;
           btnProceedBooking.setAttribute('aria-busy', 'true');
 
-          let itemsHtml = '';
           let total = 0;
           const holdItems = [];
+          const modalItems = [];
           selectedSeatIds.forEach(id => {
             const ticket = standingTickets.get(id) || seatsData.find(x => x.id === id);
             if (ticket) {
@@ -1566,21 +1518,16 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
                 zoneCode: ticket.zoneCode,
                 quantity: standingTickets.has(id) ? 1 : undefined
               });
-              itemsHtml += `
-                <div class="flex justify-between py-1 border-b border-slate-900">
-                  <span class="font-mono text-amber-400">${ticket.id} (${ticket.zoneName})</span>
-                  <span class="text-white">${formatVND(ticket.price)}</span>
-                </div>
-              `;
+              modalItems.push({
+                ticketCode: ticket.id,
+                zoneCode: ticket.zoneCode,
+                zoneName: ticket.zoneName,
+                price: ticket.price,
+                priceFormatted: formatVND(ticket.price),
+                quantity: standingTickets.has(id) ? 1 : undefined
+              });
             }
           });
-
-          itemsHtml += `
-            <div class="flex justify-between font-bold text-white pt-2 text-sm">
-              <span>Tổng cộng (${selectedSeatIds.size} vé):</span>
-              <span class="text-amber-400 font-display">${formatVND(total)}</span>
-            </div>
-          `;
 
           try {
             const hold = await createSeatHold({
@@ -1588,13 +1535,19 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
               items: holdItems
             });
             activeHoldId = hold.holdId;
-            bookingModal.dataset.holdId = hold.holdId;
             const remainingSeconds = Math.ceil((new Date(hold.expiresAt).getTime() - Date.now()) / 1000);
             startHoldCountdown(remainingSeconds);
 
-            const summaryEl = document.getElementById('booking-modal-summary');
-            if (summaryEl) summaryEl.innerHTML = itemsHtml;
-            bookingModal.classList.remove('hidden');
+            dispatchBookingModal({
+              open: true,
+              holdId: hold.holdId,
+              expiresAt: hold.expiresAt,
+              remainingSeconds,
+              items: modalItems,
+              totalQuantity: selectedSeatIds.size,
+              totalAmount: total,
+              totalAmountFormatted: formatVND(total)
+            });
           } catch (error) {
             console.error('Không thể giữ chỗ:', error);
             showToast('Không thể giữ chỗ lúc này. Vui lòng tải lại trạng thái ghế và thử lại.', 'error');
@@ -1605,15 +1558,9 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
         });
       }
 
-      function simulateNextSprint() {
-        if (bookingModal) bookingModal.classList.add('hidden');
-        showToast('Chuyển tiếp thành công: Dữ liệu ghế đã chọn sẽ chuyển tới Sprint 2 (Xác thực OTP) & Sprint 3 (Thanh toán đa kênh VNPAY/MoMo)!', 'success');
-      }
-
       // Compatibility bridge for validated prototype controls that still use
       // inline handlers. These will be replaced by React callbacks in phase 2.
       window.filterByZone = filterByZone;
-      window.simulateNextSprint = simulateNextSprint;
 
       // Format Currency (VNĐ)
       function formatVND(amount) {
@@ -1704,24 +1651,6 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
       function initStableModalDelegation() {
         if (document.body.dataset.modalDelegationReady === 'true') return;
         document.body.dataset.modalDelegationReady = 'true';
-        const modalActions = {
-          'btn-open-team-info': ['team-modal', 'open'],
-          'btn-close-team-modal': ['team-modal', 'close'],
-          'btn-close-team-modal-2': ['team-modal', 'close'],
-          'btn-view-schedule': ['schedule-modal', 'open'],
-          'btn-close-schedule-modal': ['schedule-modal', 'close'],
-          'btn-close-schedule-modal-2': ['schedule-modal', 'close'],
-          'btn-close-booking-modal': ['booking-modal', 'close']
-        };
-        document.addEventListener('click', event => {
-          const trigger = event.target.closest('button[id]');
-          if (!trigger) return;
-          const action = modalActions[trigger.id];
-          if (!action) return;
-          const modal = document.getElementById(action[0]);
-          if (!modal) return;
-          modal.classList.toggle('hidden', action[1] !== 'open');
-        });
       }
 
       // ==========================================
@@ -1732,6 +1661,10 @@ import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
         initConcertCountdown();
         initFocusOnScroll();
         initStableModalDelegation();
+        // Seating map is owned by React (SeatingSection). Only initialize legacy seating if legacy SVG exists.
+        if (!document.getElementById('stadium-svg')) {
+          return;
+        }
         document.body.addEventListener('eventticketing:sale-status', () => syncSaleAvailabilityUI({announce: true}));
         document.getElementById('btn-retry-seating-data')?.addEventListener('click', initializeTicketingData);
         if (typeof SVGSVGElement === 'undefined' || !document.createElementNS) {

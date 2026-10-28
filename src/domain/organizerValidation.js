@@ -1,3 +1,5 @@
+import {formatScheduleTime} from './publicSchedule.js';
+
 export const ACCOUNT_KINDS = {
   USER: 'USER',
   ORGANIZER: 'ORGANIZER',
@@ -291,6 +293,53 @@ export function validateFullEventAggregate(input, options = {}) {
       }
     });
   });
+
+  // Validate optional schedule if provided
+  if (Array.isArray(input.schedule)) {
+    let lastStartTime = null;
+    input.schedule.forEach((item, sIdx) => {
+      const title = String(item.title || item.tenHoatDong || '').trim();
+      if (!title) {
+        throw new Error(`Mục lịch trình #${sIdx + 1} phải có tên hoạt động.`);
+      }
+
+      const rawStart = String(item.startTime || item.gioBatDau || '').trim();
+      const startTime = formatScheduleTime(rawStart);
+      if (!startTime) {
+        throw new Error(`Thời gian bắt đầu của mục lịch trình "${title}" không hợp lệ (định dạng HH:mm).`);
+      }
+
+      const rawEnd = String(item.endTime || item.gioKetThuc || '').trim();
+      const endTime = formatScheduleTime(rawEnd);
+      if (!endTime) {
+        throw new Error(`Thời gian kết thúc của mục lịch trình "${title}" không hợp lệ (định dạng HH:mm).`);
+      }
+
+      if (endTime <= startTime) {
+        throw new Error(`Thời gian kết thúc của mục "${title}" phải sau thời gian bắt đầu.`);
+      }
+
+      if (lastStartTime !== null && startTime < lastStartTime) {
+        throw new Error(`Mục lịch trình #${sIdx + 1} ("${title}") phải diễn ra sau hoặc cùng lúc với mục trước đó.`);
+      }
+      lastStartTime = startTime;
+    });
+  }
+
+  // Validate optional artists if provided
+  if (Array.isArray(input.artists)) {
+    input.artists.forEach((artist, aIdx) => {
+      const name = String(artist.name || artist.stageName || artist.ngheDanh || '').trim();
+      if (!name) {
+        throw new Error(`Nghệ sĩ #${aIdx + 1} phải có nghệ danh hoặc tên hiển thị.`);
+      }
+
+      const img = String(artist.imageUrl || artist.hinhAnhURL || '').trim();
+      if (img && !isValidHttpsUrl(img)) {
+        throw new Error(`Ảnh của nghệ sĩ "${name}" phải là liên kết HTTPS hợp lệ.`);
+      }
+    });
+  }
 }
 
 export function evaluatePublishReadiness(aggregate) {
@@ -393,6 +442,47 @@ export function evaluatePublishReadiness(aggregate) {
     });
   }
 
+  // Schedule evaluation if present
+  if (Array.isArray(aggregate.schedule) && aggregate.schedule.length > 0) {
+    let prevStartTime = null;
+    aggregate.schedule.forEach((item, sIdx) => {
+      const title = String(item.title || item.tenHoatDong || '').trim();
+      if (!title) {
+        blockers.push({field: `schedule[${sIdx}].title`, message: `Mục lịch trình #${sIdx + 1} chưa có tên hoạt động.`});
+      }
+      const rawStart = String(item.startTime || item.gioBatDau || '').trim();
+      const startTime = formatScheduleTime(rawStart);
+      const rawEnd = String(item.endTime || item.gioKetThuc || '').trim();
+      const endTime = formatScheduleTime(rawEnd);
+
+      if (!startTime || !endTime) {
+        blockers.push({field: `schedule[${sIdx}].time`, message: `Mốc thời gian của mục lịch trình #${sIdx + 1} không hợp lệ (định dạng HH:mm).`});
+      } else {
+        if (endTime <= startTime) {
+          blockers.push({field: `schedule[${sIdx}].time`, message: `Mục lịch trình #${sIdx + 1}: giờ kết thúc phải sau giờ bắt đầu.`});
+        }
+        if (prevStartTime !== null && startTime < prevStartTime) {
+          blockers.push({field: `schedule[${sIdx}].time`, message: `Mục lịch trình #${sIdx + 1} ("${title || sIdx + 1}") phải diễn ra sau hoặc cùng lúc với mục trước đó.`});
+        }
+        prevStartTime = startTime;
+      }
+    });
+  }
+
+  // Artists evaluation if present
+  if (Array.isArray(aggregate.artists) && aggregate.artists.length > 0) {
+    aggregate.artists.forEach((artist, aIdx) => {
+      const name = String(artist.name || artist.stageName || artist.ngheDanh || '').trim();
+      if (!name) {
+        blockers.push({field: `artists[${aIdx}].name`, message: `Nghệ sĩ #${aIdx + 1} chưa có tên hoặc nghệ danh.`});
+      }
+      const img = String(artist.imageUrl || artist.hinhAnhURL || '').trim();
+      if (img && !isValidHttpsUrl(img)) {
+        blockers.push({field: `artists[${aIdx}].imageUrl`, message: `Ảnh của nghệ sĩ "${name || aIdx + 1}" phải là liên kết HTTPS hợp lệ.`});
+      }
+    });
+  }
+
   // Warnings
   if (!String(aggregate.posterUrl || '').trim()) {
     warnings.push({field: 'posterUrl', message: 'Chưa có ảnh poster đứng (khuyên dùng để hiển thị tối ưu trên mobile).'});
@@ -462,7 +552,9 @@ export function mapDatabaseError(error) {
       msg.includes('Khong co quyen bien tap su kien cua to chuc') ||
       msg.includes('Khong co quyen cong bo su kien') ||
       msg.includes('Khong co quyen xem loai tai khoan') ||
-      msg.includes('Khong co quyen kiem tra phan quyen')
+      msg.includes('Khong co quyen kiem tra phan quyen') ||
+      msg.includes('Không thể tải lịch trình sự kiện') ||
+      msg.includes('Không thể tải danh sách nghệ sĩ')
     ) {
       return new Error(msg);
     }

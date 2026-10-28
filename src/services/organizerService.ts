@@ -65,6 +65,8 @@ export type {
   FullEventAggregateInput,
   FullEventShowInput,
   FullEventTierInput,
+  FullEventScheduleInput,
+  FullEventArtistInput,
   PublishReadinessResult,
 } from '../domain/organizerValidation';
 
@@ -77,6 +79,8 @@ import {
   mapDatabaseError,
   type FullEventAggregateInput,
   type FullEventShowInput,
+  type FullEventScheduleInput,
+  type FullEventArtistInput,
 } from '../domain/organizerValidation';
 
 const MOCK_SESSION = 'eventticketing:mock-organizer-session';
@@ -518,6 +522,32 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
             },
           ];
 
+    const schedule: FullEventScheduleInput[] = Array.isArray(found.schedule)
+      ? found.schedule.map((s: any, idx: number) => ({
+          scheduleId: s.scheduleId ?? s.id,
+          id: s.id ?? s.scheduleId,
+          startTime: s.startTime || s.GioBatDau || '',
+          endTime: s.endTime || s.GioKetThuc || '',
+          title: s.title || s.TenHoatDong || '',
+          description: s.description || s.MoTaHoatDong || undefined,
+          location: s.location || s.DiaDiemHoatDong || undefined,
+          order: Number(s.order ?? s.ThuTu ?? idx + 1),
+        }))
+      : [];
+
+    const artists: FullEventArtistInput[] = Array.isArray(found.artists)
+      ? found.artists.map((a: any, idx: number) => ({
+          artistId: a.artistId ?? a.id ?? a.NgheSiID,
+          id: a.id ?? a.artistId ?? a.NgheSiID,
+          name: a.name || a.stageName || a.NgheDanh || '',
+          realName: a.realName || a.HoTen || undefined,
+          role: a.role || a.eventRole || a.VaiTroTrongSuKien || a.VaiTroChinh || 'Nghệ sĩ biểu diễn',
+          bio: a.bio || a.TieuSu || undefined,
+          imageUrl: a.imageUrl || a.HinhAnhURL || undefined,
+          order: Number(a.order ?? a.ThuTuHienThi ?? idx + 1),
+        }))
+      : [];
+
     return {
       eventId: found.id,
       organizationId: found.organizationId,
@@ -543,19 +573,61 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
       fanpageUrl: found.fanpageUrl || '',
       permitNumber: found.permitNumber || '',
       shows,
+      schedule,
+      artists,
     };
   }
 
   const {requireSupabaseClient} = await import('./supabaseClient');
   const supabase = requireSupabaseClient() as any;
-  const {data: eventRow, error: eventErr} = await supabase
-    .from('SU_KIEN')
-    .select('*, SUAT_DIEN(*, KHU_VUC(*))')
-    .eq('SuKienID', eventId)
-    .single();
 
-  if (eventErr) throw mapDatabaseError(eventErr);
-  if (!eventRow) throw new Error('Không tìm thấy sự kiện.');
+  const [eventRes, scheduleRes, artistsRes] = await Promise.all([
+    supabase
+      .from('SU_KIEN')
+      .select('*, SUAT_DIEN(*, KHU_VUC(*))')
+      .eq('SuKienID', eventId)
+      .single(),
+    supabase
+      .from('LICH_TRINH')
+      .select('LichTrinhID, SuKienID, GioBatDau, GioKetThuc, TenHoatDong, MoTaHoatDong, DiaDiemHoatDong, ThuTu')
+      .eq('SuKienID', eventId)
+      .order('ThuTu', {ascending: true}),
+    supabase
+      .from('SU_KIEN_NGHE_SI')
+      .select(`
+        ID,
+        SuKienID,
+        NgheSiID,
+        VaiTroTrongSuKien,
+        ThuTuHienThi,
+        NGHE_SI (
+          NgheSiID,
+          HoTen,
+          NgheDanh,
+          VaiTroChinh,
+          TieuSu,
+          HinhAnhURL
+        )
+      `)
+      .eq('SuKienID', eventId)
+      .order('ThuTuHienThi', {ascending: true}),
+  ]);
+
+  if (eventRes.error) throw mapDatabaseError(eventRes.error);
+  if (!eventRes.data) throw new Error('Không tìm thấy sự kiện.');
+  if (scheduleRes.error) {
+    throw mapDatabaseError({
+      ...scheduleRes.error,
+      message: `Không thể tải lịch trình sự kiện: ${scheduleRes.error.message || scheduleRes.error.details || 'Lỗi truy vấn lịch trình'}`,
+    });
+  }
+  if (artistsRes.error) {
+    throw mapDatabaseError({
+      ...artistsRes.error,
+      message: `Không thể tải danh sách nghệ sĩ: ${artistsRes.error.message || artistsRes.error.details || 'Lỗi truy vấn nghệ sĩ'}`,
+    });
+  }
+  const eventRow = eventRes.data;
 
   const showRows = Array.isArray(eventRow.SUAT_DIEN) ? eventRow.SUAT_DIEN : [];
   const shows: FullEventShowInput[] = showRows.map((s: any) => {
@@ -584,6 +656,33 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
     };
   });
 
+  const scheduleRows = Array.isArray(scheduleRes.data) ? scheduleRes.data : [];
+  const schedule: FullEventScheduleInput[] = scheduleRows.map((s: any, idx: number) => ({
+    scheduleId: Number(s.LichTrinhID),
+    id: Number(s.LichTrinhID),
+    startTime: String(s.GioBatDau ? String(s.GioBatDau).slice(0, 5) : ''),
+    endTime: String(s.GioKetThuc ? String(s.GioKetThuc).slice(0, 5) : ''),
+    title: String(s.TenHoatDong || ''),
+    description: s.MoTaHoatDong ? String(s.MoTaHoatDong) : undefined,
+    location: s.DiaDiemHoatDong ? String(s.DiaDiemHoatDong) : undefined,
+    order: Number(s.ThuTu ?? idx + 1),
+  }));
+
+  const artistRows = Array.isArray(artistsRes.data) ? artistsRes.data : [];
+  const artists: FullEventArtistInput[] = artistRows.map((link: any, idx: number) => {
+    const artistMaster = Array.isArray(link.NGHE_SI) ? link.NGHE_SI[0] : link.NGHE_SI;
+    return {
+      artistId: Number(link.NgheSiID),
+      id: Number(link.NgheSiID),
+      name: String(artistMaster?.NgheDanh || artistMaster?.HoTen || 'Nghệ sĩ'),
+      realName: artistMaster?.HoTen ? String(artistMaster.HoTen) : undefined,
+      role: String(link.VaiTroTrongSuKien || artistMaster?.VaiTroChinh || 'Nghệ sĩ biểu diễn'),
+      bio: artistMaster?.TieuSu ? String(artistMaster.TieuSu) : undefined,
+      imageUrl: artistMaster?.HinhAnhURL ? String(artistMaster.HinhAnhURL) : undefined,
+      order: Number(link.ThuTuHienThi ?? idx + 1),
+    };
+  });
+
   return {
     eventId: Number(eventRow.SuKienID),
     organizationId: String(eventRow.ToChucID),
@@ -609,6 +708,8 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
     fanpageUrl: eventRow.FanpageURL ? String(eventRow.FanpageURL) : '',
     permitNumber: eventRow.SoGiayPhepBieuDien ? String(eventRow.SoGiayPhepBieuDien) : '',
     shows,
+    schedule,
+    artists,
   };
 }
 
