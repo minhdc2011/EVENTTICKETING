@@ -32,3 +32,8 @@ export function resolvePublicScheduleFallback(event?: {
   slug?: string;
   templateKey?: string;
 } | null): PublicScheduleItem[];
+
+export function parseTimelineFromDescription(
+  description: string | null | undefined,
+  eventId?: number | string,
+): PublicScheduleItem[];

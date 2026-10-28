@@ -657,7 +657,7 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
   });
 
   const scheduleRows = Array.isArray(scheduleRes.data) ? scheduleRes.data : [];
-  const schedule: FullEventScheduleInput[] = scheduleRows.map((s: any, idx: number) => ({
+  let schedule: FullEventScheduleInput[] = scheduleRows.map((s: any, idx: number) => ({
     scheduleId: Number(s.LichTrinhID),
     id: Number(s.LichTrinhID),
     startTime: String(s.GioBatDau ? String(s.GioBatDau).slice(0, 5) : ''),
@@ -667,6 +667,23 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
     location: s.DiaDiemHoatDong ? String(s.DiaDiemHoatDong) : undefined,
     order: Number(s.ThuTu ?? idx + 1),
   }));
+
+  if (schedule.length === 0 && eventRow.MoTaChiTiet) {
+    const {parseTimelineFromDescription} = await import('../domain/publicSchedule.js');
+    const parsed = parseTimelineFromDescription(eventRow.MoTaChiTiet, eventId);
+    if (parsed.length > 0) {
+      schedule = parsed.map((item) => ({
+        scheduleId: item.id,
+        id: item.id,
+        startTime: item.startTime,
+        endTime: item.endTime || '',
+        title: item.title,
+        description: item.description,
+        location: item.location,
+        order: item.order,
+      }));
+    }
+  }
 
   const artistRows = Array.isArray(artistsRes.data) ? artistsRes.data : [];
   const artists: FullEventArtistInput[] = artistRows.map((link: any, idx: number) => {

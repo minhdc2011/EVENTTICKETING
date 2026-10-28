@@ -100,6 +100,53 @@ export function formatScheduleTime(timeStr) {
 }
 
 /**
+ * Parses timeline items directly from an event description text.
+ * Matches lines like "- **16:30 - 18:30**: Title" or "16:30: Title".
+ * Satisfies requirements where schedule does not need a dedicated database table.
+ */
+export function parseTimelineFromDescription(description, eventId = 0) {
+  if (!description || typeof description !== 'string') return [];
+  const lines = description.split(/\r?\n/);
+  const items = [];
+  let order = 1;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    const match = line.match(
+      /^[-*•]?\s*(?:\*\*)?(\d{1,2}:\d{2})(?:\s*[-–—]\s*(\d{1,2}:\d{2}))?(?:\*\*)?\s*[:：-]\s*(.+)$/
+    );
+    if (match) {
+      const startTime = formatScheduleTime(match[1]);
+      const endTime = match[2] ? formatScheduleTime(match[2]) : undefined;
+      const rest = match[3].trim();
+      let title = rest;
+      let itemDesc = undefined;
+
+      const parts = rest.split(/[:：]\s+/);
+      if (parts.length > 1) {
+        title = parts[0].replace(/^\*\*|\*\*$/g, '').trim();
+        itemDesc = parts.slice(1).join(': ').replace(/^\*\*|\*\*$/g, '').trim();
+      }
+
+      if (title && startTime) {
+        items.push({
+          id: order,
+          eventId: Number(eventId) || 0,
+          startTime,
+          endTime,
+          title,
+          description: itemDesc,
+          order: order++,
+        });
+      }
+    }
+  }
+
+  return items;
+}
+
+/**
  * Defensive normalization for raw LICH_TRINH rows from Supabase, REST responses, or mock objects.
  * Rejects malformed rows (missing title or startTime).
  * Keeps database-derived fields primary without fabricating missing optional attributes.
