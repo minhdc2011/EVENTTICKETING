@@ -39,6 +39,28 @@ export type FullEventShowInput = {
   ticketTiers: FullEventTierInput[];
 };
 
+export type FullEventScheduleInput = {
+  scheduleId?: number;
+  id?: number;
+  startTime: string;
+  endTime: string;
+  title: string;
+  description?: string;
+  location?: string;
+  order?: number;
+};
+
+export type FullEventArtistInput = {
+  artistId?: number;
+  id?: number;
+  name: string;
+  realName?: string;
+  role?: string;
+  bio?: string;
+  imageUrl?: string;
+  order?: number;
+};
+
 export type FullEventAggregateInput = {
   eventId?: number;
   organizationId: string;
@@ -64,6 +86,8 @@ export type FullEventAggregateInput = {
   fanpageUrl?: string;
   permitNumber?: string;
   shows: FullEventShowInput[];
+  schedule?: FullEventScheduleInput[];
+  artists?: FullEventArtistInput[];
 };
 
 export type PublishReadinessResult = {

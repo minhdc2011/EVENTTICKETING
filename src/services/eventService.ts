@@ -301,9 +301,19 @@ export async function loadPublicEvent(
   return mapEvent(eventRow, shows, showSlug);
 }
 
+const SUPER_CONCERT_TIERS: PublicTicketTier[] = [
+  {id: 1, code: 'VVIP_DIAMOND', name: 'VVIP Diamond Lounge', price: 4500000, color: '#d8ff3e', description: 'Vị trí chính diện, cao và bao quát sân khấu. Soundcheck độc quyền & Fast-track riêng biệt.', capacity: 12, available: 6},
+  {id: 2, code: 'VIP_PLATINUM_1', name: 'VIP Platinum 1', price: 3500000, color: '#6ea8ff', description: 'Vị trí trung tâm tầng 1, tặng túi Tote & Lanyard kỉ niệm.', capacity: 12, available: 7},
+  {id: 3, code: 'VIP_PLATINUM_2', name: 'VIP Platinum 2', price: 3000000, color: '#58c7ff', description: 'Vị trí trung tâm liền kề sân khấu.', capacity: 12, available: 8},
+  {id: 4, code: 'GA_STAND_1', name: 'GA Fanzone Standing 1 (Khu A)', price: 2200000, color: '#4ade80', description: 'Khu vực vé đứng tự do sát sân khấu chính.', capacity: 200, available: 140},
+  {id: 5, code: 'GA_STAND_2', name: 'GA Fanzone Standing 2 (Khu B)', price: 1800000, color: '#2dd4bf', description: 'Khu vực vé đứng tự do không gian mở.', capacity: 200, available: 160},
+  {id: 6, code: 'ZONE_A_T1', name: 'Khán đài A Tầng 1 (Tribune A)', price: 1500000, color: '#ffb454', description: 'Ghế đệm ngồi trung tâm đối diện sân khấu.', capacity: 12, available: 5},
+  {id: 7, code: 'ZONE_B_T2', name: 'Khán đài B Tầng 2 (Tribune B)', price: 1200000, color: '#b98cff', description: 'Tầm nhìn cao toàn diện bao quát sân vận động.', capacity: 12, available: 8},
+  {id: 8, code: 'ZONE_CD_UP', name: 'Khán đài C-D Tầng cao (Upper Tier)', price: 800000, color: '#b9e986', description: 'Không gian sôi động phù hợp cho đông đảo khán giả trẻ.', capacity: 12, available: 9},
+];
 export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<PublicTicketTier[]> {
   if (runtimeConfig.useMockData) {
-    if (event.templateKey === 'SUPER_CONCERT_2026') return [];
+    if (event.templateKey === 'SUPER_CONCERT_2026') return SUPER_CONCERT_TIERS;
     try {
       const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
       const found = stored.find((e) => e.slug === event.slug || deduplicateSlug(e.slug) === event.slug);
@@ -328,7 +338,7 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
       {id: 203, code: 'PRO', name: 'Professional', price: 1200000, color: '#fbbf24', description: 'Bao gồm networking lounge và tài liệu workshop.', capacity: 200, available: 73},
     ];
   }
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) return event.templateKey === 'SUPER_CONCERT_2026' ? SUPER_CONCERT_TIERS : [];
   const {requireSupabaseClient} = await import('./supabaseClient');
   const supabase = requireSupabaseClient() as any;
   const {data, error} = await supabase.from('KHU_VUC')
@@ -341,3 +351,11 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
     return {id: Number(row.KhuVucID), code: String(row.MaKhuVuc), name: String(row.TenKhuVuc), price: Number(row.GiaVeNiemYet), color: String(row.MauSacHex || '#84cc16'), description: row.MoTaQuyenLoi ?? undefined, capacity: Number(row.TongSoGhe || 0), available};
   });
 }
+
+export type {PublicArtist, PublicArtistRecord} from './artistService';
+export {
+  SUPER_CONCERT_ARTISTS,
+  loadPublicArtists,
+  loadEventArtists,
+  normalizeArtistRow,
+} from './artistService';

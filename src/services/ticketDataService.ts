@@ -43,9 +43,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
     }));
 
     if (zones.length === 0) {
-      throw new Error(
-        `Supabase không có phân khu cho SuatDienID=${active.showId}.`,
-      );
+      return {zones: [], seats: []};
     }
 
     const zoneById = new Map(zones.map((zone) => [zone.KhuVucID, zone]));

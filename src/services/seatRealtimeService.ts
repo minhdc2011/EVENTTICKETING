@@ -1,60 +1,66 @@
-import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../config/runtime';
+import {getActiveEventContext, isSupabaseConfigured, runtimeConfig, type ActiveEventContext} from '../config/runtime';
 import type {SeatStatusEvent} from '../types/ticketing';
 import {requireSupabaseClient} from './supabaseClient';
+import {
+  fetchShowZones,
+  mapRealtimeSeatPayload,
+  subscribeToSeatUpdatesWithClient,
+  type ZoneSummaryRow,
+} from '../domain/seatRealtime.js';
 
-type SeatUpdateListener = (event: SeatStatusEvent) => void;
+export type SeatUpdateListener = (event: SeatStatusEvent) => void;
 export type RealtimeConnectionStatus = 'CONNECTING' | 'CONNECTED' | 'DISCONNECTED' | 'ERROR';
-type ConnectionStatusListener = (status: RealtimeConnectionStatus) => void;
+export type ConnectionStatusListener = (status: RealtimeConnectionStatus) => void;
+
+export interface SeatRealtimeOptions {
+  supabaseClient?: any;
+  activeContext?: ActiveEventContext;
+  useMockData?: boolean;
+  fetchZones?: (
+    supabase: any,
+    showId: number,
+    eventDatabaseId?: number,
+  ) => Promise<ZoneSummaryRow[]>;
+}
+
+export {fetchShowZones, mapRealtimeSeatPayload, subscribeToSeatUpdatesWithClient};
 
 export function subscribeToSeatUpdates(
   listener: SeatUpdateListener,
   onConnectionStatus: ConnectionStatusListener = () => undefined,
+  options?: SeatRealtimeOptions,
 ): () => void {
-  const active = getActiveEventContext();
-  if (runtimeConfig.useMockData) {
+  const active = options?.activeContext ?? getActiveEventContext();
+  const useMockData = options?.useMockData ?? runtimeConfig.useMockData;
+
+  if (useMockData) {
     onConnectionStatus('CONNECTED');
     return () => undefined;
   }
 
-  if (isSupabaseConfigured()) {
-    const supabase = requireSupabaseClient();
-    onConnectionStatus('CONNECTING');
-    const channel = supabase
-      .channel(`show-${active.showId}-seats-${crypto.randomUUID()}`)
-      .on(
-        'postgres_changes',
-        {event: 'UPDATE', schema: 'public', table: 'GHE'},
-        (payload) => {
-          const seat = payload.new as {
-            GheID?: number;
-            MaGheDayDu?: string;
-            TrangThai?: SeatStatusEvent['status'];
-          };
-          if (!seat.MaGheDayDu || !seat.TrangThai) return;
-          listener({
-            type: 'SEAT_STATUS_CHANGED',
-            eventId: active.eventId,
-            seatId: seat.GheID,
-            seatCode: seat.MaGheDayDu,
-            zoneCode: '',
-            status: seat.TrangThai,
-            occurredAt: new Date().toISOString(),
-          });
-        },
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') onConnectionStatus('CONNECTED');
-        else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') onConnectionStatus('ERROR');
-        else if (status === 'CLOSED') onConnectionStatus('DISCONNECTED');
-      });
+  const hasConfiguredSupabase = options?.supabaseClient != null || isSupabaseConfigured();
 
-    return () => {
-      void supabase.removeChannel(channel);
-    };
+  if (hasConfiguredSupabase) {
+    try {
+      const supabase = options?.supabaseClient ?? requireSupabaseClient();
+      return subscribeToSeatUpdatesWithClient({
+        supabase,
+        active,
+        listener,
+        onConnectionStatus,
+        fetchZones: options?.fetchZones ?? fetchShowZones,
+      });
+    } catch {
+      onConnectionStatus('ERROR');
+      return () => undefined;
+    }
   }
 
   const eventId = encodeURIComponent(active.eventId);
-  const sameOriginSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
+  const sameOriginSocketUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
+      : '';
   const socketOrigin = runtimeConfig.websocketUrl || sameOriginSocketUrl;
   let socket: WebSocket | undefined;
   let reconnectTimer: number | undefined;

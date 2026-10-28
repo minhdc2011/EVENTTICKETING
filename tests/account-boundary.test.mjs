@@ -403,6 +403,34 @@ test('corrective migration removes ambiguous defaults from account-role overload
   assert.match(sql, /PERFORM 'public\.la_ban_to_chuc\(\)'::regprocedure;/);
 });
 
+test('RPC ACL hardening explicitly blocks public clients from administrative functions', async () => {
+  const sql = await readFile(
+    new URL('../supabase/migrations/20261027120000_harden_rpc_acls_and_service_boundaries.sql', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(sql, /CREATE OR REPLACE FUNCTION public\.gan_loai_tai_khoan/);
+  assert.match(sql, /auth\.role\(\) IN \('anon', 'authenticated'\)/);
+  assert.match(
+    sql,
+    /REVOKE ALL ON FUNCTION public\.gan_loai_tai_khoan\(TEXT, TEXT\) FROM PUBLIC, anon, authenticated/,
+  );
+  assert.match(
+    sql,
+    /GRANT EXECUTE ON FUNCTION public\.gan_loai_tai_khoan\(TEXT, TEXT\) TO service_role/,
+  );
+  assert.match(
+    sql,
+    /REVOKE ALL ON FUNCTION public\.luu_su_kien_toan_dien\(JSONB\) FROM PUBLIC, anon/,
+  );
+  assert.match(
+    sql,
+    /REVOKE ALL ON FUNCTION public\.cong_bo_su_kien\(INT\) FROM PUBLIC, anon/,
+  );
+  assert.match(sql, /has_function_privilege/);
+  assert.match(sql, /anon still holds EXECUTE on gan_loai_tai_khoan/);
+});
+
 test('pgTAP test file supabase/tests/account_role_boundary.sql validates delegation, anti-disclosure, RLS, and overload safety', async () => {
   const sql = await readFile(
     new URL('../supabase/tests/account_role_boundary.sql', import.meta.url),

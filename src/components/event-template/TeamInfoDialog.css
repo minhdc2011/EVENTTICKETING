@@ -1,0 +1,39 @@
+/**
+ * TeamInfoDialog styles — Modal dialog for project SRS & Team 4 information.
+ * Meets WCAG AA accessibility, focus trapping, and 44px minimum touch targets.
+ */
+
+.team-dialog-overlay {
+  animation: teamFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes teamFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.team-dialog-content {
+  animation: teamScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes teamScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-dialog-overlay,
+  .team-dialog-content {
+    animation: none !important;
+  }
+}
