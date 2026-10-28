@@ -3,6 +3,7 @@ import {
   SUPER_CONCERT_SCHEDULE,
   isSuperConcertEvent,
   normalizeScheduleRow,
+  parseTimelineFromDescription,
   resolvePublicScheduleFallback,
   sortScheduleItems,
   type PublicScheduleItem,
@@ -15,27 +16,33 @@ export {
   SUPER_CONCERT_SCHEDULE,
   isSuperConcertEvent,
   normalizeScheduleRow,
+  parseTimelineFromDescription,
   resolvePublicScheduleFallback,
   sortScheduleItems,
 };
 
 /**
- * Loads the public schedule for an event ordered by ThuTu with stable tie-breakers.
+ * Loads the public schedule for an event.
  *
- * In mock mode or when Supabase is not configured:
- * - Super Concert returns the seeded 6 timeline activities.
- * - Generic events return an empty list.
- *
- * In configured Supabase mode:
- * - Queries LICH_TRINH table for the target SuKienID.
- * - Normalizes rows defensively and discards malformed entries.
- * - Falls back to seeded records strictly for Super Concert if database is unavailable or returns no rows.
+ * Primary Strategy (Consolidated Schema):
+ * - If event has timeline formatted inside its description (Description / MoTaChiTiet),
+ *   parses and returns structured timeline items directly without querying a separate table.
+ * - In mock mode or fallback: returns Super Concert timeline or empty array.
+ * - Graceful transition: attempts LICH_TRINH query if present on Supabase, but falls back cleanly.
  */
 export async function loadPublicSchedule(
   event?: Partial<PublicEventRecord> | null,
 ): Promise<PublicScheduleItem[]> {
   const isConcert = isSuperConcertEvent(event);
   const eventId = event?.id ?? (isConcert ? runtimeConfig.eventDatabaseId : null);
+
+  // 1. Primary Strategy: Check if description contains timeline items
+  if (event?.description) {
+    const parsedFromDesc = parseTimelineFromDescription(event.description, eventId ?? 0);
+    if (parsedFromDesc.length > 0) {
+      return sortScheduleItems(parsedFromDesc);
+    }
+  }
 
   if (runtimeConfig.useMockData || !isSupabaseConfigured()) {
     if (isConcert) {
@@ -99,7 +106,7 @@ export async function loadPublicSchedule(
       .order('ThuTu', {ascending: true});
 
     if (error) {
-      console.warn('Không thể tải lịch trình từ Supabase:', error);
+      // Table may not exist after cleanup migration, fallback cleanly
       return resolvePublicScheduleFallback(event);
     }
 
@@ -114,7 +121,6 @@ export async function loadPublicSchedule(
     const sorted = sortScheduleItems(items);
     return sorted.length > 0 ? sorted : resolvePublicScheduleFallback(event);
   } catch (err) {
-    console.warn('Lỗi kết nối khi tải lịch trình sự kiện:', err);
     return resolvePublicScheduleFallback(event);
   }
 }

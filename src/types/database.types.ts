@@ -211,6 +211,47 @@ export type Database = {
           },
         ]
       }
+      CAU_HINH_SU_KIEN: {
+        Row: {
+          ChoPhepChonCho: boolean
+          ChoPhepChuyenNhuong: boolean
+          NgayCapNhat: string
+          SoVeToiDaMoiDon: number
+          SuKienID: number
+          ThoiGianGiuChoPhut: number
+          TuyChonMoRong: Json
+          YeuCauCCCD: boolean
+        }
+        Insert: {
+          ChoPhepChonCho?: boolean
+          ChoPhepChuyenNhuong?: boolean
+          NgayCapNhat?: string
+          SoVeToiDaMoiDon?: number
+          SuKienID: number
+          ThoiGianGiuChoPhut?: number
+          TuyChonMoRong?: Json
+          YeuCauCCCD?: boolean
+        }
+        Update: {
+          ChoPhepChonCho?: boolean
+          ChoPhepChuyenNhuong?: boolean
+          NgayCapNhat?: string
+          SoVeToiDaMoiDon?: number
+          SuKienID?: number
+          ThoiGianGiuChoPhut?: number
+          TuyChonMoRong?: Json
+          YeuCauCCCD?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "CAU_HINH_SU_KIEN_SuKienID_fkey"
+            columns: ["SuKienID"]
+            isOneToOne: true
+            referencedRelation: "SU_KIEN"
+            referencedColumns: ["SuKienID"]
+          },
+        ]
+      }
       LICH_TRINH: {
         Row: {
           DiaDiemHoatDong: string | null

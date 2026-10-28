@@ -237,12 +237,23 @@ export function ScheduleDialog({
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty state or Description Fallback */}
         {!isLoading && !error && items.length === 0 && (
           <div className="schedule-state-box">
-            <p className="schedule-empty-msg">
-              Lịch trình chi tiết sự kiện đang được Ban tổ chức cập nhật.
-            </p>
+            {event?.description ? (
+              <div className="schedule-desc-box text-left" style={{maxWidth: '540px', margin: '0 auto', textAlign: 'left'}}>
+                <h4 style={{fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', marginBottom: '0.75rem'}}>
+                  Thông tin & Lịch trình sự kiện
+                </h4>
+                <div style={{whiteSpace: 'pre-line', lineHeight: '1.6', fontSize: '0.9rem', color: '#cbd5e1'}}>
+                  {event.description}
+                </div>
+              </div>
+            ) : (
+              <p className="schedule-empty-msg">
+                Lịch trình chi tiết sự kiện đang được Ban tổ chức cập nhật.
+              </p>
+            )}
           </div>
         )}
 
