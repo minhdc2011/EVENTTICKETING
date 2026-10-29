@@ -55,7 +55,7 @@ export function BookingSummaryPanel({
       <div className="et-booking-panel-header">
         <h2 className="et-booking-panel-title">TỔNG QUAN ĐẶT VÉ</h2>
         <div className="et-booking-panel-show">{event.selectedShow.name}</div>
-        <div style={{color: '#94a3b8', fontSize: '12px', marginTop: '4px'}}>
+        <div style={{color: '#64748b', fontSize: '12px', marginTop: '4px'}}>
           {formatDateShort(event.selectedShow.startsAt)} · {event.venueName}
         </div>
       </div>
@@ -73,13 +73,13 @@ export function BookingSummaryPanel({
             </div>
             <div className="et-booking-price-row" style={{borderTop: 0, paddingTop: 0}}>
               <span className="et-booking-price-label">Tồn kho khả dụng:</span>
-              <span style={{color: selectedTier.available > 0 ? '#6ee7b7' : '#fca5a5', fontSize: '13px', fontWeight: 700}}>
+              <span style={{color: selectedTier.available > 0 ? '#047857' : '#b91c1c', fontSize: '13px', fontWeight: 700}}>
                 {selectedTier.available > 0 ? `Còn ${selectedTier.available} vé` : 'Đã hết vé'}
               </span>
             </div>
           </>
         ) : (
-          <p style={{margin: 0, color: '#94a3b8', fontSize: '13px', lineHeight: 1.5}}>
+          <p style={{margin: 0, color: '#64748b', fontSize: '13px', lineHeight: 1.5}}>
             Chưa chọn hạng vé nào. Vui lòng bấm chọn một hạng vé từ bảng giá bên trái.
           </p>
         )}

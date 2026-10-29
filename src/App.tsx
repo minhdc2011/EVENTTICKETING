@@ -18,6 +18,7 @@ import {runtimeConfig, setActiveEventContext} from './config/runtime';
 import {resolvePublicRoute} from './domain/publicRoute';
 
 const BODY_CLASS =
+  // impeccable-disable-next-line gray-on-color -- lime-300 is only the selection highlight, whose text is black
   'min-h-screen bg-[#070707] text-slate-100 antialiased selection:bg-lime-300 selection:text-black relative';
 
 export default function App() {

@@ -37,7 +37,7 @@ export function EventMediaSection({event}: EventMediaSectionProps) {
           {event.trailerUrl && (
             <div className="et-media-card">
               <span className="et-media-card-title">Video Trailer chính thức</span>
-              <p style={{margin: '0 0 12px 0', color: '#cbd5e1', fontSize: '14px', lineHeight: 1.6}}>
+              <p style={{margin: '0 0 12px 0', color: '#475569', fontSize: '14px', lineHeight: 1.6}}>
                 Xem những khoảnh khắc và giới thiệu chi tiết về sự kiện trên kênh truyền thông chính thức:
               </p>
               <a

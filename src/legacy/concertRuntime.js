@@ -294,7 +294,7 @@ import {
         document.querySelectorAll('#seats-wrapper > .zone-block[data-zone-code]').forEach(block => {
           const zone = ZONES[block.dataset.zoneCode];
           if (!zone) return;
-          const heading = block.querySelector('h4');
+          const heading = block.querySelector('h3');
           const price = block.querySelector(':scope > div:first-of-type > span:last-child');
           if (heading) heading.textContent = `PHÂN KHU: ${zone.name.toUpperCase()}`;
           if (price) price.textContent = `${formatVND(zone.price)} / ${zone.code.startsWith('GA_STAND') ? 'vé' : 'ghế'}`;

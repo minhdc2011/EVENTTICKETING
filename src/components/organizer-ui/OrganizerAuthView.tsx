@@ -131,11 +131,11 @@ export function OrganizerAuthView({
             marginTop: '8px',
           }}
         >
-          <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#cbd5e1', fontWeight: 600}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#475569', fontWeight: 600}}>
             <IconCheck size={14} style={{color: 'var(--org-lime)'}} />
             <span>Quản lý đa suất diễn & phân khu đa tầng</span>
           </div>
-          <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#cbd5e1', fontWeight: 600}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#475569', fontWeight: 600}}>
             <IconShield size={14} style={{color: 'var(--org-lime)'}} />
             <span>An toàn thương mại: bảo vệ giá và giữ chỗ tự động</span>
           </div>
