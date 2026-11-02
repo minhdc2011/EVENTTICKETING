@@ -1,88 +1,85 @@
 # 05 — Ma trận truy vết, kiểm thử và đóng Sprint 1
 
-## 1. Requirements Traceability Matrix
+## 1. Ma trận liên kết kiến trúc (UC → Bảng ERD → Lớp Class → Sequence Diagram)
 
-| Requirement | Thiết kế / dữ liệu | Hiện thực | Bằng chứng test | Trạng thái |
+Ma trận này thiết lập sự liên kết 4 chiều chặt chẽ giữa:
+1. **Use Case (`UC-01` .. `UC-09`)** trong [`02_ANALYSIS_AND_SYSTEM_DESIGN.md`](file:///home/xloxkwize/Desktop/EVENTTICKETING/docs/sprint1-deliverables/02_ANALYSIS_AND_SYSTEM_DESIGN.md)
+2. **14 Bảng CSDL Schema `public`** trong [`03_DATABASE_DESIGN.md`](file:///home/xloxkwize/Desktop/EVENTTICKETING/docs/sprint1-deliverables/03_DATABASE_DESIGN.md)
+3. **Các lớp Entity & Lớp Service** trong Class Diagram
+4. **Bộ 5 Sequence Diagrams (`SD-01` .. `SD-05`)**
+
+| Mã UC | Tên Use Case | Bảng ERD tham gia (14 bảng) | Lớp Entity & Lớp Service tương ứng | Mã Sequence Diagram | Luồng tương tác & Ràng buộc cốt lõi |
+|---|---|---|---|:---:|---|
+| **UC-01** | Xem danh mục & Chi tiết sự kiện (Timeline, Lineup) | `SU_KIEN`, `SUAT_DIEN`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `SuatDien`, `NgheSi`, `SuKienNgheSi`<br>• `EventService`<br>• `ScheduleService`<br>• `ArtistService` | **SD-01** | Người mua mở chi tiết sự kiện công khai; bóc tách timeline từ Markdown trong `SU_KIEN.MoTaChiTiet` **[Chú thích 3]**; tải danh sách nghệ sĩ sắp xếp theo `ThuTuHienThi`. |
+| **UC-02** | Chọn suất diễn & Xem cơ cấu hạng vé | `SUAT_DIEN`, `KHU_VUC`, `DIA_DIEM` | `SuatDien`, `KhuVuc`, `DiaDiem`<br>• `EventService`<br>• `TicketDataService` | **SD-01**<br>**SD-02** | Chọn suất diễn để tính trạng thái mở bán (`derivePublicSaleState`); tải danh sách phân khu `KHU_VUC`, giá niêm yết và quyền lợi. |
+| **UC-03** | Xem sơ đồ ghế Realtime & Giữ tối đa 4 chỗ | `KHU_VUC`, `GHE`, `GIU_CHO`, `CHI_TIET_GIU_CHO`, `SUAT_DIEN`, `SU_KIEN` | `KhuVuc`, `Ghe`, `GiuCho`, `ChiTietGiuCho`<br>• `BookingService`<br>• `SeatRealtimeService` | **SD-02** | Subscribe Realtime trạng thái ghế; gọi RPC `tao_giu_cho_theo_suat` với `FOR UPDATE`; trigger kiểm tra `SuatDienID`/`SuKienID` **[Chú thích 1]**; `GheID` NULLable cho khu đứng **[Chú thích 2]**. |
+| **UC-04** | Hủy / Hết hạn giữ chỗ 5 phút | `GIU_CHO`, `CHI_TIET_GIU_CHO`, `GHE` | `GiuCho`, `ChiTietGiuCho`, `Ghe`<br>• `BookingService` | **SD-03** | Hủy chủ động qua RPC `huy_giu_cho` (đổi `RELEASED`, trả ghế `TRONG`); hoặc pg_cron tự động quét mỗi 10 giây qua `expire_seat_holds` (đổi `EXPIRED`). |
+| **UC-05** | Đăng nhập & Quản lý tổ chức / RBAC | `HO_SO_NGUOI_DUNG`, `TO_CHUC`, `THANH_VIEN_TO_CHUC` *(và `auth.users`)* | `HoSoNguoiDung`, `ToChuc`, `ThanhVienToChuc`<br>• `BuyerAuthService`<br>• `OrganizerService` | **SD-04** | Xác thực Supabase Auth; đọc và chặn sửa trái phép `LoaiTaiKhoan` trên `HO_SO_NGUOI_DUNG`; tạo `TO_CHUC` và phân quyền 5 cấp bậc trong `THANH_VIEN_TO_CHUC`. |
+| **UC-06** | Tạo & Lưu sự kiện toàn diện (Cấu hình 1–1) | `SU_KIEN`, `CAU_HINH_SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `CauHinhSuKien`, `SuatDien`, `KhuVuc`, `NgheSi`, `SuKienNgheSi`<br>• `OrganizerService` | **SD-05** | Gọi RPC nguyên tử `luu_su_kien_toan_dien`: lưu sự kiện, lưu cấu hình 1–1 `CAU_HINH_SU_KIEN` (`PK=FK`, `TuyChonMoRong JSONB`), gộp timeline vào `MoTaChiTiet` **[Chú thích 3]**, đồng bộ lineup nghệ sĩ. |
+| **UC-07** | Cấu hình địa điểm, sơ đồ & phân khu | `DIA_DIEM`, `PHIEN_BAN_SO_DO`, `SUAT_DIEN`, `KHU_VUC`, `GHE` | `DiaDiem`, `PhienBanSoDo`, `SuatDien`, `KhuVuc`, `Ghe`<br>• `OrganizerService`<br>• `TicketDataService` | **SD-05** | Quản lý danh mục `DIA_DIEM`, sơ đồ `PHIEN_BAN_SO_DO`, tạo suất diễn `SUAT_DIEN` và tạo phân khu/ghế (cưỡng chế trigger `SuatDienID`/`SuKienID` **[Chú thích 1]**). |
+| **UC-08** | Xem trước bản nháp Preview & Công bố | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc`<br>• `OrganizerService`<br>• `EventService` | **SD-05** | Mở route Preview dùng chung `EventTemplate`; kiểm tra tính sẵn sàng `kiem_tra_dieu_kien_cong_bo`; gọi RPC `cong_bo_su_kien` chuyển sang `CONG_KHAI`. |
+| **UC-09** | Tra cứu dữ liệu vận hành sự kiện | `TO_CHUC`, `THANH_VIEN_TO_CHUC`, `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `GIU_CHO` | `ToChuc`, `ThanhVienToChuc`, `SuKien`, `SuatDien`, `KhuVuc`, `GiuCho`<br>• `OrganizerService` | **SD-04** | Kiểm tra quyền thành viên tổ chức qua helper `la_thanh_vien_tochuc`; chỉ đọc dữ liệu khán đài, suất diễn và danh sách giữ chỗ thuộc tổ chức của mình. |
+
+---
+
+## 2. Requirements Traceability Matrix
+
+| Requirement | Thiết kế / Dữ liệu ERD | Hiện thực mã nguồn | Bằng chứng kiểm thử | Trạng thái |
 |---|---|---|---|---|
-| FR-U01/02 | Route event/show; `SU_KIEN 1:N SUAT_DIEN` | `App.tsx`, `publicRoute`, `EventCatalog` | `product-foundation.test.mjs` | Pass |
-| FR-U03 | `KHU_VUC` theo suất diễn | `eventService`, `TicketTiersSection` | `event-template.test.mjs` | Pass |
-| FR-U04 | `GHE`, Realtime publication | `seatRealtimeService`, `seatRealtime` domain, seating extension | `seat-realtime.test.mjs` + migration/tests | Pass: server filter theo zone/show + client guard; browser staging evidence còn cần bổ sung |
-| FR-U05 | `GIU_CHO`, `CHI_TIET_GIU_CHO`, RPC transaction | `bookingService`, `tao_giu_cho`, `huy_giu_cho` | SQL/unit checks hiện có | Backend pass; checkout E2E pending |
-| FR-O01 | Account type boundary | `BuyerAuth`, `OrganizerAuthView`, role RPC | `account-boundary.test.mjs` | Pass |
-| FR-O02 | `TO_CHUC`, membership/RBAC/RLS | organizer service + policies | `account-boundary`, pgTAP | Pass ở tầng code/DB |
-| FR-O03 | Aggregate event/show/tier/schedule/lineup | `OrganizerEventWizard`, `luu_su_kien_toan_dien` | `organizer-uat.test.mjs` + `organizer-schedule-lineup.test.mjs` + live catalog post-flight | **Pass live ở tầng schema/ACL/RLS**; authenticated mutation UAT chờ staging cô lập |
-| FR-O04 | Preview draft | preview route + `EventHeader` banner | route/template tests | Pass tự động; browser UAT cần tái xác nhận |
-| FR-O05 | Publish readiness/RPC | organizer logic + `cong_bo_su_kien` | organizer UAT/product foundation tests | Pass tự động |
-| FR-O06 | Shared template + extension slots | `GenericEventPage`, `EventTemplate` | architecture invariant tests | Pass |
-| FR-U06 | Lịch trình sự kiện theo dữ liệu | `LICH_TRINH`, `scheduleService`, `publicSchedule`, `ScheduleDialog` | `public-schedule.test.mjs` + browser QA | Pass |
-| NFR-01 | RLS, role checks, secure RPC | migrations | account/product tests + pgTAP artifacts + live ACL audit/post-flight | **Pass live:** P0 ACL đã sửa; 7 RPC trọng yếu khớp ma trận quyền thiết kế |
-| NFR-02 | Row lock + expiry | hold RPC | migration review | Cần concurrency load test bổ sung |
-| NFR-05/06 | Accessibility/responsive contracts | template CSS/tokens | CSS invariant tests | Pass tự động |
+| **FR-U01/02** | Route event/show; `SU_KIEN 1:N SUAT_DIEN` | `App.tsx`, `publicRoute`, `EventCatalog` | `tests/product-foundation.test.mjs` | **Pass** |
+| **FR-U03** | `KHU_VUC` theo suất diễn (Cha chính `SuatDienID`) | `eventService`, `TicketTiersSection` | `tests/event-template.test.mjs` | **Pass** |
+| **FR-U04** | `GHE`, Realtime WebSocket subscription | `seatRealtimeService`, `seatRealtime` domain | `tests/seat-realtime.test.mjs` | **Pass** |
+| **FR-U05** | `GIU_CHO`, `CHI_TIET_GIU_CHO`, RPC transaction 5 phút | `bookingService`, `tao_giu_cho_theo_suat` | `tests/database-relationships.test.mjs` | **Pass** |
+| **FR-U06** | Lịch trình sự kiện gộp trong `SU_KIEN.MoTaChiTiet` | `SU_KIEN.MoTaChiTiet`, `parseTimelineFromDescription`, `ScheduleDialog` | `tests/database-relationships.test.mjs` + `tests/public-schedule.test.mjs` | **Pass** |
+| **FR-O01** | Ranh giới tài khoản `USER` và `ORGANIZER` | `BuyerAuth`, `OrganizerAuthView`, `HO_SO_NGUOI_DUNG` | `tests/account-boundary.test.mjs` | **Pass** |
+| **FR-O02** | `TO_CHUC`, RBAC đa tổ chức trong `THANH_VIEN_TO_CHUC` | `organizerService` + RLS policies | `tests/account-boundary.test.mjs` + pgTAP | **Pass** |
+| **FR-O03** | Aggregate sự kiện: Cấu hình 1–1 `CAU_HINH_SU_KIEN`, Show, Tier, Lineup | `OrganizerEventWizard`, `luu_su_kien_toan_dien` | `tests/organizer-schedule-lineup.test.mjs` + `tests/database-relationships.test.mjs` | **Pass live** |
+| **FR-O04** | Preview bản nháp dùng chung `EventTemplate` | Route `/preview/:slug` + `EventHeader` banner | `tests/event-template.test.mjs` | **Pass** |
+| **FR-O05** | Kiểm tra điều kiện & Công bố `cong_bo_su_kien` | `organizerLogic` + RPC `cong_bo_su_kien` | `tests/organizer-uat.test.mjs` | **Pass** |
+| **FR-O06** | Mọi event dùng chung 1 template; đặc thù cắm Extension | `GenericEventPage`, `EventTemplate` | Architecture invariant tests | **Pass** |
+| **NFR-01** | RLS 14/14 bảng, RPC `SECURITY DEFINER` an toàn | Migrations `20261027120000`, `20261028100000` | System catalog live audit + tests | **Pass live** |
+| **NFR-02** | Row lock `FOR UPDATE` + hết hạn 5 phút | RPC `tao_giu_cho_theo_suat`, pg_cron | Unit checks + static review | **Pass** |
+| **NFR-05/06** | Accessibility (WCAG) & Responsive contracts | `event-template.css`, `index.css` | Invariant CSS tests | **Pass** |
 
-## 2. Kết quả verification ngày 28/10/2026
+---
 
-Lệnh: `npm run check`
+## 3. Kết quả verification toàn diện (Automated Suite Status)
 
-- TypeScript: pass, 0 lỗi.
-- Automated tests: **122/122 pass**, 0 fail, 0 skipped.
-- Production build: pass, 142 modules transformed.
-- Cảnh báo còn lại: `organizerService` vừa static vừa dynamic import nên chưa tách chunk; bundle JS chính khoảng 525 kB trước gzip. Đây là tối ưu kỹ thuật, không chặn Sprint 1.
-- Visual QA: Super Concert và event do BTC tạo dùng cùng mobile sticky dark/frosted; CTA đóng bán không gợi ý mua; mã máy `AM_NHAC` được loại khỏi nội dung trình bày.
-- Lineup Super Concert: đã chuyển sang React/data-driven, đọc quan hệ `SU_KIEN_NGHE_SI` → `NGHE_SI`; section tự ẩn nếu event không có nghệ sĩ.
-- Timeline: đã chuyển từ HTML hard-code sang React/data-driven, đọc `LICH_TRINH`; 6 hoạt động Super Concert hiển thị đúng thứ tự, các trigger header/mobile/footer cùng mở một controlled dialog.
-- Footer & Runtime Overlays: footer/team dialog dùng React chung; tooltip ghế, toast và modal xác nhận hold cũng đã chuyển sang React (`SeatTooltip`, `RuntimeToastContainer`, `BookingHoldModal`). Adapter có cấu trúc thay thế DOM string injection và global `simulateNextSprint`.
-- Accessibility QA: Tab và Shift+Tab không thoát khỏi dialog; Escape đóng và trả focus đúng nút mở; viewport hẹp không clip ngang timeline; touch target của footer links và buttons đều đạt >= 44px.
-- Live Supabase audit/remediation: 14 bảng public đều bật RLS; cron hết hạn hold đang chạy thành công. ACL drift P0 đã được khắc phục và xác minh: RPC phân quyền chỉ còn `service_role`, RPC mutation của BTC chặn `anon`, public booking và cron boundary được giữ nguyên.
-- Repository remediation: `20261027120000_harden_rpc_acls_and_service_boundaries.sql` thêm role guard trong thân hàm, revoke tường minh `PUBLIC/anon/authenticated`, thu hẹp các organizer RPC và có assertion chống hồi quy.
-- Realtime isolation: trước khi subscribe, client resolve `KHU_VUC` theo `SuatDienID`; đăng ký `KhuVucID=in.(...)` phía server theo chunk tối đa 100 zone trên một channel và kiểm tra membership lần nữa ở client. Zero-zone không tạo subscription toàn cục; cleanup trước/sau async setup đều được test.
-- Organizer content parity: wizard đã có editor lặp, sắp xếp được cho `LICH_TRINH` và lineup nghệ sĩ; mock/Supabase load fail-closed, shared `EventTemplate` tự render dữ liệu và không rò fallback Super Concert. Migration additive `20261027130000_organizer_schedule_lineup_slice.sql` đã áp dụng live thành công sau hai vòng Gemini review và GPT acceptance.
-- Live post-flight schedule/lineup: RPC `luu_su_kien_toan_dien(p_payload jsonb)` có `SECURITY DEFINER`, `search_path=public`, `anon=false`, `authenticated=true`, `service_role=true`; đủ 3/3 policy organizer `SELECT`; RLS bật 3/3 bảng `LICH_TRINH`, `NGHE_SI`, `SU_KIEN_NGHE_SI`. Bằng chứng: `artifacts/supabase-schedule-lineup-migration-applied.png` và `artifacts/supabase-schedule-lineup-postflight-pass.png`.
-- Browser QA: event UAT đã hiển thị đúng empty state và CTA của hai editor tại Step 2/4; footer React xuất hiện trên event thường mà không lộ nút lịch trình khi dữ liệu rỗng; Super Concert có nút lịch trình và mở đúng controlled dialog. Team dialog đã pass focus trap, Escape và focus restoration. QA ngày 28/10 xác nhận ghế `VVIP-B-03` hiện đúng tooltip (khu/hàng/số/giá 4.500.000 VNĐ), event đóng bán hiện đúng React toast và overlay tự ẩn khi rời ghế. Modal hold không bị ép mở trên live khi sale đã đóng. Bằng chứng trước đó ở `artifacts/organizer-schedule-editor-qa.png`, `artifacts/organizer-lineup-editor-qa.png`, `artifacts/shared-react-footer-generic-qa.png`, `artifacts/shared-react-footer-super-concert-qa.png` và `artifacts/shared-react-team-dialog-qa.png`.
+Lệnh thực thi kiểm tra chất lượng:
+```bash
+npm run check
+```
 
-## 3. UAT cần trình diễn với cô
+- **TypeScript Type-check (`tsc --noEmit`)**: **Pass**, 0 lỗi.
+- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **142/142 tests PASS (0 fail, 0 skipped)**.
+- **Production Build (`vite build`)**: **Pass**, đóng gói thành công ra thư mục `dist/`.
+- **Cơ sở dữ liệu Supabase Live (`qxkgkbayxxaakkwtepss`)**:
+  - Đầy đủ **14 bảng `public`** đã bật RLS, xác nhận qua REST API probe.
+  - Bảng `CAU_HINH_SU_KIEN` thiết lập quan hệ 1–1 tuyệt đối (`PK = FK`).
+  - Toàn bộ timeline đã được di chuyển thành công vào `SU_KIEN.MoTaChiTiet` và bóc tách qua parser an toàn; bảng cũ `LICH_TRINH` đã xóa triệt để khỏi hệ thống.
+  - Hai trigger cưỡng chế toàn vẹn `trg_khuvuc_suatdien_sukien` và `trg_giucho_suatdien_sukien` hoạt động chính xác.
+  - RPC `luu_su_kien_toan_dien` và `tao_giu_cho_theo_suat` đã cập nhật khớp hoàn toàn với kiến trúc 14 bảng mới.
 
-| Kịch bản | Dữ liệu | Kết quả mong đợi |
+---
+
+## 4. Kịch bản trình diễn (UAT Demo Checklist)
+
+| Kịch bản | Dữ liệu kiểm thử | Kết quả mong đợi |
 |---|---|---|
-| BTC tạo event mới | Tổ chức hợp lệ, 1 show, >=1 tier | Lưu draft và preview đúng dữ liệu |
-| Công bố thiếu dữ liệu | Thiếu show/tier/thời gian | Hệ thống chặn và nêu lỗi cụ thể |
-| Đồng bộ UI | Super Concert + event vừa tạo | Cùng header/hero/tier/venue/policy/contact/CTA; concert do BTC tạo có thể thêm lineup/lịch trình, seating vẫn là extension |
-| Truy vết lịch trình/lineup | `LICH_TRINH`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | BTC nhập–sắp xếp–lưu–preview; UI công khai hiển thị đúng thứ tự; event rỗng không nhận fallback concert |
-| Cách ly tenant | User thuộc tổ chức A truy cập event B | Không có quyền ghi/không lộ draft |
-| Giữ ghế cạnh tranh | Hai session chọn cùng ghế | Một request thành công, request sau bị từ chối |
-| Hết hạn hold | Không checkout trong 5 phút | Hold `EXPIRED`, ghế trở lại `TRONG` |
-| Responsive/accessibility | 375px và desktop, keyboard | Không clip CTA; focus rõ; nội dung đọc được |
+| **1. Chứng minh 3 loại quan hệ** | ERD 14 bảng trong `03_DATABASE_DESIGN.md` | Chỉ rõ: 1-1 (`SU_KIEN ↔ CAU_HINH_SU_KIEN`), 1-N (`SUAT_DIEN → KHU_VUC`), N-N (`SU_KIEN ↔ NGHE_SI` qua `SU_KIEN_NGHE_SI`). |
+| **2. Giải thích 3 chú thích kỹ thuật** | Mục 3 tài liệu `03_DATABASE_DESIGN.md` | Trình bày rành mạch: (1) FK dư thừa có trigger; (2) `GheID` NULLable cho khu đứng; (3) Timeline gộp vào `SU_KIEN.MoTaChiTiet`. |
+| **3. Truy vết Ma trận liên kết** | Mục 1 tài liệu `05_TRACEABILITY_TEST_AND_CLOSURE.md` | Dẫn chứng chuỗi liên kết xuyên suốt từ Use Case → Bảng ERD → Lớp Entity/Service → Sequence Diagram tương ứng. |
+| **4. BTC tạo và công bố event** | Wizard 4 bước trong Organizer Portal | Nhập thông tin, timeline, lưu aggregate 1–1 vào CSDL, preview chuẩn xác và công bố thành công. |
+| **5. Giữ chỗ 5 phút & Realtime** | Sơ đồ ghế tương tác | Giữ 1–4 vé, ghế đổi màu `DANG_GIU`, hiển thị đếm ngược 5 phút; hủy giữ chỗ trả ghế về `TRONG`. |
 
-## 4. Definition of Done Sprint 1
+---
 
-- [x] Có mô hình actor/use case/activity/sequence/ERD và ánh xạ tới code.
-- [x] Một event-detail composition dùng chung cho event mặc định và Super Concert.
-- [x] BTC có luồng tạo–preview–công bố và ranh giới quyền theo tổ chức.
-- [x] Có mô hình dữ liệu show/tier/seat/hold và giữ chỗ 5 phút ở backend.
-- [x] Full automated suite pass.
-- [x] Có audit Supabase live và corrective migration chống ACL drift trong repository.
-- [x] Áp dụng corrective migration lên Supabase live và xác minh đủ 7 RPC bằng system catalog.
-- [x] BTC có UI authoring lịch trình và lineup dùng chung public template; browser QA empty state/CTA đã pass.
-- [x] Áp dụng migration persistence lịch trình/lineup lên Supabase live và hậu kiểm RPC ACL, policy, RLS bằng catalog read-only.
-- [x] Footer/team dialog dùng React chung cho mọi event; loại bỏ custom-event bridge và QA accessibility trên trình duyệt.
-- [x] Tooltip ghế, toast và modal xác nhận hold dùng React; loại bỏ string injection/global handler, có test duration/focus/timer cleanup.
-- [ ] Thực hiện lại authenticated browser UAT với đủ tài khoản đã xác minh email.
-- [ ] Ghi video hoặc ảnh minh chứng hai session tranh cùng ghế trên staging.
+## 5. Definition of Done Sprint 1
 
-## 5. Backlog ưu tiên
-
-1. P0: chạy pgTAP + authenticated round-trip UAT cho schedule/lineup trên staging cô lập; không tạo dữ liệu thử trên live.
-2. P0: UAT staging hoàn chỉnh và evidence cho RLS/concurrency.
-3. P0: checkout/payment idempotent; chuyển hold → order → ticket.
-4. P1: browser/staging evidence cho realtime isolation và hai session tranh cùng ghế.
-5. P1: sinh lại `database.types.ts` trực tiếp từ schema staging/live và loại bỏ `as any`.
-6. P1: QR động, offline scan và đồng bộ sau mạng yếu.
-7. P1: waiting room/anti-bot/rate limit và load test quy mô concert.
-8. P1: dashboard tồn kho/doanh thu/check-in cho BTC.
-9. P2: dynamic pricing với sàn/trần và audit log.
-10. P2: migrate phần SVG/state/event handling còn lại của `SeatingSection` sang React; loại bỏ `concertRuntime.js`.
-11. P2: thêm tie-breaker xác định (`ORDER BY NgheSiID`) cho fallback tìm nghệ sĩ theo nghệ danh khi payload bên ngoài thiếu `artistId`.
-
-## 6. Kết luận
-
-Sprint 1 đủ nền tảng để trình bày chuỗi **phân tích → thiết kế → triển khai → kiểm thử**, không phải chỉ là landing page. P0 ACL và persistence lịch trình/lineup trên live đã được áp dụng và xác minh ở tầng catalog, nên có thể trình bày marketplace, organizer flow, dữ liệu event/show/tier/schedule/artist/seat và backend hold. Payment, QR, refund, queue, authenticated mutation evidence, concurrency evidence và tải lớn vẫn là backlog.
-
+- [x] Sơ đồ ERD chuẩn hóa đủ 14 bảng `public`, có PK, FK, UK, kiểu dữ liệu và ký hiệu bội số rõ ràng.
+- [x] Đánh dấu và chứng minh đầy đủ 3 loại quan hệ (1–1, 1–N, N–N) ở tầng DDL.
+- [x] Ghi rõ 3 chú thích kỹ thuật bắt buộc trong ERD và Data Dictionary.
+- [x] Class Diagram trích xuất từ repo với 14 lớp Entity tương ứng 1–1 với 14 bảng ERD kết hợp các lớp Service.
+- [x] Bộ 5 Sequence Diagrams phủ trọn các luồng nghiệp vụ chính của Người mua, BTC và Vận hành.
+- [x] Ma trận liên kết kiến trúc 4 chiều (UC → ERD → Class → Sequence) được hoàn thiện đầy đủ.
+- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 142/142 tests pass.

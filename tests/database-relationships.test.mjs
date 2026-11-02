@@ -104,3 +104,86 @@ test('database model defines and validates all 3 fundamental relationship catego
   assert.match(content, /1-N: TO_CHUC \|\|--o\{ SU_KIEN/i);
   assert.match(content, /N-N: SU_KIEN \}o--o\{ NGHE_SI/i);
 });
+
+test('03_DATABASE_DESIGN.md covers all 14 public tables, 3 relationship types and 3 technical notes', () => {
+  const docPath = path.join(rootDir, 'docs/sprint1-deliverables/03_DATABASE_DESIGN.md');
+  assert.ok(fs.existsSync(docPath), '03_DATABASE_DESIGN.md must exist');
+  const content = fs.readFileSync(docPath, 'utf8');
+
+  const requiredTables = [
+    'TO_CHUC',
+    'HO_SO_NGUOI_DUNG',
+    'THANH_VIEN_TO_CHUC',
+    'SU_KIEN',
+    'CAU_HINH_SU_KIEN',
+    'DIA_DIEM',
+    'PHIEN_BAN_SO_DO',
+    'SUAT_DIEN',
+    'KHU_VUC',
+    'GHE',
+    'GIU_CHO',
+    'CHI_TIET_GIU_CHO',
+    'NGHE_SI',
+    'SU_KIEN_NGHE_SI',
+  ];
+
+  for (const table of requiredTables) {
+    assert.match(content, new RegExp(`\\b${table}\\b`, 'i'), `Must contain table ${table}`);
+  }
+
+  // 3 relationship types
+  assert.match(content, /Mối quan hệ Một - Một/i);
+  assert.match(content, /Mối quan hệ Một - Nhiều/i);
+  assert.match(content, /Mối quan hệ Nhiều - Nhiều/i);
+
+  // 3 technical notes
+  assert.match(content, /\[Chú thích 1\][\s\S]*?SuKienID[\s\S]*?SuatDienID[\s\S]*?trigger/i);
+  assert.match(content, /\[Chú thích 2\][\s\S]*?GheID[\s\S]*?NULL/i);
+  assert.match(content, /\[Chú thích 3\][\s\S]*?MoTaChiTiet/i);
+});
+
+test('02_ANALYSIS_AND_SYSTEM_DESIGN.md covers 14 Entity classes, services, and 5 Sequence Diagrams', () => {
+  const docPath = path.join(rootDir, 'docs/sprint1-deliverables/02_ANALYSIS_AND_SYSTEM_DESIGN.md');
+  assert.ok(fs.existsSync(docPath), '02_ANALYSIS_AND_SYSTEM_DESIGN.md must exist');
+  const content = fs.readFileSync(docPath, 'utf8');
+
+  const requiredClasses = [
+    'class ToChuc',
+    'class HoSoNguoiDung',
+    'class ThanhVienToChuc',
+    'class SuKien',
+    'class CauHinhSuKien',
+    'class DiaDiem',
+    'class PhienBanSoDo',
+    'class SuatDien',
+    'class KhuVuc',
+    'class Ghe',
+    'class GiuCho',
+    'class ChiTietGiuCho',
+    'class NgheSi',
+    'class SuKienNgheSi',
+  ];
+
+  for (const cls of requiredClasses) {
+    assert.match(content, new RegExp(cls, 'i'), `Must contain entity class ${cls}`);
+  }
+
+  // 5 Sequence Diagrams (SD-01 to SD-05)
+  for (let i = 1; i <= 5; i++) {
+    const sdTag = `SD-0${i}`;
+    assert.match(content, new RegExp(sdTag, 'i'), `Must contain sequence diagram ${sdTag}`);
+  }
+});
+
+test('05_TRACEABILITY_TEST_AND_CLOSURE.md establishes 4-way architectural linkage matrix', () => {
+  const docPath = path.join(rootDir, 'docs/sprint1-deliverables/05_TRACEABILITY_TEST_AND_CLOSURE.md');
+  assert.ok(fs.existsSync(docPath), '05_TRACEABILITY_TEST_AND_CLOSURE.md must exist');
+  const content = fs.readFileSync(docPath, 'utf8');
+
+  assert.match(content, /Ma trận liên kết kiến trúc \(UC → Bảng ERD → Lớp Class → Sequence Diagram\)/i);
+  for (let i = 1; i <= 9; i++) {
+    const ucTag = `UC-0${i}`;
+    assert.match(content, new RegExp(ucTag, 'i'), `Traceability matrix must cover ${ucTag}`);
+  }
+});
+
