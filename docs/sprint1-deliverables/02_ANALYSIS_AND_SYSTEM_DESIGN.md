@@ -94,7 +94,7 @@ flowchart TD
   A[Mở Marketplace khám phá sự kiện] --> B[Chọn sự kiện và xem chi tiết, timeline & lineup]
   B --> C[Chọn suất diễn mong muốn]
   C --> D[Xem danh sách phân khu vé, giá niêm yết và chính sách]
-  D --> E[Chọn 1–4 vé hoặc chọn ghế trực quan trên sơ đồ]
+  D --> E[Sprint 3: Chọn 1–4 vé hoặc chọn ghế trực quan trên sơ đồ]
   E --> F{Gọi RPC tao_giu_cho_theo_suat}
   F -- Thất bại / Hết vé / Ghế bị tranh chấp --> G[Hiển thị Toast thông báo lỗi & yêu cầu chọn lại]
   G --> E
@@ -104,8 +104,10 @@ flowchart TD
   J --> K{Người mua xử lý?}
   K -- Chủ động bấm Hủy giữ chỗ --> L[Gọi RPC huy_giu_cho: Trả ghế TRONG, đổi RELEASED]
   K -- Hết 5 phút không thao tác --> M[Cron expire_seat_holds tự động hoàn lại ghế TRONG, đổi EXPIRED]
-  K -- Sang bước thanh toán --> N[Sprint 1 kết thúc tại mốc giữ chỗ an toàn; chuyển đổi CONVERTED ở Sprint sau]
+  K -- Sang bước thanh toán --> N[Thanh toán FR-T3-02 chưa triển khai; chuyển đổi CONVERTED khi có thanh toán]
 ```
+
+Nghiệm thu Sprint 1 dừng ở bước D (xem sự kiện, suất diễn, hạng vé và sơ đồ ghế). Từ bước E trở đi là FR-T3-01 (Sprint 3); repo đã có lát cắt kỹ thuật nhưng không tính nghiệm thu Sprint 1.
 
 ---
 
@@ -477,7 +479,7 @@ sequenceDiagram
 
 ### SD-02: Xem sơ đồ ghế và cập nhật trạng thái realtime (UC-T1-02, UC-T1-05, Sprint 1)
 
-Luồng Sprint 1 chỉ đọc: tải danh mục khu vực/ghế của suất diễn, vẽ sơ đồ, rồi nhận thay đổi trạng thái ghế qua Supabase Realtime. Nguyên nhân thay đổi (người khác giữ chỗ) thuộc UC-T3-02.
+Luồng Sprint 1 chỉ đọc: tải danh mục khu vực/ghế của suất diễn, vẽ sơ đồ, rồi nhận thay đổi trạng thái ghế qua Supabase Realtime (US-T1-01 Scenario 2, ví dụ ghế chuyển sang Đã bán). Sơ đồ chỉ hiển thị thay đổi; trong repo hiện tại, thay đổi trên `GHE` phát sinh từ lát cắt giữ chỗ UC-T3-02 (Sprint 3).
 
 ```mermaid
 sequenceDiagram
@@ -499,8 +501,8 @@ sequenceDiagram
   SRS->>WS: Kênh show-showId - postgres_changes UPDATE trên GHE, lọc KhuVucID IN (...)
   WS-->>SRS: SUBSCRIBED
   SRS-->>UI: CONNECTED
-  Note over DB,WS: Ghế đổi trạng thái (do UC-T3-02 của người mua khác hoặc hết hạn giữ chỗ)
-  DB-->>WS: UPDATE GHE (TrangThai = DANG_GIU / TRONG)
+  Note over DB,WS: Ghế đổi trạng thái trong bảng GHE (ví dụ chuyển sang Đã bán)
+  DB-->>WS: UPDATE GHE (TrangThai mới)
   WS-->>SRS: Payload thay đổi ghế
   SRS-->>UI: listener(seatEvent)
   UI->>UI: Đổi màu ghế, không tải lại trang

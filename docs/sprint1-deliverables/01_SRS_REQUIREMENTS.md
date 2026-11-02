@@ -37,7 +37,7 @@ Vấn đề hiện hữu là Super Concert từng được tinh chỉnh như s�
 | FR-T3-01 | Chọn ghế và giữ 1–4 vé trong 5 phút, chống hai phiên giữ cùng ghế | Must | 3 | Lát cắt kỹ thuật backend đã có; không tính nghiệm thu Sprint 1 | FR-U05 |
 | FR-T3-02, FR-T3-03 | Thanh toán đa kênh, hoàn tiền, phát hành vé/QR | Must | 3 | Backlog | FR-U07, FR-U08 |
 | FR-T4-01 | Hàng chờ ảo, hiển thị vị trí/ETA | Must | 4 | Backlog | FR-U06 |
-| FR-T4-02, FR-T4-04 | Khung giá sàn/trần và định giá động | Must/Should | 4 (đề xuất đưa lên Sprint 2 theo yêu cầu môn học) | Chưa triển khai | FR-O07 |
+| FR-T4-02, FR-T4-04 | Khung giá sàn/trần và định giá động | Must/Should | 4 (theo MoSCoW của SRS; Change Request đưa Dynamic Pricing lên Sprint 2 sẽ chốt trong kế hoạch Sprint 2) | Chưa triển khai | FR-O07 |
 | FR-T4-03 | Dashboard doanh thu/tồn kho/check-in realtime | Should | 4 | Backlog | FR-O08 |
 
 ## 4. Quy tắc nghiệp vụ
