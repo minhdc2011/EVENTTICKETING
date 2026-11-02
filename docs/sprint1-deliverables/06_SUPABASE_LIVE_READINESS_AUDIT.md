@@ -20,17 +20,18 @@ Verdict: **READY cho phạm vi demo Sprint 1 sau remediation**. Hai migration `2
 
 ### 2.1 Inventory và dữ liệu
 
-Có 14 bảng trong schema public:
+Có đúng 14 bảng trong schema public (xác minh thực tế qua REST API trên project `qxkgkbayxxaakkwtepss`):
 
-`CHI_TIET_GIU_CHO`, `DIA_DIEM`, `GHE`, `GIU_CHO`, `HO_SO_NGUOI_DUNG`, `KHU_VUC`, `LICH_TRINH`, `NGHE_SI`, `PHIEN_BAN_SO_DO`, `SUAT_DIEN`, `SU_KIEN`, `SU_KIEN_NGHE_SI`, `THANH_VIEN_TO_CHUC`, `TO_CHUC`.
+`CAU_HINH_SU_KIEN`, `CHI_TIET_GIU_CHO`, `DIA_DIEM`, `GHE`, `GIU_CHO`, `HO_SO_NGUOI_DUNG`, `KHU_VUC`, `NGHE_SI`, `PHIEN_BAN_SO_DO`, `SUAT_DIEN`, `SU_KIEN`, `SU_KIEN_NGHE_SI`, `THANH_VIEN_TO_CHUC`, `TO_CHUC`.
 
 Số bản ghi cốt lõi tại thời điểm kiểm tra:
 
-- `SU_KIEN`: 4; `SUAT_DIEN`: 4; `KHU_VUC`: 14; `GHE`: 48.
-- `LICH_TRINH`: 6; `NGHE_SI`: 6; `SU_KIEN_NGHE_SI`: 6.
+- `SU_KIEN`: 4; `CAU_HINH_SU_KIEN`: 4; `SUAT_DIEN`: 4; `KHU_VUC`: 14; `GHE`: 48.
+- `NGHE_SI`: 6; `SU_KIEN_NGHE_SI`: 6.
 - `GIU_CHO`: 5; `CHI_TIET_GIU_CHO`: 11.
+- `LICH_TRINH`: Đã xóa (HTTP 404); toàn bộ timeline đã được di chuyển vào `SU_KIEN.MoTaChiTiet`.
 
-Các số liệu trên chứng minh dữ liệu Super Concert đã được chuẩn hóa thành quan hệ, thay vì chỉ hard-code trên giao diện.
+Các số liệu trên chứng minh dữ liệu Super Concert và các sự kiện mới đã được chuẩn hóa thành quan hệ (kèm quan hệ 1–1 `CAU_HINH_SU_KIEN`), thay vì chỉ hard-code trên giao diện.
 
 ### 2.2 RLS và RPC
 
