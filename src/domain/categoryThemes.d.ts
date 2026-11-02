@@ -5,6 +5,7 @@ export interface CategoryTheme {
   primary: string;
   primaryLight: string;
   primaryDark: string;
+  inkOnLight: string;
   badgeBg: string;
   badgeBorder: string;
   badgeText: string;

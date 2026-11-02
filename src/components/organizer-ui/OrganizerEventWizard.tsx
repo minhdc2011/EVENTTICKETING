@@ -592,7 +592,7 @@ export function OrganizerEventWizard({
                   <div
                     className="org-category-theme-preview"
                     style={{
-                      borderLeftColor: currentTheme.primary,
+                      borderColor: currentTheme.badgeBorder,
                       background: 'rgba(255, 255, 255, 0.02)',
                     }}
                   >

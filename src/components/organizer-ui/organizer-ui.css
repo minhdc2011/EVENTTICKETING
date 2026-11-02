@@ -112,6 +112,15 @@
   color: var(--org-lime, #d8ff3e);
 }
 
+/* The topbar logo also carries .marketplace-logo, whose light-surface colors would vanish on the dark bar. */
+.org-topbar-logo.marketplace-logo {
+  color: #ffffff;
+}
+
+.org-topbar-logo.marketplace-logo span {
+  color: var(--org-lime, #d8ff3e);
+}
+
 .org-topbar-badge {
   display: inline-flex;
   align-items: center;
@@ -1176,7 +1185,6 @@ textarea:focus-visible {
   padding: 14px 18px;
   border-radius: var(--org-radius-md);
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-left-width: 4px;
   margin-bottom: 20px;
   background-color: #f8fafc;
   transition: all 180ms ease;

@@ -443,7 +443,7 @@
 .et-stage-line {
   width: 72%;
   margin: 8px auto 20px;
-  border-top: 3px solid var(--seat-border);
+  border-top: 3px solid var(--seat-border); /* impeccable-disable-line border-accent-on-rounded -- curved stage arc, not a card */
   border-radius: 50%;
   padding-top: 8px;
   text-align: center;

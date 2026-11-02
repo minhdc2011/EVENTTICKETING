@@ -28,7 +28,7 @@ export function EventVenueSection({event}: EventVenueSectionProps) {
         <div className="et-venue-details">
           {isOnline && (
             <div className="et-online-box">
-              <strong style={{color: '#6ee7b7', fontSize: '15px'}}>
+              <strong style={{color: '#047857', fontSize: '15px'}}>
                 Sự kiện diễn ra trực tuyến (Online)
               </strong>
               {event.onlineLink && (
@@ -42,7 +42,7 @@ export function EventVenueSection({event}: EventVenueSectionProps) {
                 </a>
               )}
               {event.onlineInstructions && (
-                <p style={{margin: '8px 0 0 0', color: '#cbd5e1', fontSize: '14px', lineHeight: 1.6, whiteSpace: 'pre-line'}}>
+                <p style={{margin: '8px 0 0 0', color: '#475569', fontSize: '14px', lineHeight: 1.6, whiteSpace: 'pre-line'}}>
                   {event.onlineInstructions}
                 </p>
               )}
@@ -53,11 +53,11 @@ export function EventVenueSection({event}: EventVenueSectionProps) {
             <div>
               <div style={{marginBottom: '14px'}}>
                 <span className="et-meta-label">Địa điểm tổ chức trực tiếp</span>
-                <div style={{color: '#ffffff', fontSize: '16px', fontWeight: 700, marginTop: '2px'}}>
+                <div style={{color: '#0f172a', fontSize: '16px', fontWeight: 700, marginTop: '2px'}}>
                   {event.venueName}
                 </div>
                 {event.address && (
-                  <div style={{color: '#94a3b8', fontSize: '13px', marginTop: '2px'}}>
+                  <div style={{color: '#64748b', fontSize: '13px', marginTop: '2px'}}>
                     {event.address}
                   </div>
                 )}
@@ -65,7 +65,7 @@ export function EventVenueSection({event}: EventVenueSectionProps) {
 
               {(event.onlineLink || event.onlineInstructions) && (
                 <div className="et-online-box" style={{marginTop: '12px'}}>
-                  <strong style={{color: '#6ee7b7', fontSize: '14px'}}>
+                  <strong style={{color: '#047857', fontSize: '14px'}}>
                     Đồng thời phát sóng trực tuyến
                   </strong>
                   {event.onlineLink && (
@@ -79,7 +79,7 @@ export function EventVenueSection({event}: EventVenueSectionProps) {
                     </a>
                   )}
                   {event.onlineInstructions && (
-                    <p style={{margin: '8px 0 0 0', color: '#cbd5e1', fontSize: '13px', lineHeight: 1.6, whiteSpace: 'pre-line'}}>
+                    <p style={{margin: '8px 0 0 0', color: '#475569', fontSize: '13px', lineHeight: 1.6, whiteSpace: 'pre-line'}}>
                       {event.onlineInstructions}
                     </p>
                   )}
@@ -89,9 +89,9 @@ export function EventVenueSection({event}: EventVenueSectionProps) {
           )}
 
           {isTba && (
-            <div style={{padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px'}}>
-              <strong style={{color: '#fbbf24', fontSize: '15px'}}>Địa điểm sẽ thông báo sau (TBA)</strong>
-              <p style={{margin: '6px 0 0 0', color: '#cbd5e1', fontSize: '13px'}}>
+            <div style={{padding: '16px', background: '#f8fafc', borderRadius: '8px'}}>
+              <strong style={{color: '#b45309', fontSize: '15px'}}>Địa điểm sẽ thông báo sau (TBA)</strong>
+              <p style={{margin: '6px 0 0 0', color: '#475569', fontSize: '13px'}}>
                 Ban tổ chức đang hoàn thiện địa điểm và sẽ gửi thông báo chi tiết trước ngày diễn ra.
               </p>
             </div>
@@ -100,17 +100,17 @@ export function EventVenueSection({event}: EventVenueSectionProps) {
           {!isOnline && !isHybrid && !isTba && (
             <div>
               <span className="et-meta-label">Địa điểm diễn ra sự kiện</span>
-              <div style={{color: '#ffffff', fontSize: '18px', fontWeight: 800, marginTop: '4px'}}>
+              <div style={{color: '#0f172a', fontSize: '18px', fontWeight: 800, marginTop: '4px'}}>
                 {event.venueName || 'Địa điểm tổ chức'}
               </div>
               {event.address && (
-                <div style={{color: '#cbd5e1', fontSize: '14px', marginTop: '4px'}}>
+                <div style={{color: '#475569', fontSize: '14px', marginTop: '4px'}}>
                   {event.address}
                 </div>
               )}
               {event.capacity > 0 && (
-                <div style={{color: '#94a3b8', fontSize: '13px', marginTop: '8px'}}>
-                  Quy mô sức chứa dự kiến: <strong style={{color: '#ffffff'}}>{event.capacity.toLocaleString('vi-VN')}</strong> chỗ
+                <div style={{color: '#64748b', fontSize: '13px', marginTop: '8px'}}>
+                  Quy mô sức chứa dự kiến: <strong style={{color: '#0f172a'}}>{event.capacity.toLocaleString('vi-VN')}</strong> chỗ
                 </div>
               )}
             </div>

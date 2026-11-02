@@ -466,7 +466,7 @@ export function EventCatalog() {
 
                 {/* Event info */}
                 <div className="marketplace-card-body">
-                  <time className="marketplace-card-time" style={{color: theme.primaryLight}}>
+                  <time className="marketplace-card-time" style={{color: theme.inkOnLight}}>
                     <IconCalendar size={12} />
                     <span>{dateFormatter.format(new Date(event.startsAt))}</span>
                   </time>
@@ -476,7 +476,7 @@ export function EventCatalog() {
                     <span>{event.venueName || 'Địa điểm thông báo sau'}</span>
                   </p>
                   <div className="marketplace-card-footer">
-                    <span className="marketplace-card-action" style={{color: theme.primaryLight}}>
+                    <span className="marketplace-card-action" style={{color: theme.inkOnLight}}>
                       Xem chi tiết <IconArrowRight size={13} />
                     </span>
                   </div>

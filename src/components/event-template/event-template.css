@@ -471,14 +471,12 @@
   letter-spacing: 0.02em;
   text-decoration: none;
   text-transform: none;
-  box-shadow: 0 6px 24px var(--et-cat-glow, rgba(245, 158, 11, 0.28));
-  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
 .et-hero-primary-cta:hover {
   background: var(--et-cat-accent-light, #fbbf24);
   transform: translateY(-1px);
-  box-shadow: 0 8px 28px var(--et-cat-glow, rgba(245, 158, 11, 0.38));
 }
 
 .et-hero-secondary-cta {
@@ -750,7 +748,7 @@
 }
 
 .et-section-kicker {
-  color: var(--et-cat-accent, #6366f1);
+  color: var(--et-cat-accent-ink, #4338ca);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--tracking-kicker, 0.08em);
@@ -864,7 +862,7 @@
 
 .et-tier-avail-badge--ok {
   background: rgba(16, 185, 129, 0.12);
-  color: #059669;
+  color: #047857;
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
@@ -991,7 +989,7 @@
 
 .et-booking-panel-show {
   margin-top: 4px;
-  color: var(--et-cat-accent-light, #fbbf24);
+  color: var(--et-cat-accent-ink, #b45309);
   font-size: 13px;
   font-weight: 700;
 }
@@ -1167,6 +1165,10 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.et-venue-details .et-meta-label {
+  color: #64748b;
 }
 
 .et-online-box {
@@ -1694,6 +1696,7 @@
   --et-cat-bg: #070907;
   --et-cat-accent: #d8ff3e;
   --et-cat-accent-light: #e8ff6b;
+  --et-cat-accent-ink: #4d7c0f;
   --et-cat-glow: rgba(216, 255, 62, 0.22);
   --et-cat-badge-bg: rgba(216, 255, 62, 0.14);
   --et-cat-badge-border: rgba(216, 255, 62, 0.38);
@@ -1704,6 +1707,7 @@
   --et-cat-bg: #100609;
   --et-cat-accent: #f43f5e;
   --et-cat-accent-light: #fb7185;
+  --et-cat-accent-ink: #be123c;
   --et-cat-glow: rgba(244, 63, 94, 0.18);
   --et-cat-badge-bg: rgba(244, 63, 94, 0.14);
   --et-cat-badge-border: rgba(244, 63, 94, 0.38);
@@ -1714,6 +1718,7 @@
   --et-cat-bg: #040a12;
   --et-cat-accent: #0ea5e9;
   --et-cat-accent-light: #38bdf8;
+  --et-cat-accent-ink: #0369a1;
   --et-cat-glow: rgba(14, 165, 233, 0.18);
   --et-cat-badge-bg: rgba(14, 165, 233, 0.14);
   --et-cat-badge-border: rgba(14, 165, 233, 0.38);
@@ -1724,6 +1729,7 @@
   --et-cat-bg: #060716;
   --et-cat-accent: #6366f1;
   --et-cat-accent-light: #818cf8;
+  --et-cat-accent-ink: #4338ca;
   --et-cat-glow: rgba(99, 102, 241, 0.18);
   --et-cat-badge-bg: rgba(99, 102, 241, 0.14);
   --et-cat-badge-border: rgba(99, 102, 241, 0.38);
@@ -1734,6 +1740,7 @@
   --et-cat-bg: #03100b;
   --et-cat-accent: #10b981;
   --et-cat-accent-light: #34d399;
+  --et-cat-accent-ink: #047857;
   --et-cat-glow: rgba(16, 185, 129, 0.18);
   --et-cat-badge-bg: rgba(16, 185, 129, 0.14);
   --et-cat-badge-border: rgba(16, 185, 129, 0.38);
@@ -1744,6 +1751,7 @@
   --et-cat-bg: #120904;
   --et-cat-accent: #f97316;
   --et-cat-accent-light: #fb923c;
+  --et-cat-accent-ink: #c2410c;
   --et-cat-glow: rgba(249, 115, 22, 0.18);
   --et-cat-badge-bg: rgba(249, 115, 22, 0.14);
   --et-cat-badge-border: rgba(249, 115, 22, 0.38);
@@ -1754,6 +1762,7 @@
   --et-cat-bg: #0b0610;
   --et-cat-accent: #a855f7;
   --et-cat-accent-light: #c084fc;
+  --et-cat-accent-ink: #7e22ce;
   --et-cat-glow: rgba(168, 85, 247, 0.18);
   --et-cat-badge-bg: rgba(168, 85, 247, 0.14);
   --et-cat-badge-border: rgba(168, 85, 247, 0.38);
@@ -1767,7 +1776,7 @@
 }
 
 .et-shell[data-category] .et-section-kicker {
-  color: var(--et-cat-accent, #fbbf24);
+  color: var(--et-cat-accent-ink, #b45309);
 }
 
 /* ==========================================================================

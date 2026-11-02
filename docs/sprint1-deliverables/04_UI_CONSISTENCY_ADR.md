@@ -37,7 +37,7 @@ Runtime overlays của Super Concert cũng đã chuyển sang React component (`
 
 Timeline cũng đã được chuyển sang lát cắt dữ liệu dùng chung:
 
-`LICH_TRINH` → `scheduleService` → chuẩn hóa/sắp xếp ở `publicSchedule` → state trong `EventTemplate` → `ScheduleDialog`.
+`SU_KIEN.MoTaChiTiet` (bảng `LICH_TRINH` đã bị xóa ở migration `20261028100000`) → `scheduleService` (`parseTimelineFromDescription`) → chuẩn hóa/sắp xếp ở `publicSchedule` → state trong `EventTemplate` → `ScheduleDialog`.
 
 - Dữ liệu database là nguồn chính; fallback chỉ dành cho định danh ổn định `SUPER_CONCERT_2026` khi môi trường mock/backend rỗng hoặc không sẵn sàng.
 - Event do BTC tạo chỉ hiện nút lịch trình khi thật sự có bản ghi hợp lệ.

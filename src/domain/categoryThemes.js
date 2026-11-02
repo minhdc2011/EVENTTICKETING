@@ -8,6 +8,7 @@
  * @property {string} primary
  * @property {string} primaryLight
  * @property {string} primaryDark
+ * @property {string} inkOnLight
  * @property {string} badgeBg
  * @property {string} badgeBorder
  * @property {string} badgeText
@@ -37,6 +38,7 @@ export const CATEGORY_THEMES = Object.freeze({
     // Super Concert 2026 electric fluorescent-lime / black stage identity
     primary: '#d8ff3e',
     primaryLight: '#e8ff6b',
+    inkOnLight: '#4d7c0f',
     primaryDark: '#84cc16',
     badgeBg: 'rgba(216, 255, 62, 0.14)',
     badgeBorder: 'rgba(216, 255, 62, 0.38)',
@@ -54,6 +56,7 @@ export const CATEGORY_THEMES = Object.freeze({
     // Velvet crimson / rose gold theatrical elegance
     primary: '#f43f5e',
     primaryLight: '#fb7185',
+    inkOnLight: '#be123c',
     primaryDark: '#be123c',
     badgeBg: 'rgba(244, 63, 94, 0.14)',
     badgeBorder: 'rgba(244, 63, 94, 0.38)',
@@ -71,6 +74,7 @@ export const CATEGORY_THEMES = Object.freeze({
     // High-energy stadium azure electric blue
     primary: '#0ea5e9',
     primaryLight: '#38bdf8',
+    inkOnLight: '#0369a1',
     primaryDark: '#0369a1',
     badgeBg: 'rgba(14, 165, 233, 0.14)',
     badgeBorder: 'rgba(14, 165, 233, 0.38)',
@@ -88,6 +92,7 @@ export const CATEGORY_THEMES = Object.freeze({
     // Executive deep sapphire indigo & titanium
     primary: '#6366f1',
     primaryLight: '#818cf8',
+    inkOnLight: '#4338ca',
     primaryDark: '#4338ca',
     badgeBg: 'rgba(99, 102, 241, 0.14)',
     badgeBorder: 'rgba(99, 102, 241, 0.38)',
@@ -105,6 +110,7 @@ export const CATEGORY_THEMES = Object.freeze({
     // Fresh emerald jade craft & growth
     primary: '#10b981',
     primaryLight: '#34d399',
+    inkOnLight: '#047857',
     primaryDark: '#047857',
     badgeBg: 'rgba(16, 185, 129, 0.14)',
     badgeBorder: 'rgba(16, 185, 129, 0.38)',
@@ -122,6 +128,7 @@ export const CATEGORY_THEMES = Object.freeze({
     // Warm terracotta dusk & ochre wanderlust
     primary: '#f97316',
     primaryLight: '#fb923c',
+    inkOnLight: '#c2410c',
     primaryDark: '#c2410c',
     badgeBg: 'rgba(249, 115, 22, 0.14)',
     badgeBorder: 'rgba(249, 115, 22, 0.38)',
@@ -139,6 +146,7 @@ export const CATEGORY_THEMES = Object.freeze({
     // Polished amethyst violet obsidian
     primary: '#a855f7',
     primaryLight: '#c084fc',
+    inkOnLight: '#7e22ce',
     primaryDark: '#7e22ce',
     badgeBg: 'rgba(168, 85, 247, 0.14)',
     badgeBorder: 'rgba(168, 85, 247, 0.38)',

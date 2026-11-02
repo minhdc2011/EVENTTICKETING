@@ -480,7 +480,7 @@
         gap: 7px 12px;
         min-width: 0;
         color: rgba(226, 232, 240, .72);
-        font-size: 10px;
+        font-size: 11px;
         line-height: 1;
       }
       .seating-status-legend__item {
@@ -1119,7 +1119,7 @@
       #pricing-section .liquid-glass {
         background: #101010 !important;
         border: 1px solid rgba(255,255,255,.14) !important;
-        border-top: 3px solid var(--accent) !important;
+        border-top: 3px solid var(--accent) !important; /* impeccable-disable-line border-accent-on-rounded -- radius is forced to 0 below */
         border-radius: 0 !important;
         box-shadow: none !important;
       }
@@ -1338,14 +1338,14 @@
       .stadium-map-caption strong {
         display: block;
         color: #fff;
-        font-size: 10px;
+        font-size: 11px;
         text-transform: uppercase;
       }
       .stadium-map-caption span {
         display: block;
         margin-top: 3px;
         color: rgba(255,255,255,.48);
-        font-size: 9px;
+        font-size: 11px;
         line-height: 1.45;
       }
       .seat-inventory-heading {
@@ -1382,7 +1382,7 @@
         gap: 5px;
       }
       .stadium-bowl.is-live-map > .zone-block > div:first-child > div { min-width: 0; }
-      .stadium-bowl.is-live-map > .zone-block h4 {
+      .stadium-bowl.is-live-map > .zone-block h3 {
         overflow: hidden;
         color: rgba(255,255,255,.78) !important;
         font-family: var(--font-sans); font-variant-numeric: tabular-nums;
@@ -1436,14 +1436,14 @@
       .stadium-bowl.is-live-map #zone-block-B {
         top: 33%; right: 5%; width: 20%;
       }
-      .stadium-bowl.is-live-map :is(#zone-block-A, #zone-block-B) h4 {
+      .stadium-bowl.is-live-map :is(#zone-block-A, #zone-block-B) h3 {
         font-size: 0 !important;
       }
-      .stadium-bowl.is-live-map #zone-block-A h4::after {
+      .stadium-bowl.is-live-map #zone-block-A h3::after {
         content: 'A · TẦNG 1';
         font-size: 7px;
       }
-      .stadium-bowl.is-live-map #zone-block-B h4::after {
+      .stadium-bowl.is-live-map #zone-block-B h3::after {
         content: 'B · TẦNG 2';
         font-size: 7px;
       }
@@ -2043,9 +2043,10 @@
         border: 1px solid rgba(255,255,255,.12);
         background: rgba(255,255,255,.025);
         color: rgba(255,255,255,.52);
-        font-size: 10px;
+        font-size: 12px;
       }
       .stadium-map-instruction strong { color: #d8ff3e; text-transform: uppercase; letter-spacing: .06em; }
+      #search-seat-input::placeholder { color: #94a3b8; }
       .stadium-capacity-chip {
         flex: 0 0 auto;
         padding: 5px 8px;
@@ -2339,7 +2340,7 @@
       #pricing-section [data-zone-code] .btn-glow,
       #pricing-section [data-zone-code] .btn-glow span { color: #090909 !important; }
       .btn-glow::before { display: none; }
-      footer { background: #070707 !important; }
+      footer:not(.marketplace-footer) { background: #070707 !important; }
 
       /* Editorial concert timeline — aligned with the current visual system. */
       .schedule-overlay {
@@ -2719,7 +2720,7 @@
 }
 
 .marketplace-logo span {
-  color: #84cc16;
+  color: #4d7c0f;
 }
 
 .marketplace-logo-sub {
@@ -2766,7 +2767,7 @@
 }
 
 .marketplace-search input::placeholder {
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .marketplace-search-clear {
@@ -3448,7 +3449,7 @@
 }
 
 .marketplace-footer-brand span {
-  color: #10b981;
+  color: #047857;
 }
 
 .marketplace-footer-slogan {
@@ -3463,7 +3464,7 @@
   flex-direction: column;
   gap: 6px;
   margin-top: 18px;
-  color: #059669;
+  color: #047857;
   font-size: 12px;
   font-weight: 600;
 }
@@ -3568,7 +3569,7 @@
 }
 
 .buyer-auth-kicker {
-  color: #d97706;
+  color: #b45309;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -4279,7 +4280,7 @@
 
 .organizer-auth-tabs button.is-active {
   border-color: var(--lime);
-  color: var(--lime);
+  color: #0f172a;
   font-weight: 900;
 }
 
@@ -4334,6 +4335,11 @@
 .organizer-auth .organizer-primary {
   width: 100%;
   margin-top: 22px;
+}
+
+.organizer-auth .org-label-hint,
+.organizer-auth .org-auth-footer-note {
+  color: #94a3b8;
 }
 
 .organizer-auth form > small {

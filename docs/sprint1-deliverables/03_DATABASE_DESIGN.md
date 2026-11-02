@@ -8,12 +8,12 @@ Sơ đồ ERD bao gồm đầy đủ **14 bảng trong schema `public`** của h
 erDiagram
   AUTH_USERS ||--|| HO_SO_NGUOI_DUNG : "1:1 (PK=FK NguoiDungID)"
   TO_CHUC ||--o{ THANH_VIEN_TO_CHUC : "1:N (ToChucID) [N:N User-Org]"
-  HO_SO_NGUOI_DUNG ||--o{ THANH_VIEN_TO_CHUC : "1:N (NguoiDungID) [N:N User-Org]"
+  AUTH_USERS ||--o{ THANH_VIEN_TO_CHUC : "1:N (NguoiDungID FK auth.users) [N:N User-Org]"
   TO_CHUC ||--o{ SU_KIEN : "1:N (ToChucID)"
   SU_KIEN ||--|| CAU_HINH_SU_KIEN : "1:1 (PK=FK SuKienID)"
-  TO_CHUC ||--o{ DIA_DIEM : "1:N (ToChucID)"
+  TO_CHUC |o--o{ DIA_DIEM : "0..1:N (ToChucID nullable)"
   DIA_DIEM ||--o{ PHIEN_BAN_SO_DO : "1:N (DiaDiemID)"
-  DIA_DIEM ||--o{ SUAT_DIEN : "1:N (DiaDiemID)"
+  DIA_DIEM |o--o{ SUAT_DIEN : "0..1:N (DiaDiemID nullable)"
   PHIEN_BAN_SO_DO |o--o{ SUAT_DIEN : "0..1:N (PhienBanSoDoID)"
   SU_KIEN ||--|{ SUAT_DIEN : "1:N (SuKienID)"
   SUAT_DIEN ||--|{ KHU_VUC : "1:N cha chinh (SuatDienID)"
@@ -67,7 +67,7 @@ erDiagram
     text MoTaChiTiet "Gop timeline Markdown [Chu thich 3]"
     string TheLoai
     string TemplateKey "DEFAULT | SUPER_CONCERT_2026"
-    string TrangThaiCongBo "BAN_NHAP | CONG_KHAI"
+    string TrangThaiCongBo "BAN_NHAP | CONG_KHAI | DA_AN"
     timestamptz ThoiGianBatDau
     timestamptz ThoiGianKetThuc
   }
@@ -114,7 +114,7 @@ erDiagram
     timestamptz ThoiGianKetThuc
     timestamptz ThoiGianMoBanVe
     timestamptz ThoiGianDongBanVe
-    string TrangThai "BAN_NHAP | SAP_MO_BAN | DANG_MO_BAN | HET_VE | DONG_BAN | HUY"
+    string TrangThai "BAN_NHAP | SAP_MO_BAN | DANG_MO_BAN | HET_VE | DONG_BAN | HUY | DA_DIEN_RA"
   }
 
   KHU_VUC {
@@ -137,7 +137,7 @@ erDiagram
     string SoHang
     string SoGhe
     string MaGheDayDu "Unique per KhuVucID"
-    string TrangThai "TRONG | DANG_GIU | DA_BAN | KHOA"
+    string TrangThai "TRONG | DANG_GIU | DA_BAN (khong co CHECK o DB)"
     int ToaDoX
     int ToaDoY
   }
@@ -207,9 +207,9 @@ Các quan hệ cha - con phân cấp tự nhiên trong chuỗi cung ứng vé s�
 | Thực thể Một (1) | Thực thể Nhiều (N) | Bội số | Khóa ngoại (FK) | Ý nghĩa nghiệp vụ & Ràng buộc toàn vẹn |
 |---|---|:---:|---|---|
 | `TO_CHUC` | `SU_KIEN` | `1 : 0..N` | `SU_KIEN.ToChucID` | Một đơn vị tổ chức (Tenant/BTC) sở hữu và quản lý nhiều sự kiện khác nhau. |
-| `TO_CHUC` | `DIA_DIEM` | `1 : 0..N` | `DIA_DIEM.ToChucID` | Một tổ chức quản lý danh mục các địa điểm tổ chức (SVĐ, Trung tâm hội nghị). |
+| `TO_CHUC` | `DIA_DIEM` | `0..1 : 0..N` | `DIA_DIEM.ToChucID` (nullable, `ON DELETE SET NULL`) | Một tổ chức quản lý danh mục các địa điểm tổ chức (SVĐ, Trung tâm hội nghị). |
 | `DIA_DIEM` | `PHIEN_BAN_SO_DO` | `1 : 0..N` | `PHIEN_BAN_SO_DO.DiaDiemID` | Một địa điểm có thể có nhiều phiên bản sơ đồ chỗ ngồi (`Unique(DiaDiemID, SoPhienBan)`). |
-| `DIA_DIEM` | `SUAT_DIEN` | `1 : 0..N` | `SUAT_DIEN.DiaDiemID` | Nhiều suất diễn có thể được tổ chức tại cùng một địa điểm. |
+| `DIA_DIEM` | `SUAT_DIEN` | `0..1 : 0..N` | `SUAT_DIEN.DiaDiemID` (nullable) | Nhiều suất diễn có thể được tổ chức tại cùng một địa điểm. |
 | `PHIEN_BAN_SO_DO` | `SUAT_DIEN` | `0..1 : 0..N` | `SUAT_DIEN.PhienBanSoDoID` | Một phiên bản sơ đồ được áp dụng cho một hoặc nhiều suất diễn. |
 | `SU_KIEN` | `SUAT_DIEN` | `1 : 1..N` | `SUAT_DIEN.SuKienID` | Một sự kiện có ít nhất một hoặc nhiều suất diễn (Multi-show, `Unique(SuKienID, Slug)`). |
 | `SUAT_DIEN` | `KHU_VUC` | `1 : 1..N` | `KHU_VUC.SuatDienID` | **Cha chính**: Mỗi suất diễn chia thành nhiều phân khu / hạng vé (`Unique(SuatDienID, MaKhuVuc)`). |
@@ -293,7 +293,7 @@ classDiagram
 ### [Chú thích 2]: `CHI_TIET_GIU_CHO.GheID` có thể NULL (Phân biệt khu đứng và khu ghế ngồi)
 - **Thực trạng**: Cột `CHI_TIET_GIU_CHO.GheID` cho phép giá trị `NULL` (`INT NULL REFERENCES GHE(GheID)`).
 - **Lý do nghiệp vụ**: Hệ thống phục vụ hai hình thức phân khu vé khác nhau:
-  1. **Phân khu ghế ngồi (`LoaiKhuVuc = 'GHE_NGOI'`)**: Khán giả chọn từng ghế cụ thể trên sơ đồ (VD: Ghế `VIP-A-01`). Khi đó `CHI_TIET_GIU_CHO.GheID` bắt buộc **NOT NULL**, `SoLuong = 1`, và trạng thái ghế trong bảng `GHE` chuyển sang `DANG_GIU`.
+  1. **Phân khu ghế ngồi (`LoaiKhuVuc = 'GHE_NGOI'`)**: Khán giả chọn từng ghế cụ thể trên sơ đồ (VD: Ghế `VIP-A-01`). Khi đó `CHI_TIET_GIU_CHO.GheID` phải **NOT NULL theo quy tắc của RPC `tao_giu_cho_theo_suat`** (DB không có CHECK ép buộc), `SoLuong = 1`, và trạng thái ghế trong bảng `GHE` chuyển sang `DANG_GIU`.
   2. **Phân khu vé đứng tự do (`LoaiKhuVuc = 'DUNG_STAND'`)**: Khán giả giữ theo số lượng vé (VD: 2 vé Fanzone đứng). Khi đó không có ghế vật lý tương ứng, `CHI_TIET_GIU_CHO.GheID` có giá trị **`NULL`**, và trường `CHI_TIET_GIU_CHO.SoLuong` ghi nhận số lượng vé được giữ (từ 1 đến 4 vé). Trữ lượng khả dụng được kiểm soát trừ dần vào sức chứa `KHU_VUC.TongSoGhe`.
 
 ### [Chú thích 3]: Timeline chương trình đã được gộp trực tiếp vào `SU_KIEN.MoTaChiTiet`
@@ -301,7 +301,7 @@ classDiagram
 - **Lý do kiến trúc**: Lịch trình sự kiện (Timeline) về bản chất là thông tin mô tả diễn biến chương trình dành cho khán giả, không có các quan hệ giao dịch hay khóa ngoại phụ thuộc phức tạp. Việc duy trì một bảng riêng làm tăng chi phí bảo trì và phân mảnh dữ liệu.
 - **Giải pháp triển khai**:
   - Toàn bộ timeline, mốc thời gian và nội dung hoạt động được lưu trực tiếp dưới dạng Markdown trong trường `MoTaChiTiet` của bảng `SU_KIEN`.
-  - Frontend sử dụng parser an toàn `parseTimelineFromDescription(description, eventId)` trong [`src/domain/publicSchedule.js`](file:///home/xloxkwize/Desktop/EVENTTICKETING/src/domain/publicSchedule.js) để tự động trích xuất các mốc thời gian (VD: `- **16:30 - 18:30**: Mở cổng check-in`) thành danh sách `PublicScheduleItem[]` hiển thị trên modal Timeline. Trường hợp sự kiện không có format timeline, modal hiển thị nguyên văn mô tả sự kiện một cách trang nhã.
+  - Frontend sử dụng parser an toàn `parseTimelineFromDescription(description, eventId)` trong [`src/domain/publicSchedule.js`](../../src/domain/publicSchedule.js) để tự động trích xuất các mốc thời gian (VD: `- **16:30 - 18:30**: Mở cổng check-in`) thành danh sách `PublicScheduleItem[]` hiển thị trên modal Timeline. Trường hợp sự kiện không có format timeline, modal hiển thị nguyên văn mô tả sự kiện một cách trang nhã.
 
 ---
 
@@ -342,9 +342,9 @@ Dự án đã kiểm tra thực tế hệ thống live trên project Supabase `q
 | `PHIEN_BAN_SO_DO` | `PhienBanSoDoID` UUID | `DiaDiemID` | Sơ đồ chỗ ngồi của địa điểm | `UNIQUE(DiaDiemID, SoPhienBan)`; `DuLieuSoDo JSONB`; cờ khóa `DaKhoa` |
 | `SUAT_DIEN` | `SuatDienID` BIGINT | `SuKienID`, `DiaDiemID`, `PhienBanSoDoID` | Suất diễn / Lần bán vé (**Cha chính [1]**) | `UNIQUE(SuKienID, Slug)`; `ThoiGianKetThuc > ThoiGianBatDau`; `TrangThai` enum 7 giá trị |
 | `KHU_VUC` | `KhuVucID` INT (Serial) | `SuatDienID` (Cha chính), `SuKienID` (Dư thừa) | Phân khu / Hạng vé | `UNIQUE(SuatDienID, MaKhuVuc)`; `GiaVeNiemYet >= 0`; trigger kiểm tra cha con **[Chú thích 1]** |
-| `GHE` | `GheID` INT (Serial) | `KhuVucID` | Ghế vật lý trên sơ đồ | `UNIQUE(KhuVucID, MaGheDayDu)`; `TrangThai IN ('TRONG', 'DANG_GIU', 'DA_BAN', 'KHOA')` |
+| `GHE` | `GheID` INT (Serial) | `KhuVucID` | Ghế vật lý trên sơ đồ | `UNIQUE(KhuVucID, MaGheDayDu)`; `TrangThai` mặc định `'TRONG'`, mã đang dùng: `TRONG`, `DANG_GIU`, `DA_BAN` (DB **không** có CHECK; giá trị do RPC/RLS kiểm soát) |
 | `GIU_CHO` | `GiuChoID` UUID | `SuatDienID` (Cha chính), `SuKienID` (Dư thừa) | Header phiên giữ chỗ 5 phút | `TrangThai IN ('ACTIVE', 'EXPIRED', 'RELEASED', 'CONVERTED')`; trigger kiểm tra cha con **[Chú thích 1]** |
-| `CHI_TIET_GIU_CHO` | `ID` BIGINT (Serial) | `GiuChoID`, `KhuVucID`, `GheID` (Nullable) | Dòng vé trong phiên giữ chỗ | `SoLuong >= 1`; `GheID` có thể `NULL` đối với khu vé đứng **[Chú thích 2]** |
+| `CHI_TIET_GIU_CHO` | `ID` BIGINT (Serial) | `GiuChoID`, `KhuVucID`, `GheID` (Nullable) | Dòng vé trong phiên giữ chỗ | `SoLuong BETWEEN 1 AND 4`; `GheID` có thể `NULL` đối với khu vé đứng **[Chú thích 2]** |
 | `NGHE_SI` | `NgheSiID` INT (Serial) | — | Master danh mục nghệ sĩ | `NgheDanh` có index tìm kiếm; dùng chung toàn hệ thống |
 | `SU_KIEN_NGHE_SI` | `ID` INT (Serial) | `SuKienID`, `NgheSiID` | Lineup nghệ sĩ (**Quan hệ N–N**) | `UNIQUE(SuKienID, NgheSiID)`; `ThuTuHienThi` xác định thứ tự diễn |
 

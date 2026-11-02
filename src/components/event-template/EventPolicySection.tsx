@@ -26,7 +26,7 @@ export function EventPolicySection({event}: EventPolicySectionProps) {
             <div className="et-policy-item">
               <div className="et-policy-label">Quy định độ tuổi</div>
               <div className="et-policy-content">
-                Độ tuổi tối thiểu tham gia sự kiện: <strong style={{color: '#fbbf24'}}>{event.ageRestriction}</strong>
+                Độ tuổi tối thiểu tham gia sự kiện: <strong style={{color: '#b45309'}}>{event.ageRestriction}</strong>
               </div>
             </div>
           )}
