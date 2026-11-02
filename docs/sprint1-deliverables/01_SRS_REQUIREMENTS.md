@@ -21,6 +21,8 @@ Vấn đề hiện hữu là Super Concert từng được tinh chỉnh như s�
 
 ## 3. Yêu cầu chức năng
 
+> `FR-T1-03` và `FR-T1-04` được bổ sung ở SRS phiên bản 1.1 (02/11/2026). `FR-T1-03` không có trong yêu cầu gốc của customer; nhóm bổ sung khi phân tích Use Case Sprint 1 phát hiện thiếu actor BTC. `FR-T1-04` truy vết `REQ-T1-05`.
+
 | ID | Yêu cầu | Ưu tiên | Sprint | Trạng thái | Mã cũ |
 |---|---|---|---|---|---|
 | FR-T1-01 | Xem danh mục sự kiện công khai, trang chi tiết theo slug, chọn suất diễn; thấy thời gian, địa điểm, timeline, lineup và trạng thái mở bán | Must | 1 | Đã triển khai | FR-U01, FR-U02 |
@@ -56,7 +58,7 @@ Quy tắc chung của hệ thống ghi `BR-Gxx` để không trùng với quy t�
 
 | Mã | Ràng buộc | NFR tương ứng (Phần 2 SRS) |
 |---|---|---|
-| QA-01 | Bảo mật: Supabase RLS, hàm `SECURITY DEFINER` có `search_path = public`, phân quyền theo tổ chức | Chưa có NFR riêng cho Sprint 1 (NFR-04, NFR-05 thuộc T2, T3); đề xuất bổ sung |
+| QA-01 | Bảo mật: Supabase RLS, hàm `SECURITY DEFINER` có `search_path = public`, phân quyền theo tổ chức | NFR-09 (Security, T1; bổ sung ở SRS v1.1) |
 | QA-02 | Nhất quán: transaction và row lock ngăn bán trùng khi giữ chỗ | NFR-02 |
 | QA-03 | Hiệu năng: tải sơ đồ và trạng thái ghế đủ nhanh; tải concert là mục tiêu, chưa chứng minh bằng load test Sprint 1 | NFR-01, NFR-03 |
 | QA-04 | Khả dụng: trạng thái loading/error/not-found rõ ràng; phần tùy chọn trống tự ẩn | NFR-07 |

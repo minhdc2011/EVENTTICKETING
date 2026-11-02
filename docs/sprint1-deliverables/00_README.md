@@ -23,7 +23,7 @@ Bộ hồ sơ này chứng minh chuỗi **yêu cầu khách hàng → phân tíc
 
 ## Kịch bản demo đề xuất (8–10 phút)
 
-1. Nêu vấn đề từ customer: người mua cần mua vé minh bạch; BTC cần tự tạo và vận hành nhiều sự kiện.
+1. Nêu vấn đề: người mua cần mua vé minh bạch (yêu cầu gốc của customer); BTC cần tự tạo và vận hành nhiều sự kiện (bổ sung ở SRS v1.1 khi phân tích Use Case).
 2. Trình bày use case và kiến trúc 3 lớp.
 3. Demo BTC tạo bản nháp → thêm suất diễn/hạng vé → preview → công bố.
 4. Mở Super Concert và một event mới cạnh nhau để chứng minh cùng template, cùng hierarchy và cùng dữ liệu nguồn; mở Timeline để chỉ chuỗi `SU_KIEN.MoTaChiTiet` → parser an toàn `parseTimelineFromDescription` → React dialog (bảng `LICH_TRINH` đã được loại bỏ và gộp gọn vào Description).
