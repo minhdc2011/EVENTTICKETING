@@ -2,53 +2,68 @@
 
 ## 1. Use case tổng quan và danh mục Use Case
 
-Hệ thống EventTicketing được phân tách thành 3 nhóm tác nhân chính (`Người mua`, `Ban tổ chức / Biên tập`, `Vận hành / Soát vé`) và hệ thống nền tảng.
+> **Quy ước mã thống nhất (02/11/2026).** Mã yêu cầu theo SRS: `FR-T1-01..04` (Sprint 1), `FR-T3-01` (Sprint 3). `FR-T1-03` (cổng Ban tổ chức) gồm `FR-T1-03.1..03.6`, trước đây ký hiệu `FR-O01..O06`. Mã Use Case theo tài liệu đặc tả `Requirements_UseCases_Sprint1`: `UC-T1-01..05`, `UC-BTC-01..05`, `UC-T3-01..02`. NFR dùng đúng số hiệu ở Phần 2 của SRS; các ràng buộc chất lượng nội bộ ghi là `QA-xx`.
+
+Sơ đồ UML chuẩn (ranh giới hệ thống, «include»/«extend») là Hình 5.1 và Hình 5.5 trong tài liệu đặc tả `Requirements_UseCases_Sprint1`. Sơ đồ dưới đây là bản tóm tắt để đối chiếu với thiết kế; nét đứt là quan hệ «include»/«extend».
 
 ```mermaid
 flowchart LR
-  subgraph Buyers[Nhóm Khách hàng / Người mua]
-    U[Người mua]
+  K([Khán giả])
+  B([Ban tổ chức])
+  subgraph S1K[Sprint 1 - cụm Khán giả]
+    T101([UC-T1-01 Xem thông tin sự kiện])
+    T102([UC-T1-02 Xem sơ đồ và trạng thái ghế])
+    T103([UC-T1-03 Zoom/Pan sơ đồ])
+    T104([UC-T1-04 Tooltip ghế/giá vé])
+    T105([UC-T1-05 Cập nhật trạng thái ghế realtime])
   end
-  subgraph Organizers[Nhóm Ban tổ chức / Quản trị]
-    O[BTC / Biên tập]
-    V[Vận hành / Soát vé]
+  subgraph S1B[Sprint 1 - cụm Ban tổ chức, FR-T1-03]
+    B01([UC-BTC-01 Đăng nhập BTC])
+    B02([UC-BTC-02 Tạo tổ chức])
+    B03([UC-BTC-03 Tạo/sửa nháp sự kiện])
+    B04([UC-BTC-04 Xem trước])
+    B05([UC-BTC-05 Công bố sự kiện])
   end
-  subgraph SystemPlatform[Hệ thống nền tảng]
-    S[Hệ thống Engine]
+  subgraph S3[Sprint 3 - nền tảng đã dựng sớm, không tính nghiệm thu Sprint 1]
+    T301([UC-T3-01 Chọn ghế])
+    T302([UC-T3-02 Giữ chỗ 5 phút])
   end
-
-  U --> UC1[UC-01: Xem danh mục & Chi tiết event, Timeline, Nghệ sĩ]
-  U --> UC2[UC-02: Chọn suất diễn & Xem cơ cấu hạng vé]
-  U --> UC3[UC-03: Xem sơ đồ ghế realtime & Giữ tối đa 4 chỗ]
-  U --> UC4[UC-04: Hủy giữ chỗ hoặc Đợi hết hạn giữ chỗ 5 phút]
-
-  O --> OC1[UC-05: Đăng nhập, phân loại tài khoản & Quản lý tổ chức]
-  O --> OC2[UC-06: Tạo & Lưu bản nháp sự kiện toàn diện]
-  O --> OC3[UC-07: Cấu hình địa điểm, sơ đồ, suất diễn & phân khu]
-  O --> OC4[UC-08: Xem trước bản nháp Preview & Công bố sự kiện]
-
-  V --> OC5[UC-09: Xem dữ liệu vận hành sự kiện theo quyền tổ chức]
-
-  S --> SC1[Kiểm tra RLS / RBAC đa tổ chức]
-  S --> SC2[Khóa giao dịch FOR UPDATE & Tự động hết hạn hold sau 5 phút]
-  S --> SC3[Phát Realtime WebSocket trạng thái ghế theo suất diễn]
+  K --- T101
+  K --- T102
+  K --- T301
+  K --- T302
+  T101 -. include .-> T102
+  T103 -. extend .-> T102
+  T104 -. extend .-> T102
+  T105 -. extend .-> T102
+  T301 -. include .-> T102
+  T301 -. include .-> T302
+  B --- B01
+  B --- B02
+  B --- B03
+  B --- B04
+  B --- B05
+  B05 -. include .-> B04
 ```
 
 ### Bảng danh mục Use Case chuẩn hóa
 
-| Mã Use Case | Tên Use Case | Tác nhân chính | Phạm vi dữ liệu & Nghiệp vụ cốt lõi |
-|---|---|---|---|
-| **UC-01** | Xem danh mục & Chi tiết sự kiện | Người mua | Tải thông tin sự kiện `SU_KIEN`, bóc tách timeline từ `MoTaChiTiet` **[Chú thích 3]**, tải lineup nghệ sĩ từ `SU_KIEN_NGHE_SI` và `NGHE_SI`. |
-| **UC-02** | Chọn suất diễn & Xem cơ cấu hạng vé | Người mua | Tải danh sách suất diễn `SUAT_DIEN`, thông tin phân khu / giá vé từ `KHU_VUC`. |
-| **UC-03** | Xem sơ đồ ghế Realtime & Giữ chỗ 5 phút | Người mua | Nhận luồng Realtime `GHE`, gọi RPC `tao_giu_cho_theo_suat` tạo `GIU_CHO`, `CHI_TIET_GIU_CHO` (phân biệt ghế ngồi và vé đứng **[Chú thích 2]**). |
-| **UC-04** | Hủy / Hết hạn giữ chỗ | Người mua / Hệ thống | Giải phóng ghế đang giữ về `TRONG`, đổi trạng thái `GIU_CHO` sang `RELEASED` hoặc `EXPIRED` qua cron `expire_seat_holds`. |
-| **UC-05** | Đăng nhập & Quản lý tổ chức / RBAC | Ban tổ chức | Xác thực Supabase Auth, phân loại `LoaiTaiKhoan` trên `HO_SO_NGUOI_DUNG`, quản lý `TO_CHUC` và quyền `THANH_VIEN_TO_CHUC`. |
-| **UC-06** | Tạo & Lưu sự kiện toàn diện | Ban tổ chức | Lưu aggregate trong 1 transaction qua RPC `luu_su_kien_toan_dien`: `SU_KIEN`, cấu hình 1–1 `CAU_HINH_SU_KIEN`, timeline Markdown, lineup nghệ sĩ. |
-| **UC-07** | Cấu hình địa điểm, sơ đồ & phân khu | Ban tổ chức | Thiết lập thông tin `DIA_DIEM`, sơ đồ `PHIEN_BAN_SO_DO`, suất diễn `SUAT_DIEN` và phân bổ phân khu `KHU_VUC`, ghế `GHE`. |
-| **UC-08** | Xem trước bản nháp & Công bố | Ban tổ chức | Kiểm tra tính sẵn sàng `evaluatePublishReadiness` (client, `src/domain/organizerValidation.js`) và kiểm tra ngay trong RPC `cong_bo_su_kien`, mở route Preview bảo mật và gọi RPC `cong_bo_su_kien`. |
-| **UC-09** | Tra cứu dữ liệu vận hành sự kiện | Vận hành / Soát vé | Kiểm tra quyền thành viên tổ chức `la_thanh_vien_to_chuc`, xem danh sách khán đài, suất diễn và số lượng vé phát hành. |
+| Mã UC | Tên Use Case | Actor | FR | Sprint | Dữ liệu và nghiệp vụ cốt lõi | Mã cũ |
+|---|---|---|---|:---:|---|---|
+| **UC-T1-01** | Xem thông tin sự kiện (suất diễn, timeline, lineup, trạng thái mở bán) | Khán giả | FR-T1-01 | 1 | `SU_KIEN`, `SUAT_DIEN`; timeline bóc từ `MoTaChiTiet` **[Chú thích 3]**; lineup `SU_KIEN_NGHE_SI` + `NGHE_SI`; trạng thái mở bán `deriveSaleStatus` | UC-01, UC-02 |
+| **UC-T1-02** | Xem sơ đồ khu vực/ghế, bảng giá và trạng thái ghế | Khán giả | FR-T1-02 | 1 | `KHU_VUC`, `GHE` theo `SuatDienID` qua `loadTicketingCatalog` | UC-02, UC-03 (phần xem) |
+| **UC-T1-03** | Zoom/Pan sơ đồ | Khán giả | FR-T1-04 | 1 | Xử lý trên giao diện bằng dữ liệu đã tải | — |
+| **UC-T1-04** | Tooltip ghế/giá vé, lọc khu, tìm ghế | Khán giả | FR-T1-04 | 1 | Xử lý trên giao diện bằng dữ liệu đã tải | — |
+| **UC-T1-05** | Cập nhật trạng thái ghế realtime | Khán giả | FR-T1-02 | 1 | Supabase Realtime trên `GHE`, lọc theo `KhuVucID` của suất diễn | UC-03 (phần realtime) |
+| **UC-BTC-01** | Đăng nhập BTC, phân loại tài khoản | BTC | FR-T1-03.1 | 1 | Supabase Auth; `HO_SO_NGUOI_DUNG.LoaiTaiKhoan` | UC-05 |
+| **UC-BTC-02** | Tạo tổ chức, phân quyền thành viên (vai trò `VAN_HANH`, `SOAT_VE` chỉ xem) | BTC | FR-T1-03.2 | 1 | RPC `tao_to_chuc_cua_toi`; `TO_CHUC`, `THANH_VIEN_TO_CHUC`; `la_thanh_vien_to_chuc` | UC-05, UC-09 |
+| **UC-BTC-03** | Tạo/sửa nháp sự kiện (suất diễn, phân khu/hạng vé, timeline, nghệ sĩ) | BTC | FR-T1-03.3 | 1 | RPC `luu_su_kien_toan_dien`: `SU_KIEN`, `CAU_HINH_SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `SU_KIEN_NGHE_SI`, `NGHE_SI` (chưa sinh `GHE`) | UC-06, UC-07 |
+| **UC-BTC-04** | Xem trước bản nháp | BTC | FR-T1-03.4 | 1 | `loadEventForPreview`; trang sự kiện với `?preview=1` | UC-08 |
+| **UC-BTC-05** | Công bố sự kiện | BTC | FR-T1-03.5 | 1 | `evaluatePublishReadiness` (client) + RPC `cong_bo_su_kien` | UC-08 |
+| **UC-T3-01** | Chọn ghế (tối đa 4) | Khán giả | FR-T3-01 | 3 | `evaluateSeatSelection` | UC-03 (phần chọn) |
+| **UC-T3-02** | Giữ chỗ 5 phút, hủy, hết hạn | Khán giả | FR-T3-01 | 3 | RPC `tao_giu_cho_theo_suat`, `huy_giu_cho`, `expire_seat_holds` (pg_cron); `GIU_CHO`, `CHI_TIET_GIU_CHO` | UC-03 (phần giữ), UC-04 |
 
----
+`FR-T1-03.6` (mọi sự kiện dùng chung template) là ràng buộc thiết kế của UC-T1-01, xem mục 7 và `04_UI_CONSISTENCY_ADR.md`.
 
 ## 2. Activity — Luồng Ban tổ chức tạo và công bố sự kiện
 
@@ -72,14 +87,14 @@ flowchart TD
 
 ---
 
-## 3. Activity — Luồng Người mua xem vé và giữ chỗ
+## 3. Activity — Luồng Người mua xem vé (Sprint 1) và giữ chỗ (Sprint 3)
 
 ```mermaid
 flowchart TD
   A[Mở Marketplace khám phá sự kiện] --> B[Chọn sự kiện và xem chi tiết, timeline & lineup]
   B --> C[Chọn suất diễn mong muốn]
   C --> D[Xem danh sách phân khu vé, giá niêm yết và chính sách]
-  D --> E[Chọn 1–4 vé hoặc chọn ghế trực quan trên sơ đồ]
+  D --> E[Sprint 3: Chọn 1–4 vé hoặc chọn ghế trực quan trên sơ đồ]
   E --> F{Gọi RPC tao_giu_cho_theo_suat}
   F -- Thất bại / Hết vé / Ghế bị tranh chấp --> G[Hiển thị Toast thông báo lỗi & yêu cầu chọn lại]
   G --> E
@@ -89,8 +104,10 @@ flowchart TD
   J --> K{Người mua xử lý?}
   K -- Chủ động bấm Hủy giữ chỗ --> L[Gọi RPC huy_giu_cho: Trả ghế TRONG, đổi RELEASED]
   K -- Hết 5 phút không thao tác --> M[Cron expire_seat_holds tự động hoàn lại ghế TRONG, đổi EXPIRED]
-  K -- Sang bước thanh toán --> N[Sprint 1 kết thúc tại mốc giữ chỗ an toàn; chuyển đổi CONVERTED ở Sprint sau]
+  K -- Sang bước thanh toán --> N[Thanh toán FR-T3-02 chưa triển khai; chuyển đổi CONVERTED khi có thanh toán]
 ```
+
+Nghiệm thu Sprint 1 dừng ở bước D (xem sự kiện, suất diễn, hạng vé và sơ đồ ghế). Từ bước E trở đi là FR-T3-01 (Sprint 3); repo đã có lát cắt kỹ thuật nhưng không tính nghiệm thu Sprint 1.
 
 ---
 
@@ -399,7 +416,7 @@ classDiagram
   BuyerAuthService ..> HoSoNguoiDung : authenticates
 ```
 
-> **Chú thích về Class Diagram.** (1) Repo viết dạng module hàm (`createSeatHold`, `loadPublicEvent`...), không có `class BookingService`; mỗi *lớp Service* trong sơ đồ gom các hàm export của cùng một file `src/services/*.ts`, tên phương thức Service là tên hàm thật. (2) Phương thức của *lớp Entity* (ví dụ `isExpired()`, `canRelease()`, `isLocked()`, `validateHoldLimits()`) là **hành vi nghiệp vụ được mô hình hóa** theo quy tắc trong SRS/RPC, không nhất thiết có hàm trùng tên trong mã nguồn; logic tương ứng nằm ở `src/domain/*` hoặc trong RPC của PostgreSQL.
+> **Chú thích về Class Diagram.** (1) Repo viết dạng module hàm (`createSeatHold`, `loadPublicEvent`...), không có `class BookingService`; mỗi *lớp Service* trong sơ đồ gom các hàm export của cùng một file `src/services/*.ts`, tên phương thức Service là tên hàm thật. (2) `GiuCho`, `ChiTietGiuCho` và `BookingService` phục vụ UC-T3-02 (Sprint 3, đã dựng sớm), không tính nghiệm thu Sprint 1. (3) Phương thức của *lớp Entity* (ví dụ `isExpired()`, `canRelease()`, `isLocked()`, `validateHoldLimits()`) là **hành vi nghiệp vụ được mô hình hóa** theo quy tắc trong SRS/RPC, không nhất thiết có hàm trùng tên trong mã nguồn; logic tương ứng nằm ở `src/domain/*` hoặc trong RPC của PostgreSQL.
 
 ### Bảng đối chiếu 14 Bảng ERD ↔ 14 Lớp Entity ↔ Lớp Service & File nguồn
 
@@ -422,9 +439,12 @@ classDiagram
 
 ---
 
-## 6. Bộ 5 Sequence Diagrams chuẩn (`SD-01` .. `SD-05`)
+## 6. Sequence Diagrams (`SD-01` .. `SD-06`)
 
-### SD-01: Người mua xem danh mục, chi tiết sự kiện, suất diễn, lineup & timeline (UC-01, UC-02)
+Sprint 1: SD-01 đến SD-04. Sprint 3 (nền tảng đã dựng sớm): SD-05, SD-06. Bản phân tích mức nghiệp vụ (lớp Boundary/Control/Entity) nằm ở Hình 5.3–5.8 của tài liệu đặc tả; các sơ đồ dưới đây là mức thiết kế, dùng đúng tên hàm và RPC trong mã nguồn.
+
+### SD-01: Người mua xem danh mục, chi tiết sự kiện, suất diễn, lineup và timeline (UC-T1-01, Sprint 1)
+
 
 ```mermaid
 sequenceDiagram
@@ -457,24 +477,138 @@ sequenceDiagram
 
 ---
 
-### SD-02: Xem sơ đồ ghế Realtime & Tạo giữ chỗ 5 phút chống bán trùng (UC-03)
+### SD-02: Xem sơ đồ ghế và cập nhật trạng thái realtime (UC-T1-02, UC-T1-05, Sprint 1)
 
-Biểu diễn luồng chọn vé với hai trường hợp: **khu ghế ngồi** (`GheID` cụ thể) và **khu vé đứng** (`GheID = NULL`), đồng thời thể hiện cơ chế kiểm tra trigger giữa `SuatDienID` và `SuKienID`:
+Luồng Sprint 1 chỉ đọc: tải danh mục khu vực/ghế của suất diễn, vẽ sơ đồ, rồi nhận thay đổi trạng thái ghế qua Supabase Realtime (US-T1-01 Scenario 2, ví dụ ghế chuyển sang Đã bán). Sơ đồ chỉ hiển thị thay đổi; trong repo hiện tại, thay đổi trên `GHE` phát sinh từ lát cắt giữ chỗ UC-T3-02 (Sprint 3).
+
+```mermaid
+sequenceDiagram
+  actor U as Người mua A
+  participant UI as SeatMapSection / ZoneSeatGrid
+  participant TDS as ticketDataService
+  participant SRS as seatRealtimeService
+  participant DB as Supabase PostgreSQL
+  participant WS as Supabase Realtime
+
+  U->>UI: Mở sơ đồ ghế của suất diễn showId
+  UI->>TDS: loadTicketingCatalog()
+  TDS->>DB: SELECT KHU_VUC WHERE SuatDienID = showId
+  TDS->>DB: SELECT GHE WHERE KhuVucID IN (khu của suất)
+  DB-->>TDS: Danh sách khu vực, ghế, giá, trạng thái
+  TDS-->>UI: Catalog
+  UI->>UI: Vẽ sơ đồ, tô màu theo TrangThai, khóa chọn nếu chưa mở bán
+  UI->>SRS: subscribeToSeatUpdates(listener, onConnectionStatus)
+  SRS->>WS: Kênh show-showId - postgres_changes UPDATE trên GHE, lọc KhuVucID IN (...)
+  WS-->>SRS: SUBSCRIBED
+  SRS-->>UI: CONNECTED
+  Note over DB,WS: Ghế đổi trạng thái trong bảng GHE (ví dụ chuyển sang Đã bán)
+  DB-->>WS: UPDATE GHE (TrangThai mới)
+  WS-->>SRS: Payload thay đổi ghế
+  SRS-->>UI: listener(seatEvent)
+  UI->>UI: Đổi màu ghế, không tải lại trang
+  alt Mất kết nối (CHANNEL_ERROR / TIMED_OUT / CLOSED)
+    SRS-->>UI: DISCONNECTED / ERROR
+    UI->>U: Cảnh báo dữ liệu có thể chưa cập nhật
+    UI->>TDS: Tải lại catalog khi kết nối lại
+  end
+```
+
+---
+
+### SD-03: Đăng nhập BTC, phân loại tài khoản, tạo tổ chức và phân quyền (UC-BTC-01, UC-BTC-02, Sprint 1)
+
+```mermaid
+sequenceDiagram
+  actor O as Ban tổ chức
+  participant UI as Organizer Portal
+  participant OS as organizerService
+  participant AUTH as Supabase Auth
+  participant DB as PostgreSQL
+
+  O->>UI: Nhập email và mật khẩu
+  UI->>OS: signInOrganizer(email, password)
+  OS->>AUTH: auth.signInWithPassword()
+  AUTH-->>OS: Session (auth.uid)
+  UI->>OS: getOrganizerSession()
+  OS->>DB: SELECT LoaiTaiKhoan FROM HO_SO_NGUOI_DUNG WHERE NguoiDungID = auth.uid()
+  DB-->>OS: LoaiTaiKhoan
+  OS-->>UI: session.accountKind
+  alt accountKind không phải ORGANIZER (tài khoản người mua)
+    UI->>O: Từ chối vào cổng BTC (isOrganizerAccount = false)
+  else Tài khoản BTC
+    UI->>OS: loadOrganizerWorkspace()
+    OS->>DB: SELECT TO_CHUC, SU_KIEN của tổ chức (RLS: la_thanh_vien_to_chuc)
+    DB-->>OS: Workspace
+    opt Chưa thuộc tổ chức nào (UC-BTC-02)
+      O->>UI: Nhập tên tổ chức và slug
+      UI->>OS: createOrganization(name, slug)
+      OS->>DB: RPC tao_to_chuc_cua_toi(p_ten_to_chuc, p_slug)
+      DB->>DB: INSERT TO_CHUC + INSERT THANH_VIEN_TO_CHUC (VaiTro = CHU_SO_HUU)
+      DB-->>OS: ToChucID
+    end
+    OS-->>UI: Hiển thị workspace; vai trò VAN_HANH/SOAT_VE chỉ xem, thao tác ghi bị RLS chặn
+  end
+```
+
+---
+
+### SD-04: BTC tạo/lưu sự kiện, xem trước và công bố (UC-BTC-03, UC-BTC-04, UC-BTC-05, Sprint 1)
+
+
+```mermaid
+sequenceDiagram
+  actor O as Ban tổ chức
+  participant UI as Organizer Event Wizard
+  participant OS as organizerService
+  participant RPC_SAVE as RPC luu_su_kien_toan_dien
+  participant RPC_PUB as RPC cong_bo_su_kien
+  participant DB as PostgreSQL
+
+  O->>UI: Nhập thông tin sự kiện, timeline Markdown, cấu hình 1-1, suất diễn, hạng vé & nghệ sĩ
+  UI->>OS: saveFullEventDraft(payload)
+  OS->>RPC_SAVE: luu_su_kien_toan_dien(p_payload JSONB)
+  RPC_SAVE->>DB: Kiểm tra quyền co_quyen_bien_tap_to_chuc(orgId)
+  RPC_SAVE->>DB: INSERT / UPDATE SU_KIEN (lưu MoTaChiTiet gộp timeline)
+  RPC_SAVE->>DB: INSERT / UPDATE CAU_HINH_SU_KIEN (quan hệ 1-1 SuKienID, TuyChonMoRong)
+  RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC/hạng vé (kèm trigger kiểm tra SuKienID; chưa sinh GHE)
+  RPC_SAVE->>DB: Đồng bộ SU_KIEN_NGHE_SI và master catalog NGHE_SI
+  DB-->>RPC_SAVE: Thành công
+  RPC_SAVE-->>OS: Trả về eventId, slug, status: 'BAN_NHAP'
+  OS-->>UI: Lưu bản nháp thành công
+
+  O->>UI: Nhấn nút "Xem trước (Preview)"
+  UI->>OS: loadEventForPreview(eventId)
+  UI->>UI: Mở trang xem trước (?preview=1) với EventTemplate chuẩn dùng chung
+
+  O->>UI: Nhấn "Công bố sự kiện"
+  UI->>UI: evaluatePublishReadiness(form) - chặn nếu còn tiêu chí chưa đạt
+  UI->>OS: publishEvent(eventId)
+  OS->>RPC_PUB: cong_bo_su_kien(eventId)
+  RPC_PUB->>DB: Kiểm tra điều kiện (có >=1 suất diễn, >=1 phân khu vé)
+  RPC_PUB->>DB: UPDATE SU_KIEN SET TrangThaiCongBo = 'CONG_KHAI'
+  DB-->>RPC_PUB: Cập nhật thành công
+  RPC_PUB-->>OS: Sự kiện đã công bố
+  OS-->>UI: Chuyển trạng thái sang CONG_KHAI, xuất hiện trên Marketplace
+```
+
+---
+
+### SD-05: Giữ chỗ 5 phút chống bán trùng (UC-T3-02, Sprint 3)
+
+
+Sprint 3 (FR-T3-01) – lát cắt kỹ thuật đã dựng sớm, không tính nghiệm thu Sprint 1. Biểu diễn luồng chọn vé với hai trường hợp: **khu ghế ngồi** (`GheID` cụ thể) và **khu vé đứng** (`GheID = NULL`), đồng thời thể hiện cơ chế kiểm tra trigger giữa `SuatDienID` và `SuKienID`:
 
 ```mermaid
 sequenceDiagram
   actor U as Người mua
   participant UI as Seating / Booking UI
-  participant SRS as seatRealtimeService
   participant BS as bookingService
   participant RPC as RPC tao_giu_cho_theo_suat
   participant TRG as Trigger trg_giucho_suatdien_sukien
   participant DB as PostgreSQL
   participant WS as Realtime Publication
 
-  U->>UI: Mở sơ đồ chọn chỗ của suất diễn showId
-  UI->>SRS: subscribeToSeatUpdates(listener, onConnectionStatus)
-  SRS->>WS: Lắng nghe kênh GHE theo KhuVucID của showId
+  Note over U,UI: Tiền điều kiện: đã xem sơ đồ (SD-02), sự kiện đang mở bán
 
   U->>UI: Chọn 1–4 chỗ (Ghế ngồi hoặc Vé đứng)
   UI->>BS: createSeatHold({ eventId, showId, sessionId, items })
@@ -505,7 +639,8 @@ sequenceDiagram
 
 ---
 
-### SD-03: Hủy giữ chỗ chủ động & Hết hạn giữ chỗ tự động qua cron (UC-04)
+### SD-06: Hủy giữ chỗ chủ động và hết hạn tự động qua pg_cron (UC-T3-02 luồng A2/A3, Sprint 3)
+
 
 ```mermaid
 sequenceDiagram
@@ -534,81 +669,6 @@ sequenceDiagram
     RPC_EXP->>DB: UPDATE GHE SET TrangThai = 'TRONG' WHERE GheID IN (ghe_bi_het_han)
     DB-->>WS: Phát Realtime trả ghế về màu TRONG cho toàn bộ client
   end
-```
-
----
-
-### SD-04: Đăng nhập, phân loại tài khoản, tạo tổ chức & phân quyền thành viên (UC-05, UC-09)
-
-```mermaid
-sequenceDiagram
-  actor O as Người dùng / BTC
-  participant UI as Organizer Portal
-  participant BAS as buyerAuthService
-  participant OS as organizerService
-  participant AUTH as Supabase Auth
-  participant DB as PostgreSQL
-
-  O->>UI: Đăng nhập email / mật khẩu
-  UI->>BAS: signInBuyer(email, password)
-  BAS->>AUTH: auth.signInWithPassword()
-  AUTH-->>BAS: Trả về Session JWT (chứa auth.uid)
-  BAS->>DB: SELECT LoaiTaiKhoan FROM HO_SO_NGUOI_DUNG WHERE NguoiDungID = auth.uid()
-  DB-->>BAS: Trả về loaiTaiKhoan ('USER' hoặc 'ORGANIZER')
-  BAS-->>UI: Xác thực thành công
-
-  alt Nếu là tài khoản ORGANIZER và tạo tổ chức mới
-    O->>UI: Nhập tên tổ chức & Slug
-    UI->>OS: createOrganization(name, slug)
-    OS->>DB: RPC tao_to_chuc_cua_toi(p_ten, p_slug)
-    DB->>DB: INSERT TO_CHUC + INSERT THANH_VIEN_TO_CHUC (VaiTro = 'CHU_SO_HUU')
-    DB-->>OS: Hoàn tất tạo tổ chức & Phân quyền quản trị
-    OS-->>UI: Cập nhật danh sách tổ chức đang quản lý
-  else Nếu là nhân viên Vận hành / Soát vé (UC-09)
-    UI->>OS: loadOrganizerWorkspace()
-    OS->>DB: SELECT SU_KIEN, SUAT_DIEN, KHU_VUC (RLS: la_thanh_vien_to_chuc(ToChucID))
-    DB-->>OS: Trả về dữ liệu suất diễn, hạng vé và sức chứa
-    OS-->>UI: Hiển thị bảng điều khiển vận hành sự kiện
-  end
-```
-
----
-
-### SD-05: BTC tạo/lưu sự kiện toàn diện, xem trước & công bố sự kiện (UC-06, UC-07, UC-08)
-
-```mermaid
-sequenceDiagram
-  actor O as Ban tổ chức
-  participant UI as Organizer Event Wizard
-  participant OS as organizerService
-  participant RPC_SAVE as RPC luu_su_kien_toan_dien
-  participant RPC_PUB as RPC cong_bo_su_kien
-  participant DB as PostgreSQL
-
-  O->>UI: Nhập thông tin sự kiện, timeline Markdown, cấu hình 1-1, suất diễn, hạng vé & nghệ sĩ
-  UI->>OS: saveFullEventDraft(payload)
-  OS->>RPC_SAVE: luu_su_kien_toan_dien(p_payload JSONB)
-  RPC_SAVE->>DB: Kiểm tra quyền co_quyen_bien_tap_to_chuc(orgId)
-  RPC_SAVE->>DB: INSERT / UPDATE SU_KIEN (lưu MoTaChiTiet gộp timeline)
-  RPC_SAVE->>DB: INSERT / UPDATE CAU_HINH_SU_KIEN (quan hệ 1-1 SuKienID, TuyChonMoRong)
-  RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC (kèm trigger kiểm tra SuKienID)
-  RPC_SAVE->>DB: Đồng bộ SU_KIEN_NGHE_SI và master catalog NGHE_SI
-  DB-->>RPC_SAVE: Thành công
-  RPC_SAVE-->>OS: Trả về eventId, slug, status: 'BAN_NHAP'
-  OS-->>UI: Lưu bản nháp thành công
-
-  O->>UI: Nhấn nút "Xem trước (Preview)"
-  UI->>OS: loadEventForPreview(eventId)
-  UI->>UI: Mở trang xem trước (?preview=1) với EventTemplate chuẩn dùng chung
-
-  O->>UI: Nhấn "Công bố sự kiện"
-  UI->>OS: publishEvent(eventId)
-  OS->>RPC_PUB: cong_bo_su_kien(eventId)
-  RPC_PUB->>DB: Kiểm tra điều kiện (có >=1 suất diễn, >=1 phân khu vé)
-  RPC_PUB->>DB: UPDATE SU_KIEN SET TrangThaiCongBo = 'CONG_KHAI'
-  DB-->>RPC_PUB: Cập nhật thành công
-  RPC_PUB-->>OS: Sự kiện đã công bố
-  OS-->>UI: Chuyển trạng thái sang CONG_KHAI, xuất hiện trên Marketplace
 ```
 
 ---

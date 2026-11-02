@@ -1,5 +1,7 @@
 # 01 — Software Requirements Specification (Sprint 1)
 
+> **Quy ước mã thống nhất (02/11/2026).** Mã yêu cầu theo SRS: `FR-T1-01..04` (Sprint 1), `FR-T3-01` (Sprint 3). `FR-T1-03` (cổng Ban tổ chức) gồm `FR-T1-03.1..03.6`, trước đây ký hiệu `FR-O01..O06`. Mã Use Case theo tài liệu đặc tả `Requirements_UseCases_Sprint1`: `UC-T1-01..05`, `UC-BTC-01..05`, `UC-T3-01..02`. NFR dùng đúng số hiệu ở Phần 2 của SRS; các ràng buộc chất lượng nội bộ ghi là `QA-xx`.
+
 ## 1. Bối cảnh và vấn đề
 
 EventTicketing phải phục vụ đồng thời hai nhóm chính:
@@ -11,7 +13,7 @@ Vấn đề hiện hữu là Super Concert từng được tinh chỉnh như s�
 
 ## 2. Actor và quyền
 
-- `USER`: xem event công khai, xem suất diễn/hạng vé/sơ đồ, tạo hoặc hủy giữ chỗ.
+- `USER`: xem event công khai, xem suất diễn/hạng vé/sơ đồ; tạo hoặc hủy giữ chỗ thuộc FR-T3-01 (Sprint 3, đã có lát cắt kỹ thuật).
 - `CHU_SO_HUU`, `QUAN_TRI`, `BIEN_TAP`: quản lý sự kiện trong tổ chức theo quyền biên tập.
 - `VAN_HANH`, `SOAT_VE`: chỉ xem trong lát cắt hiện tại; thao tác ghi bị chặn.
 - `ANON`: chỉ đọc sự kiện đã công bố; không được thấy bản nháp của BTC khác.
@@ -19,45 +21,50 @@ Vấn đề hiện hữu là Super Concert từng được tinh chỉnh như s�
 
 ## 3. Yêu cầu chức năng
 
-| ID | Yêu cầu | Ưu tiên | Sprint 1 |
-|---|---|---:|---|
-| FR-U01 | Xem danh mục sự kiện công khai và mở trang chi tiết theo slug | Must | Đã triển khai |
-| FR-U02 | Chọn suất diễn; thấy thời gian, địa điểm, trạng thái bán | Must | Đã triển khai |
-| FR-U03 | Xem hạng vé, giá, quyền lợi và tồn khả dụng | Must | Đã triển khai |
-| FR-U04 | Xem sơ đồ phân khu/ghế và cập nhật trạng thái realtime | Must | Đã triển khai nền tảng; subscription được scope theo suất diễn |
-| FR-U05 | Giữ 1–4 vé trong 5 phút, chống hai phiên giữ cùng ghế | Must | Backend đã triển khai; checkout UI còn giới hạn |
-| FR-U06 | Hiển thị vị trí/ETA trong hàng đợi khi tải lớn | Should | Backlog |
-| FR-U07 | Thanh toán nhiều phương thức, tạo vé/QR động và ví vé | Must sản phẩm | Backlog sau Sprint 1 |
-| FR-U08 | Yêu cầu hoàn tiền và nhận kết quả tự động | Should | Backlog |
-| FR-O01 | Đăng nhập và phân biệt tài khoản USER/BTC | Must | Đã triển khai |
-| FR-O02 | Tạo tổ chức và quản lý thành viên theo vai trò | Must | Nền tảng/RLS đã triển khai |
-| FR-O03 | Tạo/sửa bản nháp sự kiện, nhiều suất diễn và hạng vé | Must | Đã triển khai |
-| FR-O04 | Preview bản nháp trước khi công bố | Must | Đã triển khai |
-| FR-O05 | Kiểm tra điều kiện và công bố event | Must | Đã triển khai |
-| FR-O06 | Mọi event dùng một template chuẩn; phần đặc thù là extension | Must | Đã triển khai |
-| FR-O07 | Thiết lập giá sàn/trần và dynamic pricing | Should | Chưa triển khai |
-| FR-O08 | Dashboard doanh thu/tồn kho/check-in realtime | Should | Backlog |
+> `FR-T1-03` và `FR-T1-04` được bổ sung ở SRS phiên bản 1.1 (02/11/2026). `FR-T1-03` không có trong yêu cầu gốc của customer; nhóm bổ sung khi phân tích Use Case Sprint 1 phát hiện thiếu actor BTC. `FR-T1-04` truy vết `REQ-T1-05`.
+
+| ID | Yêu cầu | Ưu tiên | Sprint | Trạng thái | Mã cũ |
+|---|---|---|---|---|---|
+| FR-T1-01 | Xem danh mục sự kiện công khai, trang chi tiết theo slug, chọn suất diễn; thấy thời gian, địa điểm, timeline, lineup và trạng thái mở bán | Must | 1 | Đã triển khai | FR-U01, FR-U02 |
+| FR-T1-02 | Xem sơ đồ phân khu/ghế, hạng vé, giá, quyền lợi và trạng thái ghế; cập nhật trạng thái ghế realtime theo suất diễn | Must | 1 | Đã triển khai | FR-U03, FR-U04 |
+| FR-T1-03.1 | BTC đăng nhập; hệ thống phân biệt tài khoản người mua (USER) và BTC (ORGANIZER) | Must | 1 | Đã triển khai | FR-O01 |
+| FR-T1-03.2 | Tạo tổ chức, quản lý dữ liệu theo vai trò thành viên | Must | 1 | Nền tảng/RLS đã triển khai | FR-O02 |
+| FR-T1-03.3 | Tạo/sửa bản nháp sự kiện, nhiều suất diễn, hạng vé, timeline, nghệ sĩ | Must | 1 | Đã triển khai (chưa sinh ghế chi tiết `GHE` cho sự kiện do BTC tạo) | FR-O03 |
+| FR-T1-03.4 | Xem trước bản nháp bằng template công khai | Must | 1 | Đã triển khai | FR-O04 |
+| FR-T1-03.5 | Kiểm tra điều kiện tối thiểu và công bố | Must | 1 | Đã triển khai | FR-O05 |
+| FR-T1-03.6 | Mọi sự kiện dùng một template chuẩn; phần đặc thù là extension | Must | 1 | Đã triển khai | FR-O06 |
+| FR-T1-04 | Sơ đồ hỗ trợ zoom/pan, lọc khu, tìm ghế, tooltip | Must | 1 | Đã triển khai | (mới) |
+| FR-T3-01 | Chọn ghế và giữ 1–4 vé trong 5 phút, chống hai phiên giữ cùng ghế | Must | 3 | Lát cắt kỹ thuật backend đã có; không tính nghiệm thu Sprint 1 | FR-U05 |
+| FR-T3-02, FR-T3-03 | Thanh toán đa kênh, hoàn tiền, phát hành vé/QR | Must | 3 | Backlog | FR-U07, FR-U08 |
+| FR-T4-01 | Hàng chờ ảo, hiển thị vị trí/ETA | Must | 4 | Backlog | FR-U06 |
+| FR-T4-02, FR-T4-04 | Khung giá sàn/trần và định giá động | Must/Should | 4 (theo MoSCoW của SRS; Change Request đưa Dynamic Pricing lên Sprint 2 sẽ chốt trong kế hoạch Sprint 2) | Chưa triển khai | FR-O07 |
+| FR-T4-03 | Dashboard doanh thu/tồn kho/check-in realtime | Should | 4 | Backlog | FR-O08 |
 
 ## 4. Quy tắc nghiệp vụ
 
-- BR-01: Một sự kiện thuộc đúng một tổ chức; một sự kiện có một hoặc nhiều suất diễn.
-- BR-02: Chỉ sự kiện `CONG_KHAI` được đọc công khai; preview bản nháp chỉ dành cho BTC có quyền.
-- BR-03: Mỗi hạng vé thuộc một suất diễn; mã hạng vé là duy nhất trong suất diễn.
-- BR-04: Một lượt giữ tối đa 4 vé; thời hạn giữ là 5 phút tính theo thời gian máy chủ.
-- BR-05: Ghế ngồi được khóa hàng (`FOR UPDATE`) trước khi đổi sang `DANG_GIU`; ghế không `TRONG` bị từ chối.
-- BR-06: Giữ chỗ hết hạn phải trả ghế về `TRONG`; các trạng thái giữ hợp lệ gồm `ACTIVE`, `EXPIRED`, `RELEASED`, `CONVERTED`.
-- BR-07: Thành viên chỉ thao tác dữ liệu thuộc tổ chức của mình; vai trò chỉ xem không được gọi thao tác ghi.
-- BR-08: Dữ liệu tên, giá, tồn vé và chính sách trên UI phải đến từ record sự kiện/hạng vé, không hard-code theo template.
+Quy tắc chung của hệ thống ghi `BR-Gxx` để không trùng với quy tắc theo use case (`BR-01.x`, `BR-02.x`, `BR-BTC…`, `BR-HOLD-…`) trong tài liệu đặc tả.
 
-## 5. Yêu cầu phi chức năng
 
-- NFR-01 Bảo mật: Supabase RLS, hàm `SECURITY DEFINER` có `search_path = public`, phân quyền theo tổ chức.
-- NFR-02 Nhất quán: transaction và row lock ngăn double-selling trong giữ chỗ.
-- NFR-03 Hiệu năng mục tiêu: thao tác scan/check-in dưới 1 giây và chịu tải concert là yêu cầu mục tiêu, chưa được chứng minh bằng load test Sprint 1.
-- NFR-04 Khả dụng: trạng thái loading/error/not-found rõ ràng; empty optional sections tự ẩn.
-- NFR-05 Accessibility: focus-visible, touch target tối thiểu 44px, hỗ trợ reduced motion.
-- NFR-06 Responsive: hỗ trợ mobile từ 320/375px, tablet và desktop.
-- NFR-07 Maintainability: một composition chi tiết event; category chỉ đổi token/extension, không fork toàn trang.
+- BR-G01: Một sự kiện thuộc đúng một tổ chức; một sự kiện có một hoặc nhiều suất diễn.
+- BR-G02: Chỉ sự kiện `CONG_KHAI` được đọc công khai; preview bản nháp chỉ dành cho BTC có quyền.
+- BR-G03: Mỗi hạng vé thuộc một suất diễn; mã hạng vé là duy nhất trong suất diễn.
+- BR-G04 (Sprint 3): Một lượt giữ tối đa 4 vé; thời hạn giữ là 5 phút tính theo thời gian máy chủ.
+- BR-G05 (Sprint 3): Ghế ngồi được khóa hàng (`FOR UPDATE`) trước khi đổi sang `DANG_GIU`; ghế không `TRONG` bị từ chối.
+- BR-G06 (Sprint 3): Giữ chỗ hết hạn phải trả ghế về `TRONG`; các trạng thái giữ hợp lệ gồm `ACTIVE`, `EXPIRED`, `RELEASED`, `CONVERTED`.
+- BR-G07: Thành viên chỉ thao tác dữ liệu thuộc tổ chức của mình; vai trò chỉ xem không được gọi thao tác ghi.
+- BR-G08: Dữ liệu tên, giá, tồn vé và chính sách trên UI phải đến từ record sự kiện/hạng vé, không hard-code theo template.
+
+## 5. Ràng buộc chất lượng (QA) và NFR tương ứng trong SRS
+
+| Mã | Ràng buộc | NFR tương ứng (Phần 2 SRS) |
+|---|---|---|
+| QA-01 | Bảo mật: Supabase RLS, hàm `SECURITY DEFINER` có `search_path = public`, phân quyền theo tổ chức | NFR-09 (Security, T1; bổ sung ở SRS v1.1) |
+| QA-02 | Nhất quán: transaction và row lock ngăn bán trùng khi giữ chỗ | NFR-02 |
+| QA-03 | Hiệu năng: tải sơ đồ và trạng thái ghế đủ nhanh; tải concert là mục tiêu, chưa chứng minh bằng load test Sprint 1 | NFR-01, NFR-03 |
+| QA-04 | Khả dụng: trạng thái loading/error/not-found rõ ràng; phần tùy chọn trống tự ẩn | NFR-07 |
+| QA-05 | Accessibility: focus-visible, vùng chạm tối thiểu 44px, hỗ trợ reduced motion, không chỉ dùng màu | NFR-07 |
+| QA-06 | Responsive: mobile từ 320/375px, tablet và desktop | NFR-07 |
+| QA-07 | Maintainability: một composition chi tiết event; category chỉ đổi token/extension | Nội bộ |
 
 ## 6. Tiêu chí chấp nhận Sprint 1
 

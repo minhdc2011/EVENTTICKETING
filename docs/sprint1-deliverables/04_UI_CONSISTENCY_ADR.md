@@ -61,7 +61,7 @@ Timeline cũng đã được chuyển sang lát cắt dữ liệu dùng chung:
 
 - Tích cực: event mới đạt độ hoàn thiện cơ bản chỉ bằng dữ liệu; giảm hard-code và test được invariant kiến trúc; footer và team modal đã hoàn toàn đồng nhất và loại bỏ custom event bridge.
 - Đánh đổi: Super Concert còn một adapter markup/runtime chuyên biệt để bảo toàn trải nghiệm đã nghiệm thu; bundle frontend vẫn lớn do nhiều lát cắt đi chung entry chunk. `concertRuntime.js` có guard `#stadium-svg` và không chạy trên sơ đồ React của sự kiện BTC tạo.
-- Bước tiếp theo: kiểm thử đồng thời hai phiên giữ ghế trên staging, bổ sung load test và hoàn thiện payment/QR/refund ở Sprint 2.
+- Bước tiếp theo: kiểm thử đồng thời hai phiên giữ ghế trên staging, bổ sung load test và hoàn thiện payment/QR/refund ở Sprint 3 (FR-T3-02, FR-T3-03).
 
 ## Ghi chú về công cụ thiết kế
 

@@ -81,8 +81,8 @@ riêng lẻ trước bốn migration Sprint 1.
 
 1. Thay từng fragment tĩnh bằng JSX và React state, bắt đầu từ Hero và Timeline.
 2. Chuyển sơ đồ ghế sang hook/store riêng, chỉ render ghế của phân khu đang zoom.
-3. Tích hợp Supabase Auth/OTP và phân quyền người dùng.
-4. Chuyển lượt giữ chỗ thành đơn hàng và tích hợp thanh toán ở Sprint 2–3.
+3. Tích hợp xác minh OTP cho người mua (FR-T2-01, Sprint 2).
+4. Chuyển lượt giữ chỗ thành đơn hàng và tích hợp thanh toán (FR-T3-01, FR-T3-02, Sprint 3).
 
 ## Trạng thái nghiệm thu Sprint 1
 

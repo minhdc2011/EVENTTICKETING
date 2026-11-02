@@ -281,7 +281,7 @@ Quy tắc xử lý logic do [`src/components/event-template/eventTemplateLogic.j
 - Cố định ở cột phải trên desktop (`position: sticky; top: 88px;`).
 - Nền trắng tinh khiết `#ffffff`, bóng đổ nhẹ `0 12px 36px rgba(15, 23, 42, 0.08)`.
 - Hiển thị tên suất diễn đã chọn, tên hạng vé, đơn giá, tổng tiền tạm tính và nút hành động chính (`et-booking-primary-btn`).
-- Dòng chú thích minh bạch quy trình giữ chỗ tối đa 5 phút của Sprint 1 kèm hotline hỗ trợ khẩn cấp.
+- Dòng chú thích minh bạch quy trình giữ chỗ tối đa 5 phút (FR-T3-01, Sprint 3; repo đã có lát cắt kỹ thuật) kèm hotline hỗ trợ khẩn cấp.
 
 ### 3.11. Thanh CTA Cố định Mobile (`MobileStickyBar`)
 - Cố định sát đáy màn hình trên các thiết bị < 1024px (`position: fixed; bottom: 0;`).
@@ -390,7 +390,7 @@ export type EventTemplateSlots = {
 - **Gỡ bỏ cầu nối Custom Event:** Toàn bộ sự kiện `eventticketing:open-schedule` và các dispatcher inline đã được loại bỏ triệt để khỏi mã nguồn sản xuất (`EventTemplate.tsx`, `ConcertSections.tsx`, `footer-modals.html`, `hero.html`). Các luồng mở lịch trình và thông tin nhóm 100% sử dụng React callbacks và state có kiểm soát.
 - **React hóa Runtime Overlays:** `SeatTooltip`, `RuntimeToastContainer` và `BookingHoldModal` hiện do React sở hữu; `footer-modals.html` không còn markup runtime. Adapter `runtimeOverlays` truyền payload có cấu trúc từ seat runtime, loại bỏ `innerHTML` injection và global `simulateNextSprint`.
 - **Accessibility & Truthfulness:** Modal dùng thời gian hold thực, focus trap, Escape/backdrop close, trả focus; nội dung nêu rõ hold tạm thời chưa phải giao dịch hoàn tất. Toast timer được cleanup khi unmount và tooltip giữ nguyên nội dung khi chỉ cập nhật tọa độ.
-- **Lộ trình Sprint 2:** Nếu migrate SVG Super Concert sang React, phải giữ nguyên hình học móng ngựa, animated camera, tooltip, drill-down ghế, inventory và hành vi chọn vé bằng visual-regression tests; không thay bằng layout tự sinh chung.
+- **Lộ trình tiếp theo (backlog):** Nếu migrate SVG Super Concert sang React, phải giữ nguyên hình học móng ngựa, animated camera, tooltip, drill-down ghế, inventory và hành vi chọn vé bằng visual-regression tests; không thay bằng layout tự sinh chung.
 
 ---
 
@@ -490,12 +490,12 @@ export type EventTemplateSlots = {
 | **Organizer Stylesheet** | [`src/components/organizer-ui/organizer-ui.css`](../../src/components/organizer-ui/organizer-ui.css) | Hệ thống token graphite, form controls và bố cục Studio BTC |
 | **Organizer Wizard** | [`src/components/organizer-ui/OrganizerEventWizard.tsx`](../../src/components/organizer-ui/OrganizerEventWizard.tsx) | Bộ tạo và chỉnh sửa sự kiện 6 bước cho BTC |
 | **Organizer Icons** | [`src/components/organizer-ui/OrganizerIcons.tsx`](../../src/components/organizer-ui/OrganizerIcons.tsx) | Thư viện biểu tượng vector chuyên nghiệp, không emoji |
-| **Suites Kiểm thử Tự động**| [`tests/event-template.test.mjs`](../../tests/event-template.test.mjs)<br>[`tests/public-schedule.test.mjs`](../../tests/public-schedule.test.mjs)<br>[`tests/category-themes.test.mjs`](../../tests/category-themes.test.mjs)<br>[`tests/organizer-ui.test.mjs`](../../tests/organizer-ui.test.mjs)<br>[`tests/runtime-overlays.test.mjs`](../../tests/runtime-overlays.test.mjs)<br>[`tests/seat-map.test.mjs`](../../tests/seat-map.test.mjs)<br>[`tests/seat-realtime.test.mjs`](../../tests/seat-realtime.test.mjs) | 137 bài kiểm thử xác minh token, CSS, logic, a11y, hold lifecycle, footer/overlay boundary và realtime isolation theo suất diễn |
+| **Suites Kiểm thử Tự động**| [`tests/event-template.test.mjs`](../../tests/event-template.test.mjs)<br>[`tests/public-schedule.test.mjs`](../../tests/public-schedule.test.mjs)<br>[`tests/category-themes.test.mjs`](../../tests/category-themes.test.mjs)<br>[`tests/organizer-ui.test.mjs`](../../tests/organizer-ui.test.mjs)<br>[`tests/runtime-overlays.test.mjs`](../../tests/runtime-overlays.test.mjs)<br>[`tests/seat-map.test.mjs`](../../tests/seat-map.test.mjs)<br>[`tests/seat-realtime.test.mjs`](../../tests/seat-realtime.test.mjs) | Thuộc bộ 145 bài kiểm thử (02/11/2026) xác minh token, CSS, logic, a11y, hold lifecycle, footer/overlay boundary và realtime isolation theo suất diễn |
 
-### 8.2. Danh mục Khoảng cách Kỹ thuật cho Backlog Sprint 2 (Gap List)
+### 8.2. Danh mục Khoảng cách Kỹ thuật cho Backlog (Gap List)
 1. **Hai chiến lược sơ đồ có ranh giới rõ ràng (Đã giải quyết):** Super Concert giữ sơ đồ SVG chuyên biệt đã nghiệm thu; sự kiện BTC dùng `SeatMapSection` React tự sinh từ catalog. `ConcertSections.SeatingSection` định tuyến bằng `templateKey`, còn `concertRuntime.js` chỉ khởi tạo khi có `#stadium-svg`, nên không can thiệp vào sự kiện generic.
 2. **Cầu nối/DOM injection cũ đã được loại bỏ (Đã giải quyết):** `eventticketing:open-schedule`, footer/team modal legacy, toast/modal string injection và global `simulateNextSprint` đã bị gỡ bỏ. Runtime overlay dùng adapter sự kiện typed, có giới hạn rõ ràng.
-3. **Thanh toán thực & Khóa chỗ theo thời gian thực:** Sprint 1 giới hạn ở mức mô phỏng giữ chỗ 5 phút và liên hệ hỗ trợ; Sprint 2 sẽ kết nối cổng thanh toán thật (VietQR / VNPay) tích hợp trực tiếp vào `BookingSummaryPanel`.
+3. **Thanh toán thực & Khóa chỗ theo thời gian thực:** giữ chỗ 5 phút là lát cắt kỹ thuật của FR-T3-01 (Sprint 3), chưa tính nghiệm thu Sprint 1; thanh toán thật (FR-T3-02, Sprint 3) sẽ tích hợp vào `BookingSummaryPanel`.
 
 ---
 

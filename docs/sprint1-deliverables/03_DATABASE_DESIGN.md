@@ -182,6 +182,8 @@ erDiagram
 
 ---
 
+> **Phạm vi Sprint.** `GIU_CHO` và `CHI_TIET_GIU_CHO` là nền tảng cho FR-T3-01 (UC-T3-02, Sprint 3) đã được dựng sớm; chúng có trong CSDL nên được vẽ đủ, nhưng không tính vào nghiệm thu Sprint 1. Bảng `GHE` hiện chỉ có dữ liệu mẫu (48 ghế của Super Concert); cổng BTC chưa sinh ghế chi tiết cho sự kiện mới.
+
 ## 2. Phân loại và chứng minh 3 loại mối quan hệ trong CSDL
 
 Hệ thống cơ sở dữ liệu EventTicketing thể hiện rõ ràng, đầy đủ và chuẩn tắc cả 3 loại quan hệ cơ bản trong mô hình dữ liệu quan hệ (RDBMS). Báo cáo chính thức tuyên bố và chứng minh chi tiết như sau:
@@ -343,8 +345,8 @@ Dự án đã kiểm tra thực tế hệ thống live trên project Supabase `q
 | `SUAT_DIEN` | `SuatDienID` BIGINT | `SuKienID`, `DiaDiemID`, `PhienBanSoDoID` | Suất diễn / Lần bán vé (**Cha chính [1]**) | `UNIQUE(SuKienID, Slug)`; `ThoiGianKetThuc > ThoiGianBatDau`; `TrangThai` enum 7 giá trị |
 | `KHU_VUC` | `KhuVucID` INT (Serial) | `SuatDienID` (Cha chính), `SuKienID` (Dư thừa) | Phân khu / Hạng vé | `UNIQUE(SuatDienID, MaKhuVuc)`; `GiaVeNiemYet >= 0`; trigger kiểm tra cha con **[Chú thích 1]** |
 | `GHE` | `GheID` INT (Serial) | `KhuVucID` | Ghế vật lý trên sơ đồ | `UNIQUE(KhuVucID, MaGheDayDu)`; `TrangThai` mặc định `'TRONG'`, mã đang dùng: `TRONG`, `DANG_GIU`, `DA_BAN` (DB **không** có CHECK; giá trị do RPC/RLS kiểm soát) |
-| `GIU_CHO` | `GiuChoID` UUID | `SuatDienID` (Cha chính), `SuKienID` (Dư thừa) | Header phiên giữ chỗ 5 phút | `TrangThai IN ('ACTIVE', 'EXPIRED', 'RELEASED', 'CONVERTED')`; trigger kiểm tra cha con **[Chú thích 1]** |
-| `CHI_TIET_GIU_CHO` | `ID` BIGINT (Serial) | `GiuChoID`, `KhuVucID`, `GheID` (Nullable) | Dòng vé trong phiên giữ chỗ | `SoLuong BETWEEN 1 AND 4`; `GheID` có thể `NULL` đối với khu vé đứng **[Chú thích 2]** |
+| `GIU_CHO` *(Sprint 3)* | `GiuChoID` UUID | `SuatDienID` (Cha chính), `SuKienID` (Dư thừa) | Header phiên giữ chỗ 5 phút | `TrangThai IN ('ACTIVE', 'EXPIRED', 'RELEASED', 'CONVERTED')`; trigger kiểm tra cha con **[Chú thích 1]** |
+| `CHI_TIET_GIU_CHO` *(Sprint 3)* | `ID` BIGINT (Serial) | `GiuChoID`, `KhuVucID`, `GheID` (Nullable) | Dòng vé trong phiên giữ chỗ | `SoLuong BETWEEN 1 AND 4`; `GheID` có thể `NULL` đối với khu vé đứng **[Chú thích 2]** |
 | `NGHE_SI` | `NgheSiID` INT (Serial) | — | Master danh mục nghệ sĩ | `NgheDanh` có index tìm kiếm; dùng chung toàn hệ thống |
 | `SU_KIEN_NGHE_SI` | `ID` INT (Serial) | `SuKienID`, `NgheSiID` | Lineup nghệ sĩ (**Quan hệ N–N**) | `UNIQUE(SuKienID, NgheSiID)`; `ThuTuHienThi` xác định thứ tự diễn |
 
