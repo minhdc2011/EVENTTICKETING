@@ -30,5 +30,5 @@ Bộ hồ sơ này chứng minh chuỗi **yêu cầu khách hàng → phân tíc
 5. Demo chọn hạng vé/sơ đồ (Sprint 1), sau đó giới thiệu lát cắt kỹ thuật Sprint 3: cơ chế giữ chỗ 5 phút bằng transaction + row lock (phân biệt khu ghế ngồi có `GheID` và khu đứng `GheID = NULL`).
 6. Mở ERD 14 bảng, giải thích 3 loại quan hệ (1–1, 1–N, N–N), 3 chú thích kỹ thuật (FK dư thừa có trigger, GheID NULLable, timeline gộp vào sự kiện), Class Diagram 14 lớp Entity kết hợp tầng Service, và Ma trận liên kết kiến trúc (UC → ERD → Class → Sequence).
 7. Mở audit Supabase, giải thích lỗi ACL đã được phát hiện bằng đối chiếu thiết kế–triển khai và chỉ trình bày live sau khi remediation được áp dụng/xác minh.
-8. Kết thúc bằng giới hạn Sprint 1 và backlog Sprint 2; không tuyên bố các chức năng chưa triển khai.
+8. Kết thúc bằng giới hạn Sprint 1 và backlog (Should-Have Sprint 1: sinh ghế chi tiết `GHE` khi công bố, xóa/nhân bản bản nháp); không tuyên bố các chức năng chưa triển khai.
 
