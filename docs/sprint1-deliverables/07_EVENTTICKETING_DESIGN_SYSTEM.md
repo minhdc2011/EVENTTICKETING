@@ -256,7 +256,7 @@ Quy tắc xử lý logic do [`src/components/event-template/eventTemplateLogic.j
 ### 3.7. Bộ điều khiển Form Ban tổ chức (`OrganizerEventWizard`)
 - Giao diện làm việc theo Wizard 6 bước chuẩn hóa (`WIZARD_STEP_TITLES`):
   1. *Thông tin cơ bản* (Tên sự kiện, slug, danh mục, khẩu hiệu, mô tả).
-  2. *Địa điểm & Suất diễn* (Hình thức tổ chức offline/online/hybrid, địa chỉ, timeline bán vé và editor `LICH_TRINH`).
+  2. *Địa điểm & Suất diễn* (Hình thức tổ chức offline/online/hybrid, địa chỉ, timeline bán vé và editor timeline (lưu trong `SU_KIEN.MoTaChiTiet`)).
   3. *Phân khu & Hạng vé* (Mã khu vực, tên hạng vé, giá bán, sức chứa, quyền lợi).
   4. *Hình ảnh & Truyền thông* (URL banner, poster, video trailer, sơ đồ phân khu và lineup nghệ sĩ).
   5. *Quy định & Liên hệ* (Giới hạn độ tuổi, chính sách hoàn hủy, email/hotline, giấy phép).
@@ -319,7 +319,7 @@ Quy tắc xử lý logic do [`src/components/event-template/eventTemplateLogic.j
 | `KHU_VUC.TenKhuVuc` | `tier.name` | `TicketTiersSection`, `BookingSummary` | Bắt buộc trong danh sách vé |
 | `KHU_VUC.GiaVe` | `tier.price` | `TicketTiersSection`, `MobileStickyBar` | `0` hiển thị `Miễn phí`, giá âm bị chặn ở DB |
 | `KHU_VUC.MoTa` | `tier.description` | `TicketTiersSection (Benefits List)` | Phân tích thành checklist; nếu rỗng thì không render `<ul>` |
-| `LICH_TRINH` | `schedule: PublicScheduleItem[]` | `ScheduleDialog`, Header/Hero Timeline Btn | Nếu không có bản ghi hợp lệ, ẩn hoàn toàn nút lịch trình |
+| `SU_KIEN.MoTaChiTiet` (timeline) | `schedule: PublicScheduleItem[]` | `ScheduleDialog`, Header/Hero Timeline Btn | Nếu không có bản ghi hợp lệ, ẩn hoàn toàn nút lịch trình |
 
 ### 4.2. Quy tắc Tự thu gọn Phần nội dung Rỗng (Graceful Section Collapse)
 Được hiện thực hóa bởi các hàm kiểm tra điều kiện độc lập tại [`eventTemplateLogic.js`](../../src/components/event-template/eventTemplateLogic.js):

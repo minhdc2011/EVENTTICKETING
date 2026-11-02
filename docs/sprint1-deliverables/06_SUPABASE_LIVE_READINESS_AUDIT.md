@@ -72,8 +72,8 @@ Migration `20261027130000_organizer_schedule_lineup_slice.sql` đã được Gem
 Catalog post-flight chỉ đọc xác nhận:
 
 - `luu_su_kien_toan_dien(p_payload jsonb)`: `SECURITY DEFINER=true`, `search_path=public`, `anon=false`, `authenticated=true`, `service_role=true`.
-- Ba policy `Members read event schedule`, `Members read event artists`, `Members read artists` tồn tại, đều là `SELECT` cho role `authenticated`.
-- RLS bật trên đủ 3 bảng `LICH_TRINH`, `SU_KIEN_NGHE_SI`, `NGHE_SI`.
+- *(Số liệu audit trước migration `20261028100000`; policy trên `LICH_TRINH` đã bị gỡ cùng bảng.)* Ba policy `Members read event schedule`, `Members read event artists`, `Members read artists` tồn tại, đều là `SELECT` cho role `authenticated`.
+- RLS bật trên `SU_KIEN_NGHE_SI`, `NGHE_SI` (bảng `LICH_TRINH` từng có RLS nhưng đã bị xóa).
 - Không gọi RPC mutation với dữ liệu production; transaction atomicity, cross-tenant rejection, in-place schedule update và shared-artist auto-fork được chứng minh bằng pgTAP artifact/local automated tests, còn authenticated round-trip UAT phải chạy trên staging cô lập.
 
 Ảnh bằng chứng: `artifacts/supabase-schedule-lineup-migration-applied.png`, `artifacts/supabase-schedule-lineup-postflight-pass.png`.
@@ -112,7 +112,7 @@ Automated regression test đã được thêm vào `tests/account-boundary.test.
 
 - Realtime `GHE` đã được scope trong repository theo zone của suất diễn bằng server-side `in` filters và client-side membership guard; vẫn cần ghi browser/staging evidence trên live data.
 - `src/types/database.types.ts` chưa phản ánh đầy đủ schema mới; một số service phải dùng cast lỏng.
-- Organizer aggregate đã có UI ghi/preview `LICH_TRINH` và lineup; migration additive đã chạy live và catalog post-flight pass. Authenticated mutation UAT/pgTAP vẫn cần chạy trên staging cô lập.
+- Organizer aggregate đã có UI ghi/preview timeline (lưu trong `SU_KIEN.MoTaChiTiet`) và lineup; migration additive đã chạy live và catalog post-flight pass. Authenticated mutation UAT/pgTAP vẫn cần chạy trên staging cô lập.
 - Fallback tìm nghệ sĩ chỉ bằng nghệ danh dùng `LIMIT 1` khi payload thiếu `artistId`; client hiện luôn gửi ID nên không chặn demo, nhưng nên thêm tie-breaker xác định trong migration tương lai.
 - Concurrency hold mới có bằng chứng thiết kế/static SQL; cần chạy hai session thật trên staging.
 

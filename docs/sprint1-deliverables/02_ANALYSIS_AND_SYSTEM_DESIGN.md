@@ -45,8 +45,8 @@ flowchart LR
 | **UC-05** | Đăng nhập & Quản lý tổ chức / RBAC | Ban tổ chức | Xác thực Supabase Auth, phân loại `LoaiTaiKhoan` trên `HO_SO_NGUOI_DUNG`, quản lý `TO_CHUC` và quyền `THANH_VIEN_TO_CHUC`. |
 | **UC-06** | Tạo & Lưu sự kiện toàn diện | Ban tổ chức | Lưu aggregate trong 1 transaction qua RPC `luu_su_kien_toan_dien`: `SU_KIEN`, cấu hình 1–1 `CAU_HINH_SU_KIEN`, timeline Markdown, lineup nghệ sĩ. |
 | **UC-07** | Cấu hình địa điểm, sơ đồ & phân khu | Ban tổ chức | Thiết lập thông tin `DIA_DIEM`, sơ đồ `PHIEN_BAN_SO_DO`, suất diễn `SUAT_DIEN` và phân bổ phân khu `KHU_VUC`, ghế `GHE`. |
-| **UC-08** | Xem trước bản nháp & Công bố | Ban tổ chức | Kiểm tra tính sẵn sàng `kiem_tra_dieu_kien_cong_bo`, mở route Preview bảo mật và gọi RPC `cong_bo_su_kien`. |
-| **UC-09** | Tra cứu dữ liệu vận hành sự kiện | Vận hành / Soát vé | Kiểm tra quyền thành viên tổ chức `la_thanh_vien_tochuc`, xem danh sách khán đài, suất diễn và số lượng vé phát hành. |
+| **UC-08** | Xem trước bản nháp & Công bố | Ban tổ chức | Kiểm tra tính sẵn sàng `evaluatePublishReadiness` (client, `src/domain/organizerValidation.js`) và kiểm tra ngay trong RPC `cong_bo_su_kien`, mở route Preview bảo mật và gọi RPC `cong_bo_su_kien`. |
+| **UC-09** | Tra cứu dữ liệu vận hành sự kiện | Vận hành / Soát vé | Kiểm tra quyền thành viên tổ chức `la_thanh_vien_to_chuc`, xem danh sách khán đài, suất diễn và số lượng vé phát hành. |
 
 ---
 
@@ -249,7 +249,7 @@ classDiagram
     +Date thoiGianMoBanVe
     +Date thoiGianDongBanVe
     +string trangThai
-    +derivePublicSaleState() string
+    +deriveSaleStatus() string
     +isInSaleWindow() boolean
   }
 
@@ -411,12 +411,12 @@ classDiagram
 | `CAU_HINH_SU_KIEN` | `CauHinhSuKien` | `OrganizerService` | `src/services/organizerService.ts` | Cấu hình 1–1 (thời gian giữ chỗ, tối đa 4 vé, tùy chọn mở rộng). |
 | `DIA_DIEM` | `DiaDiem` | `EventService`, `OrganizerService` | `src/services/eventService.ts` | Danh mục địa điểm, địa chỉ và sức chứa. |
 | `PHIEN_BAN_SO_DO` | `PhienBanSoDo` | `TicketDataService` | `src/services/ticketDataService.ts` | Phiên bản sơ đồ ghế ngồi của địa điểm. |
-| `SUAT_DIEN` | `SuatDien` | `EventService`, `OrganizerService` | `src/domain/eventStatus.js` | Suất diễn, tính toán trạng thái mở bán `derivePublicSaleState`. |
+| `SUAT_DIEN` | `SuatDien` | `EventService`, `OrganizerService` | `src/domain/eventStatus.js` | Suất diễn, tính toán trạng thái mở bán `deriveSaleStatus`. |
 | `KHU_VUC` | `KhuVuc` | `TicketDataService`, `OrganizerService` | `src/domain/seatMap.js` | Phân khu vé, tính giá tiền, bóc tách quyền lợi `parseTierBenefits`. |
-| `GHE` | `Ghe` | `TicketDataService`, `SeatRealtimeService` | `src/domain/seatSelection.js` | Ghế ngồi vật lý, kiểm tra hợp lệ chọn ghế `evaluateSeatSelection`. |
+| `GHE` | `Ghe` | `TicketDataService`, `SeatRealtimeService` | `src/domain/seatMap.js` | Ghế ngồi vật lý, kiểm tra hợp lệ chọn ghế `evaluateSeatSelection`. |
 | `GIU_CHO` | `GiuCho` | `BookingService` | `src/services/bookingService.ts` | Header giữ chỗ 5 phút, đếm ngược `calculateRemainingSeconds`. |
 | `CHI_TIET_GIU_CHO` | `ChiTietGiuCho` | `BookingService` | `src/services/bookingService.ts` | Dòng giữ chỗ chi tiết (phân biệt khu đứng và ghế ngồi). |
-| `NGHE_SI` | `NgheSi` | `ArtistService`, `OrganizerService` | `src/domain/publicArtists.js` | Danh mục nghệ sĩ, chuẩn hóa dữ liệu `normalizeArtistRow`. |
+| `NGHE_SI` | `NgheSi` | `ArtistService`, `OrganizerService` | `src/domain/artistLineup.js` | Danh mục nghệ sĩ, chuẩn hóa dữ liệu `normalizeArtistRow`. |
 | `SU_KIEN_NGHE_SI` | `SuKienNgheSi` | `ArtistService`, `OrganizerService` | `src/services/artistService.ts` | Liên kết Lineup nghệ sĩ, sắp xếp thứ tự diễn `sortArtists`. |
 
 ---
@@ -565,7 +565,7 @@ sequenceDiagram
     OS-->>UI: Cập nhật danh sách tổ chức đang quản lý
   else Nếu là nhân viên Vận hành / Soát vé (UC-09)
     UI->>OS: loadOperationalData(eventId)
-    OS->>DB: SELECT * FROM SU_KIEN WHERE SuKienID = eventId AND la_thanh_vien_tochuc(ToChucID)
+    OS->>DB: SELECT * FROM SU_KIEN WHERE SuKienID = eventId AND la_thanh_vien_to_chuc(ToChucID)
     DB-->>OS: Trả về dữ liệu suất diễn, hạng vé và sức chứa
     OS-->>UI: Hiển thị bảng điều khiển vận hành sự kiện
   end
