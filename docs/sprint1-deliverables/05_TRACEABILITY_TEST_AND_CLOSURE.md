@@ -3,8 +3,8 @@
 ## 1. Ma trận liên kết kiến trúc (UC → Bảng ERD → Lớp Class → Sequence Diagram)
 
 Ma trận này thiết lập sự liên kết 4 chiều chặt chẽ giữa:
-1. **Use Case (`UC-01` .. `UC-09`)** trong [`02_ANALYSIS_AND_SYSTEM_DESIGN.md`](file:///home/xloxkwize/Desktop/EVENTTICKETING/docs/sprint1-deliverables/02_ANALYSIS_AND_SYSTEM_DESIGN.md)
-2. **14 Bảng CSDL Schema `public`** trong [`03_DATABASE_DESIGN.md`](file:///home/xloxkwize/Desktop/EVENTTICKETING/docs/sprint1-deliverables/03_DATABASE_DESIGN.md)
+1. **Use Case (`UC-01` .. `UC-09`)** trong [`02_ANALYSIS_AND_SYSTEM_DESIGN.md`](./02_ANALYSIS_AND_SYSTEM_DESIGN.md)
+2. **14 Bảng CSDL Schema `public`** trong [`03_DATABASE_DESIGN.md`](./03_DATABASE_DESIGN.md)
 3. **Các lớp Entity & Lớp Service** trong Class Diagram
 4. **Bộ 5 Sequence Diagrams (`SD-01` .. `SD-05`)**
 
@@ -51,7 +51,7 @@ npm run check
 ```
 
 - **TypeScript Type-check (`tsc --noEmit`)**: **Pass**, 0 lỗi.
-- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **142/142 tests PASS (0 fail, 0 skipped)**.
+- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **145/145 tests PASS (0 fail, 0 skipped)**.
 - **Production Build (`vite build`)**: **Pass**, đóng gói thành công ra thư mục `dist/`.
 - **Cơ sở dữ liệu Supabase Live (`qxkgkbayxxaakkwtepss`)**:
   - Đầy đủ **14 bảng `public`** đã bật RLS, xác nhận qua REST API probe.
@@ -82,4 +82,4 @@ npm run check
 - [x] Class Diagram trích xuất từ repo với 14 lớp Entity tương ứng 1–1 với 14 bảng ERD kết hợp các lớp Service.
 - [x] Bộ 5 Sequence Diagrams phủ trọn các luồng nghiệp vụ chính của Người mua, BTC và Vận hành.
 - [x] Ma trận liên kết kiến trúc 4 chiều (UC → ERD → Class → Sequence) được hoàn thiện đầy đủ.
-- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 142/142 tests pass.
+- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 145/145 tests pass.
