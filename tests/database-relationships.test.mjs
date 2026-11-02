@@ -168,8 +168,8 @@ test('02_ANALYSIS_AND_SYSTEM_DESIGN.md covers 14 Entity classes, services, and 5
     assert.match(content, new RegExp(cls, 'i'), `Must contain entity class ${cls}`);
   }
 
-  // 5 Sequence Diagrams (SD-01 to SD-05)
-  for (let i = 1; i <= 5; i++) {
+  // 6 Sequence Diagrams: SD-01..04 (Sprint 1), SD-05..06 (Sprint 3 foundation)
+  for (let i = 1; i <= 6; i++) {
     const sdTag = `SD-0${i}`;
     assert.match(content, new RegExp(sdTag, 'i'), `Must contain sequence diagram ${sdTag}`);
   }
@@ -181,9 +181,14 @@ test('05_TRACEABILITY_TEST_AND_CLOSURE.md establishes 4-way architectural linkag
   const content = fs.readFileSync(docPath, 'utf8');
 
   assert.match(content, /Ma trận liên kết kiến trúc \(UC → Bảng ERD → Lớp Class → Sequence Diagram\)/i);
-  for (let i = 1; i <= 9; i++) {
-    const ucTag = `UC-0${i}`;
-    assert.match(content, new RegExp(ucTag, 'i'), `Traceability matrix must cover ${ucTag}`);
+  // Use case codes follow Requirements_UseCases_Sprint1 (UC-T1-xx, UC-BTC-xx, UC-T3-xx)
+  const useCases = [
+    'UC-T1-01', 'UC-T1-02', 'UC-T1-03', 'UC-T1-04', 'UC-T1-05',
+    'UC-BTC-01', 'UC-BTC-02', 'UC-BTC-03', 'UC-BTC-04', 'UC-BTC-05',
+    'UC-T3-01', 'UC-T3-02',
+  ];
+  for (const ucTag of useCases) {
+    assert.match(content, new RegExp(`\\*\\*${ucTag}\\*\\*`), `Traceability matrix must cover ${ucTag}`);
   }
 });
 
