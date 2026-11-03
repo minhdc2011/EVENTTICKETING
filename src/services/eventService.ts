@@ -36,9 +36,9 @@ export class PublicEventNotFoundError extends Error {
 
 const MOCK_SHOW: PublicShowRecord = {
   id: 1, slug: 'dem-chinh', name: 'Đêm diễn chính',
-  startsAt: '2026-10-15T19:30:00+07:00', endsAt: '2026-10-15T23:00:00+07:00',
-  saleStartsAt: '2026-10-01T10:00:00+07:00', saleEndsAt: '2026-10-15T18:00:00+07:00',
-  timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'SAP_MO_BAN',
+  startsAt: '2026-11-01T19:30:00+07:00', endsAt: '2026-11-30T23:00:00+07:00',
+  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-11-30T22:00:00+07:00',
+  timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 
 const MOCK_EVENT: PublicEventRecord = {
@@ -58,8 +58,8 @@ const MOCK_EVENT: PublicEventRecord = {
 };
 
 const MOCK_GENERIC_SHOWS: PublicShowRecord[] = [
-  {id: 21, slug: 'ngay-1', name: 'Ngày 1 · Kết nối', startsAt: '2026-11-21T09:00:00+07:00', endsAt: '2026-11-21T17:00:00+07:00', saleStartsAt: '2026-10-08T09:00:00+07:00', saleEndsAt: '2026-11-21T08:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'SAP_MO_BAN'},
-  {id: 22, slug: 'ngay-2', name: 'Ngày 2 · Thực hành', startsAt: '2026-11-22T09:00:00+07:00', endsAt: '2026-11-22T17:00:00+07:00', saleStartsAt: '2026-10-08T09:00:00+07:00', saleEndsAt: '2026-11-22T08:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'SAP_MO_BAN'},
+  {id: 21, slug: 'ngay-1', name: 'Ngày 1 · Kết nối', startsAt: '2026-11-01T09:00:00+07:00', endsAt: '2026-11-01T17:00:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-11-30T22:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
+  {id: 22, slug: 'ngay-2', name: 'Ngày 2 · Thực hành', startsAt: '2026-11-30T09:00:00+07:00', endsAt: '2026-11-30T23:59:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-11-30T22:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
 ];
 
 const MOCK_GENERIC_EVENT: PublicEventRecord = {
@@ -69,10 +69,10 @@ const MOCK_GENERIC_EVENT: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'HOI_THAO',
   bannerUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=86',
-  startsAt: MOCK_GENERIC_SHOWS[0].startsAt, endsAt: MOCK_GENERIC_SHOWS[0].endsAt,
-  saleStartsAt: MOCK_GENERIC_SHOWS[0].saleStartsAt, saleEndsAt: MOCK_GENERIC_SHOWS[0].saleEndsAt,
+  startsAt: MOCK_GENERIC_SHOWS[0].startsAt, endsAt: MOCK_GENERIC_SHOWS[1].endsAt,
+  saleStartsAt: MOCK_GENERIC_SHOWS[0].saleStartsAt, saleEndsAt: MOCK_GENERIC_SHOWS[1].saleEndsAt,
   venueName: 'Trung tâm Hội nghị Quốc gia', address: '57 Phạm Hùng, Nam Từ Liêm, Hà Nội',
-  capacity: 1200, databaseSaleStatus: 'SAP_MO_BAN', publicationStatus: 'CONG_KHAI',
+  capacity: 1200, databaseSaleStatus: 'DANG_MO_BAN', publicationStatus: 'CONG_KHAI',
   selectedShow: MOCK_GENERIC_SHOWS[0], shows: MOCK_GENERIC_SHOWS,
   ageRestriction: 'All ages', refundPolicy: 'Vé có thể sang nhượng nhưng không hoàn tiền sau khi mua.',
   contactEmail: 'contact@creativetech.vn', contactHotline: '024-3788-0099',
