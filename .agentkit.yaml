@@ -71,6 +71,13 @@ exclude:
   - package-lock.json
   - bun.lock
   - supabase/.temp
+  # Database and schema are frozen: the solve guard rejects any diff touching these (UI-only changes).
+  - supabase
+  - "*.sql"
+  - src/services
+  - src/types
+  - src/domain/seatRealtime.js
+  - docs
 
 # agentkit solve: every change must pass these before review (lint + node tests + vite build).
 solve:
