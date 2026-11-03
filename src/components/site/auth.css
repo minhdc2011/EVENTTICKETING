@@ -1,0 +1,335 @@
+/* Buyer sign-in / register / account — centred card on a light page. Uses the shared --et-* tokens. */
+.et-auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--et-bg);
+  color: var(--et-ink);
+  font-family: var(--et-font);
+}
+
+.et-auth__main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--et-space-8) var(--et-space-4);
+}
+
+.et-auth__card {
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
+  padding: var(--et-space-6);
+  background: var(--et-surface);
+  border: 1px solid var(--et-border);
+  border-radius: var(--et-radius-md);
+  box-shadow: var(--et-shadow-card);
+}
+
+/* Tabs */
+.et-auth__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: var(--et-space-6);
+  border-bottom: 1px solid var(--et-border);
+}
+.et-auth__tabs button {
+  min-height: var(--et-tap-min);
+  padding: 0 var(--et-space-3);
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  color: var(--et-ink-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.et-auth__tabs button:hover {
+  color: var(--et-blue);
+}
+.et-auth__tabs button.is-active {
+  color: var(--et-blue);
+  border-bottom-color: var(--et-blue);
+}
+
+.et-auth__kicker {
+  margin: 0 0 var(--et-space-1);
+  color: var(--et-blue);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.et-auth__title {
+  margin: 0 0 var(--et-space-2);
+  font-size: 1.625rem;
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--et-ink);
+  overflow-wrap: anywhere;
+}
+.et-auth__sub {
+  margin: 0 0 var(--et-space-5);
+  color: var(--et-ink-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Form */
+.et-auth__form {
+  display: grid;
+  gap: var(--et-space-4);
+}
+.et-auth__field {
+  display: grid;
+  gap: var(--et-space-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--et-ink);
+}
+.et-auth__field input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 0 var(--et-space-3);
+  background: var(--et-surface);
+  color: var(--et-ink);
+  border: 1px solid #aeb8c4;
+  border-radius: var(--et-radius-sm);
+  font: inherit;
+  font-weight: 400;
+  font-size: 1rem;
+}
+.et-auth__field input::placeholder {
+  color: #6b7686;
+}
+.et-auth__field input:focus-visible,
+.et-auth__tabs button:focus-visible,
+.et-auth__toggle:focus-visible,
+.et-auth__btn:focus-visible,
+.et-auth__switch button:focus-visible,
+.et-auth__aside-link a:focus-visible {
+  outline: 3px solid var(--et-focus);
+  outline-offset: 2px;
+}
+.et-auth__password {
+  position: relative;
+}
+.et-auth__password input {
+  padding-right: 52px;
+}
+.et-auth__toggle {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  border-radius: var(--et-radius-sm);
+  color: var(--et-ink-muted);
+  cursor: pointer;
+}
+.et-auth__toggle:hover {
+  color: var(--et-blue);
+}
+
+/* Buttons */
+.et-auth__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 var(--et-space-5);
+  border-radius: var(--et-radius-sm);
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.et-auth__btn--block {
+  width: 100%;
+}
+.et-auth__btn--primary {
+  background: var(--et-blue);
+  color: var(--et-on-blue);
+}
+.et-auth__btn--primary:hover:not(:disabled) {
+  background: var(--et-blue-hover);
+}
+.et-auth__btn--secondary {
+  background: var(--et-surface);
+  color: var(--et-blue);
+  border-color: var(--et-blue);
+}
+.et-auth__btn--secondary:hover:not(:disabled) {
+  background: #eef4fd;
+}
+.et-auth__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.et-auth__switch {
+  margin: var(--et-space-4) 0 0;
+  text-align: center;
+  color: var(--et-ink-muted);
+  font-size: 0.9375rem;
+}
+.et-auth__switch button {
+  min-height: var(--et-tap-min);
+  padding: 0 var(--et-space-2);
+  background: none;
+  border: 0;
+  color: var(--et-blue);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Messages */
+.et-auth__message {
+  padding: var(--et-space-3);
+  border-radius: var(--et-radius-sm);
+  border: 1px solid;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+.et-auth__message--error {
+  background: #fde8ea;
+  border-color: #f4b7bd;
+  color: #8f1727;
+}
+.et-auth__message--success {
+  background: #e6f6ee;
+  border-color: #b6e3cb;
+  color: #0b5b35;
+}
+.et-auth__profile-list + .et-auth__message,
+.et-auth__form .et-auth__message {
+  margin: 0;
+}
+
+/* Account view */
+.et-auth__profile-head {
+  display: flex;
+  align-items: center;
+  gap: var(--et-space-4);
+  margin-bottom: var(--et-space-5);
+}
+.et-auth__avatar {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef4fd;
+  color: var(--et-blue);
+  border-radius: 50%;
+}
+.et-auth__profile-list {
+  margin: 0 0 var(--et-space-5);
+  border: 1px solid var(--et-border);
+  border-radius: var(--et-radius-sm);
+}
+.et-auth__profile-list > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--et-space-4);
+  padding: var(--et-space-3) var(--et-space-4);
+}
+.et-auth__profile-list > div + div {
+  border-top: 1px solid var(--et-border);
+}
+.et-auth__profile-list dt {
+  color: var(--et-ink-muted);
+  font-size: 0.875rem;
+}
+.et-auth__profile-list dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.et-auth__tag {
+  display: inline-block;
+  padding: 2px var(--et-space-2);
+  background: #eef4fd;
+  border-radius: var(--et-radius-sm);
+  color: #0b3f91;
+  font-size: 0.8125rem;
+}
+.et-auth__tag--ok {
+  background: #e6f6ee;
+  color: #0b5b35;
+}
+.et-auth__actions {
+  display: grid;
+  gap: var(--et-space-3);
+  margin-top: var(--et-space-5);
+}
+
+.et-auth__aside-link {
+  margin-top: var(--et-space-6);
+  padding-top: var(--et-space-4);
+  border-top: 1px solid var(--et-border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--et-space-2) var(--et-space-4);
+  color: var(--et-ink-muted);
+  font-size: 0.875rem;
+}
+.et-auth__aside-link span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--et-space-2);
+}
+.et-auth__aside-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--et-tap-min);
+  color: var(--et-blue);
+  font-weight: 700;
+}
+
+.et-auth__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--et-space-2) var(--et-space-4);
+  padding: var(--et-space-5) var(--et-space-4);
+  border-top: 1px solid var(--et-border);
+  background: var(--et-surface);
+  color: var(--et-ink-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+.et-auth__footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--et-tap-min);
+  color: var(--et-blue);
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .et-auth__main {
+    padding: var(--et-space-4);
+  }
+  .et-auth__card {
+    padding: var(--et-space-5) var(--et-space-4);
+  }
+}
