@@ -1,6 +1,6 @@
 /* GlobalHeader — namespaced under .et-header, uses only --et-* tokens. */
 
-.et-header {
+.et-site.et-header {
   position: sticky;
   top: 0;
   z-index: 50;

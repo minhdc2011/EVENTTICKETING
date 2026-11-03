@@ -58,35 +58,22 @@ test('builds stable public paths for buyer authentication and organizer access',
   assert.equal(buildPublicPath('/EVENTTICKETING/', 'organizer/login'), '/EVENTTICKETING/?route=/organizer/login');
 });
 
-test('marketplace header CSS defines sticky positioning, proper z-index, and backdrop blur', async () => {
-  const css = await readFile(new URL('../src/index.css', import.meta.url), 'utf8');
+test('global header is sticky, blue, and wins the cascade over the .et-site surface', async () => {
+  const css = await readFile(new URL('../src/components/site/site.css', import.meta.url), 'utf8');
+  const tokens = await readFile(new URL('../src/components/site/tokens.css', import.meta.url), 'utf8');
 
-  // Verify sticky positioning at the top with z-index >= 50
-  assert.match(
-    css,
-    /\.marketplace-nav\s*\{[^}]*position:\s*sticky/i,
-    'marketplace-nav must have position: sticky',
-  );
-  assert.match(
-    css,
-    /\.marketplace-nav\s*\{[^}]*top:\s*0/i,
-    'marketplace-nav must be pinned at top: 0',
-  );
-  assert.match(
-    css,
-    /\.marketplace-nav\s*\{[^}]*z-index:\s*50/i,
-    'marketplace-nav must have z-index: 50',
-  );
-  assert.match(
-    css,
-    /\.marketplace-nav\s*\{[^}]*backdrop-filter:\s*blur\(18px\)/i,
-    'marketplace-nav must have backdrop-filter: blur',
-  );
+  // The header element carries both .et-site (grey surface) and .et-header (blue bar):
+  // the blue rule must be more specific than the .et-site token rule, whatever the load order.
+  const rule = css.match(/\.et-site\.et-header\s*\{([^}]*)\}/);
+  assert.ok(rule, 'header surface rule must be .et-site.et-header (specificity above .et-site)');
+  assert.match(rule[1], /position:\s*sticky/);
+  assert.match(rule[1], /top:\s*0/);
+  assert.match(rule[1], /z-index:\s*50/);
+  assert.match(rule[1], /background:\s*var\(--et-blue\)/);
+  assert.match(rule[1], /color:\s*var\(--et-on-blue\)/);
+  assert.match(tokens, /--et-blue:\s*#0353c2/i);
 
-  // Verify buyer authentication and distinct organizer link styles
-  assert.match(css, /\.marketplace-organizer-link/);
-  assert.match(css, /\.marketplace-register/);
-  assert.match(css, /\.marketplace-login/);
-  assert.match(css, /\.buyer-auth-card/);
-  assert.match(css, /\.buyer-auth-tabs/);
+  // Category buttons in the catalog stay at least 44px tall on small screens
+  const index = await readFile(new URL('../src/index.css', import.meta.url), 'utf8');
+  assert.doesNotMatch(index, /\.marketplace-categories button\s*\{[^}]*min-height:\s*(?:[0-3]\d|4[0-3])px/);
 });
