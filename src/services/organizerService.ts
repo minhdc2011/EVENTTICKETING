@@ -3,6 +3,7 @@ import {deduplicateSlug} from '../domain/publicRoute';
 import {embedTimelineInDescription, stripTimelineFromDescription} from '../domain/eventTimeline.js';
 import {generateSeatRows} from '../domain/seatGeneration.js';
 import type {PublicEventRecord, PublicShowRecord} from './eventService';
+import type {Json} from '../types/database.types';
 
 export type OrganizerSession = {userId: string; email: string; accountKind?: string};
 export type OrganizerMembership = {
@@ -250,7 +251,7 @@ export async function loadOrganizerWorkspace(): Promise<{
     return {memberships: orgs, events: stored};
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   const {data: memberRows, error: memberError} = await supabase
     .from('THANH_VIEN_TO_CHUC')
     .select('ToChucID, VaiTro, TO_CHUC(TenToChuc, Slug)');
@@ -487,16 +488,17 @@ export async function saveFullEventDraft(
   }
 
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   // LICH_TRINH no longer exists: the schedule travels inside the description (MoTaChiTiet).
   const payload = {
     ...normalizedInput,
     description: embedTimelineInDescription(normalizedInput.description, normalizedInput.schedule),
   };
-  const {data, error} = await supabase.rpc('luu_su_kien_toan_dien', {
-    p_payload: payload,
+  const {data: rpcData, error} = await supabase.rpc('luu_su_kien_toan_dien', {
+    p_payload: payload as unknown as Json,
   });
   if (error) throw mapDatabaseError(error);
+  const data = rpcData as {eventId: number | string; slug: string; status?: string};
   const savedEventId = Number(data.eventId);
   const seatWarning = await ensureSeatsForSeatedTiers(supabase, savedEventId);
   return {
@@ -633,7 +635,7 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
   }
 
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
 
   const [eventRes, scheduleRes, artistsRes] = await Promise.all([
     supabase
@@ -641,7 +643,9 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
       .select('*, SUAT_DIEN(*, KHU_VUC(*))')
       .eq('SuKienID', eventId)
       .single(),
-    supabase
+    // LICH_TRINH was dropped (it is no longer in the generated types); the query is kept only so editing still
+    // works on a database that has not applied migration 20261028100000 yet.
+    (supabase as unknown as {from: (table: string) => any})
       .from('LICH_TRINH')
       .select('LichTrinhID, SuKienID, GioBatDau, GioKetThuc, TenHoatDong, MoTaHoatDong, DiaDiemHoatDong, ThuTu')
       .eq('SuKienID', eventId)
@@ -875,7 +879,7 @@ export async function loadEventForPreview(
   }
 
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   const {data: eventRow, error: eventErr} = await supabase
     .from('SU_KIEN')
     .select('*, SUAT_DIEN(*)')

@@ -23,7 +23,7 @@ const schedule = [
 
 test('schedule written into the description is read back in the same order', () => {
   const text = embedTimelineInDescription('Mô tả sự kiện.', schedule);
-  assert.match(text, /^Mô tả sự kiện\.\n\n## Lịch trình\n/);
+  assert.match(text, /^Mô tả sự kiện\.\n\n### LỊCH TRÌNH CHƯƠNG TRÌNH \(TIMELINE\):\n/);
   const parsed = parseTimelineFromDescription(text);
   assert.deepEqual(parsed.map((p) => [p.startTime, p.endTime, p.title]), [
     ['16:30', '17:30', 'Check-in – sảnh chính'],
@@ -36,7 +36,7 @@ test('embedding twice does not duplicate the block and strip removes it', () => 
   const once = embedTimelineInDescription('Mô tả.', schedule);
   const twice = embedTimelineInDescription(once, schedule);
   assert.equal(twice, once);
-  assert.equal((twice.match(new RegExp(TIMELINE_HEADING, 'g')) ?? []).length, 1);
+  assert.equal(twice.split(TIMELINE_HEADING).length - 1, 1);
   assert.equal(stripTimelineFromDescription(twice), 'Mô tả.');
   assert.equal(embedTimelineInDescription('Mô tả.', []), 'Mô tả.');
   assert.equal(embedTimelineInDescription('', schedule).startsWith(TIMELINE_HEADING), true);
@@ -78,4 +78,11 @@ test('legacy category keys resolve to a canonical one everywhere', () => {
   assert.equal(getCategoryTheme('TRIEN_LAM').key, 'THAM_QUAN');
   assert.equal(getCategoryLabel('CONG_NGHE'), 'Hội thảo');
   assert.equal(getCategoryLabel('AM_NHAC'), 'Âm nhạc');
+});
+
+test('only the timeline block is removed: later headings and text are kept, other heading styles are recognised', () => {
+  const text = 'Giới thiệu.\n\n### LỊCH TRÌNH CHƯƠNG TRÌNH (TIMELINE):\n- **09:00**: Khai mạc\n\n### Lưu ý\nMang theo CCCD.';
+  assert.equal(stripTimelineFromDescription(text), 'Giới thiệu.\n\n### Lưu ý\nMang theo CCCD.');
+  assert.equal(stripTimelineFromDescription('A\n\n## Lịch trình\n- **09:00**: B'), 'A');
+  assert.equal(stripTimelineFromDescription('Không có lịch trình ở đây.'), 'Không có lịch trình ở đây.');
 });

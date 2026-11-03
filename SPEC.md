@@ -231,23 +231,23 @@ Mọi liên kết được sinh theo dạng `<base>/?route=/<target>` (`buildPub
 - [x] Đăng xuất Studio (`OrganizerPortal.tsx`, `organizerService.ts` – `signOutOrganizer`)
 
 ### Hệ thống
-- [ ] Định tuyến bằng query, hash hoặc path mà không cần SPA rewrite (`src/domain/publicRoute.js`)
-- [ ] Rút gọn slug bị lặp đôi (`src/domain/publicRoute.js` – `deduplicateSlug`)
-- [ ] Chuyển giữa mock và thật bằng `VITE_USE_MOCK_DATA` (`src/config/runtime.ts`)
-- [ ] Dùng REST/WS dự phòng khi tắt mock mà không cấu hình Supabase (`src/services/eventService.ts`, `seatRealtimeService.ts`, `bookingService.ts`)
-- [ ] Tính trạng thái bán từ mốc mở/đóng bán, trạng thái DB và tồn kho (`src/domain/eventStatus.js`)
-- [ ] Áp theme màu theo thể loại, có xử lý alias (`src/domain/categoryThemes.js`)
-- [ ] Đăng ký realtime `UPDATE` trên bảng `GHE` theo suất, filter chia nhỏ ≤ 100 phân khu mỗi lần (`src/domain/seatRealtime.js:18,229,279-286`)
-- [ ] Bỏ qua payload realtime của phân khu không thuộc suất đang xem (`src/domain/seatRealtime.js:114-152`)
-- [ ] Đồng bộ lại lựa chọn khi giữ ghế lỗi hoặc xung đột (`src/domain/seatMap.js` – `reconcileSelectionWithCatalog`)
-- [ ] Tự hủy trạng thái giữ ghế phía client khi hết giờ (`event-template/SeatMapSection.tsx:187-213`)
-- [ ] Nhả lượt giữ khi đổi sự kiện hoặc đổi suất (`event-template/SeatMapSection.tsx:88-113`)
-- [ ] Phân tích lịch trình từ mô tả sự kiện (`src/domain/publicSchedule.js` – `parseTimelineFromDescription`)
-- [ ] Chuẩn hóa dòng nghệ sĩ từ Supabase (`src/domain/artistLineup.js` – `normalizeArtistRow`)
-- [ ] Chuẩn hóa dòng lịch trình (`src/domain/publicSchedule.js` – `normalizeScheduleRow`)
-- [ ] Dịch lỗi Auth sang thông điệp tiếng Việt (`src/domain/organizerValidation.js` – `mapAuthError`)
-- [ ] Dịch mã lỗi Postgres (42501, 23505, 23514, 22023) sang thông điệp tiếng Việt (`organizerValidation.js` – `mapDatabaseError`)
-- [ ] Bus sự kiện overlay (toast, tooltip, booking modal) giữa runtime legacy và React (`src/domain/runtimeOverlays.js`)
+- [x] Định tuyến bằng query, hash hoặc path mà không cần SPA rewrite (`src/domain/publicRoute.js`)
+- [x] Rút gọn slug bị lặp đôi (`src/domain/publicRoute.js` – `deduplicateSlug`)
+- [x] Chuyển giữa mock và thật bằng `VITE_USE_MOCK_DATA` (`src/config/runtime.ts`)
+- [x] Dùng REST/WS dự phòng khi tắt mock mà không cấu hình Supabase (`src/services/eventService.ts`, `seatRealtimeService.ts`, `bookingService.ts`)
+- [x] Tính trạng thái bán từ mốc mở/đóng bán, trạng thái DB và tồn kho (`src/domain/eventStatus.js`)
+- [x] Áp theme màu theo thể loại, có xử lý alias (`src/domain/categoryThemes.js`)
+- [x] Đăng ký realtime `UPDATE` trên bảng `GHE` theo suất, filter chia nhỏ ≤ 100 phân khu mỗi lần (`src/domain/seatRealtime.js:18,229,279-286`)
+- [x] Bỏ qua payload realtime của phân khu không thuộc suất đang xem (`src/domain/seatRealtime.js:114-152`)
+- [x] Đồng bộ lại lựa chọn khi giữ ghế lỗi hoặc xung đột (`src/domain/seatMap.js` – `reconcileSelectionWithCatalog`)
+- [x] Tự hủy trạng thái giữ ghế phía client khi hết giờ (`event-template/SeatMapSection.tsx:187-213`)
+- [x] Nhả lượt giữ khi đổi sự kiện hoặc đổi suất (`event-template/SeatMapSection.tsx:88-113`)
+- [x] Phân tích lịch trình từ mô tả sự kiện (`src/domain/publicSchedule.js` – `parseTimelineFromDescription`)
+- [x] Chuẩn hóa dòng nghệ sĩ từ Supabase (`src/domain/artistLineup.js` – `normalizeArtistRow`)
+- [x] Chuẩn hóa dòng lịch trình (`src/domain/publicSchedule.js` – `normalizeScheduleRow`)
+- [x] Dịch lỗi Auth sang thông điệp tiếng Việt (`src/domain/organizerValidation.js` – `mapAuthError`)
+- [x] Dịch mã lỗi Postgres (42501, 23505, 23514, 22023) sang thông điệp tiếng Việt (`organizerValidation.js` – `mapDatabaseError`)
+- [x] Bus sự kiện overlay (toast, tooltip, booking modal) giữa runtime legacy và React (`src/domain/runtimeOverlays.js`)
 - [ ] Giữ chỗ trong transaction, khóa hàng bằng `FOR UPDATE`, tối đa 4 vé mỗi lượt (`supabase/migrations/20261005090000_product_foundation.sql:387-465` – `tao_giu_cho_theo_suat`)
 - [ ] Tự hết hạn lượt giữ chỗ mỗi 10 giây bằng pg_cron (`20260929120000_sprint1_hold_hardening.sql:6-43,226-230` – `expire_seat_holds`)
 - [ ] Lưu toàn bộ sự kiện của BTC trong một RPC (`20261028100000_…sql:145-709` – `luu_su_kien_toan_dien`)
@@ -872,7 +872,7 @@ Mock chỉ **mô phỏng phía client** (form, luồng màn hình, lưu trong lo
 Phạm vi được duyệt (03/11/2026): được sửa giao diện và lớp dữ liệu phía client (`src/services`, `src/types`, `src/domain`). **Không** sửa `supabase/`, `*.sql`, `docs/`. Mục nào cần đổi database thì ghi vào mục 7 kèm lý do.
 Trang thực hiện: P1 Catalog · P2 Chi tiết sự kiện và sơ đồ ghế · P3 Super Concert · P4 Tài khoản khách · P5 Cổng BTC · P6 Hệ thống.
 
-- [ ] (6-1, P6) Cập nhật `src/types/database.types.ts` theo migration: thêm 6 bảng còn thiếu, bỏ `LICH_TRINH`, bổ sung cột và RPC đang dùng, giảm `as any` trong service
+- [x] (6-1, P6) Cập nhật `src/types/database.types.ts` theo migration: thêm 6 bảng còn thiếu, bỏ `LICH_TRINH`, bổ sung cột và RPC đang dùng, giảm `as any` trong service
 - [x] (6-2a, P5) Mở sự kiện để sửa không còn lỗi khi bảng `LICH_TRINH` không tồn tại (`organizerService.ts` – `loadEventForEditing`)
 - [x] (6-2b, P5) Lịch trình nhập trong wizard được lưu ở chế độ thật
 - [ ] (6-3, P6) Đơn hàng, vé, thanh toán
@@ -885,12 +885,12 @@ Trang thực hiện: P1 Catalog · P2 Chi tiết sự kiện và sơ đồ ghế
 - [x] (6-8, P5) Thống nhất danh sách thể loại giữa DB, `VALID_CATEGORIES`, `CATEGORY_LABELS`, `CATEGORY_MAP`
 - [x] (6-9, P3) Thống nhất cách nhận diện Super Concert (không dựa vào `SuKienID === 1`)
 - [x] (6-10, P2) Sơ đồ ghế tự cập nhật trạng thái bán khi tới giờ mở/đóng bán, không cần tải lại trang
-- [ ] (6-11a, P6) Path lạ, `account/:sub` và `organizer/:other` không hợp lệ hiển thị trang 404
+- [x] (6-11a, P6) Path lạ, `account/:sub` và `organizer/:other` không hợp lệ hiển thị trang 404
 - [x] (6-11b, P2) Chỉ tải bản xem trước khi URL có `preview=1`
 - [ ] (6-12, P5) Giao diện cho vai trò `ADMIN`, nâng loại tài khoản và mời thành viên vào tổ chức
 - [x] (6-13, P5) Wizard gửi khóa `configuration`; client đọc `CAU_HINH_SU_KIEN`, `DIA_DIEM`, `PHIEN_BAN_SO_DO` khi cần
-- [ ] (6-14, P6) Dọn mã chết và fragment không được render
-- [ ] (6-15, P6) Sửa lệch dữ liệu nhỏ (`metadata.json` ghi 96 ghế; thống kê chỉ có trong `data_zones.json`)
+- [x] (6-14, P6) Dọn mã chết và fragment không được render
+- [x] (6-15, P6) Sửa lệch dữ liệu nhỏ (`metadata.json` ghi 96 ghế; thống kê chỉ có trong `data_zones.json`)
 - [ ] (6-16, P6) Xác minh trên DB staging đã áp đủ migration
 
 ## 7. Chưa làm được
@@ -903,3 +903,6 @@ Mục nào bị kẹt được ghi ở đây kèm lý do và việc cần làm t
 | 6-6 (P2) phần máy chủ | Client đã đọc `SoVeToiDaMoiDon`/`ThoiGianGiuChoPhut` nhưng RPC `tao_giu_cho_theo_suat` vẫn cứng 4 vé và 5 phút, nên client chặn ở mức tối đa 4 vé (`SERVER_MAX_TICKETS_PER_ORDER`). | Migration cập nhật RPC đọc `CAU_HINH_SU_KIEN`; sau đó bỏ trần 4 trong `src/domain/purchaseLimits.js`. |
 | 6-12 (P5) Giao diện ADMIN, nâng loại tài khoản, mời thành viên | Đổi `LoaiTaiKhoan` cần gọi `gan_loai_tai_khoan` bằng `service_role`, và chưa có RPC hay chính sách cho phép client mời thành viên vào `THANH_VIEN_TO_CHUC`. Không làm được ở client nếu không đổi DB (đang khóa). | Migration: RPC `SECURITY DEFINER` cho ADMIN nâng loại tài khoản và cho chủ sở hữu mời thành viên, kèm RLS; sau đó dựng màn hình quản trị. |
 | 6-2b, 6-5c, 6-13 (P5) kiểm chứng chế độ thật | Phần client đã xong và có test: lịch trình nhúng vào `MoTaChiTiet`, tạo `GHE` sau khi lưu hạng vé có chỗ ngồi, gửi khóa `configuration`. Chưa chạy trên DB staging nên chưa chứng minh chính sách ghi `GHE` và RPC hoạt động đúng. Địa điểm của từng mục lịch trình không lưu được (định dạng mô tả không có trường này). `DIA_DIEM` và `PHIEN_BAN_SO_DO` chưa được đọc vì chưa có tính năng nào cần. | Chạy luồng lưu trên staging đã áp đủ migration (liên quan 6-16). |
+| 6-3 (P6) Đơn hàng, vé, thanh toán | Chưa có bảng, RPC, dịch vụ hay route nào cho các khái niệm này; đây là tính năng mới chứ không phải dựng lại tính năng đã có, và cần bảng/RPC (DB đang khóa) cùng cổng thanh toán. | Thiết kế và migration cho `DON_HANG`, `VE`, thanh toán; sau đó dựng trang "vé của tôi" và luồng thanh toán. |
+| 6-16 (P6) Xác minh trên DB staging | Môi trường này không có thông tin đăng nhập staging và không có Postgres để chạy; `scripts/verify-supabase-public.mjs` và `scripts/verify-product-foundation-staging.mjs` cần `VITE_SUPABASE_URL` và `VITE_SUPABASE_ANON_KEY` thật. | Cung cấp biến môi trường staging đã áp đủ 13 migration, rồi chạy hai script kiểm tra và luồng lưu/giữ chỗ thật. |
+| Mục 3 "Hệ thống" phía máy chủ (dòng 251–263): giữ chỗ trong transaction, hết hạn giữ chỗ bằng pg_cron, lưu sự kiện bằng một RPC, các chặn khóa thương mại, kiểm tra điều kiện công bố, chặn tự nâng loại tài khoản, deploy GitHub Pages, hai script kiểm tra staging | Đã xác nhận bằng cách đọc mã rằng các hành vi này có trong migration và workflow (`FOR UPDATE`, `cron.schedule`, các `RAISE EXCEPTION` chặn đổi giá/sức chứa/giờ diễn, ràng buộc `chk_loai_tai_khoan`, `VITE_USE_MOCK_DATA: 'false'` khi deploy), nhưng chưa chạy được vì không có Postgres, GitHub Actions hay staging. Vì vậy các mục này chưa tick. | Chạy trên staging hoặc Postgres cục bộ đã áp migration, và một lần chạy workflow deploy. |

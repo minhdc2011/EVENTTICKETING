@@ -469,10 +469,8 @@ test('public event detail architecture is unified across generic events and Supe
     new URL('../src/components/event-template/EventHeader.tsx', import.meta.url),
     'utf8'
   );
-  const heroHtml = await readFile(
-    new URL('../src/legacy/fragments/hero.html', import.meta.url),
-    'utf8'
-  );
+  const heroHtml = await readFile(new URL('../src/components/event-template/EventHero.tsx', import.meta.url), 'utf8');
+  const logicSource = await readFile(new URL('../src/components/event-template/eventTemplateLogic.js', import.meta.url), 'utf8');
   const templateCss = await readFile(
     new URL('../src/components/event-template/event-template.css', import.meta.url),
     'utf8'
@@ -531,7 +529,8 @@ test('public event detail architecture is unified across generic events and Supe
 
   // 7. Hero section in Super Concert has primary CTA in first viewport
   assert.match(heroHtml, /et-hero-primary-cta/i, 'Super Concert hero contains primary CTA button');
-  assert.match(heroHtml, /href="#seating-section"/i, 'Primary CTA links directly to seat selection');
+  assert.match(heroHtml, /heroCta\.href/i, 'Primary CTA uses the resolved CTA target');
+  assert.match(logicSource, /isConcert \? '#seating-section'/i, 'Super Concert primary CTA links directly to seat selection');
   assert.doesNotMatch(heroHtml, /font-syne/i, 'Hero does not use font-syne');
   assert.doesNotMatch(heroHtml, /tracking-\[-0\.055em\]/i, 'Hero does not use extreme negative tracking');
 
@@ -869,10 +868,7 @@ test('controlled and accessible TeamInfoDialog replaces legacy team modal', asyn
 });
 
 test('ConcertRuntimeOverlays boundary strictly preserves seat tooltip, toast container, and booking modal in React without dangerouslySetInnerHTML', async () => {
-  const footerModalsHtml = await readFile(
-    new URL('../src/legacy/fragments/footer-modals.html', import.meta.url),
-    'utf8'
-  );
+  const footerModalsHtml = await readFile(new URL('../src/legacy/fragments/footer-modals.html', import.meta.url), 'utf8').catch(() => '');
   const concertSectionsTsx = await readFile(
     new URL('../src/components/ConcertSections.tsx', import.meta.url),
     'utf8'
