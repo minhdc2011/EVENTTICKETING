@@ -50,7 +50,8 @@ if ($Yes) { $fixArgs += "--yes" }
 if ($PlanOnly) { $fixArgs += "--plan-only" }
 $fixArgs += "Carry out the director's plan in this file. Split it into tasks and assign each one to sonnet or gemini."
 agentkit @fixArgs
-Check "agentkit fix"
+# exit 3 = some tasks were not approved; the approved ones are still committed, so report on them
+if ($LASTEXITCODE -ne 3) { Check "agentkit fix" }
 if ($PlanOnly) { Step "Plan only: done. Director plan: $run/1-director-plan.md"; exit 0 }
 
 $branch = @(git branch --list "agentkit/*" --format "%(refname:short)") | Where-Object { $before -notcontains $_ } | Select-Object -Last 1
