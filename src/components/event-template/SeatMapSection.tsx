@@ -1,3 +1,4 @@
+import {resolveAssetUrl} from '../../domain/assetHelper';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {PublicEventRecord} from '../../services/eventService';
 import type {TicketingCatalog, SeatRecord, ZoneRecord} from '../../types/ticketing';
@@ -51,6 +52,7 @@ export interface SeatMapSectionProps {
 export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps) {
   const [catalog, setCatalog] = useState<TicketingCatalog | null>(null);
   const [catalogState, setCatalogState] = useState<'loading' | 'ready' | 'error' | 'empty'>('loading');
+  const [viewMode, setViewMode] = useState<'interactive' | 'official'>('interactive');
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -581,6 +583,47 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             />
 
             {/* Map Header */}
+            
+            {/* View Mode Switcher when official seating map is provided */}
+            {event?.seatingMapUrl && (
+              <div style={{display: 'flex', gap: '8px', padding: '0 16px 12px 16px', flexWrap: 'wrap'}}>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('interactive')}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    background: viewMode === 'interactive' ? '#0353c2' : '#ffffff',
+                    color: viewMode === 'interactive' ? '#ffffff' : '#475569',
+                    border: '1px solid ' + (viewMode === 'interactive' ? '#0353c2' : '#cbd5e1'),
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  Sơ đồ chọn ghế trực quan
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('official')}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    background: viewMode === 'official' ? '#0353c2' : '#ffffff',
+                    color: viewMode === 'official' ? '#ffffff' : '#475569',
+                    border: '1px solid ' + (viewMode === 'official' ? '#0353c2' : '#cbd5e1'),
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  Sơ đồ khán đài BTC (Ticketmaster)
+                </button>
+              </div>
+            )}
+
             <div className="et-map-card-head">
               <div>
                 <h2 id="map-title" data-od-id="map-title">

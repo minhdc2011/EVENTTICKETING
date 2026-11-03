@@ -1,4 +1,5 @@
 import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../config/runtime';
+import {getFallbackCatalog} from './eventService';
 import type {ApiEnvelope, SeatRecord, TicketingCatalog, ZoneRecord} from '../types/ticketing';
 import {apiRequest} from './apiClient';
 import {requireSupabaseClient} from './supabaseClient';
@@ -50,7 +51,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
 
     const zoneById = new Map(zones.map((zone) => [zone.KhuVucID, zone]));
     const zoneIds = zones.map((zone) => zone.KhuVucID);
-    if (zoneIds.length === 0) return {zones, seats: []};
+    if (zoneIds.length === 0) return getFallbackCatalog(active.eventId);
 
     const {data: seatRows, error: seatError} = await supabase
       .from('GHE')
