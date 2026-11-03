@@ -844,6 +844,8 @@
 
 .et-tier-name {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: #0f172a;
   font-size: 18px;
   font-weight: 700;
@@ -858,6 +860,7 @@
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .et-tier-avail-badge--ok {
@@ -1013,6 +1016,7 @@
   color: var(--et-cat-accent-ink, #b45309);
   font-size: 13px;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .et-booking-selected-tier-box {
@@ -1037,12 +1041,15 @@
   color: #0f172a;
   font-size: 16px;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .et-booking-price-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
   border-top: 1px solid rgba(15, 23, 42, 0.08);
   padding-top: 10px;
 }
@@ -1107,6 +1114,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 12px;
   background: #f8fafc;
@@ -1120,6 +1128,7 @@
   color: #0f172a;
   font-weight: 700;
   text-decoration: underline;
+  overflow-wrap: anywhere;
 }
 
 .et-booking-hotline-note a:hover {
