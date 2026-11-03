@@ -431,7 +431,7 @@ export function OrganizerEventWizard({
               className="org-btn org-btn-secondary wizard-header-save-btn"
               onClick={handleSaveDraft}
               disabled={busyDraft || busyPublish || !canEdit}
-              style={{minHeight: '40px', padding: '0 14px'}}
+              style={{minHeight: '44px', padding: '0 14px'}}
             >
               {busyDraft ? (
                 <>
@@ -471,11 +471,13 @@ export function OrganizerEventWizard({
                   isCompleted ? 'is-completed' : ''
                 }`}
                 onClick={() => setStep(stepNum)}
+                aria-current={isActive ? 'step' : undefined}
               >
                 <span className="org-wizard-step-circle wizard-step-circle">
                   {isCompleted ? <IconCheck size={13} /> : stepNum}
                 </span>
                 <span className="wizard-step-label">{title}</span>
+                {isCompleted && <span className="sr-only"> (đã hoàn thành)</span>}
               </button>
             );
           })}
@@ -484,8 +486,7 @@ export function OrganizerEventWizard({
         {/* Global Feedback Banner */}
         {feedback && (
           <div
-            className={`org-alert org-alert-${feedback.type} wizard-alert wizard-alert--${feedback.type}`}
-            style={{margin: '16px 28px 0'}}
+            className={`org-alert org-alert-${feedback.type} wizard-alert wizard-alert--${feedback.type} org-wizard-feedback`}
             role="alert"
           >
             {feedback.type === 'success' ? (
@@ -498,7 +499,7 @@ export function OrganizerEventWizard({
             <div className="org-alert-body">{feedback.text}</div>
             <button
               type="button"
-              className="org-alert-close"
+              className="org-alert-close org-wizard-alert-close"
               onClick={() => setFeedback(null)}
               aria-label="Đóng thông báo"
             >

@@ -1108,14 +1108,34 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 8px;
   color: #64748b;
   cursor: pointer;
   transition: all 150ms ease;
+}
+
+.org-wizard-feedback {
+  margin: 16px 28px 0;
+}
+
+.org-wizard-alert-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -12px -8px -12px 0;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .org-wizard-feedback {
+    margin: 12px 12px 0;
+  }
 }
 
 .org-wizard-close-btn:hover {
