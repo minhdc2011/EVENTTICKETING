@@ -1,20 +1,27 @@
-import {useEffect, useMemo, useState} from 'react';
-import type * as React from 'react';
+import {useEffect, useMemo, useState, type MouseEvent} from 'react';
 import {loadPublicEvents, type PublicEventRecord, type PublicEventSummary} from '../services/eventService';
 import {buildPublicPath, navigatePublicRoute} from '../domain/publicRoute';
+import {pickFeaturedEvent} from './event-template/eventTemplateLogic.js';
+import {EventRow} from './site/EventRow';
+import {FeaturedEvent} from './site/FeaturedEvent';
 import {getBuyerSession, signOutBuyer, subscribeBuyerAuth, type BuyerSession} from '../services/buyerAuthService';
 import {CATEGORY_THEMES, CATEGORY_KEYS, getCategoryTheme} from '../domain/categoryThemes.js';
 import {GlobalHeader} from './site/GlobalHeader';
 import {SearchBlock} from './site/SearchBlock';
 import {
   CategoryIcon,
-  IconArrowRight,
   IconBuilding,
   IconCalendar,
-  IconMapPin,
   IconShieldCheck,
   IconTicket,
 } from './common/Icons';
+
+const onSpaNav = (target: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+  if (!e.metaKey && !e.ctrlKey) {
+    e.preventDefault();
+    navigatePublicRoute(target);
+  }
+};
 
 function countEventsByCategory(events: PublicEventSummary[]): Record<string, number> {
   const counts: Record<string, number> = {ALL: events.length};
@@ -27,23 +34,6 @@ function countEventsByCategory(events: PublicEventSummary[]): Record<string, num
   }
   return counts;
 }
-
-const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  weekday: 'short',
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-  timeZone: 'Asia/Ho_Chi_Minh',
-});
-
-const onSpaNav = (target: string) => (e: React.MouseEvent) => {
-  if (!e.metaKey && !e.ctrlKey) {
-    e.preventDefault();
-    navigatePublicRoute(target);
-  }
-};
 
 export function EventCatalog() {
   const [events, setEvents] = useState<PublicEventSummary[]>([]);
@@ -90,9 +80,7 @@ export function EventCatalog() {
     });
   }, [events, query, category]);
 
-  const featured = events[0];
-  const featuredTheme = featured ? getCategoryTheme(featured.category) : null;
-  const eventHref = (slug: string) => buildPublicPath(window.location.pathname, `events/${slug}`);
+  const featured = useMemo(() => pickFeaturedEvent(events), [events]);
 
   return (
     <div className="et-site et-catalog">
@@ -110,96 +98,7 @@ export function EventCatalog() {
       />
 
       {/* Featured / Hero Area */}
-      {featured && featuredTheme && (
-        <section
-          className="marketplace-hero"
-          style={{
-            ['--hero-bg-img' as any]: `url(${featured.bannerUrl || featured.posterUrl || ''})`,
-          }}
-          aria-label="Sự kiện nổi bật tuần này"
-        >
-          <div className="marketplace-hero-ambient" aria-hidden="true" style={{background: featuredTheme.glow}} />
-
-          {/* Mobile image cover */}
-          <div
-            className="marketplace-hero-cover-mobile"
-            style={{backgroundImage: `url(${featured.bannerUrl || featured.posterUrl || ''})`}}
-            aria-hidden="true"
-          >
-            <div className="marketplace-hero-cover-overlay" />
-            <span
-              className="marketplace-hero-cat-badge marketplace-hero-cat-badge--mobile"
-              style={{
-                backgroundColor: featuredTheme.badgeBg,
-                borderColor: featuredTheme.badgeBorder,
-                color: featuredTheme.badgeText,
-              }}
-            >
-              <CategoryIcon category={featured.category} size={12} />
-              <span>{featuredTheme.label}</span>
-            </span>
-          </div>
-
-          <div className="marketplace-hero-content">
-            <div className="marketplace-hero-kicker-row">
-              <span
-                className="marketplace-hero-cat-badge marketplace-hero-cat-badge--desktop"
-                style={{
-                  backgroundColor: featuredTheme.badgeBg,
-                  borderColor: featuredTheme.badgeBorder,
-                  color: featuredTheme.badgeText,
-                }}
-              >
-                <CategoryIcon category={featured.category} size={13} />
-                <span>{featuredTheme.label}</span>
-              </span>
-              <span className="marketplace-hero-kicker">ĐỀ XUẤT TUẦN NÀY</span>
-            </div>
-
-            <h1 className="marketplace-hero-title">{featured.name}</h1>
-            {featured.slogan && <span className="marketplace-hero-slogan">{featured.slogan}</span>}
-
-            <dl className="marketplace-hero-meta">
-              <div>
-                <dt>
-                  <IconCalendar size={13} /> Thời gian
-                </dt>
-                <dd>{dateFormatter.format(new Date(featured.startsAt))}</dd>
-              </div>
-              <div>
-                <dt>
-                  <IconMapPin size={13} /> Địa điểm
-                </dt>
-                <dd>{featured.venueName || 'Địa điểm thông báo sau'}</dd>
-              </div>
-              {featured.showCount > 1 && (
-                <div className="marketplace-hero-meta-shows">
-                  <dt>
-                    <IconTicket size={13} /> Suất diễn
-                  </dt>
-                  <dd>{featured.showCount} suất diễn sẵn sàng</dd>
-                </div>
-              )}
-            </dl>
-
-            <div className="marketplace-hero-actions">
-              <a
-                href={eventHref(featured.slug)}
-                onClick={onSpaNav(`events/${featured.slug}`)}
-                className="marketplace-hero-cta"
-                style={{
-                  backgroundColor: featuredTheme.primary,
-                  color: featuredTheme.key === 'AM_NHAC' ? '#070908' : '#ffffff',
-                  boxShadow: `0 8px 24px ${featuredTheme.glow}`,
-                }}
-              >
-                <span>Khám phá sự kiện ngay</span>
-                <IconArrowRight size={16} />
-              </a>
-            </div>
-          </div>
-        </section>
-      )}
+      <FeaturedEvent event={featured} />
 
       {/* Trust & Reassurance Strip */}
       <section className="marketplace-trust-strip" aria-label="Cam kết dịch vụ">
@@ -349,79 +248,10 @@ export function EventCatalog() {
 
         {/* Event Cards Grid */}
         {isReady && filtered.length > 0 && (
-        <section className="marketplace-grid" aria-label="Danh sách sự kiện">
-          {filtered.map((event) => {
-            const theme = getCategoryTheme(event.category);
-            return (
-              <a
-                className="marketplace-card"
-                href={eventHref(event.slug)}
-                onClick={onSpaNav(`events/${event.slug}`)}
-                key={event.id}
-                data-category={theme.key}
-                style={
-                  {
-                    '--card-accent': theme.primary,
-                    '--card-glow': theme.glow,
-                    '--card-border': theme.cardBorder,
-                  } as React.CSSProperties
-                }
-              >
-                {/* Top Category Accent Line */}
-                <div
-                  className="marketplace-card-stripe"
-                  style={{backgroundColor: theme.primary}}
-                  aria-hidden="true"
-                />
-
-                {/* Media area */}
-                <div
-                  className="marketplace-card-media"
-                  style={{
-                    backgroundImage: event.posterUrl || event.bannerUrl
-                      ? `linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(6, 8, 12, 0.88) 100%), url(${
-                          event.posterUrl || event.bannerUrl
-                        })`
-                      : theme.gradient,
-                  }}
-                >
-                  <span
-                    className="marketplace-card-badge"
-                    style={{
-                      backgroundColor: theme.badgeBg,
-                      borderColor: theme.badgeBorder,
-                      color: theme.badgeText,
-                    }}
-                  >
-                    <CategoryIcon category={event.category} size={12} />
-                    <span>{theme.label}</span>
-                  </span>
-
-                  <b className="marketplace-card-shows">
-                    {event.showCount} suất diễn
-                  </b>
-                </div>
-
-                {/* Event info */}
-                <div className="marketplace-card-body">
-                  <time className="marketplace-card-time" style={{color: theme.inkOnLight}}>
-                    <IconCalendar size={12} />
-                    <span>{dateFormatter.format(new Date(event.startsAt))}</span>
-                  </time>
-                  <h3 className="marketplace-card-title">{event.name}</h3>
-                  <p className="marketplace-card-venue">
-                    <IconMapPin size={13} />
-                    <span>{event.venueName || 'Địa điểm thông báo sau'}</span>
-                  </p>
-                  <div className="marketplace-card-footer">
-                    <span className="marketplace-card-action" style={{color: theme.inkOnLight}}>
-                      Xem chi tiết <IconArrowRight size={13} />
-                    </span>
-                  </div>
-                </div>
-              </a>
-            );
-          })}
+        <section className="et-event-list" aria-label="Danh sách sự kiện">
+          {filtered.map((event) => (
+            <EventRow key={event.id} event={event} />
+          ))}
         </section>
         )}
       </main>
