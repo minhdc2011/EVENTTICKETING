@@ -130,11 +130,10 @@ export function OrganizerAuthView({
       </div>
 
       <div className="org-auth-card">
-        <div className="org-auth-tabs organizer-auth-tabs" role="tablist">
+        <div className="org-auth-tabs organizer-auth-tabs" role="group" aria-label="Chọn chế độ đăng nhập hoặc đăng ký Studio">
           <button
             type="button"
-            role="tab"
-            aria-selected={mode === 'login'}
+            aria-pressed={mode === 'login'}
             className={`org-auth-tab-btn ${mode === 'login' ? 'is-active' : ''}`}
             onClick={() => {
               setMode('login');
@@ -146,8 +145,7 @@ export function OrganizerAuthView({
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={mode === 'signup'}
+            aria-pressed={mode === 'signup'}
             className={`org-auth-tab-btn ${mode === 'signup' ? 'is-active' : ''}`}
             onClick={() => {
               setMode('signup');
@@ -202,7 +200,7 @@ export function OrganizerAuthView({
           {message && (
             <div
               className={`org-alert ${isSuccess ? 'org-alert-success' : 'org-alert-danger'} organizer-message`}
-              role="alert"
+              role={isSuccess ? 'status' : 'alert'}
             >
               {isSuccess ? (
                 <IconCheck className="org-alert-icon" size={18} />

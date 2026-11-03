@@ -220,7 +220,7 @@ export function BuyerAuth({page}: {page?: string}) {
               </div>
 
               {message && (
-                <div className={`buyer-auth-message buyer-auth-message--${message.type}`} role="status">
+                <div className={`buyer-auth-message buyer-auth-message--${message.type}`} role={message.type === 'error' ? 'alert' : 'status'}>
                   {message.text}
                 </div>
               )}
@@ -311,11 +311,10 @@ export function BuyerAuth({page}: {page?: string}) {
               {/* Right Side: Form Card */}
               <div className="buyer-auth-card">
                 {/* Tabs */}
-                <div className="buyer-auth-tabs" role="tablist">
+                <div className="buyer-auth-tabs" role="group" aria-label="Chọn chế độ đăng nhập hoặc đăng ký">
                   <button
                     type="button"
-                    role="tab"
-                    aria-selected={mode === 'login'}
+                    aria-pressed={mode === 'login'}
                     className={mode === 'login' ? 'is-active' : ''}
                     onClick={() => {
                       setMode('login');
@@ -326,8 +325,7 @@ export function BuyerAuth({page}: {page?: string}) {
                   </button>
                   <button
                     type="button"
-                    role="tab"
-                    aria-selected={mode === 'register'}
+                    aria-pressed={mode === 'register'}
                     className={mode === 'register' ? 'is-active' : ''}
                     onClick={() => {
                       setMode('register');
@@ -425,7 +423,7 @@ export function BuyerAuth({page}: {page?: string}) {
                   {message && (
                     <div
                       className={`buyer-auth-message buyer-auth-message--${message.type}`}
-                      role="status"
+                      role={message.type === 'error' ? 'alert' : 'status'}
                     >
                       {message.text}
                     </div>
