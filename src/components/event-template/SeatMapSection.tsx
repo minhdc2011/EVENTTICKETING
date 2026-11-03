@@ -16,7 +16,7 @@ import {
   setStandingQuantity,
   buildStandingHoldItems,
   calculateStandingTotal,
-  findZoneForTier,
+
 } from '../../domain/standingSelection.js';
 import {deriveSaleStatus} from '../../domain/eventStatus';
 import {dispatchToast} from '../../domain/runtimeOverlays.js';
@@ -272,15 +272,6 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const roomLeft = Math.max(0, limits.maxPerOrder - selectedSeats.length - standingCount);
   const holdLabel = `${limits.holdMinutes || DEFAULT_HOLD_MINUTES} phút`;
 
-  // Tier chosen in the ticket list -> focus its zone on the map
-  useEffect(() => {
-    if (!selectedTier || !catalog) return;
-    const zone = findZoneForTier(selectedTier, catalog.zones);
-    if (!zone || isStandingZone(zone)) return;
-    setFilter(String(zone.KhuVucID));
-    setSelectedZoneId(zone.KhuVucID);
-    setZoom(1);
-  }, [selectedTier, catalog]);
 
   const activeZoneGroup = useMemo(() => {
     if (selectedZoneId == null) return null;

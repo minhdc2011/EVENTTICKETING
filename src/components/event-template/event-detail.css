@@ -320,24 +320,12 @@
 .et-skin #seating-section {
   background: transparent !important;
 }
+
 .et-skin #seating-section {
   color: #1f262d;
 }
 
-/* Super Concert: the legacy SVG seat map keeps its dark stage panel, framed inside the light page */
-.et-skin.et-shell--concert #seating-section {
-  background: #0d0d0d !important;
-  color: #f1f5f9;
-  border-radius: 8px;
-  overflow: hidden;
-  margin: 8px 0 24px;
-}
-.et-skin.et-shell--concert #seating-section h2 {
-  overflow-wrap: anywhere;
-  font-size: clamp(22px, 2.6vw, 32px);
-}
 
-/* ---- Body: two-column layout, tickets/map on the left, sticky summary on the right ---- */
 .et-skin .et-body-surface {
   background: #f4f6f8;
   border-top: 0;
@@ -357,8 +345,7 @@
 .et-skin .et-section-kicker {
   color: #0353c2;
 }
-.et-skin .et-booking-primary-btn,
-.et-skin .et-tier-select-btn {
+
   border-radius: 6px;
 }
 .et-skin .et-booking-primary-btn {
@@ -394,10 +381,7 @@
   color: #525b6c;
 }
 
-/* Map and selection summary stack inside the content column (the page already has a sticky right column) */
-.et-skin .et-seatmap-workarea {
-  grid-template-columns: minmax(0, 1fr);
-}
+
 .et-skin .et-legend {
   background: #f4f6f8;
 }

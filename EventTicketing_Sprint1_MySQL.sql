@@ -145,10 +145,10 @@ INSERT INTO `SU_KIEN` (
     'ANH TRAI VƯỢT NGÀN CHÔNG GAI 2026 - CONCERT HÀ NỘI ĐÊM 3', 
     'Rực Lửa Đam Mê - Hòa Vang Ngàn Chông Gai Giữa Trái Tim Thủ Đô', 
     'Đại nhạc hội quy tụ dàn 33 Anh Tài đỉnh cao cùng các tiết mục âm nhạc kết hợp nghệ thuật dàn dựng sân khấu hiện đại bậc nhất châu Á. Chương trình ứng dụng hệ thống âm thanh vòm L-Acoustics K1/K2 và màn hình LED 360 độ siêu khủng trên diện tích mặt cỏ SVĐ Quốc gia Mỹ Đình.', 
-    '2026-11-15 19:30:00', 
-    '2026-11-15 23:30:00', 
-    '2026-10-01 12:00:00', 
-    '2026-11-14 18:00:00', 
+    '2026-11-01 19:30:00',
+    '2026-11-30 23:59:59',
+    '2026-10-25 00:00:00',
+    '2026-11-30 22:00:00', 
     'Đường Lê Đức Thọ, Phường Mỹ Đình 1, Quận Nam Từ Liêm, TP. Hà Nội', 
     'Sân vận động Quốc gia Mỹ Đình', 
     40000, 
@@ -156,7 +156,7 @@ INSERT INTO `SU_KIEN` (
     'https://cdn.eventticketing.vn/events/atvncg2026/official_poster_vertical.webp', 
     'https://www.youtube.com/watch?v=atvncg2026_trailer_official', 
     'https://cdn.eventticketing.vn/events/atvncg2026/stadium_seatmap_my_dinh.svg', 
-    'SAP_MO_BAN', 
+    'DANG_MO_BAN',
     'Khán giả từ 14 tuổi trở lên (dưới 18 tuổi phải có người giám hộ đi cùng)'
 );
 

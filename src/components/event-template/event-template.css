@@ -723,14 +723,24 @@
 .et-main {
   position: relative;
   z-index: 10;
-  max-width: 1320px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: clamp(40px, 6vw, 72px) clamp(16px, 4vw, 48px) 120px;
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(32px, 5vw, 64px);
   align-items: start;
   color: #0f172a;
+}
+
+.et-section-anchor {
+  display: block;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  scroll-margin-top: 88px;
 }
 
 .et-content-col {
@@ -808,21 +818,8 @@
   border-radius: 14px;
   padding: 22px;
   cursor: default;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-}
-
-.et-tier-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(15, 23, 42, 0.25);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-}
-
-.et-tier-card.is-selected {
-  border-color: var(--et-cat-accent, #6366f1);
-  box-shadow: 0 0 0 2px var(--et-cat-accent, #6366f1), 0 12px 32px rgba(99, 102, 241, 0.15);
-  background: #ffffff;
 }
 
 .et-tier-accent-bar {
@@ -898,7 +895,7 @@
 .et-tier-benefits {
   list-style: none;
   padding: 0;
-  margin: 0 0 20px 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -921,43 +918,6 @@
   font-size: 13px;
   flex-shrink: 0;
   margin-top: 1px;
-}
-
-.et-tier-select-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  border: 1px solid rgba(15, 23, 42, 0.15);
-  background: #f8fafc;
-  color: #0f172a;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.et-tier-select-btn:hover:not(:disabled) {
-  background: #f1f5f9;
-  border-color: rgba(15, 23, 42, 0.3);
-}
-
-.et-tier-card.is-selected .et-tier-select-btn {
-  background: var(--et-cat-accent, #6366f1);
-  border-color: var(--et-cat-accent, #4f46e5);
-  color: var(--et-cat-on-accent, #000000);
-}
-
-.et-tier-select-btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  background: #f1f5f9;
-  border-color: rgba(15, 23, 42, 0.08);
-  color: #94a3b8;
 }
 
 .et-tier-retry-btn {

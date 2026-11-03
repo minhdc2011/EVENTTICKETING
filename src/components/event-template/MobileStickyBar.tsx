@@ -1,13 +1,11 @@
 import {useMemo} from 'react';
 import type {PublicEventRecord, PublicTicketTier} from '../../services/eventService';
-import {formatMoney, hasAssistAction} from './eventTemplateLogic.js';
+import {formatMoney} from './eventTemplateLogic.js';
 
 type MobileStickyBarProps = {
   event: PublicEventRecord;
   tiers: PublicTicketTier[];
-  selectedTier: PublicTicketTier | null;
   saleStatus: string;
-  onOpenAssistModal: () => void;
   onOpenSchedule?: () => void;
   hasSchedule?: boolean;
 };
@@ -15,9 +13,7 @@ type MobileStickyBarProps = {
 export function MobileStickyBar({
   event,
   tiers,
-  selectedTier,
   saleStatus,
-  onOpenAssistModal,
   onOpenSchedule,
   hasSchedule = false,
 }: MobileStickyBarProps) {
@@ -28,30 +24,13 @@ export function MobileStickyBar({
 
   const isConcert = event.templateKey === 'SUPER_CONCERT_2026';
   const isSaleOpen = saleStatus === 'ON_SALE';
-  const assistAvailable = useMemo(() => hasAssistAction(event), [event]);
-
-  const isCtaDisabled = isConcert
-    ? false
-    : !isSaleOpen || (selectedTier !== null && (selectedTier.available <= 0 || !assistAvailable));
+  const isCtaDisabled = !isConcert && !isSaleOpen;
 
   const handleCtaClick = () => {
-    if (isConcert) {
-      const seatingEl = document.getElementById('seating-section');
-      if (seatingEl) {
-        seatingEl.scrollIntoView({behavior: 'smooth'});
-      }
-      return;
-    }
-    if (!isSaleOpen) return;
-    if (selectedTier) {
-      if (selectedTier.available > 0 && assistAvailable) {
-        onOpenAssistModal();
-      }
-      return;
-    }
-    const ticketsEl = document.getElementById('tickets');
-    if (ticketsEl) {
-      ticketsEl.scrollIntoView({behavior: 'smooth'});
+    if (!isConcert && !isSaleOpen) return;
+    const seatingEl = document.getElementById('seating-section');
+    if (seatingEl) {
+      seatingEl.scrollIntoView({behavior: 'smooth'});
     }
   };
 
@@ -62,13 +41,8 @@ export function MobileStickyBar({
     if (saleStatus === 'UPCOMING') return 'Sắp mở bán';
     if (saleStatus === 'CLOSED') return 'Đã đóng bán';
     if (saleStatus === 'SOLD_OUT') return 'Hết vé';
-    if (selectedTier) {
-      if (selectedTier.available <= 0) return 'Hết vé';
-      if (!assistAvailable) return 'Chưa có kênh liên hệ';
-      return 'Liên hệ đặt vé';
-    }
-    return 'Chọn hạng vé ↓';
-  }, [isConcert, isSaleOpen, saleStatus, selectedTier, assistAvailable]);
+    return 'Chọn chỗ & vé';
+  }, [isConcert, isSaleOpen, saleStatus]);
 
   const ctaAriaLabel = useMemo(() => {
     if (isConcert) {
@@ -81,21 +55,15 @@ export function MobileStickyBar({
     if (saleStatus === 'UPCOMING') return 'Sự kiện sắp mở bán vé';
     if (saleStatus === 'CLOSED') return 'Thời gian bán vé đã kết thúc';
     if (saleStatus === 'SOLD_OUT') return 'Sự kiện đã bán hết vé';
-    if (selectedTier) {
-      if (selectedTier.available <= 0) return 'Hạng vé đang chọn đã hết';
-      if (!assistAvailable) return 'Chưa có kênh liên hệ hỗ trợ đặt vé';
-      return `Liên hệ đặt vé cho hạng vé ${selectedTier.name}`;
-    }
-    return 'Cuộn xuống bảng danh sách hạng vé';
-  }, [isConcert, saleStatus, selectedTier, assistAvailable]);
+    return 'Chuyển đến sơ đồ để chọn chỗ và vé';
+  }, [isConcert, saleStatus]);
 
   const priceLabel = useMemo(() => {
-    if (selectedTier) return selectedTier.name;
     if (isConcert) {
       return saleStatus === 'CLOSED' ? 'Giá vé' : 'Bảng giá vé';
     }
     return saleStatus === 'CLOSED' ? 'Giá vé' : 'Giá từ';
-  }, [selectedTier, isConcert, saleStatus]);
+  }, [isConcert, saleStatus]);
 
   return (
     <>
@@ -106,9 +74,7 @@ export function MobileStickyBar({
             {priceLabel}
           </span>
           <span className="et-mobile-price-val et-num">
-            {selectedTier
-              ? formatMoney(selectedTier.price)
-              : minPrice !== null
+            {minPrice !== null
               ? (isConcert ? `Từ ${formatMoney(minPrice)}` : formatMoney(minPrice))
               : 'Đang cập nhật'}
           </span>

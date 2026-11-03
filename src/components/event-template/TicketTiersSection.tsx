@@ -5,22 +5,14 @@ import {formatMoney, parseTierBenefits} from './eventTemplateLogic.js';
 type TicketTiersSectionProps = {
   tiers: PublicTicketTier[];
   tierState: 'loading' | 'ready' | 'error';
-  selectedTierId: number | null;
-  onSelectTier: (tierId: number) => void;
   onRetry?: () => void;
-  saleStatus: string;
 };
 
 export function TicketTiersSection({
   tiers,
   tierState,
-  selectedTierId,
-  onSelectTier,
   onRetry,
-  saleStatus,
 }: TicketTiersSectionProps) {
-  const isSaleOpen = saleStatus === 'ON_SALE';
-
   return (
     <section id="tickets" className="et-content-section" aria-labelledby="tickets-heading">
       <div className="et-section-header">
@@ -69,7 +61,6 @@ export function TicketTiersSection({
       {tierState === 'ready' && tiers.length > 0 && (
         <div className="et-tiers-grid" role="list" aria-label="Danh sách các hạng vé">
           {tiers.map((tier) => {
-            const isSelected = selectedTierId === tier.id;
             const isSoldOut = tier.available <= 0;
             const benefits = parseTierBenefits(tier.description);
             const accentColor = tier.color || '#f59e0b';
@@ -78,7 +69,7 @@ export function TicketTiersSection({
               <div
                 key={tier.id}
                 role="listitem"
-                className={`et-tier-card ${isSelected ? 'is-selected' : ''}`}
+                className="et-tier-card"
                 style={{'--tier-accent': accentColor} as CSSProperties}
               >
                 <div className="et-tier-accent-bar" aria-hidden="true" />
@@ -116,41 +107,6 @@ export function TicketTiersSection({
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  disabled={!isSaleOpen || isSoldOut}
-                  onClick={() => {
-                    if (isSaleOpen && !isSoldOut) {
-                      onSelectTier(tier.id);
-                    }
-                  }}
-                  className="et-tier-select-btn"
-                  aria-pressed={isSelected}
-                  aria-label={
-                    isSoldOut
-                      ? `Hạng vé ${tier.name} đã hết vé`
-                      : isSelected
-                      ? `Hạng vé ${tier.name} đang được chọn, giá ${formatMoney(tier.price)}`
-                      : `Chọn hạng vé ${tier.name}, giá ${formatMoney(tier.price)}`
-                  }
-                >
-                  {saleStatus === 'UPCOMING' ? (
-                    'Sắp mở bán'
-                  ) : saleStatus === 'CLOSED' ? (
-                    'Đã đóng bán'
-                  ) : isSoldOut ? (
-                    'Đã hết vé'
-                  ) : isSelected ? (
-                    <>
-                      <span>Đã chọn hạng vé</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </>
-                  ) : (
-                    'Chọn hạng vé này'
-                  )}
-                </button>
               </div>
             );
           })}

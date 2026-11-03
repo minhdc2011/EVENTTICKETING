@@ -57,32 +57,6 @@ export function determineCountdownTarget(
   isActive: boolean;
 };
 
-export function hasAssistAction(event: {
-  contactHotline?: string | null;
-  contactEmail?: string | null;
-  onlineLink?: string | null;
-} | null | undefined): boolean;
-
-export function resolveCtaState(params: {
-  saleStatus: string;
-  selectedTier: {available: number; price: number; name: string} | null;
-  hasTiers: boolean;
-  hasAssistAction?: boolean;
-}): {
-  disabled: boolean;
-  label: string;
-  action:
-    | 'none'
-    | 'upcoming'
-    | 'closed'
-    | 'sold_out'
-    | 'select_tier'
-    | 'tier_sold_out'
-    | 'checkout_assist'
-    | 'no_assist_channel';
-  helperText: string;
-};
-
 export function hasMediaContent(event: {trailerUrl?: string; seatingMapUrl?: string}): boolean;
 export function hasVenueContent(event: {
   venueName?: string;

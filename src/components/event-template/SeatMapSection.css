@@ -96,9 +96,16 @@
 /* Workarea 2-column layout */
 .et-seatmap-workarea {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 336px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
   gap: 20px;
   align-items: start;
+}
+
+.et-seatmap-workarea > [data-od-id='selection-panel'] {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+  min-width: 0;
 }
 
 .et-seatmap-card,
@@ -1028,6 +1035,9 @@
 @media (max-width: 850px) {
   .et-seatmap-workarea {
     grid-template-columns: 1fr;
+  }
+  .et-seatmap-workarea > [data-od-id='selection-panel'] {
+    position: static;
   }
   .et-seatmap-heading {
     flex-direction: column;
