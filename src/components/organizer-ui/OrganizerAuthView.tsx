@@ -66,34 +66,21 @@ export function OrganizerAuthView({
 
   if (session) {
     return (
-      <main className="org-auth-container" style={{maxWidth: '680px', gridTemplateColumns: '1fr'}}>
-        <div className="org-auth-card organizer-auth-card" style={{textAlign: 'center', padding: '48px 36px'}}>
-          <div
-            style={{
-              display: 'inline-flex',
-              padding: '6px 14px',
-              borderRadius: 'var(--org-radius-sm)',
-              background: 'var(--org-lime-glow)',
-              color: 'var(--org-lime)',
-              fontSize: '12px',
-              fontWeight: 800,
-              letterSpacing: '0.08em',
-              marginBottom: '16px',
-            }}
-          >
+      <main className="org-auth-container org-auth-session-container">
+        <div className="org-auth-card organizer-auth-card org-auth-session-card">
+          <div className="org-auth-session-badge">
             PHIÊN LÀM VIỆC HỢP LỆ
           </div>
-          <h1 style={{fontSize: '28px', fontWeight: 900, margin: '0 0 12px', color: '#fff'}}>
+          <h1 className="org-auth-session-title">
             Bạn đã đăng nhập vào hệ thống
           </h1>
-          <p style={{color: 'var(--org-text-secondary)', fontSize: '14px', marginBottom: '28px'}}>
-            Tài khoản: <strong style={{color: '#fff'}}>{session.email}</strong>
+          <p className="org-auth-session-account">
+            Tài khoản: <strong className="org-auth-session-email">{session.email}</strong>
           </p>
           <button
             type="button"
-            className="org-btn org-btn-primary"
+            className="org-btn org-btn-primary org-auth-session-btn"
             onClick={onLoginSuccess}
-            style={{minWidth: '220px', margin: '0 auto'}}
           >
             <span>Mở Studio làm việc</span>
             <IconArrowRight size={16} />
@@ -143,11 +130,10 @@ export function OrganizerAuthView({
       </div>
 
       <div className="org-auth-card">
-        <div className="org-auth-tabs organizer-auth-tabs" role="tablist">
+        <div className="org-auth-tabs organizer-auth-tabs" role="group" aria-label="Chọn chế độ đăng nhập hoặc đăng ký Studio">
           <button
             type="button"
-            role="tab"
-            aria-selected={mode === 'login'}
+            aria-pressed={mode === 'login'}
             className={`org-auth-tab-btn ${mode === 'login' ? 'is-active' : ''}`}
             onClick={() => {
               setMode('login');
@@ -159,8 +145,7 @@ export function OrganizerAuthView({
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={mode === 'signup'}
+            aria-pressed={mode === 'signup'}
             className={`org-auth-tab-btn ${mode === 'signup' ? 'is-active' : ''}`}
             onClick={() => {
               setMode('signup');
@@ -215,7 +200,7 @@ export function OrganizerAuthView({
           {message && (
             <div
               className={`org-alert ${isSuccess ? 'org-alert-success' : 'org-alert-danger'} organizer-message`}
-              role="alert"
+              role={isSuccess ? 'status' : 'alert'}
             >
               {isSuccess ? (
                 <IconCheck className="org-alert-icon" size={18} />

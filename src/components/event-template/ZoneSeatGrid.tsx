@@ -80,10 +80,7 @@ export function ZoneSeatGrid({
         className="et-seat-rows"
         role="group"
         aria-label={`Ghế khu ${zoneName}`}
-        style={{
-          transform: `scale(${zoom})`,
-          transformOrigin: 'top center',
-        }}
+        style={{zoom}}
       >
         {rows.map(({rowLabel, seats}) => (
           <div key={rowLabel} className="et-seat-row">

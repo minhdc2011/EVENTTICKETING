@@ -304,6 +304,10 @@ textarea:focus-visible {
   line-height: 1.4;
 }
 
+.wizard-modal-window .org-label-hint {
+  color: #94a3b8;
+}
+
 /* ==========================================================================
    ALERT BANNERS & STATUS BADGES
    ========================================================================== */
@@ -908,6 +912,57 @@ textarea:focus-visible {
   margin-top: 10px;
 }
 
+/* Authenticated Session Card */
+.org-auth-session-container {
+  max-width: 680px;
+  grid-template-columns: 1fr;
+}
+
+.org-auth-session-card {
+  text-align: center;
+  padding: 48px 36px;
+}
+
+.org-auth-session-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: var(--org-radius-sm);
+  background-color: #ecfccb;
+  color: #3f6212;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.org-auth-session-title {
+  font-size: clamp(22px, 6vw, 28px);
+  font-weight: 900;
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.org-auth-session-account {
+  color: #475569;
+  font-size: 14px;
+  margin: 0 0 28px;
+  overflow-wrap: anywhere;
+}
+
+.org-auth-session-account strong,
+.org-auth-session-email {
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.org-auth-session-btn,
+.org-auth-session-card .org-btn {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
 /* Access Denied Card */
 .org-denied-wrapper {
   max-width: 680px;
@@ -1027,6 +1082,11 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
+.wizard-modal-window .wizard-header-tag,
+.wizard-modal-window .org-wizard-header-tag {
+  font-size: 11px;
+}
+
 .org-wizard-header-title {
   font-size: 20px;
   font-weight: 800;
@@ -1048,14 +1108,34 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 8px;
   color: #64748b;
   cursor: pointer;
   transition: all 150ms ease;
+}
+
+.org-wizard-feedback {
+  margin: 16px 28px 0;
+}
+
+.org-wizard-alert-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -12px -8px -12px 0;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .org-wizard-feedback {
+    margin: 12px 12px 0;
+  }
 }
 
 .org-wizard-close-btn:hover {
@@ -1217,6 +1297,14 @@ textarea:focus-visible {
 
 .org-category-theme-info span {
   color: #64748b;
+}
+
+.wizard-modal-window .org-category-theme-info strong {
+  color: #f8fafc;
+}
+
+.wizard-modal-window .org-category-theme-info span {
+  color: #94a3b8;
 }
 
 /* Cards inside wizard (shows, tiers) */
@@ -1706,7 +1794,8 @@ textarea:focus-visible {
 }
 
 @media (max-width: 480px) {
-  .org-auth-card {
+  .org-auth-card,
+  .org-auth-session-card {
     padding: 24px 18px;
   }
 
