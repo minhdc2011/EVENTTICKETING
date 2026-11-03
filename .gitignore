@@ -7,3 +7,6 @@ coverage/
 .env*
 !.env.example
 !.env.production
+
+# multi-agent run logs
+.multiagent/runs/
