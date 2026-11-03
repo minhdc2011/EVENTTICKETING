@@ -173,7 +173,7 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
     return (await response.json() as {data: PublicEventSummary[]}).data;
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   const {data, error} = await supabase.from('SU_KIEN')
     .select('SuKienID, Slug, TenSuKien, Slogan, MoTaChiTiet, TenSanVanDong, ThoiGianBatDau, TrangThaiCongBo, TemplateKey, TheLoai, BannerURL, PosterURL, SUAT_DIEN(SuatDienID)')
     .eq('TrangThaiCongBo', 'CONG_KHAI').order('ThoiGianBatDau');
@@ -265,7 +265,7 @@ export async function loadPublicEvent(
     return (await response.json() as {data: PublicEventRecord}).data;
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   let eventRow = null;
   const {data: directRow, error: eventError} = await supabase.from('SU_KIEN').select('*')
     .eq('Slug', normalizedSlug).eq('TrangThaiCongBo', 'CONG_KHAI').maybeSingle();
@@ -343,7 +343,7 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
   }
   if (!isSupabaseConfigured()) return event.templateKey === 'SUPER_CONCERT_2026' ? SUPER_CONCERT_TIERS : [];
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   const {data, error} = await supabase.from('KHU_VUC')
     .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex, MoTaQuyenLoi, TongSoGhe, GHE(TrangThai)')
     .eq('SuatDienID', event.selectedShow.id).order('GiaVeNiemYet');
@@ -363,7 +363,7 @@ export async function loadEventPurchaseConfig(event: Pick<PublicEventRecord, 'id
   if (runtimeConfig.useMockData || !isSupabaseConfigured()) return empty;
   try {
     const {requireSupabaseClient} = await import('./supabaseClient');
-    const supabase = requireSupabaseClient() as any;
+    const supabase = requireSupabaseClient();
     const {data, error} = await supabase.from('CAU_HINH_SU_KIEN')
       .select('SoVeToiDaMoiDon, ThoiGianGiuChoPhut').eq('SuKienID', event.id).maybeSingle();
     if (error || !data) return empty;

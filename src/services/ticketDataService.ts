@@ -18,7 +18,7 @@ async function fetchJson<T>(url: string): Promise<T> {
 export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
   const active = getActiveEventContext();
   if (!runtimeConfig.useMockData && isSupabaseConfigured()) {
-    const supabase = requireSupabaseClient() as any;
+    const supabase = requireSupabaseClient();
     let {data: zoneRows, error: zoneError} = await supabase
       .from('KHU_VUC')
       .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex, LoaiKhuVuc, TongSoGhe')
@@ -29,7 +29,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
       const legacyResult = await supabase.from('KHU_VUC')
         .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex')
         .eq('SuKienID', active.eventDatabaseId).order('KhuVucID');
-      zoneRows = legacyResult.data;
+      zoneRows = legacyResult.data as typeof zoneRows; // legacy schema: LoaiKhuVuc and TongSoGhe are absent
       zoneError = legacyResult.error;
     }
     if (zoneError) throw zoneError;

@@ -3,21 +3,28 @@ import {formatScheduleTime} from './publicSchedule.js';
 /**
  * The LICH_TRINH table no longer exists: the schedule lives inside SU_KIEN.MoTaChiTiet, in the line format that
  * parseTimelineFromDescription reads: "- **HH:MM - HH:MM**: Title: details".
+ * The heading below is the one the seeded data already uses.
  */
-export const TIMELINE_HEADING = '## Lịch trình';
+export const TIMELINE_HEADING = '### LỊCH TRÌNH CHƯƠNG TRÌNH (TIMELINE):';
+
+const isHeading = (line) => line.trim().startsWith('#');
+const isTimelineHeading = (line) => /^#{2,4}\s*lịch trình\b/.test(line.trim().toLowerCase());
 
 /**
- * Removes the machine-written timeline block (heading to the end) from a description, so public pages and the
- * wizard description field show only the narrative.
+ * Removes the machine-written timeline block from a description, so public pages and the wizard description
+ * field show only the narrative. The block runs from its heading to the next heading (or the end); any
+ * "## Lịch trình" style heading is recognised, and text after the block is kept.
  * @param {string | null | undefined} description
  * @returns {string}
  */
 export function stripTimelineFromDescription(description) {
   if (!description || typeof description !== 'string') return '';
   const lines = description.split(/\r?\n/);
-  const at = lines.findIndex((line) => line.trim() === TIMELINE_HEADING);
-  const kept = at === -1 ? lines : lines.slice(0, at);
-  return kept.join('\n').replace(/\s+$/, '');
+  const at = lines.findIndex(isTimelineHeading);
+  if (at === -1) return lines.join('\n').replace(/\s+$/, '');
+  let end = lines.findIndex((line, i) => i > at && isHeading(line));
+  if (end === -1) end = lines.length;
+  return [...lines.slice(0, at), ...lines.slice(end)].join('\n').replace(/\s+$/, '');
 }
 
 /**

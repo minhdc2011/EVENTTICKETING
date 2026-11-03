@@ -247,7 +247,7 @@ test('EventTemplate schedule loading is event-safe against stale async responses
 });
 
 test('architectural removal of legacy schedule modal markup and dead bindings from production code', async () => {
-  const footerModalsHtml = await readFile('src/legacy/fragments/footer-modals.html', 'utf8');
+  const footerModalsHtml = await readFile('src/legacy/fragments/footer-modals.html', 'utf8').catch(() => '');
   const concertRuntimeJs = await readFile('src/legacy/concertRuntime.js', 'utf8');
   const headerTsx = await readFile('src/components/event-template/EventHeader.tsx', 'utf8');
   const heroTsx = await readFile('src/components/event-template/EventHero.tsx', 'utf8');

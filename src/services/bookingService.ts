@@ -30,7 +30,7 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
   if (!runtimeConfig.useMockData && isSupabaseConfigured()) {
     const active = getActiveEventContext();
     const supabase = requireSupabaseClient();
-    let {data, error} = await (supabase as any).rpc('tao_giu_cho_theo_suat', {
+    let {data, error} = await supabase.rpc('tao_giu_cho_theo_suat', {
       p_suat_dien_id: active.showId,
       p_phien_id: getBrowserSessionId(),
       p_items: request.items.map((item) => ({

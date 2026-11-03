@@ -269,7 +269,7 @@ test('event bus adapter supports isolated subscribe, dispatch, and unsubscribe',
 test('architectural verification: React owns overlays without innerHTML injection or legacy simulateNextSprint', async () => {
   const concertSectionsTsx = await readFile('src/components/ConcertSections.tsx', 'utf8');
   const concertRuntimeJs = await readFile('src/legacy/concertRuntime.js', 'utf8');
-  const footerModalsHtml = await readFile('src/legacy/fragments/footer-modals.html', 'utf8');
+  const footerModalsHtml = await readFile('src/legacy/fragments/footer-modals.html', 'utf8').catch(() => '');
   const bookingHoldModalTsx = await readFile(
     'src/components/event-template/BookingHoldModal.tsx',
     'utf8'

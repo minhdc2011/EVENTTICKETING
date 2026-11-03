@@ -4,6 +4,7 @@ import {GenericEventPage} from './components/GenericEventPage';
 import './components/event-template/event-template.css';
 import {OrganizerPortal} from './components/OrganizerPortal';
 import {BuyerAuth} from './components/BuyerAuth';
+import {NotFoundPage} from './components/site/NotFoundPage';
 import {
   AppErrorState,
   AppLoadingState,
@@ -27,6 +28,7 @@ export default function App() {
     runtimeConfig.eventId.toLowerCase().replaceAll('_', '-'),
     window.location.hash,
     window.location.search,
+    import.meta.env.BASE_URL,
   ), []);
   const [route, setRoute] = useState(readRoute);
   const [event, setEvent] = useState<PublicEventRecord | null>(null);
@@ -86,6 +88,7 @@ export default function App() {
     void loadEvent();
   }, [loadEvent, route.kind]);
 
+  if (route.kind === 'notfound') return <NotFoundPage />;
   if (route.kind === 'catalog') return <EventCatalog />;
   if (route.kind === 'organizer') return <OrganizerPortal page={route.page} />;
   if (route.kind === 'account') return <BuyerAuth page={route.page} />;
