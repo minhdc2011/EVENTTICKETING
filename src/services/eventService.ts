@@ -1,3 +1,5 @@
+import {resolveAssetUrl} from '../domain/assetHelper';
+import type {TicketingCatalog, ZoneRecord, SeatRecord} from '../types/ticketing';
 import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
 import {resolveTemplateKey} from '../domain/superConcert.js';
@@ -71,7 +73,7 @@ const MOCK_GENERIC_EVENT: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'HOI_THAO',
   bannerUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=86',
-  seatingMapUrl: '/maps/ticketmaster-theater-proscenium.svg',
+  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-theater-proscenium.svg'),
   startsAt: MOCK_GENERIC_SHOWS[0].startsAt, endsAt: MOCK_GENERIC_SHOWS[1].endsAt,
   saleStartsAt: MOCK_GENERIC_SHOWS[0].saleStartsAt, saleEndsAt: MOCK_GENERIC_SHOWS[1].saleEndsAt,
   venueName: 'Trung tâm Hội nghị Quốc gia', address: '57 Phạm Hùng, Nam Từ Liêm, Hà Nội',
@@ -97,7 +99,7 @@ const MOCK_ARENA_EVENT: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'AM_NHAC',
   bannerUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=900&q=86',
-  seatingMapUrl: '/maps/ticketmaster-arena-endstage.svg',
+  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-arena-endstage.svg'),
   startsAt: MOCK_ARENA_SHOW.startsAt, endsAt: MOCK_ARENA_SHOW.endsAt,
   saleStartsAt: MOCK_ARENA_SHOW.saleStartsAt, saleEndsAt: MOCK_ARENA_SHOW.saleEndsAt,
   venueName: 'Cung Điền kinh Trong nhà Hà Nội', address: 'Đường Trần Hữu Dực, Cầu Diễn, Nam Từ Liêm, Hà Nội',
@@ -123,6 +125,7 @@ const MOCK_TICKETGO_MUSIQUE: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'AM_NHAC',
   bannerUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=900&q=86',
+  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-theater-proscenium.svg'),
   startsAt: MOCK_MUSIQUE_SHOW.startsAt, endsAt: MOCK_MUSIQUE_SHOW.endsAt,
   saleStartsAt: MOCK_MUSIQUE_SHOW.saleStartsAt, saleEndsAt: MOCK_MUSIQUE_SHOW.saleEndsAt,
   venueName: 'Cung Văn hóa Hữu nghị Việt Xô', address: '91 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội',
@@ -147,6 +150,7 @@ const MOCK_TICKETGO_MOMANG: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'AM_NHAC',
   bannerUrl: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=86',
+  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-arena-endstage.svg'),
   startsAt: MOCK_MOMANG_SHOW.startsAt, endsAt: MOCK_MOMANG_SHOW.endsAt,
   saleStartsAt: MOCK_MOMANG_SHOW.saleStartsAt, saleEndsAt: MOCK_MOMANG_SHOW.saleEndsAt,
   venueName: 'Sân khấu Ngoài trời Bảo tàng Hà Nội', address: 'Đường Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội',
@@ -171,6 +175,7 @@ const MOCK_TICKETGO_GOMSHOW: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'SAN_KHAU',
   bannerUrl: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?auto=format&fit=crop&w=900&q=86',
+  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-theater-proscenium.svg'),
   startsAt: MOCK_GOM_SHOW.startsAt, endsAt: MOCK_GOM_SHOW.endsAt,
   saleStartsAt: MOCK_GOM_SHOW.saleStartsAt, saleEndsAt: MOCK_GOM_SHOW.saleEndsAt,
   venueName: 'Rạp Khăn Quàng Đỏ', address: '36 Lý Thái Tổ, Hoàn Kiếm, Hà Nội',
@@ -195,6 +200,7 @@ const MOCK_TICKETGO_TRAMHUONG: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'WORKSHOP',
   bannerUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=900&q=86',
+  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-theater-proscenium.svg'),
   startsAt: MOCK_TRAMHUONG_SHOW.startsAt, endsAt: MOCK_TRAMHUONG_SHOW.endsAt,
   saleStartsAt: MOCK_TRAMHUONG_SHOW.saleStartsAt, saleEndsAt: MOCK_TRAMHUONG_SHOW.saleEndsAt,
   venueName: 'Không gian Nghệ thuật Heritage Space', address: '173 Xuân Thủy, Cầu Giấy, Hà Nội',
@@ -219,6 +225,7 @@ const MOCK_TICKETGO_MARATHON: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'THE_THAO',
   bannerUrl: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=900&q=86',
+  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-arena-endstage.svg'),
   startsAt: MOCK_MARATHON_SHOW.startsAt, endsAt: MOCK_MARATHON_SHOW.endsAt,
   saleStartsAt: MOCK_MARATHON_SHOW.saleStartsAt, saleEndsAt: MOCK_MARATHON_SHOW.saleEndsAt,
   venueName: 'Công viên Yên Sở', address: 'Gamuda City, Hoàng Mai, Hà Nội',
@@ -603,3 +610,46 @@ export {
   loadEventArtists,
   normalizeArtistRow,
 } from './artistService';
+
+
+export function getFallbackCatalog(eventSlug?: string): TicketingCatalog {
+  const cleanSlug = deduplicateSlug(eventSlug || '');
+  const tiers = EVENT_SPECIFIC_TIERS[cleanSlug] || EVENT_SPECIFIC_TIERS[eventSlug || ''] || SUPER_CONCERT_TIERS;
+  
+  const zones: ZoneRecord[] = tiers.map((tier, idx) => ({
+    KhuVucID: tier.id || (idx + 1) * 10,
+    MaKhuVuc: tier.code,
+    TenKhuVuc: tier.name,
+    GiaVeNiemYet: tier.price,
+    MauSacHex: tier.color || '#3b82f6',
+    LoaiKhuVuc: (tier.code.includes('STAND') || tier.code.includes('PIT') || tier.code.includes('BIB')) ? 'DUNG_STAND' : 'GHE_NGOI',
+    TongSoGhe: tier.capacity || 200,
+  }));
+
+  const seats: SeatRecord[] = [];
+  let seatIdCounter = 1000;
+  const rowNames = ['A', 'B', 'C', 'D'];
+
+  zones.forEach((zone) => {
+    if (zone.LoaiKhuVuc === 'DUNG_STAND') return;
+    rowNames.forEach((row, rowIdx) => {
+      for (let num = 1; num <= 10; num++) {
+        const numStr = num < 10 ? '0' + num : '' + num;
+        const isSold = (seatIdCounter % 7 === 0);
+        const isHeld = (seatIdCounter % 11 === 0);
+        seats.push({
+          GheID: seatIdCounter++,
+          KhuVucID: zone.KhuVucID,
+          TenKhuVuc: zone.TenKhuVuc,
+          SoHang: row,
+          SoGhe: numStr,
+          MaGheDayDu: zone.MaKhuVuc + '-' + row + '-' + numStr,
+          TrangThai: isSold ? 'DA_BAN' : isHeld ? 'DANG_GIU' : 'TRONG',
+          GiaVeNiemYet: zone.GiaVeNiemYet,
+        });
+      }
+    });
+  });
+
+  return {zones, seats};
+}

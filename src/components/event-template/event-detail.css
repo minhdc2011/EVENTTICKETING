@@ -324,6 +324,228 @@
   color: #1f262d;
 }
 
+/* ==========================================================================
+   SUPER CONCERT SEATING SECTION (Single column vertical stack per media_1793736967471_0b05056a.jpg)
+   ========================================================================== */
+.et-skin.et-shell--concert #seating-section {
+  background: transparent !important;
+  color: #1f262d;
+  margin: 16px 0 32px;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-shell {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-heading {
+  margin: 0 0 16px;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-heading h2 {
+  margin: 0;
+  color: #1f262d;
+  font-size: clamp(22px, 2.8vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-heading p {
+  margin: 6px 0 0;
+  color: #525b6c;
+  font-size: 14px;
+}
+
+/* Toolbar & Canvas keep dark liquid-glass styling */
+.et-skin.et-shell--concert #seating-section #seating-toolbar {
+  margin-bottom: 16px !important;
+}
+
+/* Workarea: Map on top (100% width), Ghế đã chọn directly below (100% width) */
+.et-skin.et-shell--concert #seating-section .concert-seatmap-workarea {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  width: 100% !important;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-canvas {
+  width: 100% !important;
+  min-width: 0;
+}
+.et-skin.et-shell--concert #seating-section .concert-selection-summary-shell {
+  width: 100% !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.et-skin.et-shell--concert #seating-section #selected-tickets-summary-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 20px 24px !important;
+  box-shadow: none !important;
+  color: #1f262d !important;
+}
+.et-skin.et-shell--concert #seating-section .et-summary-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.et-skin.et-shell--concert #seating-section #concert-summary-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f262d;
+  margin: 0;
+}
+.et-skin.et-shell--concert #seating-section .concert-summary-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.et-skin.et-shell--concert #seating-section #summary-count {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+.et-skin.et-shell--concert #seating-section #btn-clear-all-seats {
+  font-size: 13px;
+  color: #dc2626;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.et-skin.et-shell--concert #seating-section .concert-summary-body {
+  padding: 24px 16px;
+  text-align: center;
+}
+.et-skin.et-shell--concert #seating-section .et-selection-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.et-skin.et-shell--concert #seating-section .et-empty-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+.et-skin.et-shell--concert #seating-section .et-empty-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.et-skin.et-shell--concert #seating-section .et-selection-empty h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f262d;
+  margin: 0 0 4px;
+}
+.et-skin.et-shell--concert #seating-section .et-selection-empty p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+.et-skin.et-shell--concert #seating-section .et-payment-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.et-skin.et-shell--concert #seating-section .et-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.et-skin.et-shell--concert #seating-section .et-total-row span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+}
+.et-skin.et-shell--concert #seating-section #summary-total {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1f262d;
+}
+.et-skin.et-shell--concert #seating-section .et-fee-notice {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+.et-skin.et-shell--concert #seating-section .concert-hold-timer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  color: #b45309;
+  font-size: 13px;
+}
+.et-skin.et-shell--concert #seating-section #btn-proceed-booking {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.et-skin.et-shell--concert #seating-section #btn-proceed-booking:disabled {
+  background: #e2e8f0 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+}
+.et-skin.et-shell--concert #seating-section #btn-proceed-booking:not(:disabled) {
+  background: #0353c2 !important;
+  color: #ffffff !important;
+}
+.et-skin.et-shell--concert #seating-section .et-hold-note {
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+  margin: 0;
+}
+.et-skin.et-shell--concert #seating-section .et-trust-note {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 14px 18px !important;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #334155 !important;
+  margin-top: 10px;
+}
+.et-skin.et-shell--concert #seating-section .et-trust-note svg {
+  width: 20px;
+  height: 20px;
+  color: #16a34a;
+  flex-shrink: 0;
+}
+.et-skin.et-shell--concert #seating-section .et-trust-note p {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+  color: #334155;
+}
+.et-skin.et-shell--concert #seating-section .et-trust-note strong {
+  color: #1f262d;
+}
+
+
 
 .et-skin .et-body-surface {
   background: #f4f6f8;

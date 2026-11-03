@@ -1,3 +1,4 @@
+import {resolveAssetUrl} from '../../domain/assetHelper';
 import type {PublicEventRecord} from '../../services/eventService';
 import {hasMediaContent} from './eventTemplateLogic.js';
 
@@ -26,7 +27,7 @@ export function EventMediaSection({event}: EventMediaSectionProps) {
             <div className="et-media-card">
               <span className="et-media-card-title">Sơ đồ phân khu khán đài</span>
               <img
-                src={event.seatingMapUrl}
+                src={resolveAssetUrl(event.seatingMapUrl)}
                 alt={`Sơ đồ phân khu khán đài của ${event.name}`}
                 className="et-seating-img"
                 loading="lazy"
