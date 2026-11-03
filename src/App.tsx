@@ -58,20 +58,8 @@ export default function App() {
         const {loadEventForPreview} = await import('./services/organizerService');
         nextEvent = await loadEventForPreview(route.eventSlug, route.showSlug);
       } else {
-        try {
-          nextEvent = await loadPublicEvent(route.eventSlug, route.showSlug);
-        } catch (err) {
-          if (err instanceof PublicEventNotFoundError) {
-            try {
-              const {loadEventForPreview} = await import('./services/organizerService');
-              nextEvent = await loadEventForPreview(route.eventSlug, route.showSlug);
-            } catch {
-              throw err;
-            }
-          } else {
-            throw err;
-          }
-        }
+        // Drafts are only loaded through the explicit preview=1 branch above.
+        nextEvent = await loadPublicEvent(route.eventSlug, route.showSlug);
       }
 
       setActiveEventContext({

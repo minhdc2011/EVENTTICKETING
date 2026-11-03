@@ -132,46 +132,46 @@ Mọi liên kết được sinh theo dạng `<base>/?route=/<target>` (`buildPub
 - [x] Tìm kiếm sự kiện theo tên hoặc địa điểm (`src/components/EventCatalog.tsx`)
 - [x] Lọc sự kiện theo thể loại (`src/components/EventCatalog.tsx`, `src/domain/categoryThemes.js`)
 - [x] Xem số sự kiện của từng thể loại (`src/components/EventCatalog.tsx`)
-- [ ] Xem phần hero (tổng quan) của sự kiện (`event-template/EventHero.tsx`)
-- [ ] Xem bảng hạng vé gồm giá, sức chứa, số còn lại (`event-template/TicketTiersSection.tsx`)
-- [ ] Xem tên và địa chỉ địa điểm tổ chức (`event-template/EventVenueSection.tsx`)
-- [ ] Mở link tham gia online của sự kiện (`event-template/EventVenueSection.tsx` – `event.onlineLink`)
-- [ ] Xem hướng dẫn tham gia online (`event-template/EventVenueSection.tsx` – `event.onlineInstructions`)
-- [ ] Xem trailer sự kiện (`event-template/EventMediaSection.tsx`)
-- [ ] Xem ảnh sơ đồ trong phần media (`event-template/EventMediaSection.tsx`)
-- [ ] Xem quy định độ tuổi (`event-template/EventPolicySection.tsx`)
-- [ ] Xem chính sách hoàn hủy (`event-template/EventPolicySection.tsx`)
-- [ ] Xem điều khoản tham gia (`event-template/EventPolicySection.tsx`)
-- [ ] Xem thông tin liên hệ của BTC (`event-template/EventContactSection.tsx`)
-- [ ] Xem số giấy phép biểu diễn (`event-template/EventContactSection.tsx`)
-- [ ] Chuyển giữa các suất diễn (`src/components/EventCatalog.tsx` – `ShowSwitcher`)
-- [ ] Xem trạng thái bán: Sắp mở / Đang mở / Hết vé / Đã đóng (`src/domain/eventStatus.js`)
-- [ ] Xem đếm ngược tới giờ mở bán hoặc giờ khai mạc (`event-template/EventCountdown.tsx`, `eventTemplateLogic.js`)
-- [ ] Xem dàn nghệ sĩ (`event-template/ArtistLineupSection.tsx`, `src/services/artistService.ts`)
-- [ ] Xem lịch trình trong modal (`event-template/ScheduleDialog.tsx`, `src/services/scheduleService.ts`)
-- [ ] Chọn hạng vé (`event-template/TicketTiersSection.tsx`)
-- [ ] Nhận CTA tương ứng với trạng thái bán của hạng vé đã chọn (`event-template/eventTemplateLogic.js` – `resolveCtaState`)
-- [ ] Mở hộp thoại "Liên hệ đặt vé" (`event-template/BookingSummaryPanel.tsx` – `BookingAssistModal`)
-- [ ] Gọi hotline BTC từ hộp thoại liên hệ đặt vé (`event-template/BookingSummaryPanel.tsx:279`)
-- [ ] Gửi email đặt vé cho BTC từ hộp thoại liên hệ đặt vé (`event-template/BookingSummaryPanel.tsx:291`)
-- [ ] Mở link do BTC cung cấp từ hộp thoại liên hệ đặt vé (`event-template/BookingSummaryPanel.tsx:304`)
-- [ ] Xem CTA dính đáy màn hình trên mobile (`event-template/MobileStickyBar.tsx`)
-- [ ] Xem sơ đồ ghế ngồi React (`event-template/SeatMapSection.tsx`)
-- [ ] Lọc sơ đồ theo phân khu (`event-template/MapToolbar.tsx`)
-- [ ] Tìm ghế theo mã (`src/domain/seatMap.js` – `findZoneForSeatQuery`)
-- [ ] Phóng to sơ đồ (`event-template/SeatMapSection.tsx:262` – `handleZoomIn`, `event-template/MapToolbar.tsx`)
-- [ ] Thu nhỏ sơ đồ (`event-template/SeatMapSection.tsx:266` – `handleZoomOut`, `event-template/MapToolbar.tsx`)
-- [ ] Đặt lại mức zoom sơ đồ (`event-template/SeatMapSection.tsx:270` – `handleZoomReset`, `event-template/MapToolbar.tsx`)
-- [ ] Chọn ghế còn trống khi đang mở bán, tối đa 4 ghế (`src/domain/seatMap.js` – `evaluateSeatSelection`, `MAX_SELECTION_CAP`)
-- [ ] Bỏ chọn ghế bằng cách bấm lại vào ghế đã chọn trên sơ đồ (`src/domain/seatMap.js:156` – `toggleSeatSelection`)
-- [ ] Bỏ chọn một ghế khỏi lựa chọn (`event-template/SeatMapSection.tsx` – `handleRemoveSeat`)
-- [ ] Bỏ chọn tất cả ghế (`event-template/SeatMapSection.tsx` – `handleClearAll`)
-- [ ] Giữ ghế đã chọn (`event-template/SeatMapSection.tsx` – `handleProceedHold`, `src/services/bookingService.ts` – `createSeatHold`)
-- [ ] Xem đếm ngược thời gian giữ ghế (`event-template/HoldConfirmationDialog.tsx`)
-- [ ] Hủy giữ ghế (`event-template/SeatMapSection.tsx` – `handleReleaseHold`, `bookingService.ts` – `releaseSeatHold`)
-- [ ] Nhận cập nhật trạng thái khi ghế bị người khác bán hoặc giữ (`event-template/SeatMapSection.tsx`, `src/services/seatRealtimeService.ts`)
-- [ ] Tự bỏ ghế khỏi lựa chọn khi ghế đó bị người khác bán hoặc giữ (`src/domain/seatMap.js` – `reconcileSelectionAfterUpdate`)
-- [ ] Mở ảnh sơ đồ tổng quan do BTC đính kèm (`event-template/SeatMapSection.tsx`)
+- [x] Xem phần hero (tổng quan) của sự kiện (`event-template/EventHero.tsx`)
+- [x] Xem bảng hạng vé gồm giá, sức chứa, số còn lại (`event-template/TicketTiersSection.tsx`)
+- [x] Xem tên và địa chỉ địa điểm tổ chức (`event-template/EventVenueSection.tsx`)
+- [x] Mở link tham gia online của sự kiện (`event-template/EventVenueSection.tsx` – `event.onlineLink`)
+- [x] Xem hướng dẫn tham gia online (`event-template/EventVenueSection.tsx` – `event.onlineInstructions`)
+- [x] Xem trailer sự kiện (`event-template/EventMediaSection.tsx`)
+- [x] Xem ảnh sơ đồ trong phần media (`event-template/EventMediaSection.tsx`)
+- [x] Xem quy định độ tuổi (`event-template/EventPolicySection.tsx`)
+- [x] Xem chính sách hoàn hủy (`event-template/EventPolicySection.tsx`)
+- [x] Xem điều khoản tham gia (`event-template/EventPolicySection.tsx`)
+- [x] Xem thông tin liên hệ của BTC (`event-template/EventContactSection.tsx`)
+- [x] Xem số giấy phép biểu diễn (`event-template/EventContactSection.tsx`)
+- [x] Chuyển giữa các suất diễn (`src/components/EventCatalog.tsx` – `ShowSwitcher`)
+- [x] Xem trạng thái bán: Sắp mở / Đang mở / Hết vé / Đã đóng (`src/domain/eventStatus.js`)
+- [x] Xem đếm ngược tới giờ mở bán hoặc giờ khai mạc (`event-template/EventCountdown.tsx`, `eventTemplateLogic.js`)
+- [x] Xem dàn nghệ sĩ (`event-template/ArtistLineupSection.tsx`, `src/services/artistService.ts`)
+- [x] Xem lịch trình trong modal (`event-template/ScheduleDialog.tsx`, `src/services/scheduleService.ts`)
+- [x] Chọn hạng vé (`event-template/TicketTiersSection.tsx`)
+- [x] Nhận CTA tương ứng với trạng thái bán của hạng vé đã chọn (`event-template/eventTemplateLogic.js` – `resolveCtaState`)
+- [x] Mở hộp thoại "Liên hệ đặt vé" (`event-template/BookingSummaryPanel.tsx` – `BookingAssistModal`)
+- [x] Gọi hotline BTC từ hộp thoại liên hệ đặt vé (`event-template/BookingSummaryPanel.tsx:279`)
+- [x] Gửi email đặt vé cho BTC từ hộp thoại liên hệ đặt vé (`event-template/BookingSummaryPanel.tsx:291`)
+- [x] Mở link do BTC cung cấp từ hộp thoại liên hệ đặt vé (`event-template/BookingSummaryPanel.tsx:304`)
+- [x] Xem CTA dính đáy màn hình trên mobile (`event-template/MobileStickyBar.tsx`)
+- [x] Xem sơ đồ ghế ngồi React (`event-template/SeatMapSection.tsx`)
+- [x] Lọc sơ đồ theo phân khu (`event-template/MapToolbar.tsx`)
+- [x] Tìm ghế theo mã (`src/domain/seatMap.js` – `findZoneForSeatQuery`)
+- [x] Phóng to sơ đồ (`event-template/SeatMapSection.tsx:262` – `handleZoomIn`, `event-template/MapToolbar.tsx`)
+- [x] Thu nhỏ sơ đồ (`event-template/SeatMapSection.tsx:266` – `handleZoomOut`, `event-template/MapToolbar.tsx`)
+- [x] Đặt lại mức zoom sơ đồ (`event-template/SeatMapSection.tsx:270` – `handleZoomReset`, `event-template/MapToolbar.tsx`)
+- [x] Chọn ghế còn trống khi đang mở bán, tối đa 4 ghế (`src/domain/seatMap.js` – `evaluateSeatSelection`, `MAX_SELECTION_CAP`)
+- [x] Bỏ chọn ghế bằng cách bấm lại vào ghế đã chọn trên sơ đồ (`src/domain/seatMap.js:156` – `toggleSeatSelection`)
+- [x] Bỏ chọn một ghế khỏi lựa chọn (`event-template/SeatMapSection.tsx` – `handleRemoveSeat`)
+- [x] Bỏ chọn tất cả ghế (`event-template/SeatMapSection.tsx` – `handleClearAll`)
+- [x] Giữ ghế đã chọn (`event-template/SeatMapSection.tsx` – `handleProceedHold`, `src/services/bookingService.ts` – `createSeatHold`)
+- [x] Xem đếm ngược thời gian giữ ghế (`event-template/HoldConfirmationDialog.tsx`)
+- [x] Hủy giữ ghế (`event-template/SeatMapSection.tsx` – `handleReleaseHold`, `bookingService.ts` – `releaseSeatHold`)
+- [x] Nhận cập nhật trạng thái khi ghế bị người khác bán hoặc giữ (`event-template/SeatMapSection.tsx`, `src/services/seatRealtimeService.ts`)
+- [x] Tự bỏ ghế khỏi lựa chọn khi ghế đó bị người khác bán hoặc giữ (`src/domain/seatMap.js` – `reconcileSelectionAfterUpdate`)
+- [x] Mở ảnh sơ đồ tổng quan do BTC đính kèm (`event-template/SeatMapSection.tsx`)
 - [ ] Chọn ghế trên sơ đồ SVG của Super Concert (`src/legacy/concertRuntime.js`)
 - [ ] Tăng số lượng vé đứng của Super Concert (`src/legacy/concertRuntime.js:999` – `updateStandingQuantity` với `delta > 0`)
 - [ ] Giảm số lượng vé đứng của Super Concert (`src/legacy/concertRuntime.js:999` – `updateStandingQuantity` với `delta < 0`)
@@ -185,7 +185,7 @@ Mọi liên kết được sinh theo dạng `<base>/?route=/<target>` (`buildPub
 - [ ] Chuyển giữa tab đăng nhập và tab đăng ký (`src/components/BuyerAuth.tsx:317-331`)
 - [ ] Bật/tắt hiển thị mật khẩu (`src/components/BuyerAuth.tsx:388`)
 - [ ] Bật/tắt hiển thị mật khẩu xác nhận (`src/components/BuyerAuth.tsx:37`)
-- [ ] Xem thông tin nhóm và SRS (`event-template/TeamInfoDialog.tsx`)
+- [x] Xem thông tin nhóm và SRS (`event-template/TeamInfoDialog.tsx`)
 
 ### Khách đã đăng nhập
 - [ ] Xem hồ sơ gồm email, họ tên, loại tài khoản (`src/components/BuyerAuth.tsx`)
@@ -876,17 +876,17 @@ Trang thực hiện: P1 Catalog · P2 Chi tiết sự kiện và sơ đồ ghế
 - [ ] (6-2a, P5) Mở sự kiện để sửa không còn lỗi khi bảng `LICH_TRINH` không tồn tại (`organizerService.ts` – `loadEventForEditing`)
 - [ ] (6-2b, P5) Lịch trình nhập trong wizard được lưu ở chế độ thật
 - [ ] (6-3, P6) Đơn hàng, vé, thanh toán
-- [ ] (6-4, P2) Thống nhất định danh sự kiện/suất gửi khi giữ chỗ giữa sơ đồ React và runtime concert
-- [ ] (6-5a, P2) Sơ đồ React có luồng chọn số lượng vé đứng (`DUNG_STAND`) cho sự kiện không phải concert
-- [ ] (6-5b, P2) Liên kết lựa chọn hạng vé với sơ đồ ghế
+- [x] (6-4, P2) Thống nhất định danh sự kiện/suất gửi khi giữ chỗ giữa sơ đồ React và runtime concert
+- [x] (6-5a, P2) Sơ đồ React có luồng chọn số lượng vé đứng (`DUNG_STAND`) cho sự kiện không phải concert
+- [x] (6-5b, P2) Liên kết lựa chọn hạng vé với sơ đồ ghế
 - [ ] (6-5c, P5) Sinh bản ghi `GHE` cho hạng `GHE_NGOI` của sự kiện do BTC tạo
-- [ ] (6-6, P2) Giới hạn số vé mỗi đơn và thời hạn giữ chỗ phía client đọc từ cấu hình (`SoVeToiDaMoiDon`, `ThoiGianGiuChoPhut`) thay vì ghi cứng
+- [x] (6-6, P2) Giới hạn số vé mỗi đơn và thời hạn giữ chỗ phía client đọc từ cấu hình (`SoVeToiDaMoiDon`, `ThoiGianGiuChoPhut`) thay vì ghi cứng
 - [ ] (6-7, P2) Số vé còn lại của khu đứng trừ các lượt đang giữ
 - [ ] (6-8, P5) Thống nhất danh sách thể loại giữa DB, `VALID_CATEGORIES`, `CATEGORY_LABELS`, `CATEGORY_MAP`
 - [ ] (6-9, P3) Thống nhất cách nhận diện Super Concert (không dựa vào `SuKienID === 1`)
-- [ ] (6-10, P2) Sơ đồ ghế tự cập nhật trạng thái bán khi tới giờ mở/đóng bán, không cần tải lại trang
+- [x] (6-10, P2) Sơ đồ ghế tự cập nhật trạng thái bán khi tới giờ mở/đóng bán, không cần tải lại trang
 - [ ] (6-11a, P6) Path lạ, `account/:sub` và `organizer/:other` không hợp lệ hiển thị trang 404
-- [ ] (6-11b, P2) Chỉ tải bản xem trước khi URL có `preview=1`
+- [x] (6-11b, P2) Chỉ tải bản xem trước khi URL có `preview=1`
 - [ ] (6-12, P5) Giao diện cho vai trò `ADMIN`, nâng loại tài khoản và mời thành viên vào tổ chức
 - [ ] (6-13, P5) Wizard gửi khóa `configuration`; client đọc `CAU_HINH_SU_KIEN`, `DIA_DIEM`, `PHIEN_BAN_SO_DO` khi cần
 - [ ] (6-14, P6) Dọn mã chết và fragment không được render
@@ -899,3 +899,5 @@ Mục nào bị kẹt được ghi ở đây kèm lý do và việc cần làm t
 
 | Mục | Lý do | Cần gì để làm tiếp |
 |---|---|---|
+| 6-7 (P2) Số vé khu đứng trừ lượt đang giữ | Cần biết các lượt giữ chỗ đang hoạt động. `GIU_CHO` và `CHI_TIET_GIU_CHO` không có policy đọc công khai, nên client không đọc được; thêm view/RPC là thay đổi DB (đang khóa). | Migration mới: RPC hoặc view trả số lượng đang giữ theo khu, cấp quyền cho `anon`; sau đó `loadPublicTicketTiers` trừ số này. |
+| 6-6 (P2) phần máy chủ | Client đã đọc `SoVeToiDaMoiDon`/`ThoiGianGiuChoPhut` nhưng RPC `tao_giu_cho_theo_suat` vẫn cứng 4 vé và 5 phút, nên client chặn ở mức tối đa 4 vé (`SERVER_MAX_TICKETS_PER_ORDER`). | Migration cập nhật RPC đọc `CAU_HINH_SU_KIEN`; sau đó bỏ trần 4 trong `src/domain/purchaseLimits.js`. |

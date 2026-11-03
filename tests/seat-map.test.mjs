@@ -553,7 +553,7 @@ test('round 3 hold request uses backend zone codes and protects async races', as
 
   assert.match(seatMapSectionTsx, /pendingHoldSeatCodesRef\.current\s*=\s*new Set\(pendingSeatCodes\)/);
   assert.match(seatMapSectionTsx, /pendingHoldSeatCodesRef\.current\s*\|\|\s*\[\]/);
-  assert.match(seatMapSectionTsx, /items:\s*holdItemsResult\.items/);
+  assert.match(seatMapSectionTsx, /items:\s*\[\.\.\.holdItemsResult\.items,\s*\.\.\.standingItems\]/);
   assert.doesNotMatch(seatMapSectionTsx, /zoneCode:\s*s\.TenKhuVuc/);
   assert.match(seatMapSectionTsx, /setHeldSeatsSnapshot\(\[\]\)/);
   assert.match(seatMapSectionTsx, /if\s*\(!activeHold\s*\|\|\s*isReleasePending\)\s*return/);

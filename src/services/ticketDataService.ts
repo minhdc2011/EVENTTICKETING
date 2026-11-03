@@ -21,7 +21,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
     const supabase = requireSupabaseClient() as any;
     let {data: zoneRows, error: zoneError} = await supabase
       .from('KHU_VUC')
-      .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex')
+      .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex, LoaiKhuVuc, TongSoGhe')
       .eq('SuatDienID', active.showId)
       .order('KhuVucID');
 
@@ -40,6 +40,8 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
       TenKhuVuc: zone.TenKhuVuc,
       GiaVeNiemYet: Number(zone.GiaVeNiemYet),
       MauSacHex: zone.MauSacHex,
+      LoaiKhuVuc: zone.LoaiKhuVuc === 'DUNG_STAND' ? 'DUNG_STAND' : 'GHE_NGOI',
+      TongSoGhe: zone.TongSoGhe == null ? undefined : Number(zone.TongSoGhe),
     }));
 
     if (zones.length === 0) {

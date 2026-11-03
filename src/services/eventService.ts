@@ -352,6 +352,28 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
   });
 }
 
+export type PublicPurchaseConfig = {maxTicketsPerOrder: number | null; holdMinutes: number | null};
+
+/** Per-event purchase configuration (CAU_HINH_SU_KIEN). Null values mean "not configured": callers use defaults. */
+export async function loadEventPurchaseConfig(event: Pick<PublicEventRecord, 'id'>): Promise<PublicPurchaseConfig> {
+  const empty: PublicPurchaseConfig = {maxTicketsPerOrder: null, holdMinutes: null};
+  if (runtimeConfig.useMockData || !isSupabaseConfigured()) return empty;
+  try {
+    const {requireSupabaseClient} = await import('./supabaseClient');
+    const supabase = requireSupabaseClient() as any;
+    const {data, error} = await supabase.from('CAU_HINH_SU_KIEN')
+      .select('SoVeToiDaMoiDon, ThoiGianGiuChoPhut').eq('SuKienID', event.id).maybeSingle();
+    if (error || !data) return empty;
+    return {
+      maxTicketsPerOrder: data.SoVeToiDaMoiDon == null ? null : Number(data.SoVeToiDaMoiDon),
+      holdMinutes: data.ThoiGianGiuChoPhut == null ? null : Number(data.ThoiGianGiuChoPhut),
+    };
+  } catch (error) {
+    console.warn('Không đọc được cấu hình mua vé, dùng giá trị mặc định:', error);
+    return empty;
+  }
+}
+
 export type {PublicArtist, PublicArtistRecord} from './artistService';
 export {
   SUPER_CONCERT_ARTISTS,
