@@ -109,6 +109,7 @@ export function HoldConfirmationDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
+        aria-describedby="hold-result"
         data-od-id="hold-dialog"
         className="et-hold-dialog"
       >
@@ -126,7 +127,7 @@ export function HoldConfirmationDialog({
           </button>
         </div>
 
-        <p id="hold-result" style={{margin: '8px 0', fontSize: '13px', color: 'var(--seat-muted)'}}>
+        <p id="hold-result" style={{margin: '8px 0', fontSize: '13px', color: 'var(--seat-muted)', overflowWrap: 'anywhere'}}>
           Đã giữ {selectedSeats.length} ghế: <strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>. Tổng {totalFormatted}.
         </p>
 

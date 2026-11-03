@@ -34,24 +34,23 @@ export function TicketTiersSection({
       </div>
 
       {tierState === 'loading' && (
-        <div className="et-box" style={{textAlign: 'center', padding: '40px 20px'}}>
-          <p style={{color: '#94a3b8', fontSize: '14px', margin: 0}}>
+        <div className="et-box" role="status" style={{textAlign: 'center', padding: '40px 20px'}}>
+          <p style={{color: '#475569', fontSize: '14px', margin: 0}}>
             Đang đồng bộ danh sách hạng vé và tồn kho thời gian thực…
           </p>
         </div>
       )}
 
       {tierState === 'error' && (
-        <div className="et-box" style={{textAlign: 'center', padding: '40px 20px'}}>
-          <p style={{color: '#f87171', fontSize: '14px', marginBottom: '16px'}}>
+        <div className="et-box" role="alert" style={{textAlign: 'center', padding: '40px 20px'}}>
+          <p style={{color: '#b91c1c', fontSize: '14px', marginBottom: '16px'}}>
             Không thể tải thông tin hạng vé lúc này.
           </p>
           {onRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="et-hero-secondary-cta"
-              style={{cursor: 'pointer'}}
+              className="et-tier-retry-btn"
             >
               Thử tải lại
             </button>
@@ -61,7 +60,7 @@ export function TicketTiersSection({
 
       {tierState === 'ready' && tiers.length === 0 && (
         <div className="et-box" style={{textAlign: 'center', padding: '40px 20px'}}>
-          <p style={{color: '#94a3b8', fontSize: '14px', margin: 0}}>
+          <p style={{color: '#475569', fontSize: '14px', margin: 0}}>
             Hiện chưa có hạng vé nào được công bố cho suất diễn này. Vui lòng quay lại sau.
           </p>
         </div>

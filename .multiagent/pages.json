@@ -1,0 +1,11 @@
+{
+  "widths": [360, 768, 1440],
+  "pages": {
+    "catalog": "/",
+    "login": "/?route=/login",
+    "register": "/?route=/register",
+    "org-login": "/?route=/organizer/login",
+    "event-concert": "/?route=/events/super-concert-2026",
+    "event-summit": "/?route=/events/creative-tech-summit-2026"
+  }
+}

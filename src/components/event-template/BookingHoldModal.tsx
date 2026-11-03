@@ -173,7 +173,7 @@ export function BookingHoldModal({
         aria-labelledby="booking-modal-title"
         aria-describedby="booking-modal-description"
         tabIndex={-1}
-        className="relative w-full max-w-md rounded-2xl liquid-glass p-6 shadow-2xl text-center booking-dialog-content outline-none"
+        className="relative w-full max-w-md rounded-2xl liquid-glass p-6 shadow-2xl text-center booking-dialog-content outline-none max-h-[calc(100vh-2rem)] supports-[height:100dvh]:max-h-[calc(100dvh-2rem)] overflow-y-auto!"
       >
         <button
           ref={closeButtonRef}
@@ -205,7 +205,7 @@ export function BookingHoldModal({
           </svg>
         </div>
 
-        <h3 id="booking-modal-title" className="text-xl font-bold text-white mb-1 font-display">
+        <h3 id="booking-modal-title" className="text-xl font-bold text-white mb-1 font-display pr-12 break-words">
           GIỮ CHỖ THÀNH CÔNG!
         </h3>
         <p id="booking-modal-description" className="text-xs text-slate-400 mb-3">
@@ -214,7 +214,7 @@ export function BookingHoldModal({
         </p>
 
         {holdId && (
-          <div className="text-[11px] text-slate-400 font-mono mb-3 truncate">
+          <div className="text-[11px] text-slate-400 font-mono mb-3 break-all">
             Mã phiên giữ chỗ: <span className="text-amber-400 font-bold">{holdId}</span>
           </div>
         )}
@@ -231,17 +231,17 @@ export function BookingHoldModal({
           {items.map((item, index) => (
             <div
               key={`${item.ticketCode}-${index}`}
-              className="flex justify-between py-1 border-b border-slate-900"
+              className="flex justify-between gap-3 py-1 border-b border-slate-900"
             >
-              <span className="font-mono text-amber-400">
+              <span className="min-w-0 break-words font-mono text-amber-400">
                 {item.ticketCode} ({item.zoneName})
               </span>
-              <span className="text-white">{item.priceFormatted}</span>
+              <span className="shrink-0 whitespace-nowrap text-white">{item.priceFormatted}</span>
             </div>
           ))}
-          <div className="flex justify-between font-bold text-white pt-2 text-sm border-t border-white/[0.08]">
-            <span>Tổng cộng ({totalQuantity} vé):</span>
-            <span className="text-amber-400 font-display">{totalAmountFormatted}</span>
+          <div className="flex justify-between gap-3 font-bold text-white pt-2 text-sm border-t border-white/[0.08]">
+            <span className="min-w-0 break-words">Tổng cộng ({totalQuantity} vé):</span>
+            <span className="shrink-0 whitespace-nowrap text-amber-400 font-display">{totalAmountFormatted}</span>
           </div>
         </div>
 
@@ -251,7 +251,7 @@ export function BookingHoldModal({
             id="btn-close-booking-modal"
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl ghost-tab text-slate-200 text-xs font-semibold cursor-pointer hover:text-white transition"
+            className="w-full min-h-[44px] py-2.5 rounded-xl ghost-tab text-slate-200 text-xs font-semibold cursor-pointer hover:text-white transition"
           >
             Tiếp tục xem sơ đồ
           </button>
@@ -259,7 +259,7 @@ export function BookingHoldModal({
             id="btn-simulate-sprint"
             type="button"
             onClick={handleSimulateSprint}
-            className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-lg shadow-amber-500/20 cursor-pointer transition"
+            className="w-full min-h-[44px] py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-lg shadow-amber-500/20 cursor-pointer transition"
           >
             Mô phỏng Sprint 3
           </button>
