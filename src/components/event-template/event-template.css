@@ -880,7 +880,7 @@
 }
 
 .et-tier-price {
-  color: var(--et-cat-accent-dark, #4338ca);
+  color: var(--et-cat-accent-ink, #4338ca);
   font-size: 24px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -946,7 +946,7 @@
 .et-tier-card.is-selected .et-tier-select-btn {
   background: var(--et-cat-accent, #6366f1);
   border-color: var(--et-cat-accent, #4f46e5);
-  color: #ffffff;
+  color: var(--et-cat-on-accent, #000000);
 }
 
 .et-tier-select-btn:disabled {
