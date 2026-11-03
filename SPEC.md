@@ -127,11 +127,11 @@ Mọi liên kết được sinh theo dạng `<base>/?route=/<target>` (`buildPub
 ## 3. Chức năng
 
 ### Khách vãng lai
-- [ ] Xem danh mục sự kiện đã công bố (`src/components/EventCatalog.tsx`, `src/services/eventService.ts` – `loadPublicEvents`)
-- [ ] Xem sự kiện nổi bật ở hero của catalog (`src/components/EventCatalog.tsx`)
-- [ ] Tìm kiếm sự kiện theo tên hoặc địa điểm (`src/components/EventCatalog.tsx`)
-- [ ] Lọc sự kiện theo thể loại (`src/components/EventCatalog.tsx`, `src/domain/categoryThemes.js`)
-- [ ] Xem số sự kiện của từng thể loại (`src/components/EventCatalog.tsx`)
+- [x] Xem danh mục sự kiện đã công bố (`src/components/EventCatalog.tsx`, `src/services/eventService.ts` – `loadPublicEvents`)
+- [x] Xem sự kiện nổi bật ở hero của catalog (`src/components/EventCatalog.tsx`)
+- [x] Tìm kiếm sự kiện theo tên hoặc địa điểm (`src/components/EventCatalog.tsx`)
+- [x] Lọc sự kiện theo thể loại (`src/components/EventCatalog.tsx`, `src/domain/categoryThemes.js`)
+- [x] Xem số sự kiện của từng thể loại (`src/components/EventCatalog.tsx`)
 - [ ] Xem phần hero (tổng quan) của sự kiện (`event-template/EventHero.tsx`)
 - [ ] Xem bảng hạng vé gồm giá, sức chứa, số còn lại (`event-template/TicketTiersSection.tsx`)
 - [ ] Xem tên và địa chỉ địa điểm tổ chức (`event-template/EventVenueSection.tsx`)
@@ -189,9 +189,9 @@ Mọi liên kết được sinh theo dạng `<base>/?route=/<target>` (`buildPub
 
 ### Khách đã đăng nhập
 - [ ] Xem hồ sơ gồm email, họ tên, loại tài khoản (`src/components/BuyerAuth.tsx`)
-- [ ] Thấy badge tài khoản trên nav của catalog (`src/components/EventCatalog.tsx`)
+- [x] Thấy badge tài khoản trên nav của catalog (`src/components/EventCatalog.tsx`)
 - [ ] Đăng xuất từ trang tài khoản (`src/components/BuyerAuth.tsx` – `handleSignOut`)
-- [ ] Đăng xuất từ nav của catalog (`src/components/EventCatalog.tsx`)
+- [x] Đăng xuất từ nav của catalog (`src/components/EventCatalog.tsx`)
 - [ ] Đi tới Studio BTC từ trang tài khoản (`src/components/BuyerAuth.tsx`)
 
 ### Ban tổ chức
