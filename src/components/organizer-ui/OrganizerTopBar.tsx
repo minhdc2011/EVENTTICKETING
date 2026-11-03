@@ -47,7 +47,7 @@ export function OrganizerTopBar({userEmail, onSignOut}: OrganizerTopBarProps) {
             type="button"
             className="org-btn org-btn-secondary"
             onClick={onSignOut}
-            style={{minHeight: '36px', padding: '0 12px', fontSize: '12px'}}
+            style={{minHeight: '44px', padding: '0 14px', fontSize: '13px'}}
             title={`Đang đăng nhập: ${userEmail}`}
           >
             Đăng xuất

@@ -35,6 +35,7 @@ import {
   IconPlus,
 } from './organizer-ui';
 import './organizer-ui/organizer-ui.css';
+import './organizer-ui/organizer-skin.css';
 
 function createDefaultAggregate(
   orgId: string,
@@ -217,11 +218,13 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
         }
         return resolved;
       });
-    } else {
+    } else if (state === 'ready') {
+      // Only forget the saved organization once the workspace has really loaded with no memberships:
+      // while loading, `memberships` is still empty and would wipe the remembered choice on every page load.
       setSelectedOrgId(null);
       saveActiveOrganizationId(session.userId, null);
     }
-  }, [memberships, session.userId]);
+  }, [memberships, session.userId, state]);
 
   const handleSelectOrg = useCallback(
     (orgId: string) => {

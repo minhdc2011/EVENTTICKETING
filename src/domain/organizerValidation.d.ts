@@ -61,6 +61,17 @@ export type FullEventArtistInput = {
   order?: number;
 };
 
+export type FullEventConfigurationInput = {
+  holdMinutes?: number;
+  maxTicketsPerOrder?: number;
+  allowSeatSelection?: boolean;
+  requireIdCard?: boolean;
+  allowTicketTransfer?: boolean;
+};
+
+export const CONFIG_LIMITS: Readonly<Record<'maxTicketsPerOrder' | 'holdMinutes', {min: number; max: number}>>;
+export function validateEventConfiguration(configuration?: FullEventConfigurationInput | null): void;
+
 export type FullEventAggregateInput = {
   eventId?: number;
   organizationId: string;
@@ -88,6 +99,7 @@ export type FullEventAggregateInput = {
   shows: FullEventShowInput[];
   schedule?: FullEventScheduleInput[];
   artists?: FullEventArtistInput[];
+  configuration?: FullEventConfigurationInput;
 };
 
 export type PublishReadinessResult = {

@@ -195,40 +195,40 @@ Mọi liên kết được sinh theo dạng `<base>/?route=/<target>` (`buildPub
 - [x] Đi tới Studio BTC từ trang tài khoản (`src/components/BuyerAuth.tsx`)
 
 ### Ban tổ chức
-- [ ] Đăng nhập Studio (`organizer-ui/OrganizerAuthView.tsx`, `src/services/organizerService.ts` – `signInOrganizer`)
-- [ ] Đăng ký tài khoản Studio (`organizer-ui/OrganizerAuthView.tsx`, `organizerService.ts` – `signUpOrganizer`)
-- [ ] Bị chặn vào Studio nếu tài khoản là USER (`src/components/OrganizerPortal.tsx`, `organizerValidation.js` – `isOrganizerAccount`)
-- [ ] Tạo tổ chức với tên ≥ 3 ký tự và slug hợp lệ (`organizer-ui/OrganizerOnboarding.tsx`, `organizerService.ts` – `createOrganization`)
-- [ ] Chọn tổ chức đang làm việc (`organizer-ui/OrganizerSidebar.tsx`)
-- [ ] Ghi nhớ tổ chức đang chọn theo từng user (`organizerValidation.js:27-60` – `saveActiveOrganizationId`)
-- [ ] Xem danh sách sự kiện của tổ chức đang chọn (`OrganizerPortal.tsx:252`, `organizerValidation.js:18` – `filterEventsByOrganization`)
-- [ ] Xem thống kê tổng / công khai / nháp (`organizer-ui/OrganizerStatsCards.tsx`)
-- [ ] Chỉ `CHU_SO_HUU`/`QUAN_TRI`/`BIEN_TAP` thấy thao tác sửa; `VAN_HANH`/`SOAT_VE` chỉ xem (`organizerValidation.js:23` – `canManageOrganizationEvents`)
-- [ ] Mở wizard tạo sự kiện mới (`organizer-ui/OrganizerEventWizard.tsx`)
-- [ ] Chuyển qua lại giữa các bước của wizard (`OrganizerEventWizard.tsx`)
-- [ ] Thêm suất diễn (`OrganizerEventWizard.tsx:94` – `addShow`)
-- [ ] Xóa suất diễn (`OrganizerEventWizard.tsx:167` – `removeShow`)
-- [ ] Sửa thông tin suất diễn: tên, slug, giờ diễn, giờ mở cửa, cửa sổ bán (`OrganizerEventWizard.tsx:178` – `updateShow`)
-- [ ] Thêm hạng vé cho một suất (`OrganizerEventWizard.tsx:186` – `addTier`)
-- [ ] Xóa hạng vé (`OrganizerEventWizard.tsx:204` – `removeTier`)
-- [ ] Sửa hạng vé: mã, tên, loại đứng/ngồi, giá, sức chứa, màu, quyền lợi, min/max mỗi đơn (`OrganizerEventWizard.tsx:212` – `updateTier`)
-- [ ] Sao chép toàn bộ hạng vé của một suất sang mọi suất khác (`OrganizerEventWizard.tsx:220,1102` – `cloneTiersToAllShows`)
-- [ ] Thêm mục lịch trình (`OrganizerEventWizard.tsx:242` – `addScheduleItem`)
-- [ ] Xóa mục lịch trình (`OrganizerEventWizard.tsx:273` – `removeScheduleItem`)
-- [ ] Sửa mục lịch trình (`OrganizerEventWizard.tsx:282` – `updateScheduleItem`)
-- [ ] Đổi thứ tự mục lịch trình (`OrganizerEventWizard.tsx:290` – `moveScheduleItem`)
-- [ ] Thêm nghệ sĩ (`OrganizerEventWizard.tsx:303` – `addArtistItem`)
-- [ ] Xóa nghệ sĩ (`OrganizerEventWizard.tsx:320` – `removeArtistItem`)
-- [ ] Sửa thông tin nghệ sĩ (`OrganizerEventWizard.tsx:329` – `updateArtistItem`)
-- [ ] Đổi thứ tự nghệ sĩ (`OrganizerEventWizard.tsx:337` – `moveArtistItem`)
-- [ ] Lưu bản nháp sự kiện (`OrganizerEventWizard.tsx:350` – `handleSaveDraft`, `organizerService.ts` – `saveFullEventDraft`)
-- [ ] Xem danh sách điều kiện công bố gồm blockers và warnings (`organizerValidation.js` – `evaluatePublishReadiness`)
-- [ ] Công bố sự kiện từ wizard (`OrganizerEventWizard.tsx:375` – `handlePublish`)
-- [ ] Công bố sự kiện từ thẻ sự kiện (`OrganizerPortal.tsx` – `publish`, `organizerService.ts` – `publishEvent`)
-- [ ] Mở sự kiện đã có để sửa (`OrganizerPortal.tsx` – `handleStartEdit`, `organizerService.ts` – `loadEventForEditing`)
-- [ ] Xem trước bản nháp trên trang public bằng `preview=1` (`organizer-ui/OrganizerEventCard.tsx`, `organizerService.ts` – `loadEventForPreview`)
-- [ ] Mở trang công khai của sự kiện đã công bố (`organizer-ui/OrganizerEventCard.tsx`)
-- [ ] Đăng xuất Studio (`OrganizerPortal.tsx`, `organizerService.ts` – `signOutOrganizer`)
+- [x] Đăng nhập Studio (`organizer-ui/OrganizerAuthView.tsx`, `src/services/organizerService.ts` – `signInOrganizer`)
+- [x] Đăng ký tài khoản Studio (`organizer-ui/OrganizerAuthView.tsx`, `organizerService.ts` – `signUpOrganizer`)
+- [x] Bị chặn vào Studio nếu tài khoản là USER (`src/components/OrganizerPortal.tsx`, `organizerValidation.js` – `isOrganizerAccount`)
+- [x] Tạo tổ chức với tên ≥ 3 ký tự và slug hợp lệ (`organizer-ui/OrganizerOnboarding.tsx`, `organizerService.ts` – `createOrganization`)
+- [x] Chọn tổ chức đang làm việc (`organizer-ui/OrganizerSidebar.tsx`)
+- [x] Ghi nhớ tổ chức đang chọn theo từng user (`organizerValidation.js:27-60` – `saveActiveOrganizationId`)
+- [x] Xem danh sách sự kiện của tổ chức đang chọn (`OrganizerPortal.tsx:252`, `organizerValidation.js:18` – `filterEventsByOrganization`)
+- [x] Xem thống kê tổng / công khai / nháp (`organizer-ui/OrganizerStatsCards.tsx`)
+- [x] Chỉ `CHU_SO_HUU`/`QUAN_TRI`/`BIEN_TAP` thấy thao tác sửa; `VAN_HANH`/`SOAT_VE` chỉ xem (`organizerValidation.js:23` – `canManageOrganizationEvents`)
+- [x] Mở wizard tạo sự kiện mới (`organizer-ui/OrganizerEventWizard.tsx`)
+- [x] Chuyển qua lại giữa các bước của wizard (`OrganizerEventWizard.tsx`)
+- [x] Thêm suất diễn (`OrganizerEventWizard.tsx:94` – `addShow`)
+- [x] Xóa suất diễn (`OrganizerEventWizard.tsx:167` – `removeShow`)
+- [x] Sửa thông tin suất diễn: tên, slug, giờ diễn, giờ mở cửa, cửa sổ bán (`OrganizerEventWizard.tsx:178` – `updateShow`)
+- [x] Thêm hạng vé cho một suất (`OrganizerEventWizard.tsx:186` – `addTier`)
+- [x] Xóa hạng vé (`OrganizerEventWizard.tsx:204` – `removeTier`)
+- [x] Sửa hạng vé: mã, tên, loại đứng/ngồi, giá, sức chứa, màu, quyền lợi, min/max mỗi đơn (`OrganizerEventWizard.tsx:212` – `updateTier`)
+- [x] Sao chép toàn bộ hạng vé của một suất sang mọi suất khác (`OrganizerEventWizard.tsx:220,1102` – `cloneTiersToAllShows`)
+- [x] Thêm mục lịch trình (`OrganizerEventWizard.tsx:242` – `addScheduleItem`)
+- [x] Xóa mục lịch trình (`OrganizerEventWizard.tsx:273` – `removeScheduleItem`)
+- [x] Sửa mục lịch trình (`OrganizerEventWizard.tsx:282` – `updateScheduleItem`)
+- [x] Đổi thứ tự mục lịch trình (`OrganizerEventWizard.tsx:290` – `moveScheduleItem`)
+- [x] Thêm nghệ sĩ (`OrganizerEventWizard.tsx:303` – `addArtistItem`)
+- [x] Xóa nghệ sĩ (`OrganizerEventWizard.tsx:320` – `removeArtistItem`)
+- [x] Sửa thông tin nghệ sĩ (`OrganizerEventWizard.tsx:329` – `updateArtistItem`)
+- [x] Đổi thứ tự nghệ sĩ (`OrganizerEventWizard.tsx:337` – `moveArtistItem`)
+- [x] Lưu bản nháp sự kiện (`OrganizerEventWizard.tsx:350` – `handleSaveDraft`, `organizerService.ts` – `saveFullEventDraft`)
+- [x] Xem danh sách điều kiện công bố gồm blockers và warnings (`organizerValidation.js` – `evaluatePublishReadiness`)
+- [x] Công bố sự kiện từ wizard (`OrganizerEventWizard.tsx:375` – `handlePublish`)
+- [x] Công bố sự kiện từ thẻ sự kiện (`OrganizerPortal.tsx` – `publish`, `organizerService.ts` – `publishEvent`)
+- [x] Mở sự kiện đã có để sửa (`OrganizerPortal.tsx` – `handleStartEdit`, `organizerService.ts` – `loadEventForEditing`)
+- [x] Xem trước bản nháp trên trang public bằng `preview=1` (`organizer-ui/OrganizerEventCard.tsx`, `organizerService.ts` – `loadEventForPreview`)
+- [x] Mở trang công khai của sự kiện đã công bố (`organizer-ui/OrganizerEventCard.tsx`)
+- [x] Đăng xuất Studio (`OrganizerPortal.tsx`, `organizerService.ts` – `signOutOrganizer`)
 
 ### Hệ thống
 - [ ] Định tuyến bằng query, hash hoặc path mà không cần SPA rewrite (`src/domain/publicRoute.js`)
@@ -873,22 +873,22 @@ Phạm vi được duyệt (03/11/2026): được sửa giao diện và lớp d�
 Trang thực hiện: P1 Catalog · P2 Chi tiết sự kiện và sơ đồ ghế · P3 Super Concert · P4 Tài khoản khách · P5 Cổng BTC · P6 Hệ thống.
 
 - [ ] (6-1, P6) Cập nhật `src/types/database.types.ts` theo migration: thêm 6 bảng còn thiếu, bỏ `LICH_TRINH`, bổ sung cột và RPC đang dùng, giảm `as any` trong service
-- [ ] (6-2a, P5) Mở sự kiện để sửa không còn lỗi khi bảng `LICH_TRINH` không tồn tại (`organizerService.ts` – `loadEventForEditing`)
-- [ ] (6-2b, P5) Lịch trình nhập trong wizard được lưu ở chế độ thật
+- [x] (6-2a, P5) Mở sự kiện để sửa không còn lỗi khi bảng `LICH_TRINH` không tồn tại (`organizerService.ts` – `loadEventForEditing`)
+- [x] (6-2b, P5) Lịch trình nhập trong wizard được lưu ở chế độ thật
 - [ ] (6-3, P6) Đơn hàng, vé, thanh toán
 - [x] (6-4, P2) Thống nhất định danh sự kiện/suất gửi khi giữ chỗ giữa sơ đồ React và runtime concert
 - [x] (6-5a, P2) Sơ đồ React có luồng chọn số lượng vé đứng (`DUNG_STAND`) cho sự kiện không phải concert
 - [x] (6-5b, P2) Liên kết lựa chọn hạng vé với sơ đồ ghế
-- [ ] (6-5c, P5) Sinh bản ghi `GHE` cho hạng `GHE_NGOI` của sự kiện do BTC tạo
+- [x] (6-5c, P5) Sinh bản ghi `GHE` cho hạng `GHE_NGOI` của sự kiện do BTC tạo
 - [x] (6-6, P2) Giới hạn số vé mỗi đơn và thời hạn giữ chỗ phía client đọc từ cấu hình (`SoVeToiDaMoiDon`, `ThoiGianGiuChoPhut`) thay vì ghi cứng
 - [ ] (6-7, P2) Số vé còn lại của khu đứng trừ các lượt đang giữ
-- [ ] (6-8, P5) Thống nhất danh sách thể loại giữa DB, `VALID_CATEGORIES`, `CATEGORY_LABELS`, `CATEGORY_MAP`
+- [x] (6-8, P5) Thống nhất danh sách thể loại giữa DB, `VALID_CATEGORIES`, `CATEGORY_LABELS`, `CATEGORY_MAP`
 - [x] (6-9, P3) Thống nhất cách nhận diện Super Concert (không dựa vào `SuKienID === 1`)
 - [x] (6-10, P2) Sơ đồ ghế tự cập nhật trạng thái bán khi tới giờ mở/đóng bán, không cần tải lại trang
 - [ ] (6-11a, P6) Path lạ, `account/:sub` và `organizer/:other` không hợp lệ hiển thị trang 404
 - [x] (6-11b, P2) Chỉ tải bản xem trước khi URL có `preview=1`
 - [ ] (6-12, P5) Giao diện cho vai trò `ADMIN`, nâng loại tài khoản và mời thành viên vào tổ chức
-- [ ] (6-13, P5) Wizard gửi khóa `configuration`; client đọc `CAU_HINH_SU_KIEN`, `DIA_DIEM`, `PHIEN_BAN_SO_DO` khi cần
+- [x] (6-13, P5) Wizard gửi khóa `configuration`; client đọc `CAU_HINH_SU_KIEN`, `DIA_DIEM`, `PHIEN_BAN_SO_DO` khi cần
 - [ ] (6-14, P6) Dọn mã chết và fragment không được render
 - [ ] (6-15, P6) Sửa lệch dữ liệu nhỏ (`metadata.json` ghi 96 ghế; thống kê chỉ có trong `data_zones.json`)
 - [ ] (6-16, P6) Xác minh trên DB staging đã áp đủ migration
@@ -901,3 +901,5 @@ Mục nào bị kẹt được ghi ở đây kèm lý do và việc cần làm t
 |---|---|---|
 | 6-7 (P2) Số vé khu đứng trừ lượt đang giữ | Cần biết các lượt giữ chỗ đang hoạt động. `GIU_CHO` và `CHI_TIET_GIU_CHO` không có policy đọc công khai, nên client không đọc được; thêm view/RPC là thay đổi DB (đang khóa). | Migration mới: RPC hoặc view trả số lượng đang giữ theo khu, cấp quyền cho `anon`; sau đó `loadPublicTicketTiers` trừ số này. |
 | 6-6 (P2) phần máy chủ | Client đã đọc `SoVeToiDaMoiDon`/`ThoiGianGiuChoPhut` nhưng RPC `tao_giu_cho_theo_suat` vẫn cứng 4 vé và 5 phút, nên client chặn ở mức tối đa 4 vé (`SERVER_MAX_TICKETS_PER_ORDER`). | Migration cập nhật RPC đọc `CAU_HINH_SU_KIEN`; sau đó bỏ trần 4 trong `src/domain/purchaseLimits.js`. |
+| 6-12 (P5) Giao diện ADMIN, nâng loại tài khoản, mời thành viên | Đổi `LoaiTaiKhoan` cần gọi `gan_loai_tai_khoan` bằng `service_role`, và chưa có RPC hay chính sách cho phép client mời thành viên vào `THANH_VIEN_TO_CHUC`. Không làm được ở client nếu không đổi DB (đang khóa). | Migration: RPC `SECURITY DEFINER` cho ADMIN nâng loại tài khoản và cho chủ sở hữu mời thành viên, kèm RLS; sau đó dựng màn hình quản trị. |
+| 6-2b, 6-5c, 6-13 (P5) kiểm chứng chế độ thật | Phần client đã xong và có test: lịch trình nhúng vào `MoTaChiTiet`, tạo `GHE` sau khi lưu hạng vé có chỗ ngồi, gửi khóa `configuration`. Chưa chạy trên DB staging nên chưa chứng minh chính sách ghi `GHE` và RPC hoạt động đúng. Địa điểm của từng mục lịch trình không lưu được (định dạng mô tả không có trường này). `DIA_DIEM` và `PHIEN_BAN_SO_DO` chưa được đọc vì chưa có tính năng nào cần. | Chạy luồng lưu trên staging đã áp đủ migration (liên quan 6-16). |

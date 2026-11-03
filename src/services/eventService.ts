@@ -1,6 +1,7 @@
 import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
 import {resolveTemplateKey} from '../domain/superConcert.js';
+import {stripTimelineFromDescription} from '../domain/eventTimeline.js';
 
 export type PublicShowRecord = {
   id: number; slug: string; name: string; startsAt: string; endsAt: string;
@@ -98,7 +99,7 @@ function mapEvent(row: Record<string, unknown>, shows: PublicShowRecord[], reque
     id: Number(row.SuKienID), code: String(row.Slug || runtimeConfig.eventId),
     slug: deduplicateSlug(String(row.Slug || runtimeConfig.eventId)).toLowerCase(), name: String(row.TenSuKien),
     slogan: row.Slogan ? String(row.Slogan) : undefined,
-    description: row.MoTaChiTiet ? String(row.MoTaChiTiet) : undefined,
+    description: stripTimelineFromDescription(row.MoTaChiTiet ? String(row.MoTaChiTiet) : '') || undefined,
     templateKey: resolveTemplateKey(row),
     category: String(row.TheLoai || 'KHAC'),
     bannerUrl: row.BannerURL ? String(row.BannerURL) : undefined,
