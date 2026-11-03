@@ -9,7 +9,7 @@ export function formatMoney(amount: number | null | undefined): string;
 export function formatEventDateTime(isoString: string | null | undefined): string;
 export function formatEventDateBlock(isoString: string | null | undefined): {weekday: string; month: string; day: string};
 export function formatEventTime(isoString: string | null | undefined): string;
-export function pickFeaturedEvent<T extends {startsAt?: string}>(events: T[] | null | undefined, now?: number): T | null;
+export function pickFeaturedEvent<T>(events: T[] | null | undefined): T | null;
 export function formatDateShort(isoString: string | null | undefined): string;
 export function getCategoryLabel(categoryKey: string | null | undefined): string;
 

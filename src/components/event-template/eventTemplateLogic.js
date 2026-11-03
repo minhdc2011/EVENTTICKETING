@@ -122,24 +122,14 @@ export function formatEventTime(isoString) {
 }
 
 /**
- * Picks the featured event: soonest upcoming, otherwise the first one. Null when empty.
- * @template {{startsAt?: string}} T
+ * Picks the featured event: the first event in the list (events[0]). Null when empty, null, or undefined.
+ * @template T
  * @param {T[] | null | undefined} events
  * @returns {T | null}
  */
-export function pickFeaturedEvent(events, now = Date.now()) {
+export function pickFeaturedEvent(events) {
   if (!Array.isArray(events) || events.length === 0) return null;
-  let best = null;
-  let bestTime = Infinity;
-  for (const ev of events) {
-    const t = new Date(ev.startsAt ?? '').getTime();
-    if (Number.isNaN(t) || t < now) continue;
-    if (t < bestTime) {
-      best = ev;
-      bestTime = t;
-    }
-  }
-  return best ?? events[0];
+  return events[0];
 }
 
 /**
