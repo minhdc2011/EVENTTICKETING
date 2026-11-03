@@ -581,22 +581,4 @@ export function EventCatalog() {
   );
 }
 
-export function ShowSwitcher({event}: {event: PublicEventRecord}) {
-  if (event.shows.length < 2) return null;
-  return (
-    <nav className="show-switcher" aria-label="Chọn suất diễn">
-      <span className="show-switcher-label">Suất diễn</span>
-      {event.shows.map((show) => (
-        <a
-          key={show.id}
-          className={show.id === event.selectedShow.id ? 'is-active' : ''}
-          href={buildPublicPath(window.location.pathname, `events/${event.slug}/shows/${show.slug}`)}
-          onClick={onSpaNav(`events/${event.slug}/shows/${show.slug}`)}
-        >
-          <strong>{show.name}</strong>
-          <time dateTime={show.startsAt}>{dateFormatter.format(new Date(show.startsAt))}</time>
-        </a>
-      ))}
-    </nav>
-  );
-}
+export {ShowSwitcher} from './event-template/ShowSwitcher';

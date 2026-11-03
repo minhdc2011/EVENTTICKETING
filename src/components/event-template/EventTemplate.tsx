@@ -3,7 +3,7 @@ import {deriveSaleStatus} from '../../domain/eventStatus';
 import {loadPublicSchedule, type PublicScheduleItem} from '../../services/scheduleService';
 import {type PublicArtistRecord} from '../../services/artistService';
 import type {PublicEventRecord, PublicTicketTier} from '../../services/eventService';
-import {ShowSwitcher} from '../EventCatalog';
+import {ShowSwitcher} from './ShowSwitcher';
 import {ArtistLineupSection} from './ArtistLineupSection';
 import {BookingAssistModal, BookingSummaryPanel} from './BookingSummaryPanel';
 import {EventContactSection} from './EventContactSection';
