@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState, type MouseEvent} from 'react';
-import {loadPublicEvents, type PublicEventRecord, type PublicEventSummary} from '../services/eventService';
+import {loadPublicEvents, type PublicEventSummary} from '../services/eventService';
 import {buildPublicPath, navigatePublicRoute} from '../domain/publicRoute';
 import {pickFeaturedEvent} from './event-template/eventTemplateLogic.js';
 import {EventRow} from './site/EventRow';
