@@ -1331,11 +1331,15 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 0;
-  flex-shrink: 1;
+  /* Never shrink below the price itself; the label ellipsizes instead */
+  min-width: min-content;
+  flex-shrink: 0;
 }
 
 .et-mobile-price-label {
+  /* width:0 + min-width:100% keeps the label out of the group's min-content */
+  width: 0;
+  min-width: 100%;
   color: #94a3b8;
   font-size: 12px;
   font-weight: 600;
@@ -1358,7 +1362,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
 }
 
 .et-mobile-secondary-btn {
@@ -1377,6 +1383,7 @@
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: all 150ms ease;
 }
 
@@ -1391,7 +1398,10 @@
   justify-content: center;
   min-height: 44px;
   min-width: 44px;
-  padding: 0 20px;
+  padding: 6px 14px;
+  flex: 0 1 auto;
+  text-align: center;
+  line-height: 1.25;
   background: var(--et-cat-accent, #f59e0b);
   color: var(--et-cat-on-accent, #000000);
   border: 1px solid var(--et-cat-accent, #d97706);
@@ -1402,7 +1412,7 @@
   letter-spacing: 0.02em;
   text-decoration: none;
   cursor: pointer;
-  white-space: nowrap;
+  white-space: normal;
   transition: filter 150ms ease, transform 100ms ease;
 }
 
@@ -1415,10 +1425,9 @@
 }
 
 .et-mobile-cta-btn:disabled {
-  opacity: 0.55;
   cursor: not-allowed;
   background: rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
+  color: #cbd5e1;
   border-color: rgba(255, 255, 255, 0.16);
 }
 
