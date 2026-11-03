@@ -1,0 +1,9 @@
+{
+  "name": "multiagent-tools",
+  "private": true,
+  "description": "Screenshot tooling for .multiagent/org.ps1 (kept out of the app's own dependencies)",
+  "type": "module",
+  "dependencies": {
+    "playwright-core": "1.56.1"
+  }
+}
