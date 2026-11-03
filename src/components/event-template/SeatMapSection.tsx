@@ -16,6 +16,7 @@ import {
   setStandingQuantity,
   buildStandingHoldItems,
   calculateStandingTotal,
+
 } from '../../domain/standingSelection.js';
 import {deriveSaleStatus} from '../../domain/eventStatus';
 import {dispatchToast} from '../../domain/runtimeOverlays.js';
@@ -43,9 +44,11 @@ import './SeatMapSection.css';
 
 export interface SeatMapSectionProps {
   event?: PublicEventRecord | null;
+  /** Ticket tier picked in the tier list: the map focuses its zone (tier.code === zone MaKhuVuc). */
+  selectedTier?: {code: string} | null;
 }
 
-export function SeatMapSection({event}: SeatMapSectionProps) {
+export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps) {
   const [catalog, setCatalog] = useState<TicketingCatalog | null>(null);
   const [catalogState, setCatalogState] = useState<'loading' | 'ready' | 'error' | 'empty'>('loading');
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
@@ -268,6 +271,7 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
   const standingCount = sumStanding(standing);
   const roomLeft = Math.max(0, limits.maxPerOrder - selectedSeats.length - standingCount);
   const holdLabel = `${limits.holdMinutes || DEFAULT_HOLD_MINUTES} phút`;
+
 
   const activeZoneGroup = useMemo(() => {
     if (selectedZoneId == null) return null;

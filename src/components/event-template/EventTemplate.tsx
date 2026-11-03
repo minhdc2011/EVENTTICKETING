@@ -268,7 +268,7 @@ export function EventTemplate({
             {slots?.seating !== undefined ? (
               slots.seating
             ) : (
-              <SeatMapSection event={event} />
+              <SeatMapSection event={event} selectedTier={selectedTier} />
             )}
 
             {/* Section 03: Venue & Attendance (Auto-hides if empty) */}
