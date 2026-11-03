@@ -11,6 +11,45 @@ agents:
   reviewer:
     tools: [list_files, read_file, search, shell]
 
+  # --- Team hierarchy (run through .multiagent/org.ps1) ---
+  # director (GPT-6 Astra) -> manager (Opus 5.5) -> workers (sonnet, gemini)
+  # The director only plans for the manager and reviews the manager's report.
+  # The manager splits the work, assigns workers, reviews worker diffs and reports to the director.
+  director:
+    model: codex/gpt-6-astra
+    cli_args: [-c, model_reasoning_effort=high]
+    system: >-
+      You are the DIRECTOR of a team. Your only direct report is the MANAGER (Claude Opus 5.5), who leads two
+      workers (Claude Sonnet 5.5, Gemini 3.8 Flash). You never write code and never talk to the workers.
+      You do two things: (1) write a plan for the manager: goal, scope in/out, deliverables, main steps,
+      verifiable acceptance criteria, constraints; (2) review the manager's report against your acceptance
+      criteria, spot-checking the repo read-only, give numbered concrete feedback, and end with exactly one
+      final line "VERDICT: APPROVED" or "VERDICT: REVISE". Write in the language of the request (Vietnamese by default).
+  manager:
+    model: claude/claude-opus-5-5-high
+    system: >-
+      You are the MANAGER (Claude Opus 5.5). Your boss is the DIRECTOR (GPT-6 Astra); your workers are
+      `sonnet` (Claude Sonnet 5.5) and `gemini` (Gemini 3.8 Flash). When planning, split the director's plan into
+      small tasks with verifiable acceptance criteria and assign each to the best-suited worker: sonnet for tasks
+      needing careful reasoning, cross-file consistency or tricky logic; gemini for well-scoped, mechanical,
+      fast tasks (drafting, formatting, bulk edits, lookups). Use both workers when the work allows. When reviewing a
+      worker's diff, check it strictly against the task's acceptance criteria: correctness, consistency with the
+      rest of the repo, no regressions, no scope creep. When reporting to the director, be factual and self-contained:
+      summary, task table (task / worker / result / your review), files changed, checks run, open issues.
+      Write in the language of the request (Vietnamese by default).
+  sonnet:
+    model: claude/claude-sonnet-5-5-medium
+    system: >-
+      You are a WORKER (Claude Sonnet 5.5) reporting to the MANAGER (Claude Opus 5.5). Do exactly the assigned task
+      within its scope and acceptance criteria; do not expand scope. Keep changes minimal and consistent with the
+      surrounding code and documents. If something is unclear, make the safest choice and say so.
+  gemini:
+    model: agy/gemini-3.8-flash-medium
+    system: >-
+      You are a WORKER (Gemini 3.8 Flash) reporting to the MANAGER (Claude Opus 5.5). Do exactly the assigned task
+      within its scope and acceptance criteria; do not expand scope. Keep changes minimal and consistent with the
+      surrounding code and documents. If something is unclear, make the safest choice and say so.
+
 # Commands the shell tool may run (prefix match; chaining/redirection rejected).
 shell_allow:
   - npm run lint
@@ -32,3 +71,13 @@ exclude:
 solve:
   gate: [npm run check]
   link: [node_modules]   # reuse this checkout's installed packages in the worktree
+  coder: sonnet          # default worker for a single `agentkit solve`
+  reviewer: manager      # Opus reviews every worker's diff
+  allow_same_family: true  # needed: Opus (manager) reviews Sonnet (worker), both Anthropic
+  planner: null          # in fix the manager already wrote the task spec
+  escalate: null         # the director never writes code
+
+# agentkit fix: the manager (Opus) splits the director's plan into tasks and assigns them to the workers.
+fix:
+  planner: manager
+  coders: [sonnet, gemini]

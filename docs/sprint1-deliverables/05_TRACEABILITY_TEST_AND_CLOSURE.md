@@ -39,7 +39,7 @@ Bảng `DIA_DIEM` chưa được UC nào ghi trực tiếp trong V1 (địa đi�
 | **FR-T1-03.4** | Preview bản nháp dùng chung `EventTemplate` | Trang sự kiện với `?preview=1` (`loadEventForPreview`) + `EventHeader` banner | `tests/event-template.test.mjs` | **Pass** |
 | **FR-T1-03.5** | Kiểm tra điều kiện & Công bố `cong_bo_su_kien` | `evaluatePublishReadiness` + RPC `cong_bo_su_kien` | `tests/organizer-uat.test.mjs` | **Pass** |
 | **FR-T1-03.6** | Mọi event dùng chung 1 template; đặc thù cắm Extension | `GenericEventPage`, `EventTemplate` | Architecture invariant tests | **Pass** |
-| **NFR-09 / QA-01** (bảo mật) | RLS 14/14 bảng, RPC `SECURITY DEFINER` an toàn | Migrations `20261027120000`, `20261028100000` | System catalog live audit + tests | **Pass live** |
+| **NFR-09 / QA-01** (bảo mật) | RLS 14/14 bảng, RPC `SECURITY DEFINER` an toàn; ghi `CAU_HINH_SU_KIEN` chỉ cho vai trò biên tập | Migrations `20261027120000`, `20261028100000`, `20261103090000` | System catalog live audit + tests | **Pass live** (migration `20261103090000` đã chạy 03/11/2026, xác nhận qua `08_SUPABASE_SCHEMA_EXPORT.md`) |
 | **NFR-02 / QA-02** | Row lock `FOR UPDATE` + hết hạn 5 phút | RPC `tao_giu_cho_theo_suat`, pg_cron | Unit checks + static review | **Pass** |
 | **NFR-07 / QA-05, QA-06** | Accessibility (WCAG) & Responsive contracts | `event-template.css`, `index.css` | Invariant CSS tests | **Pass** |
 
@@ -53,7 +53,7 @@ npm run check
 ```
 
 - **TypeScript Type-check (`tsc --noEmit`)**: **Pass**, 0 lỗi.
-- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **145/145 tests PASS (0 fail, 0 skipped)**.
+- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **146/146 tests PASS (0 fail, 0 skipped)** (03/11/2026; mốc 02/11/2026 là 145/145, thêm 1 test cho migration quyền `CAU_HINH_SU_KIEN`).
 - **Production Build (`vite build`)**: **Pass**, đóng gói thành công ra thư mục `dist/`.
 - **Cơ sở dữ liệu Supabase Live (`qxkgkbayxxaakkwtepss`)**:
   - Đầy đủ **14 bảng `public`** đã bật RLS, xác nhận qua REST API probe.
@@ -84,4 +84,4 @@ npm run check
 - [x] Class Diagram trích xuất từ repo với 14 lớp Entity tương ứng 1–1 với 14 bảng ERD kết hợp các lớp Service.
 - [x] 4 Sequence Diagram cho Sprint 1 (SD-01..04) và 2 Sequence Diagram cho nền tảng Sprint 3 (SD-05, SD-06).
 - [x] Ma trận liên kết (UC → FR → ERD → Class thiết kế/phân tích → Sequence) dùng mã UC thống nhất với tài liệu đặc tả.
-- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 145/145 tests pass.
+- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 146/146 tests pass (03/11/2026).

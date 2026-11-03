@@ -189,6 +189,8 @@ classDiagram
     +string tenToChuc
     +string slug
     +string trangThai
+    +Date ngayTao
+    +Date ngayCapNhat
     +isActive() boolean
     +validateInput() boolean
   }
@@ -198,6 +200,8 @@ classDiagram
     +string hoTen
     +string anhDaiDienUrl
     +string loaiTaiKhoan
+    +Date ngayTao
+    +Date ngayCapNhat
     +isOrganizer() boolean
     +isAdmin() boolean
   }
@@ -207,6 +211,7 @@ classDiagram
     +uuid toChucId
     +uuid nguoiDungId
     +string vaiTro
+    +Date ngayTao
     +canEdit() boolean
     +canManage() boolean
   }
@@ -220,6 +225,31 @@ classDiagram
     +string theLoai
     +string templateKey
     +string trangThaiCongBo
+    +string loaiHinhSuKien
+    +string slogan
+    +Date thoiGianBatDau
+    +Date thoiGianKetThuc
+    +Date thoiGianMoBanVe
+    +Date thoiGianDongBanVe
+    +string trangThaiMoBan
+    +string diaDiem
+    +string tenSanVanDong
+    +int sucChua
+    +string bannerUrl
+    +string posterUrl
+    +string trailerUrl
+    +string soDoTongQuanUrl
+    +string quyDinhDoTuoi
+    +string duongDanTrucTuyen
+    +string huongDanThamGiaTrucTuyen
+    +string chinhSachHoanHuy
+    +string quyDinhThamGia
+    +string emailLienHe
+    +string hotlineLienHe
+    +string fanpageUrl
+    +string soGiayPhepBieuDien
+    +Date ngayTao
+    +Date ngayCapNhat
     +parseTimelineFromDescription() PublicScheduleItem[]
     +isPublished() boolean
   }
@@ -232,6 +262,7 @@ classDiagram
     +boolean yeuCauCccd
     +boolean choPhepChuyenNhuong
     +Json tuyChonMoRong
+    +Date ngayCapNhat
     +validateHoldLimits(count) boolean
     +getCustomOption(key) any
   }
@@ -243,6 +274,7 @@ classDiagram
     +string diaChi
     +string muiGio
     +int sucChua
+    +Date ngayTao
     +hasCapacity() boolean
   }
 
@@ -253,6 +285,7 @@ classDiagram
     +string tenPhienBan
     +Json duLieuSoDo
     +boolean daKhoa
+    +Date ngayTao
     +isLocked() boolean
   }
 
@@ -261,11 +294,17 @@ classDiagram
     +int suKienId
     +string slug
     +string tenSuatDien
+    +bigint diaDiemId
+    +uuid phienBanSoDoId
+    +string muiGio
+    +Date thoiGianMoCua
     +Date thoiGianBatDau
     +Date thoiGianKetThuc
     +Date thoiGianMoBanVe
     +Date thoiGianDongBanVe
     +string trangThai
+    +Date ngayTao
+    +Date ngayCapNhat
     +deriveSaleStatus() string
     +isInSaleWindow() boolean
   }
@@ -278,7 +317,11 @@ classDiagram
     +string tenKhuVuc
     +string loaiKhuVuc
     +numeric giaVeNiemYet
+    +string mauSacHex
+    +string moTaQuyenLoi
     +int tongSoGhe
+    +int soVeToiThieuMoiDon
+    +int soVeToiDaMoiDon
     +parseTierBenefits() string[]
     +computeZoneLayouts() Layout
     +isStanding() boolean
@@ -291,6 +334,8 @@ classDiagram
     +string soGhe
     +string maGheDayDu
     +string trangThai
+    +int toaDoX
+    +int toaDoY
     +evaluateSeatSelection(selected) Result
     +reconcileSeatUpdate(newSeat) Ghe
     +isAvailable() boolean
@@ -303,6 +348,8 @@ classDiagram
     +uuid phienNguoiDung
     +string trangThai
     +Date hetHanLuc
+    +Date ngayTao
+    +Date ngayCapNhat
     +calculateRemainingSeconds() int
     +isExpired() boolean
     +canRelease() boolean
@@ -325,6 +372,7 @@ classDiagram
     +string vaiTroChinh
     +string tieuSu
     +string hinhAnhUrl
+    +Date ngayTao
     +normalizeArtistRow() ArtistItem
   }
 

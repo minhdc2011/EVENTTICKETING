@@ -192,3 +192,16 @@ test('05_TRACEABILITY_TEST_AND_CLOSURE.md establishes 4-way architectural linkag
   }
 });
 
+
+test('CAU_HINH_SU_KIEN writes are restricted to organization editors', () => {
+  const migrationPath = path.join(
+    rootDir,
+    'supabase/migrations/20261103090000_restrict_event_configuration_writes.sql'
+  );
+  assert.ok(fs.existsSync(migrationPath), 'Migration file must exist');
+  const content = fs.readFileSync(migrationPath, 'utf8');
+  assert.match(content, /DROP POLICY IF EXISTS "Members manage event configuration"/);
+  assert.match(content, /CREATE POLICY "Editors manage event configuration"/);
+  assert.match(content, /co_quyen_bien_tap_to_chuc/);
+  assert.doesNotMatch(content, /CREATE POLICY[\s\S]*la_thanh_vien_to_chuc/);
+});
