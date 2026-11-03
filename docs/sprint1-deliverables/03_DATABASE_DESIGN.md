@@ -68,8 +68,31 @@ erDiagram
     string TheLoai
     string TemplateKey "DEFAULT | SUPER_CONCERT_2026"
     string TrangThaiCongBo "BAN_NHAP | CONG_KHAI | DA_AN"
-    timestamptz ThoiGianBatDau
-    timestamptz ThoiGianKetThuc
+    string LoaiHinhSuKien "OFFLINE | ONLINE | HYBRID | TBA"
+    string Slogan "Nullable"
+    timestamptz ThoiGianBatDau "Cot cu v1, gia tri chinh o SUAT_DIEN"
+    timestamptz ThoiGianKetThuc "Cot cu v1, gia tri chinh o SUAT_DIEN"
+    timestamptz ThoiGianMoBanVe "Cot cu v1, gia tri chinh o SUAT_DIEN"
+    timestamptz ThoiGianDongBanVe "Cot cu v1, Nullable"
+    string TrangThaiMoBan "Cot cu v1, trang thai ban tinh theo SUAT_DIEN"
+    string DiaDiem "Cot cu v1, dia diem dang van ban"
+    string TenSanVanDong "Cot cu v1"
+    int SucChua "Cot cu v1"
+    string BannerURL "Nullable"
+    string PosterURL "Nullable"
+    string TrailerURL "Nullable"
+    string SoDoTongQuanURL "Nullable"
+    string QuyDinhDoTuoi "Nullable"
+    text DuongDanTrucTuyen "Nullable, su kien online"
+    text HuongDanThamGiaTrucTuyen "Nullable"
+    text ChinhSachHoanHuy "Nullable"
+    text QuyDinhThamGia "Nullable"
+    string EmailLienHe "Nullable"
+    string HotlineLienHe "Nullable"
+    string FanpageURL "Nullable"
+    string SoGiayPhepBieuDien "Nullable"
+    timestamptz NgayTao
+    timestamptz NgayCapNhat
   }
 
   CAU_HINH_SU_KIEN {
@@ -85,7 +108,7 @@ erDiagram
 
   DIA_DIEM {
     bigint DiaDiemID PK
-    uuid ToChucID FK "References TO_CHUC(ToChucID)"
+    uuid ToChucID FK "References TO_CHUC(ToChucID), Nullable"
     string TenDiaDiem
     text DiaChi
     string MuiGio
@@ -108,13 +131,17 @@ erDiagram
     int SuKienID FK "References SU_KIEN(SuKienID)"
     string Slug "Unique per SuKienID"
     string TenSuatDien
-    bigint DiaDiemID FK "References DIA_DIEM(DiaDiemID)"
-    uuid PhienBanSoDoID FK "References PHIEN_BAN_SO_DO"
+    bigint DiaDiemID FK "References DIA_DIEM(DiaDiemID), Nullable"
+    uuid PhienBanSoDoID FK "References PHIEN_BAN_SO_DO, Nullable"
+    string MuiGio "Default Asia/Ho_Chi_Minh"
+    timestamptz ThoiGianMoCua "Nullable"
     timestamptz ThoiGianBatDau
     timestamptz ThoiGianKetThuc
     timestamptz ThoiGianMoBanVe
     timestamptz ThoiGianDongBanVe
     string TrangThai "BAN_NHAP | SAP_MO_BAN | DANG_MO_BAN | HET_VE | DONG_BAN | HUY | DA_DIEN_RA"
+    timestamptz NgayTao
+    timestamptz NgayCapNhat
   }
 
   KHU_VUC {
@@ -126,6 +153,7 @@ erDiagram
     string LoaiKhuVuc "GHE_NGOI | DUNG_STAND"
     numeric GiaVeNiemYet
     string MauSacHex
+    text MoTaQuyenLoi "Quyen loi hang ve, Nullable"
     int TongSoGhe
     int SoVeToiThieuMoiDon
     int SoVeToiDaMoiDon
@@ -150,6 +178,7 @@ erDiagram
     string TrangThai "ACTIVE | EXPIRED | RELEASED | CONVERTED"
     timestamptz HetHanLuc "Now + 5 minutes"
     timestamptz NgayTao
+    timestamptz NgayCapNhat
   }
 
   CHI_TIET_GIU_CHO {
@@ -167,7 +196,7 @@ erDiagram
     string NgheDanh
     string VaiTroChinh
     text TieuSu
-    text HinhAnhURL
+    string HinhAnhURL "Nullable"
     timestamptz NgayTao
   }
 
@@ -338,7 +367,7 @@ Dự án đã kiểm tra thực tế hệ thống live trên project Supabase `q
 | `TO_CHUC` | `ToChucID` UUID | — | Đơn vị tổ chức sự kiện | `Slug` UNIQUE; `TrangThai IN ('HOAT_DONG', 'TAM_KHOA')` |
 | `HO_SO_NGUOI_DUNG` | `NguoiDungID` UUID | `auth.users(id)` | Hồ sơ gắn Auth (**Quan hệ 1–1**) | `CASCADE` khi xóa user; `LoaiTaiKhoan IN ('USER', 'ORGANIZER', 'ADMIN')`; trigger chống tự nâng cấp |
 | `THANH_VIEN_TO_CHUC` | `ID` UUID | `ToChucID`, `NguoiDungID` | Phân quyền RBAC (**Quan hệ N–N**) | `UNIQUE(ToChucID, NguoiDungID)`; `VaiTro` enum 5 cấp bậc |
-| `SU_KIEN` | `SuKienID` INT (Serial) | `ToChucID` | Thông tin sự kiện tổng thể | `Slug` UNIQUE; `MoTaChiTiet` gộp timeline **[Chú thích 3]**; `TemplateKey`; `TrangThaiCongBo` |
+| `SU_KIEN` | `SuKienID` INT (Serial) | `ToChucID` | Thông tin sự kiện tổng thể (33 cột) | `Slug` UNIQUE; `MoTaChiTiet` gộp timeline **[Chú thích 3]**; `TemplateKey`; `TrangThaiCongBo`; `LoaiHinhSuKien IN ('OFFLINE','ONLINE','HYBRID','TBA')`. Các cột `ThoiGianBatDau/KetThuc/MoBanVe/DongBanVe`, `TrangThaiMoBan`, `DiaDiem`, `TenSanVanDong`, `SucChua` là **cột cũ từ bản v1 (một sự kiện một suất)**, được giữ để tương thích; giá trị chính thức nằm ở `SUAT_DIEN` |
 | `CAU_HINH_SU_KIEN` | `SuKienID` INT | `SU_KIEN(SuKienID)` | Cấu hình nghiệp vụ (**Quan hệ 1–1**) | `PK = FK`; `ThoiGianGiuChoPhut (1-60)`; `SoVeToiDaMoiDon (1-20)`; `TuyChonMoRong JSONB` |
 | `DIA_DIEM` | `DiaDiemID` BIGINT | `ToChucID` | Địa điểm tái sử dụng | `SucChua > 0`; `MuiGio` chuẩn IANA |
 | `PHIEN_BAN_SO_DO` | `PhienBanSoDoID` UUID | `DiaDiemID` | Sơ đồ chỗ ngồi của địa điểm | `UNIQUE(DiaDiemID, SoPhienBan)`; `DuLieuSoDo JSONB`; cờ khóa `DaKhoa` |
@@ -358,4 +387,7 @@ Dự án đã kiểm tra thực tế hệ thống live trên project Supabase `q
 2. **Khóa 1–1 tuyệt đối**: `CAU_HINH_SU_KIEN.SuKienID` tham chiếu `SU_KIEN.SuKienID ON DELETE CASCADE`.
 3. **Cưỡng chế trigger đa tầng**: Hai trigger `trg_khuvuc_suatdien_sukien` và `trg_giucho_suatdien_sukien` ngăn chặn tuyệt đối lỗi lệch dữ liệu giữa suất diễn và sự kiện.
 4. **Transaction & Row Lock**: Thủ tục `tao_giu_cho_theo_suat` chạy giao dịch nguyên tử, áp dụng `FOR UPDATE` trên dòng ghế và dòng khu vực để chống tranh chấp giữ chỗ (double-booking).
-5. **Row Level Security (RLS)**: Bật trên toàn bộ 14/14 bảng `public`. Phân biệt rõ quyền đọc công khai của sự kiện `CONG_KHAI` với quyền biên tập theo vai trò tổ chức của người dùng.
+5. **Row Level Security (RLS)**: Bật trên toàn bộ 14/14 bảng `public`. Phân biệt rõ quyền đọc công khai của sự kiện `CONG_KHAI` với quyền biên tập theo vai trò tổ chức của người dùng. `GIU_CHO` và `CHI_TIET_GIU_CHO` không có policy cho client, chỉ ghi được qua RPC `SECURITY DEFINER`.
+6. **Sửa quyền ghi `CAU_HINH_SU_KIEN` (03/11/2026)**: đối chiếu policy live (`schema.md`) cho thấy policy `Members manage event configuration` cho mọi thành viên tổ chức quyền ghi (`la_thanh_vien_to_chuc`), kể cả vai trò chỉ xem `VAN_HANH`, `SOAT_VE`. Migration `20261103090000_restrict_event_configuration_writes.sql` thay bằng policy `Editors manage event configuration` dùng `co_quyen_bien_tap_to_chuc`, khớp các bảng còn lại và BR-G07. **Trạng thái:** đã có trong repo; cần chạy migration trên Supabase live rồi xuất lại `schema.md` để xác nhận.
+
+Danh sách cột đầy đủ của 14 bảng (xuất từ Supabase) xem `08_SUPABASE_SCHEMA_EXPORT.md`. ERD ở mục 1 đã vẽ đủ mọi cột theo bản xuất này.

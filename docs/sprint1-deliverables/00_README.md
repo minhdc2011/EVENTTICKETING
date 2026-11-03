@@ -20,6 +20,7 @@ Bộ hồ sơ này chứng minh chuỗi **yêu cầu khách hàng → phân tíc
 5. `05_TRACEABILITY_TEST_AND_CLOSURE.md` — ma trận truy vết, bằng chứng kiểm thử, tồn đọng và kết luận Sprint 1.
 6. `06_SUPABASE_LIVE_READINESS_AUDIT.md` — kiểm tra live database, ACL/RLS, dữ liệu, vận hành và điều kiện mở khóa demo.
 7. `07_EVENTTICKETING_DESIGN_SYSTEM.md` — foundations, tokens, component states, data-to-UI contract và handoff prompt cho OpenDesign.
+8. `08_SUPABASE_SCHEMA_EXPORT.md` — bản xuất đủ cột và RLS policy của 14 bảng từ Supabase live (03/11/2026), dùng để đối chiếu ERD và Class Diagram.
 
 ## Kịch bản demo đề xuất (8–10 phút)
 
