@@ -7,9 +7,30 @@ context: >-
   src/components/organizer-ui/, category theming in src/domain/categoryThemes.js. src/legacy/ holds
   the older concert runtime and HTML fragments still in use. Tests are node --test in tests/.
 
+# Reasoning effort for this repo: every model runs at MEDIUM, except Gemini 3.8 Flash at HIGH.
+# (codex: -c model_reasoning_effort=...; claude/agy: the -low|-medium|-high suffix of the model id.)
+router:
+  model: agy/gemini-3.8-flash-high
+
 agents:
+  # --- Agents inherited from ~/.agentkit/agents.yaml, pinned to the repo's effort policy ---
+  architect:
+    model: claude/claude-opus-5-5-medium
   reviewer:
     tools: [list_files, read_file, search, shell]
+    cli_args: [-c, model_reasoning_effort=medium]
+  coder:
+    cli_args: [-c, model_reasoning_effort=medium]
+  researcher:
+    model: agy/gemini-3.8-flash-high
+  visual:
+    model: agy/gemini-4-argon-medium
+  quick:
+    cli_args: [-c, model_reasoning_effort=medium]
+  critic:
+    model: claude/claude-sonnet-5-5-medium
+  astra:
+    cli_args: [-c, model_reasoning_effort=medium]
 
   # --- Team hierarchy (run through .multiagent/org.ps1) ---
   # director (GPT-6 Astra) -> manager (Opus 5.5) -> workers (sonnet, gemini)
@@ -17,7 +38,7 @@ agents:
   # The manager splits the work, assigns workers, reviews worker diffs and reports to the director.
   director:
     model: codex/gpt-6-astra
-    cli_args: [-c, model_reasoning_effort=high]
+    cli_args: [-c, model_reasoning_effort=medium]
     system: >-
       You are the DIRECTOR of a team. Your only direct report is the MANAGER (Claude Opus 5.5), who leads two
       workers (Claude Sonnet 5.5, Gemini 3.8 Flash). You never write code and never talk to the workers.
@@ -26,9 +47,10 @@ agents:
       criteria, spot-checking the repo read-only, give numbered concrete feedback, and end with exactly one
       final line "VERDICT: APPROVED" or "VERDICT: REVISE". Write in the language of the request (Vietnamese by default).
   manager:
-    model: claude/claude-opus-5-5-high
+    model: claude/claude-opus-5-5-medium
     # agentkit's default Claude tools lack Skill, so skills such as impeccable would be invisible
     cli_args: [--tools, Read, Grep, Glob, Skill]
+    timeout_s: 1800   # whole-repo reads (specs, audits) take longer than the 600 s default
     system: >-
       You are the MANAGER (Claude Opus 5.5). Your boss is the DIRECTOR (GPT-6 Astra); your workers are
       `sonnet` (Claude Sonnet 5.5) and `gemini` (Gemini 3.8 Flash). When planning, split the director's plan into
@@ -49,7 +71,7 @@ agents:
       within its scope and acceptance criteria; do not expand scope. Keep changes minimal and consistent with the
       surrounding code and documents. If something is unclear, make the safest choice and say so.
   gemini:
-    model: agy/gemini-3.8-flash-medium
+    model: agy/gemini-3.8-flash-high
     system: >-
       You are a WORKER (Gemini 3.8 Flash) reporting to the MANAGER (Claude Opus 5.5). Do exactly the assigned task
       within its scope and acceptance criteria; do not expand scope. Keep changes minimal and consistent with the
@@ -71,7 +93,10 @@ exclude:
   - package-lock.json
   - bun.lock
   - supabase/.temp
-  # Database and schema are frozen: the solve guard rejects any diff touching these (UI-only changes).
+
+# Database, schema and data layer are frozen. Agents may READ them (specs, analysis), but the solve/fix guard
+# rejects any diff that touches them, and CLI agents are told never to modify them.
+protect:
   - supabase
   - "*.sql"
   - src/services
