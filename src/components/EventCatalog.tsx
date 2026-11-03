@@ -4,19 +4,29 @@ import {loadPublicEvents, type PublicEventRecord, type PublicEventSummary} from 
 import {buildPublicPath, navigatePublicRoute} from '../domain/publicRoute';
 import {getBuyerSession, signOutBuyer, subscribeBuyerAuth, type BuyerSession} from '../services/buyerAuthService';
 import {CATEGORY_THEMES, CATEGORY_KEYS, getCategoryTheme} from '../domain/categoryThemes.js';
+import {GlobalHeader} from './site/GlobalHeader';
+import {SearchBlock} from './site/SearchBlock';
 import {
   CategoryIcon,
   IconArrowRight,
   IconBuilding,
   IconCalendar,
-  IconClose,
-  IconHeadphones,
   IconMapPin,
-  IconSearch,
   IconShieldCheck,
   IconTicket,
-  IconUser,
 } from './common/Icons';
+
+function countEventsByCategory(events: PublicEventSummary[]): Record<string, number> {
+  const counts: Record<string, number> = {ALL: events.length};
+  for (const key of CATEGORY_KEYS) {
+    counts[key] = 0;
+  }
+  for (const ev of events) {
+    const themeKey = getCategoryTheme(ev.category).key;
+    counts[themeKey] = (counts[themeKey] || 0) + 1;
+  }
+  return counts;
+}
 
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
   weekday: 'short',
@@ -63,17 +73,13 @@ export function EventCatalog() {
     return unsub;
   }, []);
 
-  const countsByCategory = useMemo(() => {
-    const counts: Record<string, number> = {ALL: events.length};
-    for (const key of CATEGORY_KEYS) {
-      counts[key] = 0;
-    }
-    for (const ev of events) {
-      const themeKey = getCategoryTheme(ev.category).key;
-      counts[themeKey] = (counts[themeKey] || 0) + 1;
-    }
-    return counts;
-  }, [events]);
+  const handleSignOut = async () => {
+    await signOutBuyer();
+    setBuyerSession(await getBuyerSession());
+  };
+
+  const isReady = state === 'ready';
+  const countsByCategory = useMemo(() => countEventsByCategory(events), [events]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -89,90 +95,19 @@ export function EventCatalog() {
   const eventHref = (slug: string) => buildPublicPath(window.location.pathname, `events/${slug}`);
 
   return (
-    <div className="marketplace-shell">
-      {/* Top Navigation */}
-      <header className="marketplace-nav">
-        <a
-          href={buildPublicPath(window.location.pathname, 'events')}
-          onClick={onSpaNav('events')}
-          className="marketplace-logo"
-          aria-label="EventTicketing Trang chủ"
-        >
-          EV<span>ENT</span><span className="marketplace-logo-sub">TICKETING</span>
-        </a>
-
-        {/* Discovery Search Input */}
-        <label className="marketplace-search" aria-label="Tìm kiếm sự kiện">
-          <IconSearch size={18} className="marketplace-search-icon" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Tìm theo sự kiện, địa điểm biểu diễn…"
-            aria-label="Tìm kiếm sự kiện, địa điểm"
-          />
-          {query && (
-            <button
-              type="button"
-              className="marketplace-search-clear"
-              onClick={() => setQuery('')}
-              aria-label="Xóa từ khóa tìm kiếm"
-            >
-              <IconClose size={16} />
-            </button>
-          )}
-        </label>
-
-        <nav aria-label="Điều hướng người dùng">
-          <a href="#events" className="marketplace-nav-link marketplace-nav-discover">
-            Khám phá
-          </a>
-          <a
-            href={buildPublicPath(window.location.pathname, 'organizer')}
-            onClick={onSpaNav('organizer')}
-            className="marketplace-organizer-link"
-            title="Khu vực quản lý và phát hành vé dành cho Ban tổ chức"
-          >
-            Dành cho BTC
-          </a>
-          {buyerSession ? (
-            <>
-              <a
-                href={buildPublicPath(window.location.pathname, 'account')}
-                onClick={onSpaNav('account')}
-                className="marketplace-user-badge"
-                title={buyerSession.email}
-              >
-                <IconUser size={14} />
-                <span>{buyerSession.email.split('@')[0]}</span>
-              </a>
-              <button
-                type="button"
-                onClick={() => void signOutBuyer()}
-                className="marketplace-logout"
-              >
-                Đăng xuất
-              </button>
-            </>
-          ) : (
-            <>
-              <a
-                href={buildPublicPath(window.location.pathname, 'register')}
-                onClick={onSpaNav('register')}
-                className="marketplace-register"
-              >
-                Đăng ký
-              </a>
-              <a
-                href={buildPublicPath(window.location.pathname, 'login')}
-                onClick={onSpaNav('login')}
-                className="marketplace-login"
-              >
-                Đăng nhập
-              </a>
-            </>
-          )}
-        </nav>
-      </header>
+    <div className="et-site et-catalog">
+      <GlobalHeader
+        session={buyerSession}
+        onSignOut={handleSignOut}
+        categories={CATEGORY_KEYS.map((k) => ({key: k, label: CATEGORY_THEMES[k].label}))}
+        activeCategory={category}
+        onCategorySelect={setCategory}
+      />
+      <SearchBlock
+        value={query}
+        onChange={setQuery}
+        onSubmit={() => document.getElementById('events')?.scrollIntoView()}
+      />
 
       {/* Featured / Hero Area */}
       {featured && featuredTheme && (
@@ -321,16 +256,15 @@ export function EventCatalog() {
         </div>
 
         {/* Category Filter Pills */}
-        <div className="marketplace-categories" role="tablist" aria-label="Phân loại thể loại sự kiện">
+        <div className="marketplace-categories" role="group" aria-label="Lọc theo thể loại">
           <button
             type="button"
             className={category === 'ALL' ? 'is-active' : ''}
             onClick={() => setCategory('ALL')}
-            role="tab"
-            aria-selected={category === 'ALL'}
+            aria-pressed={category === 'ALL'}
           >
             <span>Tất cả</span>
-            <span className="marketplace-cat-count">{countsByCategory.ALL || 0}</span>
+            {isReady && <span className="marketplace-cat-count">{countsByCategory.ALL || 0}</span>}
           </button>
           {CATEGORY_KEYS.map((key) => {
             const theme = CATEGORY_THEMES[key];
@@ -352,19 +286,18 @@ export function EventCatalog() {
                     : undefined
                 }
                 onClick={() => setCategory(key)}
-                role="tab"
-                aria-selected={isActive}
+                aria-pressed={isActive}
               >
                 <CategoryIcon category={key} size={14} />
                 <span>{theme.label}</span>
-                <span className="marketplace-cat-count">{count}</span>
+                {isReady && <span className="marketplace-cat-count">{count}</span>}
               </button>
             );
           })}
         </div>
 
         {/* Query feedback */}
-        {query.trim() && (
+        {isReady && query.trim() && (
           <div className="marketplace-query-feedback">
             <span>
               Kết quả tìm kiếm cho: <strong>"{query}"</strong> ({filtered.length} sự kiện)
@@ -377,40 +310,45 @@ export function EventCatalog() {
 
         {/* Loading / Error / Empty States */}
         {state === 'loading' && (
-          <div className="marketplace-state-box">
+          <div className="marketplace-state-box" role="status">
             <div className="marketplace-spinner" aria-hidden="true" />
             <p>Đang đồng bộ danh mục sự kiện từ hệ thống…</p>
           </div>
         )}
 
         {state === 'error' && (
-          <div className="event-catalog-state event-catalog-state--error">
+          <div className="event-catalog-state event-catalog-state--error" role="alert">
             <p>Không thể tải danh mục sự kiện vào lúc này.</p>
             <button type="button" onClick={fetchEvents} className="marketplace-retry-btn">
-              Thử lại ngay
+              Thử lại
             </button>
           </div>
         )}
 
-        {state === 'ready' && filtered.length === 0 && (
+        {isReady && events.length === 0 && (
           <div className="event-catalog-state marketplace-empty-box">
-            <p>Không tìm thấy sự kiện nào phù hợp với lựa chọn hiện tại.</p>
-            {(query || category !== 'ALL') && (
-              <button
-                type="button"
-                className="marketplace-reset-btn"
-                onClick={() => {
-                  setQuery('');
-                  setCategory('ALL');
-                }}
-              >
-                Xem tất cả sự kiện
-              </button>
-            )}
+            <p>Chưa có sự kiện nào được công bố</p>
+          </div>
+        )}
+
+        {isReady && events.length > 0 && filtered.length === 0 && (
+          <div className="event-catalog-state marketplace-empty-box">
+            <p>Không tìm thấy sự kiện phù hợp</p>
+            <button
+              type="button"
+              className="marketplace-reset-btn"
+              onClick={() => {
+                setQuery('');
+                setCategory('ALL');
+              }}
+            >
+              Xem tất cả sự kiện
+            </button>
           </div>
         )}
 
         {/* Event Cards Grid */}
+        {isReady && filtered.length > 0 && (
         <section className="marketplace-grid" aria-label="Danh sách sự kiện">
           {filtered.map((event) => {
             const theme = getCategoryTheme(event.category);
@@ -485,6 +423,7 @@ export function EventCatalog() {
             );
           })}
         </section>
+        )}
       </main>
 
       {/* Trustworthy Marketplace Footer */}
