@@ -172,13 +172,13 @@ Mọi liên kết được sinh theo dạng `<base>/?route=/<target>` (`buildPub
 - [x] Nhận cập nhật trạng thái khi ghế bị người khác bán hoặc giữ (`event-template/SeatMapSection.tsx`, `src/services/seatRealtimeService.ts`)
 - [x] Tự bỏ ghế khỏi lựa chọn khi ghế đó bị người khác bán hoặc giữ (`src/domain/seatMap.js` – `reconcileSelectionAfterUpdate`)
 - [x] Mở ảnh sơ đồ tổng quan do BTC đính kèm (`event-template/SeatMapSection.tsx`)
-- [ ] Chọn ghế trên sơ đồ SVG của Super Concert (`src/legacy/concertRuntime.js`)
-- [ ] Tăng số lượng vé đứng của Super Concert (`src/legacy/concertRuntime.js:999` – `updateStandingQuantity` với `delta > 0`)
-- [ ] Giảm số lượng vé đứng của Super Concert (`src/legacy/concertRuntime.js:999` – `updateStandingQuantity` với `delta < 0`)
-- [ ] Thêm vé đứng vào tạm tính của Super Concert (`src/legacy/concertRuntime.js:1015` – `addStandingTickets`)
-- [ ] Giữ chỗ trên sơ đồ Super Concert (`src/legacy/concertRuntime.js`, `event-template/BookingHoldModal.tsx`)
-- [ ] Xem tooltip thông tin ghế của Super Concert (`event-template/SeatTooltip.tsx`)
-- [ ] Bấm "Mô phỏng Sprint 3" để nhận toast giới thiệu (`event-template/BookingHoldModal.tsx`, `src/domain/runtimeOverlays.js`)
+- [x] Chọn ghế trên sơ đồ SVG của Super Concert (`src/legacy/concertRuntime.js`)
+- [x] Tăng số lượng vé đứng của Super Concert (`src/legacy/concertRuntime.js:999` – `updateStandingQuantity` với `delta > 0`)
+- [x] Giảm số lượng vé đứng của Super Concert (`src/legacy/concertRuntime.js:999` – `updateStandingQuantity` với `delta < 0`)
+- [x] Thêm vé đứng vào tạm tính của Super Concert (`src/legacy/concertRuntime.js:1015` – `addStandingTickets`)
+- [x] Giữ chỗ trên sơ đồ Super Concert (`src/legacy/concertRuntime.js`, `event-template/BookingHoldModal.tsx`)
+- [x] Xem tooltip thông tin ghế của Super Concert (`event-template/SeatTooltip.tsx`)
+- [x] Bấm "Mô phỏng Sprint 3" để nhận toast giới thiệu (`event-template/BookingHoldModal.tsx`, `src/domain/runtimeOverlays.js`)
 - [ ] Đăng ký tài khoản khán giả (`src/components/BuyerAuth.tsx`, `src/services/buyerAuthService.ts` – `signUpBuyer`)
 - [ ] Nhận thông báo cần xác nhận email sau khi đăng ký (`src/components/BuyerAuth.tsx:87-92`)
 - [ ] Đăng nhập tài khoản khán giả (`src/components/BuyerAuth.tsx`, `buyerAuthService.ts` – `signInBuyer`)
@@ -883,7 +883,7 @@ Trang thực hiện: P1 Catalog · P2 Chi tiết sự kiện và sơ đồ ghế
 - [x] (6-6, P2) Giới hạn số vé mỗi đơn và thời hạn giữ chỗ phía client đọc từ cấu hình (`SoVeToiDaMoiDon`, `ThoiGianGiuChoPhut`) thay vì ghi cứng
 - [ ] (6-7, P2) Số vé còn lại của khu đứng trừ các lượt đang giữ
 - [ ] (6-8, P5) Thống nhất danh sách thể loại giữa DB, `VALID_CATEGORIES`, `CATEGORY_LABELS`, `CATEGORY_MAP`
-- [ ] (6-9, P3) Thống nhất cách nhận diện Super Concert (không dựa vào `SuKienID === 1`)
+- [x] (6-9, P3) Thống nhất cách nhận diện Super Concert (không dựa vào `SuKienID === 1`)
 - [x] (6-10, P2) Sơ đồ ghế tự cập nhật trạng thái bán khi tới giờ mở/đóng bán, không cần tải lại trang
 - [ ] (6-11a, P6) Path lạ, `account/:sub` và `organizer/:other` không hợp lệ hiển thị trang 404
 - [x] (6-11b, P2) Chỉ tải bản xem trước khi URL có `preview=1`

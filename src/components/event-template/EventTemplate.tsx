@@ -207,7 +207,7 @@ export function EventTemplate({
 
   return (
     <div
-      className={`et-shell et-site ${isConcert ? 'et-shell--concert' : 'et-skin'}`}
+      className={`et-shell et-site et-skin ${isConcert ? 'et-shell--concert' : ''}`}
       data-category={event.category || 'AM_NHAC'}
     >
       <div className="et-stage-ambient" aria-hidden="true" />

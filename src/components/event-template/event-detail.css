@@ -197,6 +197,76 @@
   color: #1f262d;
 }
 
+/* Legacy #concert-hero rules (src/index.css) painted a full-screen dark hero: neutralise them in the skin */
+.et-skin #concert-hero {
+  min-height: 0;
+  display: block;
+  background-image: none;
+  background-color: #ffffff;
+  border-color: #e2e8f0 !important;
+}
+.et-skin #concert-hero::before {
+  display: none;
+}
+.et-skin #concert-hero h1 {
+  max-width: none;
+  font-size: clamp(26px, 3.2vw, 38px) !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.02em !important;
+  color: #1f262d;
+}
+.et-skin #concert-hero p {
+  color: #3d4756 !important;
+  max-width: 62ch;
+  line-height: 1.6;
+}
+.et-skin #concert-hero .et-hero-slogan {
+  color: #0353c2 !important;
+}
+.et-skin #concert-hero .et-meta-label,
+.et-skin #concert-hero .et-meta-sub {
+  color: #525b6c !important;
+}
+.et-skin #concert-hero .et-meta-value {
+  color: #1f262d !important;
+}
+.et-shell.et-skin[data-category] .et-badge--category,
+.et-shell.et-skin[data-category] .et-badge--category * {
+  background-color: #eef4fd;
+  border-color: #c3d6f5;
+  color: #0b3f91;
+}
+.et-skin .et-countdown-unit span {
+  color: #525b6c !important;
+}
+.et-skin .et-nav-timeline-btn .et-timeline-btn-compact {
+  display: none;
+}
+@media (max-width: 767px) {
+  .et-skin .et-nav-timeline-btn .et-timeline-btn-full {
+    display: none;
+  }
+  .et-skin .et-nav-timeline-btn .et-timeline-btn-compact {
+    display: inline;
+  }
+}
+
+/* Touch targets of the legacy seat-map toolbar and selection panels (HTML controls only; SVG seats are map geometry) */
+.et-skin.et-shell--concert #seating-section :is(button, input, select, a):not(.sr-only) {
+  min-height: 44px;
+}
+.et-skin.et-shell--concert #seating-section :is(.zone-tab, .ghost-tab) {
+  min-width: 44px;
+}
+.et-skin.et-shell--concert #seating-section :is(#btn-zoom-in, #btn-zoom-out, #btn-zoom-reset, #map-standing-minus, #map-standing-plus, #detail-standing-minus, #detail-standing-plus) {
+  min-width: 44px;
+}
+
+.et-skin #artist-lineup {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
 /* ---- Show switcher as date tabs (markup: nav.show-switcher > span + a) ---- */
 .et-skin .show-switcher {
   width: auto;
@@ -252,6 +322,19 @@
 }
 .et-skin #seating-section {
   color: #1f262d;
+}
+
+/* Super Concert: the legacy SVG seat map keeps its dark stage panel, framed inside the light page */
+.et-skin.et-shell--concert #seating-section {
+  background: #0d0d0d !important;
+  color: #f1f5f9;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 8px 0 24px;
+}
+.et-skin.et-shell--concert #seating-section h2 {
+  overflow-wrap: anywhere;
+  font-size: clamp(22px, 2.6vw, 32px);
 }
 
 /* ---- Body: two-column layout, tickets/map on the left, sticky summary on the right ---- */

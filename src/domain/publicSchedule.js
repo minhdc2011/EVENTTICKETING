@@ -1,3 +1,4 @@
+import {isSuperConcertEvent} from './superConcert.js';
 /**
  * Public schedule domain helpers and seeded Super Concert schedule records.
  * Provides defensive normalization for Supabase LICH_TRINH rows and mock fallbacks.
@@ -212,18 +213,7 @@ export function sortScheduleItems(items) {
   });
 }
 
-/**
- * Checks if an event is the Super Concert based strictly on stable product identity
- * (templateKey, code, slug). Does not rely on bare numeric database IDs.
- */
-export function isSuperConcertEvent(event) {
-  if (!event || typeof event !== 'object') return false;
-  return (
-    event.templateKey === 'SUPER_CONCERT_2026' ||
-    event.code === 'SUPER_CONCERT_2026' ||
-    event.slug === 'super-concert-2026'
-  );
-}
+export {isSuperConcertEvent};
 
 /**
  * Resolves public schedule items in mock fallback mode.
