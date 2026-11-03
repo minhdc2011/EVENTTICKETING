@@ -157,7 +157,6 @@
   background: #ffffff;
   border: 1px solid #0353c2;
   color: #0353c2;
-  border-radius: 6px;
 }
 .et-skin .et-hero-secondary-cta:hover {
   background: #eef4fd;
@@ -345,9 +344,6 @@
 .et-skin .et-section-kicker {
   color: #0353c2;
 }
-
-  border-radius: 6px;
-}
 .et-skin .et-booking-primary-btn {
   background: #0353c2;
   color: #ffffff;
@@ -374,7 +370,6 @@
 .et-skin .et-seatmap-cta {
   background: #0353c2;
   color: #ffffff;
-  border-radius: 6px;
 }
 .et-skin .et-seatmap-cta:disabled {
   background: #d7dde5;
