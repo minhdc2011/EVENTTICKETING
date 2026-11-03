@@ -1,4 +1,5 @@
 import {formatScheduleTime} from './publicSchedule.js';
+import {EVENT_CATEGORY_KEYS} from './categories.js';
 
 export const ACCOUNT_KINDS = {
   USER: 'USER',
@@ -126,7 +127,7 @@ export function validateEventDraftInput(input) {
   }
 }
 
-export const VALID_CATEGORIES = ['AM_NHAC', 'SAN_KHAU', 'THE_THAO', 'HOI_THAO', 'WORKSHOP', 'THAM_QUAN', 'KHAC'];
+export const VALID_CATEGORIES = EVENT_CATEGORY_KEYS;
 export const VALID_LOCATION_MODES = ['OFFLINE', 'ONLINE', 'HYBRID', 'TBA'];
 
 export function isValidUrl(value) {
@@ -159,11 +160,41 @@ export function isValidPhone(value) {
   return /^[0-9+() -]{8,20}$/.test(value.trim());
 }
 
+export const CONFIG_LIMITS = Object.freeze({
+  maxTicketsPerOrder: {min: 1, max: 20},
+  holdMinutes: {min: 1, max: 60},
+});
+
+/**
+ * Validates the optional per-event purchase configuration (CAU_HINH_SU_KIEN).
+ * @param {{holdMinutes?: unknown, maxTicketsPerOrder?: unknown} | null | undefined} configuration
+ */
+export function validateEventConfiguration(configuration) {
+  if (configuration == null) return;
+  if (typeof configuration !== 'object') {
+    throw new Error('Cấu hình bán vé không hợp lệ.');
+  }
+  const checks = [
+    ['maxTicketsPerOrder', 'Số vé tối đa mỗi đơn'],
+    ['holdMinutes', 'Thời gian giữ chỗ (phút)'],
+  ];
+  for (const [key, label] of checks) {
+    const value = configuration[key];
+    if (value === undefined || value === null || value === '') continue;
+    const n = Number(value);
+    const {min, max} = CONFIG_LIMITS[key];
+    if (!Number.isInteger(n) || n < min || n > max) {
+      throw new Error(`${label} phải là số nguyên từ ${min} đến ${max}.`);
+    }
+  }
+}
+
 export function validateFullEventAggregate(input, options = {}) {
   const isPublishing = Boolean(options.isPublishing);
   if (!input || typeof input !== 'object') {
     throw new Error('Dữ liệu sự kiện không hợp lệ.');
   }
+  validateEventConfiguration(input.configuration);
 
   const name = String(input.name || '').trim();
   if (name.length < 5) {

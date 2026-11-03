@@ -32,7 +32,7 @@ export function OrganizerEmptyState({
   if (type === 'error') {
     return (
       <div className="org-empty-card organizer-empty" role="alert">
-        <div className="org-empty-icon" style={{borderColor: 'rgba(239, 68, 68, 0.4)', color: '#f87171'}}>
+        <div className="org-empty-icon" style={{borderColor: 'rgba(239, 68, 68, 0.4)', color: 'var(--org-status-danger)'}}>
           <IconAlertTriangle size={24} />
         </div>
         <h3 className="org-empty-title">Không thể nạp dữ liệu workspace</h3>

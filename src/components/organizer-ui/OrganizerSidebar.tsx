@@ -39,7 +39,7 @@ export function OrganizerSidebar({
                     className="org-select"
                     value={activeOrg?.organizationId || ''}
                     onChange={(e) => onSelectOrg(e.target.value)}
-                    style={{minHeight: '40px', fontSize: '13px'}}
+                    style={{minHeight: '44px', fontSize: '13px'}}
                   >
                     {memberships.map((m) => (
                       <option key={m.organizationId} value={m.organizationId}>

@@ -319,13 +319,15 @@ test('organizerService, scheduleService, and artistService implement mock and Su
   assert.match(orgServiceTs, /NGHE_SI\s*\(/i, 'Supabase load joins master NGHE_SI table');
 
   // 3. Fail-closed error handling: scheduleRes and artistsRes errors are never swallowed
-  assert.match(orgServiceTs, /if\s*\(\s*scheduleRes\.error\s*\)\s*\{[\s\S]*?throw\s*mapDatabaseError/i, 'loadEventForEditing fails closed on scheduleRes.error');
+  assert.match(orgServiceTs, /if\s*\(\s*scheduleRes\.error\s*&&\s*!scheduleTableMissing\s*\)\s*\{[\s\S]*?throw\s*mapDatabaseError/i, 'loadEventForEditing fails closed on real scheduleRes errors (only a dropped LICH_TRINH table is tolerated)');
+  assert.match(orgServiceTs, /\[\s*['"]42P01['"]\s*,\s*['"]PGRST205['"]\s*\]\.includes\(String\(scheduleRes\.error\?\.code\)\)/i, 'A missing LICH_TRINH table (migration 20261028100000) is not an error');
   assert.match(orgServiceTs, /if\s*\(\s*artistsRes\.error\s*\)\s*\{[\s\S]*?throw\s*mapDatabaseError/i, 'loadEventForEditing fails closed on artistsRes.error');
   assert.match(orgServiceTs, /Không thể tải lịch trình sự kiện/i, 'scheduleRes.error carries actionable context');
   assert.match(orgServiceTs, /Không thể tải danh sách nghệ sĩ/i, 'artistsRes.error carries actionable context');
 
   // 4. organizerService RPC call forwards full aggregate in p_payload
-  assert.match(orgServiceTs, /p_payload:\s*normalizedInput/i, 'RPC call forwards full normalized aggregate payload');
+  assert.match(orgServiceTs, /\.\.\.normalizedInput,\s*description:\s*embedTimelineInDescription\(/i, 'RPC payload forwards the full normalized aggregate with the schedule embedded in the description');
+  assert.match(orgServiceTs, /p_payload:\s*payload/i, 'RPC call forwards the aggregate payload');
 
   // 5. scheduleService checks mock storage for organizer events and isolates fallback
   assert.match(schedServiceTs, /localStorage\.getItem\(['"]eventticketing:mock-organizer-events['"]\)/i, 'scheduleService checks mock events in mock mode');

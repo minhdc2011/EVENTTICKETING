@@ -32,8 +32,8 @@ test('getCategoryLabel maps category keys to readable Vietnamese labels', () => 
   assert.equal(getCategoryLabel('SAN_KHAU'), 'Sân khấu');
   assert.equal(getCategoryLabel('WORKSHOP'), 'Workshop');
   assert.equal(getCategoryLabel('THAM_QUAN'), 'Tham quan');
-  assert.equal(getCategoryLabel('TRIEN_LAM'), 'Triển lãm');
-  assert.equal(getCategoryLabel('CONG_NGHE'), 'Công nghệ');
+  assert.equal(getCategoryLabel('TRIEN_LAM'), 'Tham quan');
+  assert.equal(getCategoryLabel('CONG_NGHE'), 'Hội thảo');
   assert.equal(getCategoryLabel('KHAC'), 'Sự kiện khác');
   assert.equal(getCategoryLabel('CHUA_XAC_DINH'), 'CHUA XAC DINH');
   assert.equal(getCategoryLabel(null), 'Sự kiện');

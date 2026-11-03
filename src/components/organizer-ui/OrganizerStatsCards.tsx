@@ -27,7 +27,7 @@ export function OrganizerStatsCards({
           <span className="org-stat-title">Đã công bố (Live)</span>
           <IconCheck size={18} style={{color: 'var(--org-status-success)'}} />
         </div>
-        <div className="org-stat-value" style={{color: '#86efac'}}>{publishedCount}</div>
+        <div className="org-stat-value" style={{color: 'var(--org-status-success)'}}>{publishedCount}</div>
         <div className="org-stat-hint">Đang mở bán công khai trên Marketplace</div>
       </div>
 
@@ -36,7 +36,7 @@ export function OrganizerStatsCards({
           <span className="org-stat-title">Bản nháp (Draft)</span>
           <IconEdit size={18} style={{color: 'var(--org-status-warning)'}} />
         </div>
-        <div className="org-stat-value" style={{color: '#fde047'}}>{draftCount}</div>
+        <div className="org-stat-value" style={{color: 'var(--org-status-warning)'}}>{draftCount}</div>
         <div className="org-stat-hint">Đang thiết lập, chưa hiển thị cho khán giả</div>
       </div>
     </section>

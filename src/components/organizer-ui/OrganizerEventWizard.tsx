@@ -4,6 +4,7 @@ import {
   evaluatePublishReadiness,
   isValidHttpsUrl,
   VALID_CATEGORIES,
+  CONFIG_LIMITS,
   VALID_LOCATION_MODES,
   type FullEventAggregateInput,
   type FullEventShowInput,
@@ -55,10 +56,10 @@ export type OrganizerEventWizardProps = {
   canEdit: boolean;
   onClose: () => void;
   onSaved: (
-    result: {eventId: number; slug: string; status: string},
+    result: {eventId: number; slug: string; status: string; warning?: string},
     isPublished?: boolean,
   ) => Promise<void>;
-  saveDraftAction: (data: FullEventAggregateInput) => Promise<{eventId: number; slug: string; status: string}>;
+  saveDraftAction: (data: FullEventAggregateInput) => Promise<{eventId: number; slug: string; status: string; warning?: string}>;
   publishEventAction: (eventId: number) => Promise<void> | Promise<any>;
 };
 
@@ -89,6 +90,15 @@ export function OrganizerEventWizard({
 
   function updateField<K extends keyof FullEventAggregateInput>(key: K, value: FullEventAggregateInput[K]) {
     setFormData((prev) => ({...prev, [key]: value}));
+  }
+
+  function updateConfiguration(key: 'maxTicketsPerOrder' | 'holdMinutes', raw: string) {
+    setFormData((prev) => {
+      const next = {...(prev.configuration ?? {})};
+      if (raw === '') delete next[key];
+      else next[key] = Number(raw);
+      return {...prev, configuration: next};
+    });
   }
 
   function addShow() {
@@ -358,8 +368,10 @@ export function OrganizerEventWizard({
         slug: result.slug,
       }));
       setFeedback({
-        type: 'success',
-        text: `Đã lưu bản nháp thành công! (Mã sự kiện: #${result.eventId})`,
+        type: result.warning ? 'info' : 'success',
+        text: result.warning
+          ? `Đã lưu bản nháp (Mã sự kiện: #${result.eventId}). ${result.warning}`
+          : `Đã lưu bản nháp thành công! (Mã sự kiện: #${result.eventId})`,
       });
       await onSaved(result, false);
     } catch (error) {
@@ -600,9 +612,9 @@ export function OrganizerEventWizard({
                     <div
                       className="org-category-theme-badge"
                       style={{
-                        backgroundColor: currentTheme.badgeBg,
-                        borderColor: currentTheme.badgeBorder,
-                        color: currentTheme.badgeText,
+                        backgroundColor: '#eef4fd',
+                        borderColor: '#c3d6f5',
+                        color: '#0b3f91',
                       }}
                     >
                       <span>{currentTheme.label}</span>
@@ -735,7 +747,7 @@ export function OrganizerEventWizard({
                   }}
                 >
                   <div>
-                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc'}}>
+                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--org-text-primary)'}}>
                       Danh sách suất diễn ({formData.shows.length})
                     </h4>
                     <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
@@ -746,7 +758,7 @@ export function OrganizerEventWizard({
                     type="button"
                     className="org-btn org-btn-secondary wizard-secondary-btn"
                     onClick={addShow}
-                    style={{minHeight: '38px', padding: '0 14px', fontSize: '12px'}}
+                    style={{minHeight: '44px', padding: '0 14px', fontSize: '12px'}}
                   >
                     + Thêm suất diễn
                   </button>
@@ -763,7 +775,7 @@ export function OrganizerEventWizard({
                           type="button"
                           className="org-btn org-btn-danger wizard-delete-btn"
                           onClick={() => removeShow(idx)}
-                          style={{minHeight: '32px', padding: '0 10px', fontSize: '12px'}}
+                          style={{minHeight: '44px', padding: '0 10px', fontSize: '12px'}}
                           title="Xóa suất diễn này"
                         >
                           <IconTrash size={13} />
@@ -877,7 +889,7 @@ export function OrganizerEventWizard({
                   }}
                 >
                   <div>
-                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc'}}>
+                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--org-text-primary)'}}>
                       Lịch trình hoạt động (Timeline) {(formData.schedule || []).length > 0 ? `(${formData.schedule?.length})` : ''}
                     </h4>
                     <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
@@ -898,7 +910,7 @@ export function OrganizerEventWizard({
                 {(!formData.schedule || formData.schedule.length === 0) ? (
                   <div className="org-wizard-empty-box">
                     <IconClock size={32} style={{color: 'var(--org-text-muted)', marginBottom: '12px'}} />
-                    <h5 style={{margin: '0 0 6px', fontSize: '15px', color: '#f8fafc', fontWeight: 600}}>
+                    <h5 style={{margin: '0 0 6px', fontSize: '15px', color: 'var(--org-text-primary)', fontWeight: 600}}>
                       Chưa có mục lịch trình nào
                     </h5>
                     <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.5}}>
@@ -1089,7 +1101,7 @@ export function OrganizerEventWizard({
                         type="button"
                         onClick={() => setSelectedShowIdx(idx)}
                         className={`org-btn ${selectedShowIdx === idx ? 'org-btn-primary' : 'org-btn-secondary'}`}
-                        style={{minHeight: '38px', padding: '0 12px', fontSize: '13px'}}
+                        style={{minHeight: '44px', padding: '0 12px', fontSize: '13px'}}
                       >
                         Suất #{idx + 1}: {s.name} ({s.ticketTiers.length} hạng vé)
                       </button>
@@ -1100,7 +1112,7 @@ export function OrganizerEventWizard({
                     type="button"
                     className="org-btn org-btn-secondary wizard-secondary-btn"
                     onClick={() => cloneTiersToAllShows(selectedShowIdx)}
-                    style={{minHeight: '38px', fontSize: '13px'}}
+                    style={{minHeight: '44px', fontSize: '13px'}}
                   >
                     <IconCopy size={14} />
                     <span>Sao chép phân khu của {currentShow.name} sang tất cả các suất diễn</span>
@@ -1120,7 +1132,7 @@ export function OrganizerEventWizard({
                   }}
                 >
                   <div>
-                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc'}}>
+                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--org-text-primary)'}}>
                       Hạng vé của {currentShow.name} ({currentShow.ticketTiers.length})
                     </h4>
                     <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
@@ -1131,7 +1143,7 @@ export function OrganizerEventWizard({
                     type="button"
                     className="org-btn org-btn-secondary wizard-secondary-btn"
                     onClick={() => addTier(selectedShowIdx)}
-                    style={{minHeight: '38px', padding: '0 14px', fontSize: '12px'}}
+                    style={{minHeight: '44px', padding: '0 14px', fontSize: '12px'}}
                   >
                     + Thêm hạng vé
                   </button>
@@ -1158,7 +1170,7 @@ export function OrganizerEventWizard({
                           type="button"
                           className="org-btn org-btn-danger wizard-delete-btn"
                           onClick={() => removeTier(selectedShowIdx, tIdx)}
-                          style={{minHeight: '32px', padding: '0 10px', fontSize: '12px'}}
+                          style={{minHeight: '44px', padding: '0 10px', fontSize: '12px'}}
                           title="Xóa hạng vé này"
                         >
                           <IconTrash size={13} />
@@ -1297,6 +1309,45 @@ export function OrganizerEventWizard({
                   </div>
                 ))}
               </div>
+
+              <fieldset className="org-config-fieldset" disabled={!canEdit}>
+                <legend className="org-config-legend">Quy tắc mua vé của sự kiện</legend>
+                <div className="org-grid-2 wizard-grid-2">
+                  <label className="org-label wizard-label">
+                    <span>Số vé tối đa mỗi đơn</span>
+                    <input
+                      className="org-input"
+                      type="number"
+                      inputMode="numeric"
+                      min={CONFIG_LIMITS.maxTicketsPerOrder.min}
+                      max={CONFIG_LIMITS.maxTicketsPerOrder.max}
+                      value={formData.configuration?.maxTicketsPerOrder ?? ''}
+                      onChange={(e) => updateConfiguration('maxTicketsPerOrder', e.target.value)}
+                      placeholder="4"
+                    />
+                    <span className="org-label-hint">
+                      Từ {CONFIG_LIMITS.maxTicketsPerOrder.min} đến {CONFIG_LIMITS.maxTicketsPerOrder.max}. Để trống: dùng mặc định 4.
+                      Hiện máy chủ giữ chỗ vẫn giới hạn cứng 4 vé mỗi lượt.
+                    </span>
+                  </label>
+                  <label className="org-label wizard-label">
+                    <span>Thời gian giữ chỗ (phút)</span>
+                    <input
+                      className="org-input"
+                      type="number"
+                      inputMode="numeric"
+                      min={CONFIG_LIMITS.holdMinutes.min}
+                      max={CONFIG_LIMITS.holdMinutes.max}
+                      value={formData.configuration?.holdMinutes ?? ''}
+                      onChange={(e) => updateConfiguration('holdMinutes', e.target.value)}
+                      placeholder="5"
+                    />
+                    <span className="org-label-hint">
+                      Từ {CONFIG_LIMITS.holdMinutes.min} đến {CONFIG_LIMITS.holdMinutes.max}. Để trống: dùng mặc định 5.
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
             </div>
           )}
 
@@ -1410,7 +1461,7 @@ export function OrganizerEventWizard({
                   }}
                 >
                   <div>
-                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc'}}>
+                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--org-text-primary)'}}>
                       Dàn nghệ sĩ biểu diễn (Artist Lineup) {(formData.artists || []).length > 0 ? `(${formData.artists?.length})` : ''}
                     </h4>
                     <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
@@ -1431,7 +1482,7 @@ export function OrganizerEventWizard({
                 {(!formData.artists || formData.artists.length === 0) ? (
                   <div className="org-wizard-empty-box">
                     <IconBuilding size={32} style={{color: 'var(--org-text-muted)', marginBottom: '12px'}} />
-                    <h5 style={{margin: '0 0 6px', fontSize: '15px', color: '#f8fafc', fontWeight: 600}}>
+                    <h5 style={{margin: '0 0 6px', fontSize: '15px', color: 'var(--org-text-primary)', fontWeight: 600}}>
                       Chưa có nghệ sĩ nào trong danh sách
                     </h5>
                     <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.5}}>
@@ -1768,7 +1819,7 @@ export function OrganizerEventWizard({
                     style={{
                       fontSize: '16px',
                       fontWeight: 800,
-                      color: readiness.isReady ? '#86efac' : '#fca5a5',
+                      color: readiness.isReady ? 'var(--org-status-success)' : 'var(--org-status-danger)',
                       marginTop: '8px',
                     }}
                   >
@@ -1790,7 +1841,7 @@ export function OrganizerEventWizard({
 
               {/* Traffic Light Checklist */}
               <div className="wizard-checklist-container">
-                <h4 style={{margin: '0 0 12px', fontSize: '15px', color: '#f8fafc', fontWeight: 700}}>
+                <h4 style={{margin: '0 0 12px', fontSize: '15px', color: 'var(--org-text-primary)', fontWeight: 700}}>
                   Bảng tiêu chí sẵn sàng xuất bản:
                 </h4>
 
@@ -1909,9 +1960,9 @@ export function OrganizerEventWizard({
                 onClick={handlePublish}
                 disabled={!readiness.isReady || busyPublish || busyDraft || !canEdit}
                 style={{
-                  backgroundColor: readiness.isReady ? 'var(--org-lime)' : '#334155',
-                  color: readiness.isReady ? '#000' : '#94a3b8',
-                  borderColor: readiness.isReady ? 'var(--org-lime)' : '#334155',
+                  backgroundColor: readiness.isReady ? 'var(--et-blue, #0353c2)' : '#c7d0db',
+                  color: readiness.isReady ? '#ffffff' : '#2b3440',
+                  borderColor: readiness.isReady ? 'var(--et-blue, #0353c2)' : '#c7d0db',
                   cursor: readiness.isReady ? 'pointer' : 'not-allowed',
                 }}
                 title={!readiness.isReady ? 'Cần khắc phục tất cả blocker trước khi công bố' : undefined}

@@ -1,3 +1,4 @@
+import {CATEGORY_ORGANIZER_LABELS} from '../../domain/categories.js';
 export function getDefaultDraftDates() {
   const now = new Date();
   const addDays = (d, days, hours = 19, minutes = 0) => {
@@ -37,18 +38,7 @@ export const ROLE_LABELS = {
   SOAT_VE: 'Soát vé (Chỉ xem)',
 };
 
-export const CATEGORY_LABELS = {
-  AM_NHAC: 'Âm nhạc / Ca nhạc',
-  SAN_KHAU: 'Sân khấu / Kịch nói',
-  THE_THAO: 'Thể thao / Giải đấu',
-  HOI_THAO: 'Hội thảo / Tọa đàm',
-  WORKSHOP: 'Workshop / Đào tạo',
-  TRIEN_LAM: 'Triển lãm / Hội chợ',
-  GIAI_TRI: 'Giải trí / Lễ hội',
-  CONG_DONG: 'Cộng đồng / Thiện nguyện',
-  THAM_QUAN: 'Tham quan / Trải nghiệm',
-  KHAC: 'Khác',
-};
+export const CATEGORY_LABELS = CATEGORY_ORGANIZER_LABELS;
 
 export const LOCATION_MODE_LABELS = {
   OFFLINE: 'Trực tiếp tại địa điểm (Offline)',

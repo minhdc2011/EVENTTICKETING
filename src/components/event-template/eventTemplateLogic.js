@@ -1,4 +1,5 @@
 // @ts-check
+import {CATEGORY_SHORT_LABELS, resolveCategoryKey} from '../../domain/categories.js';
 
 export const SALE_STATUS = Object.freeze({
   UPCOMING: 'UPCOMING',
@@ -7,17 +8,7 @@ export const SALE_STATUS = Object.freeze({
   CLOSED: 'CLOSED',
 });
 
-const CATEGORY_MAP = Object.freeze({
-  AM_NHAC: 'Âm nhạc',
-  HOI_THAO: 'Hội thảo',
-  THE_THAO: 'Thể thao',
-  SAN_KHAU: 'Sân khấu',
-  WORKSHOP: 'Workshop',
-  THAM_QUAN: 'Tham quan',
-  TRIEN_LAM: 'Triển lãm',
-  CONG_NGHE: 'Công nghệ',
-  KHAC: 'Sự kiện khác',
-});
+const CATEGORY_MAP = CATEGORY_SHORT_LABELS;
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
@@ -152,8 +143,9 @@ export function formatDateShort(isoString) {
 export function getCategoryLabel(categoryKey) {
   if (!categoryKey) return 'Sự kiện';
   const normalized = String(categoryKey).trim().toUpperCase();
-  if (normalized in CATEGORY_MAP) {
-    return CATEGORY_MAP[normalized];
+  const key = resolveCategoryKey(normalized);
+  if (key) {
+    return CATEGORY_MAP[key];
   }
   return normalized.replaceAll('_', ' ');
 }
