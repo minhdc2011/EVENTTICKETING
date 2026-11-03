@@ -94,14 +94,13 @@ exclude:
   - bun.lock
   - supabase/.temp
 
-# Database, schema and data layer are frozen. Agents may READ them (specs, analysis), but the solve/fix guard
-# rejects any diff that touches them, and CLI agents are told never to modify them.
+# Database and schema are frozen. Agents may READ them (specs, analysis), but the solve/fix guard rejects any
+# diff that touches them, and CLI agents are told never to modify them.
+# The client data layer (src/services, src/types, src/domain/seatRealtime.js) was unlocked on 2026-11-03 by the
+# user for the SPEC.md rebuild; changes there must keep the database contract (tables, columns, RPC signatures).
 protect:
   - supabase
   - "*.sql"
-  - src/services
-  - src/types
-  - src/domain/seatRealtime.js
   - docs
 
 # agentkit solve: every change must pass these before review (lint + node tests + vite build).

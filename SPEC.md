@@ -866,3 +866,36 @@ Mock chỉ **mô phỏng phía client** (form, luồng màn hình, lưu trong lo
     - Các cột thống kê `SoGheMauDemo`, `SoGheTrong`, `SoGheDaBan`, `SoGheDangGiu`, `TyLeLapDayPhanTram` chỉ có trong `public/data_zones.json`; không có view hay cột DB tương ứng trong migration.
     - Seed đặt `TongSoGhe` của khu đứng bằng 200 (`20260927120000_…sql:7-9`), trong khi lưới ghế mẫu chỉ có 12 ghế mỗi khu.
 16. **Mức xác minh chung.** Shape và hành vi backend ở mục 4 và 5 lấy từ migration và service trong repo. Chưa kiểm tra DB staging đã áp đủ 13 migration hay chưa; điều này ảnh hưởng trực tiếp tới ghi chú 2.
+
+### 6.1 Kế hoạch xử lý mục 6
+
+Phạm vi được duyệt (03/11/2026): được sửa giao diện và lớp dữ liệu phía client (`src/services`, `src/types`, `src/domain`). **Không** sửa `supabase/`, `*.sql`, `docs/`. Mục nào cần đổi database thì ghi vào mục 7 kèm lý do.
+Trang thực hiện: P1 Catalog · P2 Chi tiết sự kiện và sơ đồ ghế · P3 Super Concert · P4 Tài khoản khách · P5 Cổng BTC · P6 Hệ thống.
+
+- [ ] (6-1, P6) Cập nhật `src/types/database.types.ts` theo migration: thêm 6 bảng còn thiếu, bỏ `LICH_TRINH`, bổ sung cột và RPC đang dùng, giảm `as any` trong service
+- [ ] (6-2a, P5) Mở sự kiện để sửa không còn lỗi khi bảng `LICH_TRINH` không tồn tại (`organizerService.ts` – `loadEventForEditing`)
+- [ ] (6-2b, P5) Lịch trình nhập trong wizard được lưu ở chế độ thật
+- [ ] (6-3, P6) Đơn hàng, vé, thanh toán
+- [ ] (6-4, P2) Thống nhất định danh sự kiện/suất gửi khi giữ chỗ giữa sơ đồ React và runtime concert
+- [ ] (6-5a, P2) Sơ đồ React có luồng chọn số lượng vé đứng (`DUNG_STAND`) cho sự kiện không phải concert
+- [ ] (6-5b, P2) Liên kết lựa chọn hạng vé với sơ đồ ghế
+- [ ] (6-5c, P5) Sinh bản ghi `GHE` cho hạng `GHE_NGOI` của sự kiện do BTC tạo
+- [ ] (6-6, P2) Giới hạn số vé mỗi đơn và thời hạn giữ chỗ phía client đọc từ cấu hình (`SoVeToiDaMoiDon`, `ThoiGianGiuChoPhut`) thay vì ghi cứng
+- [ ] (6-7, P2) Số vé còn lại của khu đứng trừ các lượt đang giữ
+- [ ] (6-8, P5) Thống nhất danh sách thể loại giữa DB, `VALID_CATEGORIES`, `CATEGORY_LABELS`, `CATEGORY_MAP`
+- [ ] (6-9, P3) Thống nhất cách nhận diện Super Concert (không dựa vào `SuKienID === 1`)
+- [ ] (6-10, P2) Sơ đồ ghế tự cập nhật trạng thái bán khi tới giờ mở/đóng bán, không cần tải lại trang
+- [ ] (6-11a, P6) Path lạ, `account/:sub` và `organizer/:other` không hợp lệ hiển thị trang 404
+- [ ] (6-11b, P2) Chỉ tải bản xem trước khi URL có `preview=1`
+- [ ] (6-12, P5) Giao diện cho vai trò `ADMIN`, nâng loại tài khoản và mời thành viên vào tổ chức
+- [ ] (6-13, P5) Wizard gửi khóa `configuration`; client đọc `CAU_HINH_SU_KIEN`, `DIA_DIEM`, `PHIEN_BAN_SO_DO` khi cần
+- [ ] (6-14, P6) Dọn mã chết và fragment không được render
+- [ ] (6-15, P6) Sửa lệch dữ liệu nhỏ (`metadata.json` ghi 96 ghế; thống kê chỉ có trong `data_zones.json`)
+- [ ] (6-16, P6) Xác minh trên DB staging đã áp đủ migration
+
+## 7. Chưa làm được
+
+Mục nào bị kẹt được ghi ở đây kèm lý do và việc cần làm tiếp; checkbox tương ứng ở trên vẫn để trống.
+
+| Mục | Lý do | Cần gì để làm tiếp |
+|---|---|---|

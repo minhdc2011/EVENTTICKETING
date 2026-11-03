@@ -69,6 +69,69 @@ export function formatEventDateTime(isoString) {
   return dateTimeFormatter.format(parsed);
 }
 
+const dateBlockFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'short',
+  day: '2-digit',
+  month: 'numeric',
+  timeZone: 'Asia/Ho_Chi_Minh',
+});
+
+const timeFormatter = new Intl.DateTimeFormat('vi-VN', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+  timeZone: 'Asia/Ho_Chi_Minh',
+});
+
+const WEEKDAY_LABELS = Object.freeze({
+  Mon: 'THỨ 2',
+  Tue: 'THỨ 3',
+  Wed: 'THỨ 4',
+  Thu: 'THỨ 5',
+  Fri: 'THỨ 6',
+  Sat: 'THỨ 7',
+  Sun: 'CN',
+});
+
+/**
+ * Splits an ISO date into WEEKDAY / MONTH / DAY labels (Asia/Ho_Chi_Minh).
+ * @param {string | null | undefined} isoString
+ * @returns {{weekday: string, month: string, day: string}}
+ */
+export function formatEventDateBlock(isoString) {
+  const parsed = isoString ? new Date(isoString) : null;
+  if (!parsed || Number.isNaN(parsed.getTime())) return {weekday: '', month: '', day: ''};
+  const parts = Object.fromEntries(dateBlockFormatter.formatToParts(parsed).map((p) => [p.type, p.value]));
+  return {
+    weekday: WEEKDAY_LABELS[parts.weekday] || '',
+    month: `THÁNG ${parts.month}`,
+    day: parts.day,
+  };
+}
+
+/**
+ * Formats the time of day (HH:mm) of an ISO date.
+ * @param {string | null | undefined} isoString
+ * @returns {string}
+ */
+export function formatEventTime(isoString) {
+  if (!isoString) return '';
+  const parsed = new Date(isoString);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return timeFormatter.format(parsed);
+}
+
+/**
+ * Picks the featured event: the first event in the list (events[0]). Null when empty, null, or undefined.
+ * @template T
+ * @param {T[] | null | undefined} events
+ * @returns {T | null}
+ */
+export function pickFeaturedEvent(events) {
+  if (!Array.isArray(events) || events.length === 0) return null;
+  return events[0];
+}
+
 /**
  * Formats an ISO date into short DD/MM/YYYY.
  * @param {string | null | undefined} isoString
