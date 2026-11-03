@@ -737,7 +737,7 @@ export function OrganizerEventWizard({
                     <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc'}}>
                       Danh sách suất diễn ({formData.shows.length})
                     </h4>
-                    <span style={{fontSize: '12px', color: 'var(--org-text-muted)'}}>
+                    <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
                       Mỗi suất diễn có khung thời gian và giá vé riêng biệt.
                     </span>
                   </div>
@@ -879,7 +879,7 @@ export function OrganizerEventWizard({
                     <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc'}}>
                       Lịch trình hoạt động (Timeline) {(formData.schedule || []).length > 0 ? `(${formData.schedule?.length})` : ''}
                     </h4>
-                    <span style={{fontSize: '12px', color: 'var(--org-text-muted)'}}>
+                    <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
                       Tùy chọn. Khán giả có thể xem timeline chi tiết trên trang sự kiện như Super Concert.
                     </span>
                   </div>
@@ -900,7 +900,7 @@ export function OrganizerEventWizard({
                     <h5 style={{margin: '0 0 6px', fontSize: '15px', color: '#f8fafc', fontWeight: 600}}>
                       Chưa có mục lịch trình nào
                     </h5>
-                    <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-muted)', lineHeight: 1.5}}>
+                    <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.5}}>
                       Lịch trình là tùy chọn. Nếu để trống, mục lịch trình sẽ tự động ẩn trên trang công khai. Bạn có thể thêm các mốc như Check-in, Soundcheck, Khai mạc hoặc Biểu diễn.
                     </p>
                     <button
@@ -1122,7 +1122,7 @@ export function OrganizerEventWizard({
                     <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc'}}>
                       Hạng vé của {currentShow.name} ({currentShow.ticketTiers.length})
                     </h4>
-                    <span style={{fontSize: '12px', color: 'var(--org-text-muted)'}}>
+                    <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
                       Tổng sức chứa suất này: {currentShow.ticketTiers.reduce((acc, t) => acc + (Number(t.capacity) || 0), 0)} vé
                     </span>
                   </div>
@@ -1412,7 +1412,7 @@ export function OrganizerEventWizard({
                     <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc'}}>
                       Dàn nghệ sĩ biểu diễn (Artist Lineup) {(formData.artists || []).length > 0 ? `(${formData.artists?.length})` : ''}
                     </h4>
-                    <span style={{fontSize: '12px', color: 'var(--org-text-muted)'}}>
+                    <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
                       Tùy chọn. Hiển thị dàn nghệ sĩ khách mời trên trang sự kiện tương tự Super Concert.
                     </span>
                   </div>
@@ -1433,7 +1433,7 @@ export function OrganizerEventWizard({
                     <h5 style={{margin: '0 0 6px', fontSize: '15px', color: '#f8fafc', fontWeight: 600}}>
                       Chưa có nghệ sĩ nào trong danh sách
                     </h5>
-                    <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-muted)', lineHeight: 1.5}}>
+                    <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.5}}>
                       Danh sách nghệ sĩ là tùy chọn. Đối với các concert ca nhạc, festival hay kịch nói, dàn nghệ sĩ giúp thu hút khán giả đặt vé ngay từ cái nhìn đầu tiên.
                     </p>
                     <button
@@ -1467,7 +1467,7 @@ export function OrganizerEventWizard({
                               )}
                               <span>{artist.name ? artist.name : `Nghệ sĩ #${aIdx + 1}`}</span>
                               {artist.role && (
-                                <span style={{fontSize: '12px', color: 'var(--org-text-muted)', marginLeft: '6px'}}>
+                                <span style={{fontSize: '12px', color: 'var(--org-text-secondary)', marginLeft: '6px'}}>
                                   ({artist.role})
                                 </span>
                               )}
@@ -1568,7 +1568,7 @@ export function OrganizerEventWizard({
                                     onError={(e) => (e.currentTarget.style.display = 'none')}
                                     onLoad={(e) => (e.currentTarget.style.display = 'block')}
                                   />
-                                  <span style={{fontSize: '12px', color: 'var(--org-text-muted)'}}>Ảnh xem trước</span>
+                                  <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>Ảnh xem trước</span>
                                 </div>
                               )}
                             </div>
@@ -1873,7 +1873,7 @@ export function OrganizerEventWizard({
               </a>
             )}
 
-            <span style={{fontSize: '11px', color: 'var(--org-text-muted)'}}>
+            <span style={{fontSize: '11px', color: 'var(--org-text-secondary)'}}>
               * Sau khi bán vé, giá và giờ diễn sẽ bị khóa an toàn backend.
             </span>
           </div>

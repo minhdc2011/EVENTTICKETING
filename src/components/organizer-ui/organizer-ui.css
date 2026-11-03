@@ -304,6 +304,10 @@ textarea:focus-visible {
   line-height: 1.4;
 }
 
+.wizard-modal-window .org-label-hint {
+  color: #94a3b8;
+}
+
 /* ==========================================================================
    ALERT BANNERS & STATUS BADGES
    ========================================================================== */
@@ -1078,6 +1082,11 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
+.wizard-modal-window .wizard-header-tag,
+.wizard-modal-window .org-wizard-header-tag {
+  font-size: 11px;
+}
+
 .org-wizard-header-title {
   font-size: 20px;
   font-weight: 800;
@@ -1268,6 +1277,14 @@ textarea:focus-visible {
 
 .org-category-theme-info span {
   color: #64748b;
+}
+
+.wizard-modal-window .org-category-theme-info strong {
+  color: #f8fafc;
+}
+
+.wizard-modal-window .org-category-theme-info span {
+  color: #94a3b8;
 }
 
 /* Cards inside wizard (shows, tiers) */
