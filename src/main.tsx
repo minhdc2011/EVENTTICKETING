@@ -1,6 +1,7 @@
 import {createRoot} from 'react-dom/client';
 import App from './App';
 import './index.css';
+import './components/site/tokens.css';
 
 const rootElement = document.getElementById('root');
 
