@@ -29,6 +29,7 @@ agents:
     model: claude/claude-opus-5-5-high
     # agentkit's default Claude tools lack Skill, so skills such as impeccable would be invisible
     cli_args: [--tools, Read, Grep, Glob, Skill]
+    timeout_s: 1800   # whole-repo reads (specs, audits) take longer than the 600 s default
     system: >-
       You are the MANAGER (Claude Opus 5.5). Your boss is the DIRECTOR (GPT-6 Astra); your workers are
       `sonnet` (Claude Sonnet 5.5) and `gemini` (Gemini 3.8 Flash). When planning, split the director's plan into
