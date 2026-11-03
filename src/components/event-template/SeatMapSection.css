@@ -557,7 +557,8 @@
   border-radius: 8px;
   padding: 12px 16px;
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   justify-content: space-between;
   align-items: center;
   margin: 16px auto 0;
@@ -566,10 +567,20 @@
   font-size: 12px;
 }
 
+.et-seat-info-box > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.et-seat-info-box > strong,
+.et-seat-info-box > span {
+  white-space: nowrap;
+}
+
 .et-seat-info-box small {
   color: var(--seat-muted);
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 2px;
 }
 
@@ -600,6 +611,8 @@
   padding: 20px 22px;
   border-bottom: 1px solid var(--seat-border);
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   justify-content: space-between;
   align-items: center;
 }
@@ -658,6 +671,12 @@
   gap: 10px;
 }
 
+.et-ticket-row > div:first-child,
+.et-ticket-row > div:not(.et-ticket-right) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .et-ticket-row strong {
   font: 600 13px var(--seat-font-mono);
 }
@@ -674,6 +693,12 @@
   gap: 4px;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.et-ticket-right span {
+  white-space: nowrap;
 }
 
 .et-remove-btn {
@@ -730,15 +755,22 @@
 
 .et-total-row {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
   font-size: 13px;
 }
 
+.et-total-row span {
+  white-space: nowrap;
+}
+
 .et-total-row strong {
   font-size: 24px;
   letter-spacing: -0.6px;
+  white-space: nowrap;
 }
 
 .et-fee-notice {
