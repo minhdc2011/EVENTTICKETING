@@ -908,6 +908,57 @@ textarea:focus-visible {
   margin-top: 10px;
 }
 
+/* Authenticated Session Card */
+.org-auth-session-container {
+  max-width: 680px;
+  grid-template-columns: 1fr;
+}
+
+.org-auth-session-card {
+  text-align: center;
+  padding: 48px 36px;
+}
+
+.org-auth-session-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: var(--org-radius-sm);
+  background-color: #ecfccb;
+  color: #3f6212;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.org-auth-session-title {
+  font-size: clamp(22px, 6vw, 28px);
+  font-weight: 900;
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.org-auth-session-account {
+  color: #475569;
+  font-size: 14px;
+  margin: 0 0 28px;
+  overflow-wrap: anywhere;
+}
+
+.org-auth-session-account strong,
+.org-auth-session-email {
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.org-auth-session-btn,
+.org-auth-session-card .org-btn {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
 /* Access Denied Card */
 .org-denied-wrapper {
   max-width: 680px;
@@ -1706,7 +1757,8 @@ textarea:focus-visible {
 }
 
 @media (max-width: 480px) {
-  .org-auth-card {
+  .org-auth-card,
+  .org-auth-session-card {
     padding: 24px 18px;
   }
 
