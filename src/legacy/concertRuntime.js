@@ -79,6 +79,13 @@ import {
       let activeHoldId = null;
       let stopSeatRealtimeUpdates = null;
       let lastRealtimeConnectionStatus = null;
+      let activeRuntimeRoot = null;
+      let countdownInterval = null;
+      let focusObserver = null;
+      let saleStatusHandler = null;
+      let retryButton = null;
+      let retryHandler = null;
+      let runtimeGeneration = 0;
 
       function getSaleStatus() {
         return document.body.dataset.saleStatus || 'UPCOMING';
@@ -1051,7 +1058,7 @@ import {
       };
 
       // ==========================================
-      // 4. SIDEBAR SUMMARY UPDATE (TẠM TÍNH VÉ ĐÃ CHỌN)
+      // 4. SELECTED-SEAT SUMMARY UPDATE
       // ==========================================
       function updateSidebar() {
         const listContainer = document.getElementById('selected-seats-list');
@@ -1059,6 +1066,7 @@ import {
         const summaryCount = document.getElementById('summary-count');
         const summaryTotal = document.getElementById('summary-total');
         const proceedBtn = document.getElementById('btn-proceed-booking');
+        const proceedLabel = proceedBtn?.querySelector('[data-proceed-label]');
         const clearBtn = document.getElementById('btn-clear-all-seats');
         const holdTimerContainer = document.getElementById('hold-timer-container');
 
@@ -1072,6 +1080,7 @@ import {
           summaryCount.innerText = '0 / 4 vé';
           summaryTotal.innerText = '0 VNĐ';
           proceedBtn.disabled = true;
+          if (proceedLabel) proceedLabel.textContent = 'Chọn ghế để tiếp tục →';
           if (clearBtn) clearBtn.classList.add('hidden');
           if (holdTimerContainer) holdTimerContainer.classList.add('hidden');
           stopHoldCountdown();
@@ -1101,26 +1110,21 @@ import {
 
           const itemEl = document.createElement('div');
           itemEl.dataset.selectedTicket = 'true';
-          itemEl.className = 'p-2.5 rounded-[10px] inset-dark-cell flex items-center justify-between gap-2 text-xs hover:border-amber-500/40 transition';
+          itemEl.className = 'et-ticket-row';
           itemEl.innerHTML = `
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#EAB308] shadow-sm shadow-amber-400/50"></span>
-              <div>
-                <div class="font-mono font-bold text-white">${ticketName}</div>
-                <div class="text-xs text-slate-400">${zoneName}</div>
-              </div>
+            <div>
+              <strong>${ticketName}</strong>
+              <p>${zoneName}</p>
             </div>
-            <div class="flex items-center gap-3">
-              <span class="font-bold text-amber-400 text-xs">${formatVND(ticketPrice)}</span>
+            <div class="et-ticket-right">
+              <span>${formatVND(ticketPrice)}</span>
               <button
                 type="button"
                 data-remove-ticket-id="${ticketName}"
-                class="p-1 rounded-[6px] text-slate-400 hover:text-red-400 hover:bg-white/[0.08] transition cursor-pointer"
-                title="Bỏ ghế này"
+                class="et-remove-btn"
+                aria-label="Bỏ vé ${ticketName}"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
+                ×
               </button>
             </div>
           `;
@@ -1138,6 +1142,7 @@ import {
         summaryCount.innerText = `${selectedSeatIds.size} / 4 vé`;
         summaryTotal.innerText = formatVND(totalAmount);
         proceedBtn.disabled = !isTicketSelectionEnabled();
+        if (proceedLabel) proceedLabel.textContent = `Giữ ${selectedSeatIds.size} vé tạm · 5 phút →`;
       }
 
       window.removeSingleSeat = function(ticketId) {
@@ -1271,6 +1276,7 @@ import {
       }
 
       function initConcertCountdown() {
+        if (countdownInterval) window.clearInterval(countdownInterval);
         const configuredSaleStart = document.body.dataset.saleStartsAt || '2026-10-01T10:00:00+07:00';
         const targetDate = new Date(configuredSaleStart).getTime();
 
@@ -1313,7 +1319,7 @@ import {
         }
 
         update();
-        setInterval(update, 1000);
+        countdownInterval = window.setInterval(update, 1000);
       }
 
       // ==========================================
@@ -1424,6 +1430,7 @@ import {
         }
       }
 
+      function bindStaticControls() {
       // Search Seat Input Handler
       const searchInput = document.getElementById('search-seat-input');
       if (searchInput) {
@@ -1561,6 +1568,7 @@ import {
       // Compatibility bridge for validated prototype controls that still use
       // inline handlers. These will be replaced by React callbacks in phase 2.
       window.filterByZone = filterByZone;
+      }
 
       // Format Currency (VNĐ)
       function formatVND(amount) {
@@ -1610,6 +1618,8 @@ import {
       // 11. FOCUS ON SCROLL (Sequential Section Dimming)
       // ==========================================
       function initFocusOnScroll() {
+        focusObserver?.disconnect();
+        focusObserver = null;
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
         const sectionIds = ['concert-hero', 'artist-lineup', 'pricing-section', 'seating-section'];
@@ -1629,7 +1639,7 @@ import {
           });
         }
 
-        const observer = new IntersectionObserver(entries => {
+        focusObserver = new IntersectionObserver(entries => {
           entries.forEach(entry => ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0));
           let bestId = activeSectionId;
           let bestRatio = 0;
@@ -1645,7 +1655,7 @@ import {
           threshold: [0, 0.15, 0.35]
         });
 
-        sections.forEach(section => observer.observe(section));
+        sections.forEach(section => focusObserver.observe(section));
       }
 
       function initStableModalDelegation() {
@@ -1656,31 +1666,50 @@ import {
       // ==========================================
       // INITIAL BOOTSTRAP
       // ==========================================
-      async function bootstrap() {
+      export async function initConcertRuntime(retryCount = 0) {
+        let root = document.getElementById('stadium-svg');
+        if (!root && retryCount < 20) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          return initConcertRuntime(retryCount + 1);
+        }
+        if (!document.getElementById('stadium-svg')) {
+          return;
+        }
+
+        root = document.getElementById('stadium-svg');
+        if (activeRuntimeRoot === root && root.dataset.runtimeReady === 'true') return;
+
+        teardownConcertRuntime();
+        activeRuntimeRoot = root;
+        activeRuntimeRoot.dataset.runtimeReady = 'true';
+        delete root.dataset.ready;
+        const generation = ++runtimeGeneration;
+
         initStarfield();
         initConcertCountdown();
         initFocusOnScroll();
         initStableModalDelegation();
-        // Seating map is owned by React (SeatingSection). Only initialize legacy seating if legacy SVG exists.
-        if (!document.getElementById('stadium-svg')) {
-          return;
-        }
-        document.body.addEventListener('eventticketing:sale-status', () => syncSaleAvailabilityUI({announce: true}));
-        document.getElementById('btn-retry-seating-data')?.addEventListener('click', initializeTicketingData);
+        bindStaticControls();
+        saleStatusHandler = () => syncSaleAvailabilityUI({announce: true});
+        document.body.addEventListener('eventticketing:sale-status', saleStatusHandler);
+        retryButton = document.getElementById('btn-retry-seating-data');
+        retryHandler = () => initializeTicketingData(root, generation);
+        retryButton?.addEventListener('click', retryHandler);
         if (typeof SVGSVGElement === 'undefined' || !document.createElementNS) {
           setSeatingDataState('error', new Error('Trình duyệt không hỗ trợ SVG.'));
           const errorText = document.querySelector('#seating-data-error span');
           if (errorText) errorText.textContent = 'Trình duyệt hiện tại không hỗ trợ sơ đồ SVG. Vui lòng cập nhật trình duyệt để tiếp tục.';
           return;
         }
-        await initializeTicketingData();
+        await initializeTicketingData(root, generation);
       }
 
-      async function initializeTicketingData() {
+      async function initializeTicketingData(expectedRoot = activeRuntimeRoot, generation = runtimeGeneration) {
         setSeatingDataState('loading');
         updateRealtimeConnectionStatus('CONNECTING');
         try {
           await loadDataFromDatabase();
+          if (generation !== runtimeGeneration || expectedRoot !== activeRuntimeRoot || !expectedRoot?.isConnected) return;
           mountZonesOnStadiumMap();
           renderSeats();
           syncSaleAvailabilityUI();
@@ -1691,6 +1720,7 @@ import {
           );
           setSeatingDataState('ready');
         } catch (error) {
+          if (generation !== runtimeGeneration || expectedRoot !== activeRuntimeRoot) return;
           if (stopSeatRealtimeUpdates) stopSeatRealtimeUpdates();
           stopSeatRealtimeUpdates = null;
           updateRealtimeConnectionStatus('ERROR');
@@ -1698,8 +1728,50 @@ import {
         }
       }
 
-      if (document.readyState === 'loading') {
-        window.addEventListener('DOMContentLoaded', bootstrap);
-      } else {
-        bootstrap();
+      export function teardownConcertRuntime() {
+        runtimeGeneration += 1;
+        if (stopSeatRealtimeUpdates) stopSeatRealtimeUpdates();
+        stopSeatRealtimeUpdates = null;
+        if (countdownInterval) window.clearInterval(countdownInterval);
+        countdownInterval = null;
+        if (holdTimerInterval) window.clearInterval(holdTimerInterval);
+        holdTimerInterval = null;
+        if (stadiumCameraFrame) window.clearTimeout(stadiumCameraFrame);
+        stadiumCameraFrame = null;
+        focusObserver?.disconnect();
+        focusObserver = null;
+        if (saleStatusHandler) document.body.removeEventListener('eventticketing:sale-status', saleStatusHandler);
+        saleStatusHandler = null;
+        if (retryButton && retryHandler) retryButton.removeEventListener('click', retryHandler);
+        retryButton = null;
+        retryHandler = null;
+        if (activeRuntimeRoot) {
+          delete activeRuntimeRoot.dataset.runtimeReady;
+          delete activeRuntimeRoot.dataset.ready;
+        }
+        activeRuntimeRoot = null;
+
+        // Clean up any orphaned tooltips attached to document.body
+        document.querySelectorAll('body > #svg-zone-tooltip').forEach((el) => el.remove());
+
+        // Reset camera and viewbox
+        currentStadiumViewBox = [0, 0, 1000, 1000];
+        const svg = document.getElementById('stadium-svg');
+        if (svg) {
+          svg.setAttribute('viewBox', '0 0 1000 1000');
+          delete svg.dataset.ready;
+          delete svg.dataset.runtimeReady;
+        }
+
+        selectedSeatIds.clear();
+        standingTickets.clear();
+        standingQuantities.GA_STAND_1 = 0;
+        standingQuantities.GA_STAND_2 = 0;
+        currentZoneFilter = 'ALL';
+        currentSearchQuery = '';
+        pendingMapSeat = null;
+        pendingStandingZoneCode = null;
+        activeDetailZoneCode = null;
+        activeCameraZoneCode = null;
+        dispatchSeatTooltip({visible: false});
       }

@@ -11,7 +11,6 @@ import {
   formatMoney,
   getCategoryLabel,
   getSaleStatusMeta,
-  hasAssistAction,
   hasContactContent,
   hasMediaContent,
   hasPolicyContent,
@@ -19,7 +18,6 @@ import {
   isMachineSloganToken,
   normalizeEventSlogan,
   parseTierBenefits,
-  resolveCtaState,
   resolveEventBackdrop,
   resolveHeroCta,
   SALE_STATUS,
@@ -208,112 +206,6 @@ test('determineCountdownTarget selects appropriate target date and copy per sale
   assert.match(closedRes.heading, /KẾT THÚC/);
 });
 
-test('resolveCtaState governs booking CTA actions and disabled invariants strictly', () => {
-  const sampleTier = {id: 1, name: 'VIP', price: 500000, available: 10};
-  const soldOutTier = {id: 2, name: 'Standard', price: 200000, available: 0};
-
-  // Case 1: No tiers configured
-  const noTiers = resolveCtaState({
-    saleStatus: SALE_STATUS.ON_SALE,
-    selectedTier: null,
-    hasTiers: false,
-  });
-  assert.equal(noTiers.disabled, true);
-  assert.equal(noTiers.action, 'none');
-
-  // Case 2: UPCOMING state
-  const upcoming = resolveCtaState({
-    saleStatus: SALE_STATUS.UPCOMING,
-    selectedTier: sampleTier,
-    hasTiers: true,
-  });
-  assert.equal(upcoming.disabled, true);
-  assert.equal(upcoming.action, 'upcoming');
-  assert.equal(upcoming.label, 'Sắp mở bán');
-
-  // Case 3: CLOSED state
-  const closed = resolveCtaState({
-    saleStatus: SALE_STATUS.CLOSED,
-    selectedTier: sampleTier,
-    hasTiers: true,
-  });
-  assert.equal(closed.disabled, true);
-  assert.equal(closed.action, 'closed');
-  assert.equal(closed.label, 'Đã đóng bán');
-
-  // Case 4: SOLD_OUT event
-  const soldOut = resolveCtaState({
-    saleStatus: SALE_STATUS.SOLD_OUT,
-    selectedTier: sampleTier,
-    hasTiers: true,
-  });
-  assert.equal(soldOut.disabled, true);
-  assert.equal(soldOut.action, 'sold_out');
-  assert.equal(soldOut.label, 'Hết vé');
-
-  // Case 5: ON_SALE without selected tier prompts tier selection
-  const onSaleNoSelect = resolveCtaState({
-    saleStatus: SALE_STATUS.ON_SALE,
-    selectedTier: null,
-    hasTiers: true,
-  });
-  assert.equal(onSaleNoSelect.disabled, false);
-  assert.equal(onSaleNoSelect.action, 'select_tier');
-  assert.equal(onSaleNoSelect.label, 'Chọn hạng vé');
-
-  // Case 6: ON_SALE with sold-out selected tier disables action
-  const onSaleSoldOutTier = resolveCtaState({
-    saleStatus: SALE_STATUS.ON_SALE,
-    selectedTier: soldOutTier,
-    hasTiers: true,
-  });
-  assert.equal(onSaleSoldOutTier.disabled, true);
-  assert.equal(onSaleSoldOutTier.action, 'tier_sold_out');
-  assert.equal(onSaleSoldOutTier.label, 'Hạng vé đã hết');
-
-  // Case 7: ON_SALE with available tier enables honest booking assistance CTA
-  const onSaleReady = resolveCtaState({
-    saleStatus: SALE_STATUS.ON_SALE,
-    selectedTier: sampleTier,
-    hasTiers: true,
-    hasAssistAction: true,
-  });
-  assert.equal(onSaleReady.disabled, false);
-  assert.equal(onSaleReady.action, 'checkout_assist');
-  assert.equal(onSaleReady.label, 'Liên hệ đặt vé');
-
-  // Case 8: ON_SALE with available tier but no assist action channels disables CTA
-  const onSaleNoAssist = resolveCtaState({
-    saleStatus: SALE_STATUS.ON_SALE,
-    selectedTier: sampleTier,
-    hasTiers: true,
-    hasAssistAction: false,
-  });
-  assert.equal(onSaleNoAssist.disabled, true);
-  assert.equal(onSaleNoAssist.action, 'no_assist_channel');
-  assert.equal(onSaleNoAssist.label, 'Chưa có kênh liên hệ');
-});
-
-test('hasAssistAction detects available assistance communication channels correctly', () => {
-  assert.equal(hasAssistAction({contactHotline: '0901234567'}), true);
-  assert.equal(hasAssistAction({contactEmail: 'support@event.vn'}), true);
-  assert.equal(hasAssistAction({onlineLink: 'https://zoom.us/j/123'}), true);
-  assert.equal(
-    hasAssistAction({
-      contactHotline: '0901234567',
-      contactEmail: 'support@event.vn',
-      onlineLink: 'https://zoom.us/j/123',
-    }),
-    true
-  );
-
-  // Negative cases
-  assert.equal(hasAssistAction({}), false);
-  assert.equal(hasAssistAction({contactHotline: '', contactEmail: '   ', onlineLink: null}), false);
-  assert.equal(hasAssistAction(null), false);
-  assert.equal(hasAssistAction(undefined), false);
-});
-
 test('optional sections visibility predicates collapse empty sections completely', () => {
   // Empty event record
   const emptyEvent = {};
@@ -479,6 +371,14 @@ test('public event detail architecture is unified across generic events and Supe
     new URL('../src/components/event-template/MobileStickyBar.tsx', import.meta.url),
     'utf8'
   );
+  const ticketTiersTsx = await readFile(
+    new URL('../src/components/event-template/TicketTiersSection.tsx', import.meta.url),
+    'utf8'
+  );
+  const seatingHtml = await readFile(
+    new URL('../src/legacy/fragments/seating.html', import.meta.url),
+    'utf8'
+  );
 
   // 1. Unified routing: App.tsx routes detail pages directly to GenericEventPage without separate shell or duplicate side effects
   assert.doesNotMatch(appTsx, /event\.templateKey/, 'App.tsx has no detail route branching based on templateKey');
@@ -500,8 +400,12 @@ test('public event detail architecture is unified across generic events and Supe
   assert.match(templateTsx, /<EventVenueSection/i, 'Renders shared EventVenueSection');
   assert.match(templateTsx, /<EventPolicySection/i, 'Renders shared EventPolicySection');
   assert.match(templateTsx, /<EventContactSection/i, 'Renders shared EventContactSection');
-  assert.match(templateTsx, /<BookingSummaryPanel/i, 'Renders shared BookingSummaryPanel');
+  assert.doesNotMatch(templateTsx, /<BookingSummaryPanel/i, 'Does not duplicate the seat-map selection summary with a page-level booking panel');
   assert.match(templateTsx, /<MobileStickyBar/i, 'Renders shared MobileStickyBar');
+  assert.doesNotMatch(ticketTiersTsx, /et-tier-select-btn|onSelectTier|selectedTierId/i, 'Ticket cards remain informational and never create a redundant tier-selection step');
+  assert.match(seatingHtml, /concert-selection-summary-shell/i, 'Super Concert uses the shared map-plus-summary layout pattern');
+  assert.match(seatingHtml, />Ghế đã chọn</i, 'Super Concert labels its only cart consistently with generic events');
+  assert.doesNotMatch(seatingHtml, /TẠM TÍNH VÉ ĐÃ CHỌN/i, 'Legacy duplicate cart wording is removed');
 
   assert.doesNotMatch(templateTsx, /<PricingSection/i, 'Legacy PricingSection is eliminated from the rendered path');
   assert.doesNotMatch(templateTsx, /<ConcertGuideSection/i, 'Legacy ConcertGuideSection is eliminated from the rendered path');
@@ -544,6 +448,8 @@ test('public event detail architecture is unified across generic events and Supe
   // 9. Mobile sticky bar computes minimum price dynamically from loaded tiers
   assert.match(mobileStickyTsx, /Math\.min\(\.\.\.tiers\.map/i, 'Calculates dynamic minPrice from loaded tiers');
   assert.doesNotMatch(mobileStickyTsx, /800\.000\s*(VNĐ|VND)/i, 'Mobile sticky bar contains no hard-coded 800.000 price literal');
+  assert.match(mobileStickyTsx, /Chọn chỗ & vé/i, 'Generic mobile CTA goes directly to seat selection');
+  assert.doesNotMatch(mobileStickyTsx, /Chọn hạng vé/i, 'Mobile CTA no longer advertises the removed tier-selection step');
 });
 
 test('organizer-created music event uses the shared data-driven pipeline without bespoke code', async () => {
@@ -566,7 +472,7 @@ test('organizer-created music event uses the shared data-driven pipeline without
   assert.match(templateTsx, /<EventVenueSection/i, 'Renders standard EventVenueSection');
   assert.match(templateTsx, /<EventPolicySection/i, 'Renders standard EventPolicySection');
   assert.match(templateTsx, /<EventContactSection/i, 'Renders standard EventContactSection');
-  assert.match(templateTsx, /<BookingSummaryPanel/i, 'Renders standard BookingSummaryPanel');
+  assert.doesNotMatch(templateTsx, /<BookingSummaryPanel/i, 'Organizer events keep the seat-map selection summary as the single cart');
   assert.match(templateTsx, /<MobileStickyBar/i, 'Renders shared MobileStickyBar');
 });
 

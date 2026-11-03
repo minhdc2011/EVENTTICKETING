@@ -5,7 +5,6 @@ import {type PublicArtistRecord} from '../../services/artistService';
 import type {PublicEventRecord, PublicTicketTier} from '../../services/eventService';
 import {ShowSwitcher} from './ShowSwitcher';
 import {ArtistLineupSection} from './ArtistLineupSection';
-import {BookingAssistModal, BookingSummaryPanel} from './BookingSummaryPanel';
 import {EventContactSection} from './EventContactSection';
 import {EventFooter} from './EventFooter';
 import {EventHeader} from './EventHeader';
@@ -62,8 +61,6 @@ export function EventTemplate({
   onCloseTeamInfo: propOnCloseTeamInfo,
 }: EventTemplateProps) {
   const [clock, setClock] = useState(() => Date.now());
-  const [selectedTierId, setSelectedTierId] = useState<number | null>(null);
-  const [isAssistModalOpen, setIsAssistModalOpen] = useState(false);
   const [internalScheduleOpen, setInternalScheduleOpen] = useState(false);
   const [internalSchedule, setInternalSchedule] = useState<PublicScheduleItem[]>([]);
   const [scheduleState, setScheduleState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
@@ -154,20 +151,29 @@ export function EventTemplate({
   // Load concert runtime dynamically when concert specialization is active
   useEffect(() => {
     if (!isConcert) return;
-    void import('../../legacy/concertRuntime.js').catch((error) => {
-      console.error('Không thể khởi tạo trải nghiệm concert:', error);
-    });
-  }, [isConcert]);
+    let disposed = false;
+    let disposeRuntime: (() => void) | undefined;
+
+    void import('../../legacy/concertRuntime.js')
+      .then((runtime) => {
+        if (disposed) return;
+        disposeRuntime = runtime.teardownConcertRuntime;
+        return runtime.initConcertRuntime();
+      })
+      .catch((error) => {
+        console.error('Không thể khởi tạo trải nghiệm concert:', error);
+      });
+
+    return () => {
+      disposed = true;
+      disposeRuntime?.();
+    };
+  }, [isConcert, event.id, event.selectedShow?.id]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setClock(Date.now()), 30_000);
     return () => window.clearInterval(timer);
   }, []);
-
-  // Reset selected tier when show or event changes
-  useEffect(() => {
-    setSelectedTierId(null);
-  }, [event.id, event.selectedShow.id]);
 
   // Derive sale status considering inventory availability
   const saleStatus = useMemo(() => {
@@ -194,11 +200,6 @@ export function EventTemplate({
       detail: {status: saleStatus},
     }));
   }, [event.saleStartsAt, saleStatus]);
-
-  const selectedTier = useMemo(() => {
-    if (selectedTierId === null) return null;
-    return tiers.find((tier) => tier.id === selectedTierId) || null;
-  }, [selectedTierId, tiers]);
 
   const cleanSlogan = useMemo(
     () => normalizeEventSlogan(event.slogan, event.category),
@@ -256,21 +257,18 @@ export function EventTemplate({
             )}
 
             {/* Section 02: Ticket Tiers & Pricing (Single source of truth for all events) */}
-            <div id="pricing-section" aria-hidden="true" />
+            <span id="pricing-section" className="et-section-anchor" aria-hidden="true" />
             <TicketTiersSection
               tiers={tiers}
               tierState={tierState}
-              selectedTierId={selectedTierId}
-              onSelectTier={setSelectedTierId}
               onRetry={onRetryTiers}
-              saleStatus={saleStatus}
             />
 
             {/* Specialization slot: Interactive Seating Map (defaults to data-driven SeatMapSection) */}
             {slots?.seating !== undefined ? (
               slots.seating
             ) : (
-              <SeatMapSection event={event} selectedTier={selectedTier} />
+              <SeatMapSection event={event} />
             )}
 
             {/* Section 03: Venue & Attendance (Auto-hides if empty) */}
@@ -287,14 +285,6 @@ export function EventTemplate({
             <EventContactSection event={event} />
           </div>
 
-          {/* Desktop Sticky Booking Summary Panel */}
-          <BookingSummaryPanel
-            event={event}
-            tiers={tiers}
-            selectedTier={selectedTier}
-            saleStatus={saleStatus}
-            onOpenAssistModal={() => setIsAssistModalOpen(true)}
-          />
         </main>
       </div>
 
@@ -315,13 +305,6 @@ export function EventTemplate({
       {/* Specialization slot: Concert seating runtime overlays (seat tooltip, toast container, booking modal) */}
       {slots?.overlays ?? slots?.modals}
 
-      <BookingAssistModal
-        isOpen={isAssistModalOpen}
-        onClose={() => setIsAssistModalOpen(false)}
-        event={event}
-        selectedTier={selectedTier}
-      />
-
       <ScheduleDialog
         isOpen={isScheduleOpen}
         onClose={handleCloseSchedule}
@@ -336,9 +319,7 @@ export function EventTemplate({
       <MobileStickyBar
         event={event}
         tiers={tiers}
-        selectedTier={selectedTier}
         saleStatus={saleStatus}
-        onOpenAssistModal={() => setIsAssistModalOpen(true)}
         onOpenSchedule={handleOpenSchedule}
         hasSchedule={hasSchedule}
       />

@@ -447,7 +447,6 @@ test('architectural verification: Super Concert preserves its bespoke map while 
 
   // 2. Organizer-created events still use the reusable React seat map.
   assert.match(concertSectionsTsx, /return\s+<SeatMapSection\s+\{\.\.\.props\}/i, 'Non-Super-Concert events delegate to SeatMapSection');
-
   // 3. GenericEventPage passes event into SeatingSection
   assert.match(genericPageTsx, /seating:\s*<SeatingSection\s+event=\{event\}/i, 'GenericEventPage passes event into SeatingSection');
 
@@ -457,6 +456,10 @@ test('architectural verification: Super Concert preserves its bespoke map while 
   // 5. concertRuntime.js initializes only when the bespoke SVG is present, so it
   // cannot mutate organizer-created React maps.
   assert.match(concertRuntimeJs, /if\s*\(!document\.getElementById\('stadium-svg'\)\)\s*\{\s*return;\s*\}/i, 'concertRuntime.js guards legacy seating mutations');
+  assert.match(concertRuntimeJs, /export\s+async\s+function\s+initConcertRuntime/i, 'Concert runtime exposes an explicit remount-safe initializer');
+  assert.match(concertRuntimeJs, /export\s+function\s+teardownConcertRuntime/i, 'Concert runtime exposes lifecycle cleanup for route changes');
+  assert.match(templateTsx, /runtime\.initConcertRuntime\(\)/i, 'EventTemplate reinitializes the cached runtime whenever Super Concert mounts');
+  assert.match(templateTsx, /disposeRuntime\?\.\(\)/i, 'EventTemplate tears the runtime down when leaving Super Concert');
 
   // 6. SeatMapSection implements loading, error, empty, and ready states
   assert.match(seatMapSectionTsx, /catalogState === 'loading'/i, 'Implements loading state');

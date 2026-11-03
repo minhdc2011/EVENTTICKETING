@@ -320,24 +320,165 @@
 .et-skin #seating-section {
   background: transparent !important;
 }
+.et-skin #pricing-section.et-section-anchor {
+  display: block;
+  width: 0;
+  height: 0;
+  padding: 0 !important;
+  margin: 0;
+  overflow: hidden;
+}
 .et-skin #seating-section {
   color: #1f262d;
 }
 
-/* Super Concert: the legacy SVG seat map keeps its dark stage panel, framed inside the light page */
+/* Super Concert uses the same light task layout as every other event; only the SVG canvas stays dark. */
 .et-skin.et-shell--concert #seating-section {
-  background: #0d0d0d !important;
-  color: #f1f5f9;
-  border-radius: 8px;
-  overflow: hidden;
+  background: transparent !important;
+  color: #1f262d;
   margin: 8px 0 24px;
 }
-.et-skin.et-shell--concert #seating-section h2 {
-  overflow-wrap: anywhere;
-  font-size: clamp(22px, 2.6vw, 32px);
+.et-skin.et-shell--concert #seating-section .concert-seatmap-shell {
+  width: 100%;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-heading {
+  margin: 0 0 20px;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-heading h2 {
+  margin: 0;
+  color: #1f262d;
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-heading p {
+  margin: 8px 0 0;
+  color: #525b6c;
+  font-size: 15px;
+}
+.et-skin.et-shell--concert #seating-section #seating-toolbar {
+  margin-bottom: 16px !important;
+  background: #ffffff !important;
+  border: 1px solid #d7dde5;
+  border-radius: 8px !important;
+  box-shadow: none;
+}
+.et-skin.et-shell--concert #seating-section #seating-toolbar :is(.text-slate-300, .text-slate-400, .text-slate-500) {
+  color: #525b6c !important;
+}
+.et-skin.et-shell--concert #seating-section #seating-toolbar :is(.zone-tab, .ghost-tab) {
+  background: #ffffff !important;
+  border: 1px solid #d7dde5 !important;
+  color: #3d4654 !important;
+  border-radius: 6px !important;
+}
+.et-skin.et-shell--concert #seating-section #seating-toolbar .active-gold-tab {
+  background: #eef4fd !important;
+  border-color: #0353c2 !important;
+  color: #0b3f91 !important;
+  box-shadow: none !important;
+}
+.et-skin.et-shell--concert #seating-section #search-seat-input,
+.et-skin.et-shell--concert #seating-section #seating-toolbar .inset-dark-cell {
+  background: #ffffff !important;
+  border-color: #c7d0db !important;
+  color: #1f262d !important;
+}
+.et-skin.et-shell--concert #seating-section #search-seat-input::placeholder {
+  color: #6a7485;
+}
+.et-skin.et-shell--concert #seating-section .realtime-connection-status {
+  background: #effaf3 !important;
+  border-color: #b9dfc6 !important;
+  color: #25633b !important;
+}
+.et-skin.et-shell--concert #seating-section .seating-status-legend__item {
+  color: #525b6c !important;
+  opacity: 1 !important;
+}
+.et-skin.et-shell--concert #seating-section #btn-zoom-reset {
+  color: #0353c2 !important;
+}
+.et-skin.et-shell--concert #seating-section #seating-toolbar > :first-child {
+  flex: 1 1 100%;
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+.et-skin.et-shell--concert #seating-section #seating-toolbar > :first-child > * {
+  flex: 0 0 auto;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-canvas {
+  background: #ffffff;
+  border: 1px solid #d7dde5;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+.et-skin.et-shell--concert #seating-section .stadium-map-shell {
+  border-radius: 8px;
+}
+.et-skin.et-shell--concert #seating-section :is(.stadium-map-meta, .stadium-map-instruction, .stadium-map-caption) {
+  display: none;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-workarea {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+  gap: 20px;
+  align-items: start;
+}
+.et-skin.et-shell--concert #seating-section .concert-seatmap-canvas {
+  min-width: 0;
+}
+.et-skin.et-shell--concert #seating-section .concert-selection-summary-shell {
+  position: sticky;
+  top: 88px;
+  min-width: 0;
+  color: var(--seat-fg);
+}
+.et-skin.et-shell--concert #seating-section .concert-selection-summary-shell :is(h3, strong) {
+  color: var(--seat-fg);
+}
+.et-skin.et-shell--concert #seating-section .concert-summary-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.et-skin.et-shell--concert #seating-section .concert-summary-actions .et-clear-btn {
+  min-height: 28px;
+  margin: 0;
+}
+.et-skin.et-shell--concert #seating-section .concert-summary-body {
+  max-height: 360px;
+  overflow-y: auto;
+}
+.et-skin.et-shell--concert #seating-section .concert-hold-timer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid var(--seat-amber);
+  border-radius: 8px;
+  color: var(--seat-amber);
+  font-size: 12px;
+}
+.et-skin.et-shell--concert #seating-section .concert-hold-timer.hidden {
+  display: none;
 }
 
-/* ---- Body: two-column layout, tickets/map on the left, sticky summary on the right ---- */
+@media (max-width: 850px) {
+  .et-skin.et-shell--concert #seating-section .concert-seatmap-workarea {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .et-skin.et-shell--concert #seating-section .concert-selection-summary-shell {
+    position: static;
+  }
+}
+
+/* ---- Body: one reading column; the seat map owns the only transactional summary ---- */
 .et-skin .et-body-surface {
   background: #f4f6f8;
   border-top: 0;
@@ -357,8 +498,7 @@
 .et-skin .et-section-kicker {
   color: #0353c2;
 }
-.et-skin .et-booking-primary-btn,
-.et-skin .et-tier-select-btn {
+.et-skin .et-booking-primary-btn {
   border-radius: 6px;
 }
 .et-skin .et-booking-primary-btn {
@@ -394,10 +534,6 @@
   color: #525b6c;
 }
 
-/* Map and selection summary stack inside the content column (the page already has a sticky right column) */
-.et-skin .et-seatmap-workarea {
-  grid-template-columns: minmax(0, 1fr);
-}
 .et-skin .et-legend {
   background: #f4f6f8;
 }
