@@ -1,5 +1,6 @@
 import type {FormEvent} from 'react';
 import {IconSearch} from '../common/Icons';
+import './site.css';
 
 export type SearchBlockProps = {
   value: string;
