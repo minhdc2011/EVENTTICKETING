@@ -8,23 +8,20 @@ import {
   subscribeBuyerAuth,
   type BuyerSession,
 } from '../services/buyerAuthService';
-import {
-  IconArrowRight,
-  IconBuilding,
-  IconCalendar,
-  IconCheck,
-  IconEye,
-  IconEyeOff,
-  IconShieldCheck,
-  IconTicket,
-  IconUser,
-} from './common/Icons';
+import {IconBuilding, IconEye, IconEyeOff, IconUser} from './common/Icons';
+import {GlobalHeader} from './site/GlobalHeader';
+import './site/auth.css';
 
 const onSpaNav = (target: string) => (e: MouseEvent) => {
   if (!e.metaKey && !e.ctrlKey) {
     e.preventDefault();
     navigatePublicRoute(target);
   }
+};
+
+const ACCOUNT_KIND_LABELS: Record<string, string> = {
+  ORGANIZER: 'Ban tổ chức (được phép mua vé)',
+  ADMIN: 'Quản trị viên hệ thống',
 };
 
 export function BuyerAuth({page}: {page?: string}) {
@@ -40,11 +37,12 @@ export function BuyerAuth({page}: {page?: string}) {
   const [message, setMessage] = useState<{type: 'error' | 'success'; text: string} | null>(null);
 
   useEffect(() => {
-    document.title =
-      mode === 'register'
-        ? 'Đăng ký tài khoản người mua vé | EventTicketing'
-        : 'Đăng nhập tài khoản người mua vé | EventTicketing';
-  }, [mode]);
+    document.title = session
+      ? 'Tài khoản của tôi | EventTicketing'
+      : mode === 'register'
+      ? 'Đăng ký tài khoản người mua vé | EventTicketing'
+      : 'Đăng nhập tài khoản người mua vé | EventTicketing';
+  }, [mode, session]);
 
   useEffect(() => {
     if (page === 'register') setMode('register');
@@ -56,6 +54,11 @@ export function BuyerAuth({page}: {page?: string}) {
     const unsub = subscribeBuyerAuth(setSession);
     return unsub;
   }, []);
+
+  function switchMode(next: 'login' | 'register') {
+    setMode(next);
+    setMessage(null);
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -121,381 +124,233 @@ export function BuyerAuth({page}: {page?: string}) {
     }
   }
 
+  const messageBox = message && (
+    <div
+      className={`et-auth__message et-auth__message--${message.type}`}
+      role={message.type === 'error' ? 'alert' : 'status'}
+    >
+      {message.text}
+    </div>
+  );
+
   return (
-    <div className="marketplace-shell">
-      {/* Navigation Header */}
-      <header className="marketplace-nav">
-        <a
-          href={buildPublicPath(window.location.pathname, 'events')}
-          onClick={onSpaNav('events')}
-          className="marketplace-logo"
-        >
-          EV<span>ENT</span><span className="marketplace-logo-sub">TICKETING</span>
-        </a>
-        <nav aria-label="Điều hướng">
-          <a
-            href={buildPublicPath(window.location.pathname, 'events')}
-            onClick={onSpaNav('events')}
-            className="marketplace-nav-link"
-          >
-            ← Khám phá sự kiện
-          </a>
-          <a
-            href={buildPublicPath(window.location.pathname, 'organizer')}
-            onClick={onSpaNav('organizer')}
-            className="marketplace-organizer-link"
-          >
-            Dành cho BTC →
-          </a>
-        </nav>
-      </header>
+    <div className="et-site et-auth-page">
+      <GlobalHeader session={session} onSignOut={handleSignOut} />
 
-      {/* Main Authentication & Account Experience */}
-      <main className="buyer-auth-shell">
-        <div className="buyer-auth-container">
-          {session ? (
-            /* Logged-In User Account Overview */
-            <div className="buyer-auth-profile-card">
-              <div className="buyer-auth-profile-header">
-                <div className="buyer-auth-avatar">
-                  <IconUser size={28} />
-                </div>
-                <div>
-                  <span className="buyer-auth-kicker">TÀI KHOẢN KHÁN GIẢ ĐÃ XÁC THỰC</span>
-                  <h2>{session.fullName || session.email.split('@')[0]}</h2>
-                  <p className="buyer-auth-sub">
-                    {session.accountKind === 'ORGANIZER'
-                      ? 'Tài khoản của bạn có quyền Ban tổ chức và được phép mua vé sự kiện.'
-                      : 'Chào mừng bạn trở lại! Quản lý phiên đăng nhập cá nhân và truy cập danh mục sự kiện công khai.'}
-                  </p>
-                </div>
+      <main className="et-auth__main">
+        {session ? (
+          <section className="et-auth__card" aria-labelledby="account-title">
+            <div className="et-auth__profile-head">
+              <div className="et-auth__avatar" aria-hidden="true">
+                <IconUser size={28} />
               </div>
-
-              {/* Account details box */}
-              <div className="buyer-auth-profile-box">
-                <div className="buyer-auth-profile-row">
-                  <span>Địa chỉ Email</span>
-                  <strong>{session.email}</strong>
-                </div>
-                {session.fullName && (
-                  <div className="buyer-auth-profile-row">
-                    <span>Họ và tên</span>
-                    <strong>{session.fullName}</strong>
-                  </div>
-                )}
-                <div className="buyer-auth-profile-row">
-                  <span>Loại tài khoản</span>
-                  <strong className="buyer-auth-role-tag">
-                    {session.accountKind === 'ORGANIZER'
-                      ? 'Ban tổ chức (Được phép mua vé)'
-                      : session.accountKind === 'ADMIN'
-                      ? 'Quản trị viên hệ thống'
-                      : 'Khán giả / Người mua vé'}
-                  </strong>
-                </div>
-                <div className="buyer-auth-profile-row">
-                  <span>Trạng thái tài khoản</span>
-                  <strong className="buyer-auth-status-tag">
-                    <span className="buyer-auth-status-dot" /> Đang hoạt động
-                  </strong>
-                </div>
-              </div>
-
-              {/* Reassurance Feature Highlights */}
-              <div className="buyer-auth-perks">
-                <div className="buyer-auth-perk-item">
-                  <IconCalendar size={18} className="buyer-auth-perk-icon" />
-                  <div>
-                    <strong>Theo dõi lịch diễn & suất diễn</strong>
-                    <span>Cập nhật ngày giờ, địa điểm và trạng thái theo từng suất diễn thực tế.</span>
-                  </div>
-                </div>
-                <div className="buyer-auth-perk-item">
-                  <IconShieldCheck size={18} className="buyer-auth-perk-icon" />
-                  <div>
-                    <strong>Bảo vệ phiên & Phân quyền an toàn</strong>
-                    <span>Quản lý phiên đăng nhập an toàn với Supabase Auth và phân định vai trò rõ ràng.</span>
-                  </div>
-                </div>
-              </div>
-
-              {message && (
-                <div className={`buyer-auth-message buyer-auth-message--${message.type}`} role={message.type === 'error' ? 'alert' : 'status'}>
-                  {message.text}
-                </div>
-              )}
-
-              {/* Action buttons */}
-              <div className="buyer-auth-actions-group">
-                <button
-                  type="button"
-                  className="buyer-auth-submit"
-                  onClick={() => navigatePublicRoute('events')}
-                >
-                  Khám phá danh mục sự kiện →
-                </button>
-
-                <button
-                  type="button"
-                  className="marketplace-logout buyer-auth-logout-btn"
-                  onClick={handleSignOut}
-                  disabled={busy}
-                >
-                  {busy ? 'Đang xử lý…' : 'Đăng xuất tài khoản'}
-                </button>
-              </div>
-
-              {/* Link to Organizer Studio */}
-              <div className="buyer-auth-organizer-box">
-                <div className="buyer-auth-organizer-text">
-                  <IconBuilding size={16} />
-                  <span>Bạn là đơn vị tổ chức biểu diễn, hội thảo hoặc sự kiện?</span>
-                </div>
-                <a
-                  href={buildPublicPath(window.location.pathname, 'organizer')}
-                  onClick={onSpaNav('organizer')}
-                >
-                  Mở Studio BTC →
-                </a>
+              <div>
+                <p className="et-auth__kicker">Tài khoản của tôi</p>
+                <h1 id="account-title" className="et-auth__title">
+                  {session.fullName || session.email.split('@')[0]}
+                </h1>
               </div>
             </div>
-          ) : (
-            /* Logged-Out Login / Register Forms with Reassurance Side Panel */
-            <div className="buyer-auth-split-layout">
-              {/* Left Side: Consumer Reassurance Panel */}
-              <div className="buyer-auth-reassurance-panel">
-                <span className="buyer-auth-kicker">EVENTTICKETING PASS</span>
-                <h2>Quản lý tài khoản sự kiện tập trung và an toàn</h2>
-                <p>
-                  Tài khoản cá nhân giúp bạn đăng nhập an toàn, tra cứu lịch diễn, theo dõi tình trạng mở bán và chuyển đổi vai trò Ban tổ chức khi cần thiết.
-                </p>
 
-                <div className="buyer-auth-trust-list">
-                  <div className="buyer-auth-trust-point">
-                    <div className="buyer-auth-trust-badge">
-                      <IconTicket size={16} />
-                    </div>
-                    <div>
-                      <strong>Phân khu & Tồn kho thực tế</strong>
-                      <span>Dữ liệu hạng vé, giá bán và số lượng vé được cập nhật trực tiếp từ hệ thống.</span>
-                    </div>
-                  </div>
-
-                  <div className="buyer-auth-trust-point">
-                    <div className="buyer-auth-trust-badge">
-                      <IconCalendar size={16} />
-                    </div>
-                    <div>
-                      <strong>Lịch diễn đa suất minh bạch</strong>
-                      <span>Thông tin thời gian bắt đầu, kết thúc và địa điểm tổ chức chi tiết cho từng suất.</span>
-                    </div>
-                  </div>
-
-                  <div className="buyer-auth-trust-point">
-                    <div className="buyer-auth-trust-badge">
-                      <IconShieldCheck size={16} />
-                    </div>
-                    <div>
-                      <strong>Bảo mật tài khoản qua Supabase Auth</strong>
-                      <span>Xác thực an toàn qua hệ thống Supabase Auth và phân định quyền hạn tài khoản rõ ràng.</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="buyer-auth-reassurance-quote">
-                  <IconCheck size={14} className="buyer-auth-quote-icon" />
-                  <span>Dữ liệu sự kiện được đồng bộ trực tiếp từ không gian phát hành của Ban tổ chức.</span>
-                </div>
+            <dl className="et-auth__profile-list">
+              <div>
+                <dt>Email</dt>
+                <dd>{session.email}</dd>
               </div>
-
-              {/* Right Side: Form Card */}
-              <div className="buyer-auth-card">
-                {/* Tabs */}
-                <div className="buyer-auth-tabs" role="group" aria-label="Chọn chế độ đăng nhập hoặc đăng ký">
-                  <button
-                    type="button"
-                    aria-pressed={mode === 'login'}
-                    className={mode === 'login' ? 'is-active' : ''}
-                    onClick={() => {
-                      setMode('login');
-                      setMessage(null);
-                    }}
-                  >
-                    Đăng nhập
-                  </button>
-                  <button
-                    type="button"
-                    aria-pressed={mode === 'register'}
-                    className={mode === 'register' ? 'is-active' : ''}
-                    onClick={() => {
-                      setMode('register');
-                      setMessage(null);
-                    }}
-                  >
-                    Đăng ký
-                  </button>
+              {session.fullName && (
+                <div>
+                  <dt>Họ và tên</dt>
+                  <dd>{session.fullName}</dd>
                 </div>
+              )}
+              <div>
+                <dt>Loại tài khoản</dt>
+                <dd>
+                  <span className="et-auth__tag">
+                    {ACCOUNT_KIND_LABELS[session.accountKind ?? ''] ?? 'Khán giả / Người mua vé'}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>Trạng thái</dt>
+                <dd>
+                  <span className="et-auth__tag et-auth__tag--ok">Đang hoạt động</span>
+                </dd>
+              </div>
+            </dl>
 
-                <p className="generic-kicker">EVENTTICKETING · KHÁN GIẢ</p>
-                <h1>{mode === 'login' ? 'Đăng nhập tài khoản' : 'Đăng ký tài khoản'}</h1>
-                <p className="buyer-auth-sub">
-                  {mode === 'login'
-                    ? 'Đăng nhập tài khoản cá nhân để quản lý phiên và khám phá các sự kiện công khai.'
-                    : 'Đăng ký tài khoản cá nhân để theo dõi thông tin sự kiện và phân quyền tài khoản an toàn.'}
-                </p>
+            {messageBox}
 
-                <form onSubmit={handleSubmit} className="buyer-auth-form">
-                  {mode === 'register' && (
-                    <label>
-                      Họ và tên (không bắt buộc)
-                      <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Nguyễn Văn A"
-                        autoComplete="name"
-                      />
-                    </label>
-                  )}
+            <div className="et-auth__actions">
+              <button type="button" className="et-auth__btn et-auth__btn--primary" onClick={() => navigatePublicRoute('events')}>
+                Khám phá sự kiện
+              </button>
+              <button
+                type="button"
+                className="et-auth__btn et-auth__btn--secondary"
+                onClick={handleSignOut}
+                disabled={busy}
+              >
+                {busy ? 'Đang xử lý…' : 'Đăng xuất'}
+              </button>
+            </div>
 
-                  <label>
-                    Email
+            <div className="et-auth__aside-link">
+              <span>
+                <IconBuilding size={16} /> Bạn là đơn vị tổ chức sự kiện?
+              </span>
+              <a href={buildPublicPath(window.location.pathname, 'organizer')} onClick={onSpaNav('organizer')}>
+                Mở Studio BTC →
+              </a>
+            </div>
+          </section>
+        ) : (
+          <section className="et-auth__card" aria-labelledby="auth-title">
+            <div className="et-auth__tabs" role="tablist" aria-label="Chọn chế độ đăng nhập hoặc đăng ký">
+              <button
+                type="button"
+                role="tab"
+                id="auth-tab-login"
+                aria-selected={mode === 'login'}
+                aria-controls="auth-panel"
+                className={mode === 'login' ? 'is-active' : ''}
+                onClick={() => switchMode('login')}
+              >
+                Đăng nhập
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="auth-tab-register"
+                aria-selected={mode === 'register'}
+                aria-controls="auth-panel"
+                className={mode === 'register' ? 'is-active' : ''}
+                onClick={() => switchMode('register')}
+              >
+                Đăng ký
+              </button>
+            </div>
+
+            <div id="auth-panel" role="tabpanel" aria-labelledby={`auth-tab-${mode}`}>
+              <h1 id="auth-title" className="et-auth__title">
+                {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
+              </h1>
+              <p className="et-auth__sub">
+                {mode === 'login'
+                  ? 'Đăng nhập để quản lý phiên và khám phá các sự kiện công khai.'
+                  : 'Tạo tài khoản khán giả để theo dõi thông tin sự kiện.'}
+              </p>
+
+              <form onSubmit={handleSubmit} className="et-auth__form" noValidate={false}>
+                {mode === 'register' && (
+                  <label className="et-auth__field">
+                    <span>Họ và tên (không bắt buộc)</span>
                     <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="ban@vidu.com"
-                      required
-                      autoComplete="email"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Nguyễn Văn A"
+                      autoComplete="name"
                     />
                   </label>
+                )}
 
-                  <label>
-                    Mật khẩu
-                    <div className="buyer-auth-password-wrap">
+                <label className="et-auth__field">
+                  <span>Email</span>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="ban@vidu.com"
+                    required
+                    autoComplete="email"
+                  />
+                </label>
+
+                <label className="et-auth__field">
+                  <span>Mật khẩu</span>
+                  <div className="et-auth__password">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Tối thiểu 6 ký tự"
+                      required
+                      minLength={6}
+                      autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                    />
+                    <button
+                      type="button"
+                      className="et-auth__toggle"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                      aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
+                    </button>
+                  </div>
+                </label>
+
+                {mode === 'register' && (
+                  <label className="et-auth__field">
+                    <span>Xác nhận mật khẩu</span>
+                    <div className="et-auth__password">
                       <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Tối thiểu 6 ký tự"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Nhập lại mật khẩu"
                         required
                         minLength={6}
-                        autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                        autoComplete="new-password"
                       />
                       <button
                         type="button"
-                        className="buyer-auth-password-toggle"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                        aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                        className="et-auth__toggle"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        title={showConfirmPassword ? 'Ẩn mật khẩu xác nhận' : 'Hiện mật khẩu xác nhận'}
+                        aria-label={showConfirmPassword ? 'Ẩn mật khẩu xác nhận' : 'Hiện mật khẩu xác nhận'}
+                        aria-pressed={showConfirmPassword}
                       >
-                        {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                        {showConfirmPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
                       </button>
                     </div>
                   </label>
+                )}
 
-                  {mode === 'register' && (
-                    <label>
-                      Xác nhận mật khẩu
-                      <div className="buyer-auth-password-wrap">
-                        <input
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="Nhập lại mật khẩu"
-                          required
-                          minLength={6}
-                          autoComplete="new-password"
-                        />
-                        <button
-                          type="button"
-                          className="buyer-auth-password-toggle"
-                          onClick={() => setShowConfirmPassword((prev) => !prev)}
-                          title={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                          aria-label={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                        >
-                          {showConfirmPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
-                        </button>
-                      </div>
-                    </label>
-                  )}
+                {messageBox}
 
-                  {message && (
-                    <div
-                      className={`buyer-auth-message buyer-auth-message--${message.type}`}
-                      role={message.type === 'error' ? 'alert' : 'status'}
-                    >
-                      {message.text}
-                    </div>
-                  )}
+                <button type="submit" className="et-auth__btn et-auth__btn--primary et-auth__btn--block" disabled={busy}>
+                  {busy ? 'Đang xử lý…' : mode === 'login' ? 'Đăng nhập' : 'Đăng ký tài khoản'}
+                </button>
+              </form>
 
-                  <button type="submit" className="buyer-auth-submit" disabled={busy}>
-                    {busy
-                      ? 'Đang xử lý…'
-                      : mode === 'login'
-                      ? 'Đăng nhập ngay →'
-                      : 'Đăng ký tài khoản →'}
-                  </button>
-
-                  <div className="buyer-auth-switch">
-                    {mode === 'login' ? (
-                      <>
-                        Chưa có tài khoản?{' '}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMode('register');
-                            setMessage(null);
-                          }}
-                        >
-                          Đăng ký ngay
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        Đã có tài khoản?{' '}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMode('login');
-                            setMessage(null);
-                          }}
-                        >
-                          Đăng nhập
-                        </button>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="buyer-auth-organizer-box">
-                    <span>Bạn là Ban tổ chức sự kiện?</span>
-                    <a
-                      href={buildPublicPath(window.location.pathname, 'organizer/login')}
-                      onClick={onSpaNav('organizer/login')}
-                    >
-                      Đăng nhập Studio BTC →
-                    </a>
-                  </div>
-                </form>
-              </div>
+              <p className="et-auth__switch">
+                {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}{' '}
+                <button type="button" onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}>
+                  {mode === 'login' ? 'Đăng ký ngay' : 'Đăng nhập'}
+                </button>
+              </p>
             </div>
-          )}
-        </div>
+
+            <div className="et-auth__aside-link">
+              <span>Bạn là Ban tổ chức sự kiện?</span>
+              <a href={buildPublicPath(window.location.pathname, 'organizer/login')} onClick={onSpaNav('organizer/login')}>
+                Đăng nhập Studio BTC →
+              </a>
+            </div>
+          </section>
+        )}
       </main>
 
-      {/* Footer */}
-      <footer className="marketplace-footer">
-        <div className="marketplace-footer-bottom">
-          <b>EVENTTICKETING</b>
-          <span>Nền tảng khám phá và quản lý sự kiện tiêu chuẩn Việt Nam.</span>
-          <a
-            href={buildPublicPath(window.location.pathname, 'organizer')}
-            onClick={onSpaNav('organizer')}
-          >
-            Dành cho Ban tổ chức →
-          </a>
-        </div>
-      </footer>
+      <div className="et-auth__footer" role="contentinfo">
+        <b>EVENTTICKETING</b>
+        <span>Nền tảng khám phá và quản lý sự kiện tiêu chuẩn Việt Nam.</span>
+        <a href={buildPublicPath(window.location.pathname, 'organizer')} onClick={onSpaNav('organizer')}>
+          Dành cho Ban tổ chức →
+        </a>
+      </div>
     </div>
   );
 }

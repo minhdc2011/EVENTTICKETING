@@ -3481,10 +3481,13 @@
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 10px;
+  gap: 0;
 }
 
 .marketplace-footer-nav-col a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: #475569;
   font-size: 13px;
   text-decoration: none;
@@ -3522,6 +3525,9 @@
 }
 
 .marketplace-footer-btc-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: #0f172a;
   font-weight: 700;
   text-decoration: none;
@@ -5177,7 +5183,7 @@
   }
   .marketplace-categories button {
     padding: 0 14px;
-    min-height: 40px;
+    min-height: 44px;
     font-size: 11.5px;
   }
   .organizer-auth .org-auth-card {

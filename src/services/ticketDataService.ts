@@ -18,10 +18,10 @@ async function fetchJson<T>(url: string): Promise<T> {
 export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
   const active = getActiveEventContext();
   if (!runtimeConfig.useMockData && isSupabaseConfigured()) {
-    const supabase = requireSupabaseClient() as any;
+    const supabase = requireSupabaseClient();
     let {data: zoneRows, error: zoneError} = await supabase
       .from('KHU_VUC')
-      .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex')
+      .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex, LoaiKhuVuc, TongSoGhe')
       .eq('SuatDienID', active.showId)
       .order('KhuVucID');
 
@@ -29,7 +29,7 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
       const legacyResult = await supabase.from('KHU_VUC')
         .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex')
         .eq('SuKienID', active.eventDatabaseId).order('KhuVucID');
-      zoneRows = legacyResult.data;
+      zoneRows = legacyResult.data as typeof zoneRows; // legacy schema: LoaiKhuVuc and TongSoGhe are absent
       zoneError = legacyResult.error;
     }
     if (zoneError) throw zoneError;
@@ -40,6 +40,8 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
       TenKhuVuc: zone.TenKhuVuc,
       GiaVeNiemYet: Number(zone.GiaVeNiemYet),
       MauSacHex: zone.MauSacHex,
+      LoaiKhuVuc: zone.LoaiKhuVuc === 'DUNG_STAND' ? 'DUNG_STAND' : 'GHE_NGOI',
+      TongSoGhe: zone.TongSoGhe == null ? undefined : Number(zone.TongSoGhe),
     }));
 
     if (zones.length === 0) {

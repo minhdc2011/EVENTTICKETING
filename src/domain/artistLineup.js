@@ -1,3 +1,4 @@
+import {isSuperConcertEvent} from './superConcert.js';
 /**
  * Public artist domain helpers and seeded Super Concert artist records.
  * Provides defensive normalization for Supabase relational rows and mock fallbacks.
@@ -144,18 +145,7 @@ export function sortArtists(artists) {
   return [...artists].sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || (a.id ?? 0) - (b.id ?? 0));
 }
 
-/**
- * Checks if an event is the Super Concert.
- */
-export function isSuperConcertEvent(event) {
-  if (!event) return false;
-  return (
-    event.templateKey === 'SUPER_CONCERT_2026' ||
-    event.code === 'SUPER_CONCERT_2026' ||
-    event.id === 1 ||
-    event.slug === 'super-concert-2026'
-  );
-}
+export {isSuperConcertEvent};
 
 /**
  * Resolves public artists in mock fallback mode.

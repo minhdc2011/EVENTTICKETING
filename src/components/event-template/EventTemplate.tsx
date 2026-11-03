@@ -3,7 +3,7 @@ import {deriveSaleStatus} from '../../domain/eventStatus';
 import {loadPublicSchedule, type PublicScheduleItem} from '../../services/scheduleService';
 import {type PublicArtistRecord} from '../../services/artistService';
 import type {PublicEventRecord, PublicTicketTier} from '../../services/eventService';
-import {ShowSwitcher} from '../EventCatalog';
+import {ShowSwitcher} from './ShowSwitcher';
 import {ArtistLineupSection} from './ArtistLineupSection';
 import {BookingAssistModal, BookingSummaryPanel} from './BookingSummaryPanel';
 import {EventContactSection} from './EventContactSection';
@@ -20,6 +20,7 @@ import {TeamInfoDialog} from './TeamInfoDialog';
 import {TicketTiersSection} from './TicketTiersSection';
 import {normalizeEventSlogan} from './eventTemplateLogic.js';
 import './event-template.css';
+import './event-detail.css';
 
 export type EventTemplateSlots = {
   ambient?: ReactNode;
@@ -206,7 +207,7 @@ export function EventTemplate({
 
   return (
     <div
-      className={`et-shell ${isConcert ? 'et-shell--concert' : ''}`}
+      className={`et-shell et-site et-skin ${isConcert ? 'et-shell--concert' : ''}`}
       data-category={event.category || 'AM_NHAC'}
     >
       <div className="et-stage-ambient" aria-hidden="true" />
@@ -269,7 +270,7 @@ export function EventTemplate({
             {slots?.seating !== undefined ? (
               slots.seating
             ) : (
-              <SeatMapSection event={event} />
+              <SeatMapSection event={event} selectedTier={selectedTier} />
             )}
 
             {/* Section 03: Venue & Attendance (Auto-hides if empty) */}

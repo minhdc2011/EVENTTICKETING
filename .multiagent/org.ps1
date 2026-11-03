@@ -1,4 +1,4 @@
-# Team hierarchy on agentkit (agents are defined in .agentkit.yaml):
+﻿# Team hierarchy on agentkit (agents are defined in .agentkit.yaml):
 #
 #   director (Codex GPT-6 Astra)   1. writes the plan for the manager           -> agentkit run @director
 #   manager  (Claude Opus 5.5)     2. splits the plan into tasks, assigns them   -> agentkit fix --from plan
@@ -14,6 +14,8 @@
 #   -PlanOnly  : stop after the manager's task list, nothing is edited
 #   -Yes       : run every task the manager plans, without asking
 #   -NoScreens : skip the screenshot step (non-UI work)
+#   -Revise <run dir> -Branch <agentkit/id> : director said REVISE. Workers fix the director's feedback on top of that
+#                branch (new branch from its worktree), then steps 5-7 run again in a new run dir.
 # With $env:AGENTKIT_MOCK=1 the agentkit steps are mocked and the director review is skipped (no quota used).
 param(
     [string]$Task,
@@ -21,6 +23,8 @@ param(
     [switch]$Yes,
     [switch]$PlanOnly,
     [switch]$NoScreens,
+    [string]$Revise,
+    [string]$Branch,
     [string]$DirectorModel = "gpt-6-astra",
     [int]$BeforePort = 3201,
     [int]$AfterPort = 3202
@@ -34,6 +38,11 @@ $OutputEncoding = $utf8
 
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $repo
+if ($Revise) {
+    $Revise = (Resolve-Path $Revise).Path
+    if (-not $Branch) { throw "-Revise needs -Branch (the agentkit/<id> branch the director reviewed)" }
+    $Task = Get-Content -Raw -Encoding UTF8 "$Revise\task.md"
+}
 if ($TaskFile) { $Task = Get-Content -Raw -Encoding UTF8 $TaskFile }
 if (-not $Task) { throw "Provide -Task or -TaskFile" }
 $Task = $Task.Replace('"', "'")   # Windows PowerShell 5.1 mangles embedded double quotes in native args
@@ -46,6 +55,29 @@ New-Item -ItemType Directory -Force $runAbs | Out-Null
 function Step($msg) { Write-Host "`n=== $msg ===" -ForegroundColor Cyan }
 function Check($what) { if ($LASTEXITCODE -ne 0) { throw "$what failed (exit $LASTEXITCODE). Outputs: $run" } }
 
+function Find-Worktree($br) {
+    $found = $null; $cur = $null
+    foreach ($line in (git worktree list --porcelain)) {
+        if ($line -like "worktree *") { $cur = $line.Substring(9) }
+        elseif ($line -eq "branch refs/heads/$br") { $found = $cur }
+    }
+    if (-not $found) { throw "No worktree found for $br" }
+    return (Resolve-Path $found).Path
+}
+
+$before = @(git branch --list "agentkit/*" --format "%(refname:short)")
+if ($Revise) {
+    # 1) The plan stays the director's original one
+    Copy-Item "$Revise\1-director-plan.md" "$runAbs\1-director-plan.md"
+    Copy-Item "$Revise\5-director-review.md" "$runAbs\0-previous-review.md"
+    $prevWt = Find-Worktree $Branch
+    Step "2/7 REVISE: manager assigns the director's feedback to the workers, on top of $Branch"
+    $fixArgs = @("--repo", $prevWt, "fix", "--from", "$runAbs\0-previous-review.md")
+    if ($Yes) { $fixArgs += "--yes" }
+    if ($PlanOnly) { $fixArgs += "--plan-only" }
+    $fixArgs += "Fix every blocking item of the director's review in this file (the original plan is $runAbs\1-director-plan.md). Split into tasks and assign each to sonnet or gemini."
+    agentkit @fixArgs
+} else {
 # 1) Director plans for the manager
 Step "1/7 Director (GPT-6 Astra) writes the plan"
 agentkit run --no-live --name org-plan --out "$run/1-director-plan.md" `
@@ -54,12 +86,12 @@ Check "director plan"
 
 # 2-4) Manager splits and assigns; workers do the work; manager reviews each diff
 Step "2/7 Manager (Opus 5.5) assigns tasks to the workers (sonnet, gemini) and reviews their diffs"
-$before = @(git branch --list "agentkit/*" --format "%(refname:short)")
 $fixArgs = @("fix", "--from", "$run/1-director-plan.md")
 if ($Yes) { $fixArgs += "--yes" }
 if ($PlanOnly) { $fixArgs += "--plan-only" }
 $fixArgs += "Carry out the director's plan in this file. Split it into tasks and assign each one to sonnet or gemini."
 agentkit @fixArgs
+}
 # exit 3 = some tasks were not approved; the approved ones are still committed, so report on them
 if ($LASTEXITCODE -ne 3) { Check "agentkit fix" }
 if ($PlanOnly) { Step "Plan only: done. Director plan: $run/1-director-plan.md"; exit 0 }
@@ -68,13 +100,9 @@ $branch = @(git branch --list "agentkit/*" --format "%(refname:short)") | Where-
 if (-not $branch) { throw "agentkit fix did not create a branch (nothing confirmed, or stopped). Outputs: $run" }
 
 # The branch lives in its own worktree: every later step reads THAT version, not the main checkout
-$wt = $null; $cur = $null
-foreach ($line in (git worktree list --porcelain)) {
-    if ($line -like "worktree *") { $cur = $line.Substring(9) }
-    elseif ($line -eq "branch refs/heads/$branch") { $wt = $cur }
-}
-if (-not $wt) { throw "No worktree found for $branch" }
-$wt = (Resolve-Path $wt).Path
+$wt = Find-Worktree $branch
+[IO.File]::WriteAllText((Join-Path $runAbs "branch.txt"), $branch, $utf8)
+
 git diff "HEAD...$branch" | Out-File -Encoding utf8 "$run/2-diff.patch"
 git log --oneline "HEAD..$branch" | Out-File -Encoding utf8 "$run/2-commits.txt"
 $planJson = Get-ChildItem "$env:USERPROFILE\.agentkit\plans" -Filter "*.json" | Sort-Object LastWriteTime | Select-Object -Last 1
@@ -101,10 +129,16 @@ if (-not $NoScreens) {
     }
     if ((Test-Path "$repo\.env.local") -and -not (Test-Path "$wt\.env.local")) { Copy-Item "$repo\.env.local" "$wt\.env.local" }
     $env:VITE_USE_MOCK_DATA = "true"   # never touch the real database while capturing
-    $servers = @(
-        Start-Process node -ArgumentList "node_modules/vite/bin/vite.js", "--port", $BeforePort, "--strictPort" -WorkingDirectory $repo -PassThru -WindowStyle Hidden
-        Start-Process node -ArgumentList "node_modules/vite/bin/vite.js", "--port", $AfterPort, "--strictPort" -WorkingDirectory $wt -PassThru -WindowStyle Hidden
-    )
+    # The worktree links node_modules from this checkout, so each server needs its own Vite dependency cache
+    # (shared node_modules/.vite corrupts the pre-bundled React: blank pages, "reading 'useCallback'").
+    $captureConfig = "`"$PSScriptRoot\vite.capture.mjs`""
+    $servers = @()
+    foreach ($srv in @(@{ Dir = $repo; Port = $BeforePort; Cache = "before" }, @{ Dir = $wt; Port = $AfterPort; Cache = "after" })) {
+        $env:CAPTURE_CACHE_DIR = "$runAbs\vite-cache-$($srv.Cache)"
+        $servers += Start-Process node -ArgumentList "node_modules/vite/bin/vite.js", "--config", $captureConfig, "--port", $srv.Port, "--strictPort", "--force" `
+            -WorkingDirectory $srv.Dir -PassThru -WindowStyle Hidden
+    }
+    Remove-Item Env:CAPTURE_CACHE_DIR -ErrorAction SilentlyContinue
     try {
         foreach ($port in $BeforePort, $AfterPort) {
             $ok = $false
@@ -126,11 +160,18 @@ if (-not $NoScreens) {
 
 # 6) Manager reports to the director, reading the branch worktree
 Step "6/7 Manager writes the report for the director"
+# The manager runs with --repo = worktree and can only read inside it: copy the evidence there (gitignored path).
+$ev = ".multiagent/runs/$(Split-Path $run -Leaf)"
+$evAbs = Join-Path $wt $ev
+New-Item -ItemType Directory -Force "$evAbs\shots" | Out-Null
+Get-ChildItem $runAbs -File | Copy-Item -Destination $evAbs
+if (Test-Path "$runAbs\shots\audit-compare.txt") { Copy-Item "$runAbs\shots\audit-compare.txt" "$evAbs\shots\" }
+Copy-Item $planJson.FullName "$evAbs\task-plan.json"
 agentkit --repo $wt run --no-live --name org-report --out "$runAbs/4-manager-report.md" (
     "@manager Write your REPORT TO THE DIRECTOR on the work your team just finished on branch $branch (this checkout). " +
-    "Read: the director's plan $runAbs/1-director-plan.md; your task plan $($planJson.FullName); " +
-    "the approved commits $runAbs/2-commits.txt (tasks with no commit were rejected or not run); the full diff $runAbs/2-diff.patch; " +
-    "the gate log $runAbs/3-gate.log (exit $gateExit); the before/after layout audit $runAbs/shots/audit-compare.txt. " +
+    "Read (paths relative to this checkout): the director's plan $ev/1-director-plan.md; your task plan $ev/task-plan.json; " +
+    "the approved commits $ev/2-commits.txt (tasks with no commit were rejected or not run); the full diff $ev/2-diff.patch; " +
+    "the gate log $ev/3-gate.log (exit $gateExit); the before/after layout audit $ev/shots/audit-compare.txt. " +
     "Include: summary, task table (task / worker / result / your review), files changed, how each acceptance criterion is met " +
     "and with what evidence (code reading, gate, screenshot audit), what is NOT verified, open issues.")
 Check "manager report"
@@ -146,6 +187,7 @@ The current directory is the worktree of branch ${branch}: it already CONTAINS t
 checkout's HEAD. The change set is: git diff HEAD...$branch run in $repo, also saved as $runAbs/2-diff.patch.
 
 Read: your plan $runAbs/1-director-plan.md ; the manager's report $runAbs/4-manager-report.md .
+$(if ($Revise) { "This is a REVISION. Your previous review (check every blocking item is fixed): $runAbs/0-previous-review.md" })
 Gate (npm run check on this worktree): exit $gateExit
 $gateTail
 
@@ -178,5 +220,5 @@ if ($review -match "VERDICT:\s*APPROVED") {
     Step "REVISE requested by the director. Branch: $branch (not merged)"
     Write-Host "Feedback: $run/5-director-review.md"
     Write-Host "To revise on top of this branch (keeps the approved commits):"
-    Write-Host "  agentkit --repo `"$wt`" fix --from `"$runAbs/5-director-review.md`" `"Fix the director's feedback`""
+    Write-Host "  powershell -NoProfile -ExecutionPolicy Bypass -File .multiagent\org.ps1 -Yes -Revise `"$run`" -Branch $branch"
 }

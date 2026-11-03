@@ -1,5 +1,7 @@
 import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
+import {resolveTemplateKey} from '../domain/superConcert.js';
+import {stripTimelineFromDescription} from '../domain/eventTimeline.js';
 
 export type PublicShowRecord = {
   id: number; slug: string; name: string; startsAt: string; endsAt: string;
@@ -97,8 +99,8 @@ function mapEvent(row: Record<string, unknown>, shows: PublicShowRecord[], reque
     id: Number(row.SuKienID), code: String(row.Slug || runtimeConfig.eventId),
     slug: deduplicateSlug(String(row.Slug || runtimeConfig.eventId)).toLowerCase(), name: String(row.TenSuKien),
     slogan: row.Slogan ? String(row.Slogan) : undefined,
-    description: row.MoTaChiTiet ? String(row.MoTaChiTiet) : undefined,
-    templateKey: row.TemplateKey === 'SUPER_CONCERT_2026' || Number(row.SuKienID) === 1 ? 'SUPER_CONCERT_2026' : 'DEFAULT',
+    description: stripTimelineFromDescription(row.MoTaChiTiet ? String(row.MoTaChiTiet) : '') || undefined,
+    templateKey: resolveTemplateKey(row),
     category: String(row.TheLoai || 'KHAC'),
     bannerUrl: row.BannerURL ? String(row.BannerURL) : undefined,
     posterUrl: row.PosterURL ? String(row.PosterURL) : undefined,
@@ -133,7 +135,8 @@ function legacyShow(row: Record<string, unknown>): PublicShowRecord {
 }
 
 function legacySlug(row: Record<string, unknown>) {
-  return Number(row.SuKienID) === 1 ? 'super-concert-2026' : `su-kien-${row.SuKienID}`;
+  // Older deployments have no Slug column: the configured concert id (VITE_EVENT_DATABASE_ID) keeps the concert slug.
+  return Number(row.SuKienID) === runtimeConfig.eventDatabaseId ? 'super-concert-2026' : `su-kien-${row.SuKienID}`;
 }
 
 export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
@@ -170,7 +173,7 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
     return (await response.json() as {data: PublicEventSummary[]}).data;
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   const {data, error} = await supabase.from('SU_KIEN')
     .select('SuKienID, Slug, TenSuKien, Slogan, MoTaChiTiet, TenSanVanDong, ThoiGianBatDau, TrangThaiCongBo, TemplateKey, TheLoai, BannerURL, PosterURL, SUAT_DIEN(SuatDienID)')
     .eq('TrangThaiCongBo', 'CONG_KHAI').order('ThoiGianBatDau');
@@ -205,7 +208,7 @@ export async function loadPublicEvent(
   const normalizedSlug = deduplicateSlug(eventSlug);
   if (runtimeConfig.useMockData) {
     const fallbackSlug = runtimeConfig.eventId.toLowerCase().replaceAll('_', '-');
-    let mockEvent = MOCK_EVENTS.find((item) => item.slug === normalizedSlug || (item.id === 1 && normalizedSlug === fallbackSlug));
+    let mockEvent = MOCK_EVENTS.find((item) => item.slug === normalizedSlug || (item.code.toLowerCase().replaceAll('_', '-') === normalizedSlug && normalizedSlug === fallbackSlug));
     if (!mockEvent) {
       try {
         const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
@@ -262,7 +265,7 @@ export async function loadPublicEvent(
     return (await response.json() as {data: PublicEventRecord}).data;
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   let eventRow = null;
   const {data: directRow, error: eventError} = await supabase.from('SU_KIEN').select('*')
     .eq('Slug', normalizedSlug).eq('TrangThaiCongBo', 'CONG_KHAI').maybeSingle();
@@ -340,7 +343,7 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
   }
   if (!isSupabaseConfigured()) return event.templateKey === 'SUPER_CONCERT_2026' ? SUPER_CONCERT_TIERS : [];
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   const {data, error} = await supabase.from('KHU_VUC')
     .select('KhuVucID, MaKhuVuc, TenKhuVuc, GiaVeNiemYet, MauSacHex, MoTaQuyenLoi, TongSoGhe, GHE(TrangThai)')
     .eq('SuatDienID', event.selectedShow.id).order('GiaVeNiemYet');
@@ -350,6 +353,28 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
     const available = seats.length ? seats.filter((seat: Record<string, unknown>) => seat.TrangThai === 'TRONG').length : Number(row.TongSoGhe || 0);
     return {id: Number(row.KhuVucID), code: String(row.MaKhuVuc), name: String(row.TenKhuVuc), price: Number(row.GiaVeNiemYet), color: String(row.MauSacHex || '#84cc16'), description: row.MoTaQuyenLoi ?? undefined, capacity: Number(row.TongSoGhe || 0), available};
   });
+}
+
+export type PublicPurchaseConfig = {maxTicketsPerOrder: number | null; holdMinutes: number | null};
+
+/** Per-event purchase configuration (CAU_HINH_SU_KIEN). Null values mean "not configured": callers use defaults. */
+export async function loadEventPurchaseConfig(event: Pick<PublicEventRecord, 'id'>): Promise<PublicPurchaseConfig> {
+  const empty: PublicPurchaseConfig = {maxTicketsPerOrder: null, holdMinutes: null};
+  if (runtimeConfig.useMockData || !isSupabaseConfigured()) return empty;
+  try {
+    const {requireSupabaseClient} = await import('./supabaseClient');
+    const supabase = requireSupabaseClient();
+    const {data, error} = await supabase.from('CAU_HINH_SU_KIEN')
+      .select('SoVeToiDaMoiDon, ThoiGianGiuChoPhut').eq('SuKienID', event.id).maybeSingle();
+    if (error || !data) return empty;
+    return {
+      maxTicketsPerOrder: data.SoVeToiDaMoiDon == null ? null : Number(data.SoVeToiDaMoiDon),
+      holdMinutes: data.ThoiGianGiuChoPhut == null ? null : Number(data.ThoiGianGiuChoPhut),
+    };
+  } catch (error) {
+    console.warn('Không đọc được cấu hình mua vé, dùng giá trị mặc định:', error);
+    return empty;
+  }
 }
 
 export type {PublicArtist, PublicArtistRecord} from './artistService';

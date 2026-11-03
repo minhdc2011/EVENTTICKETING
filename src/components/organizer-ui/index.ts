@@ -9,3 +9,4 @@ export * from './OrganizerAuthView';
 export * from './OrganizerAccessDeniedView';
 export * from './OrganizerEventWizard';
 import './organizer-ui.css';
+import './organizer-skin.css';

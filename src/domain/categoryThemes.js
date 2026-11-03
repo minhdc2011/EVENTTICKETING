@@ -1,4 +1,5 @@
 // @ts-check
+import {EVENT_CATEGORY_KEYS, resolveCategoryKey} from './categories.js';
 
 /**
  * @typedef {Object} CategoryTheme
@@ -19,15 +20,7 @@
  * @property {string} iconSvg
  */
 
-export const CATEGORY_KEYS = Object.freeze([
-  'AM_NHAC',
-  'SAN_KHAU',
-  'THE_THAO',
-  'HOI_THAO',
-  'WORKSHOP',
-  'THAM_QUAN',
-  'KHAC',
-]);
+export const CATEGORY_KEYS = EVENT_CATEGORY_KEYS;
 
 /** @type {Record<string, CategoryTheme>} */
 export const CATEGORY_THEMES = Object.freeze({
@@ -170,18 +163,8 @@ export function getCategoryTheme(rawCategory) {
   if (!rawCategory || typeof rawCategory !== 'string') {
     return CATEGORY_THEMES.KHAC;
   }
-  const normalized = rawCategory.trim().toUpperCase();
-
-  // Direct match
-  if (CATEGORY_THEMES[normalized]) {
-    return CATEGORY_THEMES[normalized];
-  }
-
-  // Alias / Secondary mappings
-  if (normalized === 'TRIEN_LAM') return CATEGORY_THEMES.THAM_QUAN;
-  if (normalized === 'CONG_NGHE') return CATEGORY_THEMES.HOI_THAO;
-  if (normalized === 'GIAI_TRI') return CATEGORY_THEMES.AM_NHAC;
-  if (normalized === 'CONG_DONG') return CATEGORY_THEMES.KHAC;
+  const key = resolveCategoryKey(rawCategory);
+  if (key && CATEGORY_THEMES[key]) return CATEGORY_THEMES[key];
 
   return CATEGORY_THEMES.KHAC;
 }

@@ -1,0 +1,499 @@
+/* ==========================================================================
+   EVENT DETAIL — marketplace skin (light surfaces, blue primary).
+   Applied to non-concert events (.et-skin). Super Concert keeps its dark look until its own page pass.
+   Uses the shared --et-* site tokens from ../site/tokens.css (the shell also carries .et-site).
+   ========================================================================== */
+.et-shell.et-skin {
+  --et-cat-bg: #f4f6f8;
+  --seat-bg: #ffffff;
+  --seat-surface: #ffffff;
+  --seat-fg: #1f262d;
+  --seat-muted: #525b6c;
+  --seat-border: #d7dde5;
+  --seat-accent: #0353c2;
+  --seat-amber: #8a5a00;
+  --seat-danger: #b42318;
+  --seat-raised: #f4f6f8;
+  --seat-ink: #ffffff;
+  background: #f4f6f8;
+  color: #1f262d;
+}
+
+.et-skin .et-stage-ambient {
+  display: none;
+}
+
+/* ---- Secondary event navigation under the global header ---- */
+.et-skin .et-topbar {
+  position: static;
+  min-height: 48px;
+  padding: 0 clamp(16px, 4vw, 48px);
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  justify-content: flex-end;
+}
+.et-skin .et-nav-link {
+  color: #1f262d;
+}
+.et-skin .et-nav-link:hover {
+  color: #0353c2;
+  background: #eef4fd;
+}
+.et-skin .et-nav-timeline-btn {
+  background: #ffffff;
+  border-color: #c7d0db;
+  color: #1f262d;
+}
+.et-skin .et-nav-timeline-btn:hover {
+  background: #eef4fd;
+  border-color: #0353c2;
+  color: #0353c2;
+}
+.et-skin .et-nav-cta {
+  background: #0353c2;
+  border-color: #0353c2;
+  color: #ffffff;
+}
+.et-skin .et-nav-cta:hover {
+  background: #024299;
+  border-color: #024299;
+}
+
+/* ---- Event header strip (replaces the dark hero) ---- */
+.et-skin .et-hero {
+  padding: clamp(20px, 3vw, 32px) clamp(16px, 4vw, 48px);
+  background: #ffffff !important;
+  background-image: none !important;
+  border-bottom: 1px solid #e2e8f0;
+}
+.et-skin .et-hero-overlay {
+  display: none;
+}
+.et-skin .et-hero-inner {
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.7fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+}
+.et-skin .et-hero-content {
+  gap: 14px;
+}
+.et-skin .et-hero-title {
+  color: #1f262d;
+  font-size: clamp(26px, 3.2vw, 38px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-shadow: none;
+}
+.et-skin .et-hero-slogan {
+  color: #0353c2;
+  font-size: 16px;
+}
+.et-skin .et-hero-desc {
+  color: #3d4756;
+  font-size: 15px;
+  max-width: 62ch;
+}
+.et-skin .et-badge {
+  background: #eef4fd;
+  border: 1px solid #c3d6f5;
+  color: #0b3f91;
+}
+.et-skin .et-badge--sale-emerald {
+  background: #e6f6ee;
+  border-color: #b6e3cb;
+  color: #0b5b35;
+}
+.et-skin .et-badge--sale-amber {
+  background: #fff4dc;
+  border-color: #f2d58f;
+  color: #7a4a00;
+}
+.et-skin .et-badge--sale-rose {
+  background: #fde8ea;
+  border-color: #f4b7bd;
+  color: #9a1b2a;
+}
+.et-skin .et-badge--sale-slate {
+  background: #eceff3;
+  border-color: #d0d7e0;
+  color: #3d4756;
+}
+.et-skin .et-hero-meta-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.et-skin .et-meta-card {
+  background: #f4f6f8;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+.et-skin .et-meta-icon {
+  background: #ffffff;
+  border-color: #d7dde5;
+  color: #0353c2;
+}
+.et-skin .et-meta-label {
+  color: #525b6c;
+}
+.et-skin .et-meta-value {
+  color: #1f262d;
+}
+.et-skin .et-meta-sub {
+  color: #525b6c;
+}
+.et-skin .et-hero-primary-cta {
+  background: #0353c2;
+  border: 1px solid #0353c2;
+  color: #ffffff;
+  border-radius: 6px;
+  box-shadow: none;
+}
+.et-skin .et-hero-primary-cta:hover {
+  background: #024299;
+}
+.et-skin .et-hero-secondary-cta {
+  background: #ffffff;
+  border: 1px solid #0353c2;
+  color: #0353c2;
+  border-radius: 6px;
+}
+.et-skin .et-hero-secondary-cta:hover {
+  background: #eef4fd;
+}
+.et-skin .et-hero-aside {
+  gap: 12px;
+}
+.et-skin .et-countdown-card,
+.et-skin .et-poster-card {
+  background: #f4f6f8;
+  border: 1px solid #e2e8f0;
+  color: #1f262d;
+  border-radius: 8px;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.et-skin .et-countdown-status-indicator {
+  color: #0b3f91;
+}
+.et-skin .et-countdown-heading {
+  color: #1f262d;
+}
+.et-skin .et-countdown-desc,
+.et-skin .et-countdown-lbl {
+  color: #525b6c;
+}
+.et-skin .et-countdown-unit {
+  background: #ffffff;
+  border-color: #d7dde5;
+}
+.et-skin .et-countdown-val {
+  color: #0353c2;
+}
+.et-skin .et-poster-title,
+.et-skin .et-poster-date {
+  color: #1f262d;
+}
+
+/* Legacy #concert-hero rules (src/index.css) painted a full-screen dark hero: neutralise them in the skin */
+.et-skin #concert-hero {
+  min-height: 0;
+  display: block;
+  background-image: none;
+  background-color: #ffffff;
+  border-color: #e2e8f0 !important;
+}
+.et-skin #concert-hero::before {
+  display: none;
+}
+.et-skin #concert-hero h1 {
+  max-width: none;
+  font-size: clamp(26px, 3.2vw, 38px) !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.02em !important;
+  color: #1f262d;
+}
+.et-skin #concert-hero p {
+  color: #3d4756 !important;
+  max-width: 62ch;
+  line-height: 1.6;
+}
+.et-skin #concert-hero .et-hero-slogan {
+  color: #0353c2 !important;
+}
+.et-skin #concert-hero .et-meta-label,
+.et-skin #concert-hero .et-meta-sub {
+  color: #525b6c !important;
+}
+.et-skin #concert-hero .et-meta-value {
+  color: #1f262d !important;
+}
+.et-shell.et-skin[data-category] .et-badge--category,
+.et-shell.et-skin[data-category] .et-badge--category * {
+  background-color: #eef4fd;
+  border-color: #c3d6f5;
+  color: #0b3f91;
+}
+.et-skin .et-countdown-unit span {
+  color: #525b6c !important;
+}
+.et-skin .et-nav-timeline-btn .et-timeline-btn-compact {
+  display: none;
+}
+@media (max-width: 767px) {
+  .et-skin .et-nav-timeline-btn .et-timeline-btn-full {
+    display: none;
+  }
+  .et-skin .et-nav-timeline-btn .et-timeline-btn-compact {
+    display: inline;
+  }
+}
+
+/* Touch targets of the legacy seat-map toolbar and selection panels (HTML controls only; SVG seats are map geometry) */
+.et-skin.et-shell--concert #seating-section :is(button, input, select, a):not(.sr-only) {
+  min-height: 44px;
+}
+.et-skin.et-shell--concert #seating-section :is(.zone-tab, .ghost-tab) {
+  min-width: 44px;
+}
+.et-skin.et-shell--concert #seating-section :is(#btn-zoom-in, #btn-zoom-out, #btn-zoom-reset, #map-standing-minus, #map-standing-plus, #detail-standing-minus, #detail-standing-plus) {
+  min-width: 44px;
+}
+
+.et-skin #artist-lineup {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+/* ---- Show switcher as date tabs (markup: nav.show-switcher > span + a) ---- */
+.et-skin .show-switcher {
+  width: auto;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 12px clamp(16px, 4vw, 48px) 0;
+  gap: 8px;
+  overflow-x: auto;
+  align-items: center;
+}
+.et-skin .show-switcher > span {
+  background: transparent;
+  color: #525b6c;
+  padding: 0 8px 0 0;
+  white-space: nowrap;
+}
+.et-skin .show-switcher a {
+  min-width: 190px;
+  min-height: 48px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1px solid #c7d0db;
+  border-radius: 6px;
+  color: #1f262d;
+  text-decoration: none;
+}
+.et-skin .show-switcher a:hover {
+  background: #eef4fd;
+  border-color: #0353c2;
+}
+.et-skin .show-switcher a.is-active {
+  background: #0353c2;
+  border-color: #0353c2;
+}
+.et-skin .show-switcher strong {
+  color: inherit;
+}
+.et-skin .show-switcher a.is-active strong {
+  color: #ffffff;
+}
+.et-skin .show-switcher time {
+  color: #525b6c;
+}
+.et-skin .show-switcher a.is-active time {
+  color: #dbe8fb;
+}
+
+/* Legacy global dark section backgrounds (src/index.css) must not leak into the light skin */
+.et-skin #artist-lineup,
+.et-skin #pricing-section,
+.et-skin #seating-section {
+  background: transparent !important;
+}
+.et-skin #seating-section {
+  color: #1f262d;
+}
+
+/* Super Concert: the legacy SVG seat map keeps its dark stage panel, framed inside the light page */
+.et-skin.et-shell--concert #seating-section {
+  background: #0d0d0d !important;
+  color: #f1f5f9;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 8px 0 24px;
+}
+.et-skin.et-shell--concert #seating-section h2 {
+  overflow-wrap: anywhere;
+  font-size: clamp(22px, 2.6vw, 32px);
+}
+
+/* ---- Body: two-column layout, tickets/map on the left, sticky summary on the right ---- */
+.et-skin .et-body-surface {
+  background: #f4f6f8;
+  border-top: 0;
+  box-shadow: none;
+}
+.et-skin .et-main {
+  padding-top: clamp(20px, 3vw, 32px);
+  gap: clamp(20px, 3vw, 32px);
+}
+.et-skin .et-box,
+.et-skin .et-booking-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.et-skin .et-section-kicker {
+  color: #0353c2;
+}
+.et-skin .et-booking-primary-btn,
+.et-skin .et-tier-select-btn {
+  border-radius: 6px;
+}
+.et-skin .et-booking-primary-btn {
+  background: #0353c2;
+  color: #ffffff;
+  border-color: #0353c2;
+}
+.et-skin .et-booking-primary-btn:hover:not(:disabled) {
+  background: #024299;
+}
+
+/* ---- Seat map as a light card ---- */
+.et-skin .et-seatmap-root {
+  padding: 8px 0 24px;
+}
+.et-skin .et-seatmap-container {
+  padding: 0;
+}
+.et-skin .et-seatmap-card,
+.et-skin .et-seatmap-summary {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.et-skin .et-seatmap-cta {
+  background: #0353c2;
+  color: #ffffff;
+  border-radius: 6px;
+}
+.et-skin .et-seatmap-cta:disabled {
+  background: #d7dde5;
+  color: #525b6c;
+}
+
+/* Map and selection summary stack inside the content column (the page already has a sticky right column) */
+.et-skin .et-seatmap-workarea {
+  grid-template-columns: minmax(0, 1fr);
+}
+.et-skin .et-legend {
+  background: #f4f6f8;
+}
+.et-skin .et-seatmap-heading {
+  align-items: flex-start;
+}
+
+.et-skin .et-booking-hotline-note {
+  align-items: center;
+}
+.et-skin .et-booking-hotline-note a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ---- Standing ticket picker ---- */
+.et-standing {
+  margin: 12px 16px 0;
+  padding: 12px;
+  border: 1px solid var(--seat-border, #d7dde5);
+  border-radius: 8px;
+  background: var(--seat-raised, #f4f6f8);
+}
+.et-standing-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--seat-fg, #1f262d);
+}
+.et-standing-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.et-standing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.et-standing-info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.et-standing-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--seat-fg, #1f262d);
+}
+.et-standing-price {
+  font-size: 12px;
+  color: var(--seat-muted, #525b6c);
+}
+.et-standing-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.et-standing-btn {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--seat-border, #c7d0db);
+  border-radius: 6px;
+  background: var(--seat-surface, #ffffff);
+  color: var(--seat-fg, #1f262d);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.et-standing-btn:hover:not(:disabled) {
+  border-color: #0353c2;
+  color: #0353c2;
+}
+.et-standing-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.et-standing-qty {
+  min-width: 36px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--seat-fg, #1f262d);
+}
+
+@media (max-width: 767px) {
+  .et-skin .et-topbar {
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+  .et-skin .et-hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,45 @@
+/* ==========================================================================
+   EVENT TICKETING SITE DESIGN TOKENS
+   Scoped strictly to .et-site to avoid polluting auth, organizer, and legacy runtimes.
+   ========================================================================== */
+
+.et-site {
+  /* Color Palette */
+  --et-blue: #0353c2;
+  --et-blue-hover: #024299;
+  --et-on-blue: #ffffff;
+  --et-ink: #1f262d;
+  --et-ink-muted: #525b6c;
+  --et-bg: #f4f6f8;
+  --et-surface: #ffffff;
+  --et-border: #e2e8f0;
+  --et-accent: #f59e0b;
+  --et-focus: #0353c2;
+  --et-danger: #dc2626;
+
+  /* Typography */
+  --et-font: var(--font-sans);
+
+  /* Border Radii */
+  --et-radius-sm: 4px;
+  --et-radius-md: 8px;
+
+  /* Spacing Scale */
+  --et-space-1: 4px;
+  --et-space-2: 8px;
+  --et-space-3: 12px;
+  --et-space-4: 16px;
+  --et-space-5: 20px;
+  --et-space-6: 24px;
+  --et-space-7: 28px;
+  --et-space-8: 32px;
+
+  /* Elevation & Touch Target */
+  --et-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --et-tap-min: 44px;
+
+  /* Base Element Styling */
+  background: var(--et-bg);
+  color: var(--et-ink);
+  font-family: var(--et-font);
+}

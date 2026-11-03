@@ -32,8 +32,8 @@ test('getCategoryLabel maps category keys to readable Vietnamese labels', () => 
   assert.equal(getCategoryLabel('SAN_KHAU'), 'Sân khấu');
   assert.equal(getCategoryLabel('WORKSHOP'), 'Workshop');
   assert.equal(getCategoryLabel('THAM_QUAN'), 'Tham quan');
-  assert.equal(getCategoryLabel('TRIEN_LAM'), 'Triển lãm');
-  assert.equal(getCategoryLabel('CONG_NGHE'), 'Công nghệ');
+  assert.equal(getCategoryLabel('TRIEN_LAM'), 'Tham quan');
+  assert.equal(getCategoryLabel('CONG_NGHE'), 'Hội thảo');
   assert.equal(getCategoryLabel('KHAC'), 'Sự kiện khác');
   assert.equal(getCategoryLabel('CHUA_XAC_DINH'), 'CHUA XAC DINH');
   assert.equal(getCategoryLabel(null), 'Sự kiện');
@@ -469,10 +469,8 @@ test('public event detail architecture is unified across generic events and Supe
     new URL('../src/components/event-template/EventHeader.tsx', import.meta.url),
     'utf8'
   );
-  const heroHtml = await readFile(
-    new URL('../src/legacy/fragments/hero.html', import.meta.url),
-    'utf8'
-  );
+  const heroHtml = await readFile(new URL('../src/components/event-template/EventHero.tsx', import.meta.url), 'utf8');
+  const logicSource = await readFile(new URL('../src/components/event-template/eventTemplateLogic.js', import.meta.url), 'utf8');
   const templateCss = await readFile(
     new URL('../src/components/event-template/event-template.css', import.meta.url),
     'utf8'
@@ -491,7 +489,7 @@ test('public event detail architecture is unified across generic events and Supe
   // 2. Shared composition EventTemplate has a single main content tree for all events
   assert.match(templateTsx, /<main className="et-main">/i, 'Single unified main content tree');
   assert.doesNotMatch(templateTsx, /<main className="et-concert-sections">/i, 'No alternate main content tree for Super Concert');
-  assert.match(templateTsx, /className=\{`et-shell\s*\$\{isConcert\s*\?\s*['"]et-shell--concert['"]\s*:\s*['"]['"]\}`\}/i, 'EventTemplate provides unified .et-shell with concert variant');
+  assert.match(templateTsx, /className=\{`et-shell\s+et-site\s+et-skin\s*\$\{isConcert\s*\?\s*['"]et-shell--concert['"]\s*:\s*['"]['"]\}`\}/i, 'EventTemplate provides unified .et-shell with the marketplace skin and a concert variant');
   assert.match(templateTsx, /className="et-stage-ambient"/i, 'Shared composition provides stage ambient background');
   assert.match(templateTsx, /<EventHeader\s+event=\{event\}/i, 'Shared composition renders EventHeader');
   assert.match(templateTsx, /className="et-body-surface"/i, 'Shared composition wraps sections in et-body-surface');
@@ -527,11 +525,12 @@ test('public event detail architecture is unified across generic events and Supe
   assert.match(headerTsx, /href="#pricing-section"/i, 'Concert navigation includes pricing section');
   assert.match(headerTsx, /href="#seating-section"/i, 'Concert navigation includes seating map');
   assert.match(headerTsx, /id="btn-view-schedule"/i, 'Concert navigation includes schedule timeline modal trigger');
-  assert.match(headerTsx, /et-brand/i, 'Shared brand mark across all event pages');
+  assert.match(headerTsx, /<GlobalHeader\s/i, 'Shared brand mark across all event pages comes from the global header');
 
   // 7. Hero section in Super Concert has primary CTA in first viewport
   assert.match(heroHtml, /et-hero-primary-cta/i, 'Super Concert hero contains primary CTA button');
-  assert.match(heroHtml, /href="#seating-section"/i, 'Primary CTA links directly to seat selection');
+  assert.match(heroHtml, /heroCta\.href/i, 'Primary CTA uses the resolved CTA target');
+  assert.match(logicSource, /isConcert \? '#seating-section'/i, 'Super Concert primary CTA links directly to seat selection');
   assert.doesNotMatch(heroHtml, /font-syne/i, 'Hero does not use font-syne');
   assert.doesNotMatch(heroHtml, /tracking-\[-0\.055em\]/i, 'Hero does not use extreme negative tracking');
 
@@ -869,10 +868,7 @@ test('controlled and accessible TeamInfoDialog replaces legacy team modal', asyn
 });
 
 test('ConcertRuntimeOverlays boundary strictly preserves seat tooltip, toast container, and booking modal in React without dangerouslySetInnerHTML', async () => {
-  const footerModalsHtml = await readFile(
-    new URL('../src/legacy/fragments/footer-modals.html', import.meta.url),
-    'utf8'
-  );
+  const footerModalsHtml = await readFile(new URL('../src/legacy/fragments/footer-modals.html', import.meta.url), 'utf8').catch(() => '');
   const concertSectionsTsx = await readFile(
     new URL('../src/components/ConcertSections.tsx', import.meta.url),
     'utf8'

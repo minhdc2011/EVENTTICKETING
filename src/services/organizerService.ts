@@ -1,6 +1,9 @@
 import {runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
+import {embedTimelineInDescription, stripTimelineFromDescription} from '../domain/eventTimeline.js';
+import {generateSeatRows} from '../domain/seatGeneration.js';
 import type {PublicEventRecord, PublicShowRecord} from './eventService';
+import type {Json} from '../types/database.types';
 
 export type OrganizerSession = {userId: string; email: string; accountKind?: string};
 export type OrganizerMembership = {
@@ -53,6 +56,8 @@ export {
   evaluatePublishReadiness,
   VALID_CATEGORIES,
   VALID_LOCATION_MODES,
+  CONFIG_LIMITS,
+  validateEventConfiguration,
   isValidUrl,
   isValidHttpsUrl,
   isValidEmail,
@@ -87,6 +92,11 @@ const MOCK_SESSION = 'eventticketing:mock-organizer-session';
 const MOCK_ACCOUNT_KIND = 'eventticketing:mock-account-kind';
 const MOCK_EVENTS = 'eventticketing:mock-organizer-events';
 const MOCK_ORGS = 'eventticketing:mock-organizer-orgs';
+
+/** localStorage changes made in this tab do not raise `storage` events: tell the auth subscribers explicitly. */
+function notifyMockAuthChange() {
+  window.dispatchEvent(new StorageEvent('storage', {key: MOCK_SESSION}));
+}
 const mockDefaultOrg: OrganizerMembership = {
   organizationId: 'mock-org-1',
   organizationName: 'FTU Events Lab',
@@ -178,6 +188,7 @@ export async function signInOrganizer(email: string, password: string): Promise<
   if (runtimeConfig.useMockData) {
     if (!email.includes('@') || password.length < 6) throw new Error('Email hoặc mật khẩu chưa hợp lệ.');
     localStorage.setItem(MOCK_SESSION, email);
+    notifyMockAuthChange();
     return;
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
@@ -195,6 +206,7 @@ export async function signUpOrganizer(
     if (!localStorage.getItem(MOCK_ORGS)) {
       localStorage.setItem(MOCK_ORGS, JSON.stringify([]));
     }
+    notifyMockAuthChange();
     return {userId: 'mock-user', email, hasSession: true};
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
@@ -211,6 +223,7 @@ export async function signOutOrganizer(): Promise<void> {
   if (runtimeConfig.useMockData) {
     localStorage.removeItem(MOCK_SESSION);
     localStorage.removeItem('eventticketing:mock-buyer-session');
+    notifyMockAuthChange();
     return;
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
@@ -238,7 +251,7 @@ export async function loadOrganizerWorkspace(): Promise<{
     return {memberships: orgs, events: stored};
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   const {data: memberRows, error: memberError} = await supabase
     .from('THANH_VIEN_TO_CHUC')
     .select('ToChucID, VaiTro, TO_CHUC(TenToChuc, Slug)');
@@ -382,7 +395,7 @@ export async function createEventDraft(input: CreateDraftInput): Promise<void> {
 
 export async function saveFullEventDraft(
   input: FullEventAggregateInput,
-): Promise<{eventId: number; slug: string; status: string}> {
+): Promise<{eventId: number; slug: string; status: string; warning?: string}> {
   validateFullEventAggregate(input, {isPublishing: false});
   const cleanSlug = deduplicateSlug(input.slug).trim().toLowerCase();
   const normalizedInput: FullEventAggregateInput = {...input, slug: cleanSlug};
@@ -475,16 +488,58 @@ export async function saveFullEventDraft(
   }
 
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
-  const {data, error} = await supabase.rpc('luu_su_kien_toan_dien', {
-    p_payload: normalizedInput,
+  const supabase = requireSupabaseClient();
+  // LICH_TRINH no longer exists: the schedule travels inside the description (MoTaChiTiet).
+  const payload = {
+    ...normalizedInput,
+    description: embedTimelineInDescription(normalizedInput.description, normalizedInput.schedule),
+  };
+  const {data: rpcData, error} = await supabase.rpc('luu_su_kien_toan_dien', {
+    p_payload: payload as unknown as Json,
   });
   if (error) throw mapDatabaseError(error);
+  const data = rpcData as {eventId: number | string; slug: string; status?: string};
+  const savedEventId = Number(data.eventId);
+  const seatWarning = await ensureSeatsForSeatedTiers(supabase, savedEventId);
   return {
-    eventId: Number(data.eventId),
+    eventId: savedEventId,
     slug: String(data.slug),
     status: String(data.status || 'BAN_NHAP'),
+    ...(seatWarning ? {warning: seatWarning} : {}),
   };
+}
+
+/**
+ * The save RPC creates seated zones (GHE_NGOI) without any GHE rows, and the hold RPC needs a free GHE row.
+ * After saving, create the missing seats of every seated zone (editors may write GHE under RLS).
+ * Never fails the save: returns a warning message instead.
+ */
+async function ensureSeatsForSeatedTiers(supabase: any, eventId: number): Promise<string | null> {
+  try {
+    const {data: zones, error} = await supabase
+      .from('KHU_VUC')
+      .select('KhuVucID, MaKhuVuc, TongSoGhe')
+      .eq('SuKienID', eventId)
+      .eq('LoaiKhuVuc', 'GHE_NGOI');
+    if (error) throw error;
+    for (const zone of zones ?? []) {
+      const {count, error: countError} = await supabase
+        .from('GHE')
+        .select('GheID', {count: 'exact', head: true})
+        .eq('KhuVucID', zone.KhuVucID);
+      if (countError) throw countError;
+      const missing = generateSeatRows(String(zone.MaKhuVuc), Number(zone.TongSoGhe || 0), Number(count || 0));
+      for (let i = 0; i < missing.length; i += 500) {
+        const chunk = missing.slice(i, i + 500).map((seat) => ({...seat, KhuVucID: zone.KhuVucID}));
+        const {error: insertError} = await supabase.from('GHE').insert(chunk);
+        if (insertError) throw insertError;
+      }
+    }
+    return null;
+  } catch (err) {
+    console.warn('Không tạo được ghế cho hạng vé có chỗ ngồi:', err);
+    return 'Đã lưu sự kiện nhưng chưa tạo được ghế cho hạng vé có chỗ ngồi. Hãy lưu lại để thử tạo lần nữa.';
+  }
 }
 
 export async function loadEventForEditing(eventId: number): Promise<FullEventAggregateInput> {
@@ -575,11 +630,12 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
       shows,
       schedule,
       artists,
+      configuration: found.configuration || undefined,
     };
   }
 
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
 
   const [eventRes, scheduleRes, artistsRes] = await Promise.all([
     supabase
@@ -587,7 +643,9 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
       .select('*, SUAT_DIEN(*, KHU_VUC(*))')
       .eq('SuKienID', eventId)
       .single(),
-    supabase
+    // LICH_TRINH was dropped (it is no longer in the generated types); the query is kept only so editing still
+    // works on a database that has not applied migration 20261028100000 yet.
+    (supabase as unknown as {from: (table: string) => any})
       .from('LICH_TRINH')
       .select('LichTrinhID, SuKienID, GioBatDau, GioKetThuc, TenHoatDong, MoTaHoatDong, DiaDiemHoatDong, ThuTu')
       .eq('SuKienID', eventId)
@@ -615,7 +673,9 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
 
   if (eventRes.error) throw mapDatabaseError(eventRes.error);
   if (!eventRes.data) throw new Error('Không tìm thấy sự kiện.');
-  if (scheduleRes.error) {
+  // LICH_TRINH was dropped by migration 20261028100000: a missing table is not an error (the schedule is in the description).
+  const scheduleTableMissing = ['42P01', 'PGRST205'].includes(String(scheduleRes.error?.code));
+  if (scheduleRes.error && !scheduleTableMissing) {
     throw mapDatabaseError({
       ...scheduleRes.error,
       message: `Không thể tải lịch trình sự kiện: ${scheduleRes.error.message || scheduleRes.error.details || 'Lỗi truy vấn lịch trình'}`,
@@ -656,7 +716,7 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
     };
   });
 
-  const scheduleRows = Array.isArray(scheduleRes.data) ? scheduleRes.data : [];
+  const scheduleRows = !scheduleRes.error && Array.isArray(scheduleRes.data) ? scheduleRes.data : [];
   let schedule: FullEventScheduleInput[] = scheduleRows.map((s: any, idx: number) => ({
     scheduleId: Number(s.LichTrinhID),
     id: Number(s.LichTrinhID),
@@ -685,6 +745,26 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
     }
   }
 
+  let configuration: FullEventAggregateInput['configuration'];
+  try {
+    const {data: cfg} = await supabase
+      .from('CAU_HINH_SU_KIEN')
+      .select('ThoiGianGiuChoPhut, SoVeToiDaMoiDon, ChoPhepChonCho, YeuCauCCCD, ChoPhepChuyenNhuong')
+      .eq('SuKienID', eventId)
+      .maybeSingle();
+    if (cfg) {
+      configuration = {
+        holdMinutes: Number(cfg.ThoiGianGiuChoPhut),
+        maxTicketsPerOrder: Number(cfg.SoVeToiDaMoiDon),
+        allowSeatSelection: Boolean(cfg.ChoPhepChonCho),
+        requireIdCard: Boolean(cfg.YeuCauCCCD),
+        allowTicketTransfer: Boolean(cfg.ChoPhepChuyenNhuong),
+      };
+    }
+  } catch (err) {
+    console.warn('Không đọc được cấu hình bán vé của sự kiện:', err);
+  }
+
   const artistRows = Array.isArray(artistsRes.data) ? artistsRes.data : [];
   const artists: FullEventArtistInput[] = artistRows.map((link: any, idx: number) => {
     const artistMaster = Array.isArray(link.NGHE_SI) ? link.NGHE_SI[0] : link.NGHE_SI;
@@ -707,7 +787,7 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
     slug: deduplicateSlug(String(eventRow.Slug)),
     category: String(eventRow.TheLoai || 'KHAC'),
     slogan: eventRow.Slogan ? String(eventRow.Slogan) : '',
-    description: eventRow.MoTaChiTiet ? String(eventRow.MoTaChiTiet) : '',
+    description: stripTimelineFromDescription(eventRow.MoTaChiTiet ? String(eventRow.MoTaChiTiet) : ''),
     locationMode: (eventRow.LoaiHinhSuKien || 'OFFLINE') as any,
     venueName: eventRow.TenSanVanDong ? String(eventRow.TenSanVanDong) : '',
     address: eventRow.DiaDiem ? String(eventRow.DiaDiem) : '',
@@ -727,6 +807,7 @@ export async function loadEventForEditing(eventId: number): Promise<FullEventAgg
     shows,
     schedule,
     artists,
+    configuration,
   };
 }
 
@@ -798,7 +879,7 @@ export async function loadEventForPreview(
   }
 
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const supabase = requireSupabaseClient() as any;
+  const supabase = requireSupabaseClient();
   const {data: eventRow, error: eventErr} = await supabase
     .from('SU_KIEN')
     .select('*, SUAT_DIEN(*)')

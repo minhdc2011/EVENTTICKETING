@@ -42,11 +42,11 @@ export function OrganizerAccessDeniedView({
         </p>
 
         <div className="org-denied-policy-box">
-          <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#f8fafc', marginBottom: '6px'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: 'var(--org-text-primary)', marginBottom: '6px'}}>
             <IconShield size={16} style={{color: 'var(--org-lime)'}} />
             <span>Chính sách an toàn thương mại</span>
           </div>
-          <p style={{margin: 0, fontSize: '13px', color: '#cbd5e1', lineHeight: 1.6}}>
+          <p style={{margin: 0, fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.6}}>
             Nhằm ngăn ngừa tình trạng tạo sự kiện mạo danh hoặc lừa đảo bán vé trên nền tảng, tài khoản khán giả thông thường không thể tự cấp quyền Ban tổ chức. Mọi quyền tổ chức sự kiện cần được Quản trị viên hệ thống xác minh pháp nhân và kích hoạt chính thức.
           </p>
         </div>

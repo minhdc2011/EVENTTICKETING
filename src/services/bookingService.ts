@@ -15,11 +15,22 @@ function getBrowserSessionId(): string {
   return sessionId;
 }
 
-export async function createSeatHold(request: CreateHoldRequest): Promise<HoldRecord> {
+/**
+ * Single source of the identity sent with a hold. Both the React seat map and the concert runtime go through
+ * createSeatHold, and the server resolves the show from the active context (not from the caller's eventId),
+ * so the eventId on the request is always normalised to the active event slug.
+ */
+export function resolveHoldRequest(request: CreateHoldRequest): CreateHoldRequest {
+  const active = getActiveEventContext();
+  return {...request, eventId: active.eventId || request.eventId};
+}
+
+export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<HoldRecord> {
+  const request = resolveHoldRequest(rawRequest);
   if (!runtimeConfig.useMockData && isSupabaseConfigured()) {
     const active = getActiveEventContext();
     const supabase = requireSupabaseClient();
-    let {data, error} = await (supabase as any).rpc('tao_giu_cho_theo_suat', {
+    let {data, error} = await supabase.rpc('tao_giu_cho_theo_suat', {
       p_suat_dien_id: active.showId,
       p_phien_id: getBrowserSessionId(),
       p_items: request.items.map((item) => ({

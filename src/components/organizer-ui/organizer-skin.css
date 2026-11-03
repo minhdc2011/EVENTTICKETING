@@ -1,0 +1,615 @@
+/* ==========================================================================
+   ORGANIZER STUDIO — marketplace skin.
+   Re-declares the --org-* tokens of organizer-ui.css with light surfaces and the blue primary of the shared
+   --et-* tokens, so the back office feels like the same product as the public pages.
+   Load after organizer-ui.css.
+   ========================================================================== */
+.organizer-shell {
+  --org-bg: #f4f6f8;
+  --org-surface: #ffffff;
+  --org-surface-raised: #ffffff;
+  --org-surface-card: #ffffff;
+  --org-surface-hover: #eef4fd;
+  --org-surface-active: #e3edfb;
+  --org-surface-sunken: #f4f6f8;
+
+  --org-border-subtle: #e2e8f0;
+  --org-border-default: #c7d0db;
+  --org-border-strong: #94a3b8;
+  --org-border-lime: rgba(3, 83, 194, 0.45);
+
+  --org-text-primary: #1f262d;
+  --org-text-secondary: #3d4756;
+  --org-text-muted: #5b6574;
+
+  /* "lime" is the accent token: it becomes the primary blue */
+  --org-lime: #0353c2;
+  --org-lime-dark: #024299;
+  --org-lime-glow: rgba(3, 83, 194, 0.1);
+  --org-lime-contrast: #ffffff;
+
+  --org-status-success: #0b6b3a;
+  --org-status-success-bg: #e6f6ee;
+  --org-status-success-border: #b6e3cb;
+  --org-status-warning: #7a4a00;
+  --org-status-warning-bg: #fff4dc;
+  --org-status-warning-border: #f2d58f;
+  --org-status-danger: #a3162a;
+  --org-status-danger-bg: #fde8ea;
+  --org-status-danger-border: #f4b7bd;
+  --org-status-info: #0b4f9e;
+  --org-status-info-bg: #eef4fd;
+  --org-status-info-border: #c3d6f5;
+
+  --org-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --org-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.1);
+  --org-shadow-lg: 0 10px 28px rgba(15, 23, 42, 0.14);
+  --org-shadow-modal: 0 20px 48px rgba(15, 23, 42, 0.28);
+
+  background-color: var(--org-bg);
+  color: var(--org-text-primary);
+}
+
+/* Purchase-rules fieldset in the wizard */
+.organizer-shell .org-config-fieldset {
+  margin: 24px 0 0;
+  padding: 16px;
+  border: 1px solid var(--org-border-default);
+  border-radius: var(--org-radius-md);
+  background: var(--org-surface);
+}
+.organizer-shell .org-config-legend {
+  padding: 0 8px;
+  font-weight: 700;
+  color: var(--org-text-primary);
+}
+
+/* ---- Top bar: same blue as the public header ---- */
+.organizer-shell .org-topbar {
+  --org-lime: #ffffff;
+  background: var(--et-blue, #0353c2);
+  border-bottom: 0;
+  box-shadow: none;
+}
+.organizer-shell .org-topbar-badge {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+.organizer-shell .org-topbar-back-link {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---- Sidebar: navy back-office rail with a light-blue accent ---- */
+.organizer-shell .org-sidebar {
+  --org-lime: #9ec7ff;
+  background-color: #14213d;
+}
+.organizer-shell .org-sidebar-org-avatar {
+  color: #9ec7ff;
+}
+.organizer-shell .org-sidebar-nav-item {
+  color: #c4d0e4;
+}
+.organizer-shell .org-sidebar-nav-item.is-active {
+  color: #ffffff;
+  background-color: rgba(158, 199, 255, 0.18);
+  border-color: rgba(158, 199, 255, 0.5);
+}
+.organizer-shell .org-sidebar-user-email,
+.organizer-shell .org-sidebar-section-title {
+  color: #c4d0e4;
+}
+
+/* ---- Buttons ---- */
+.organizer-shell .org-btn-primary,
+.organizer-shell .organizer-primary,
+.organizer-shell .organizer-primary-link {
+  background-color: var(--et-blue, #0353c2);
+  color: #ffffff;
+  border-color: var(--et-blue, #0353c2);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 700;
+  box-shadow: none;
+}
+.organizer-shell .org-btn-primary:hover:not(:disabled),
+.organizer-shell .organizer-primary:hover:not(:disabled) {
+  background-color: var(--et-blue-hover, #024299);
+  box-shadow: none;
+  transform: none;
+  opacity: 1;
+}
+.organizer-shell .org-btn-primary:disabled,
+.organizer-shell .organizer-primary:disabled {
+  background-color: #c7d0db;
+  border-color: #c7d0db;
+  color: #3d4756;
+}
+.organizer-shell :is(.org-btn, button, a, input, select, textarea):focus-visible {
+  outline: 3px solid var(--et-blue, #0353c2);
+  outline-offset: 2px;
+}
+
+/* ---- Auth (login / register) and onboarding: light card ---- */
+.organizer-shell .organizer-auth {
+  width: min(1040px, calc(100% - 32px));
+  gap: 48px;
+  grid-template-columns: 1fr minmax(0, 440px);
+}
+.organizer-shell .org-auth-hero-title {
+  font-size: clamp(28px, 3.6vw, 44px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--org-text-primary);
+}
+.organizer-shell .org-auth-hero-desc,
+.organizer-shell .org-auth-hero-eyebrow {
+  color: var(--org-text-secondary);
+}
+.organizer-shell .org-auth-card {
+  border-radius: var(--org-radius-md);
+  padding: 28px 24px;
+  box-shadow: var(--org-shadow-md);
+}
+.organizer-shell .org-auth-tab-btn {
+  color: var(--org-text-muted);
+}
+.organizer-shell .org-auth-tab-btn.is-active {
+  color: var(--et-blue, #0353c2);
+  border-bottom-color: var(--et-blue, #0353c2);
+}
+.organizer-shell .organizer-auth form,
+.organizer-shell .organizer-onboarding {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+.organizer-shell .organizer-auth label,
+.organizer-shell .organizer-onboarding label,
+.organizer-shell .organizer-modal label {
+  color: var(--org-text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.organizer-shell .organizer-auth .org-input,
+.organizer-shell .organizer-auth input,
+.organizer-shell .organizer-onboarding input,
+.organizer-shell .organizer-modal input,
+.organizer-shell .organizer-modal select,
+.organizer-shell .organizer-modal textarea {
+  background-color: #ffffff;
+  color: var(--org-text-primary);
+  caret-color: var(--et-blue, #0353c2);
+  border: 1px solid #94a3b8;
+  border-radius: var(--org-radius-sm);
+  min-height: 48px;
+  font-size: 15px;
+}
+.organizer-shell .organizer-auth .org-input::placeholder {
+  color: #6b7686;
+}
+.organizer-shell .organizer-auth .org-input:hover {
+  border-color: var(--et-blue, #0353c2);
+}
+.organizer-shell .organizer-auth .org-input:focus {
+  background-color: #ffffff;
+  color: var(--org-text-primary);
+  border-color: var(--et-blue, #0353c2);
+  box-shadow: 0 0 0 3px rgba(3, 83, 194, 0.18);
+}
+.organizer-shell .organizer-auth .org-input:-webkit-autofill,
+.organizer-shell .organizer-auth .org-input:-webkit-autofill:hover,
+.organizer-shell .organizer-auth .org-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--org-text-primary);
+  caret-color: var(--et-blue, #0353c2);
+  box-shadow: 0 0 0 1000px #ffffff inset;
+}
+.organizer-shell .organizer-auth .org-label-hint,
+.organizer-shell .organizer-auth .org-auth-footer-note,
+.organizer-shell .organizer-auth form > small {
+  color: var(--org-text-muted);
+  text-transform: none;
+}
+.organizer-shell .org-auth-session-badge {
+  background-color: var(--org-status-info-bg);
+  color: var(--org-status-info);
+}
+.organizer-shell .organizer-message {
+  background: var(--org-status-warning-bg);
+  border-color: var(--org-status-warning-border);
+  color: var(--org-status-warning);
+}
+
+/* ---- Dashboard ---- */
+.organizer-shell .org-main-title,
+.organizer-shell .org-events-title {
+  letter-spacing: -0.01em;
+}
+.organizer-shell .org-stat-card,
+.organizer-shell .org-event-card {
+  border-radius: var(--org-radius-md);
+  box-shadow: var(--org-shadow-sm);
+}
+
+/* ---- Event wizard: the legacy .wizard-* rules (src/index.css) are dark; make the whole dialog light ---- */
+.organizer-shell .wizard-modal-window {
+  background: #ffffff;
+  border: 1px solid var(--org-border-default);
+  box-shadow: var(--org-shadow-modal);
+  color: var(--org-text-primary);
+  border-radius: var(--org-radius-md);
+}
+.organizer-shell .wizard-modal-header,
+.organizer-shell .wizard-modal-footer,
+.organizer-shell .wizard-step-bar,
+.organizer-shell .org-wizard-header,
+.organizer-shell .org-wizard-footer,
+.organizer-shell .org-wizard-stepper {
+  background: #f4f6f8;
+  border-color: var(--org-border-subtle);
+}
+.organizer-shell .wizard-header-tag,
+.organizer-shell .org-wizard-header-tag {
+  color: var(--et-blue, #0353c2);
+}
+.organizer-shell .wizard-modal-header h2,
+.organizer-shell .org-wizard-header-title {
+  color: var(--org-text-primary);
+}
+.organizer-shell .wizard-modal-close,
+.organizer-shell .org-wizard-close-btn {
+  color: var(--org-text-secondary);
+}
+.organizer-shell .wizard-modal-close:hover,
+.organizer-shell .org-wizard-close-btn:hover {
+  color: var(--org-text-primary);
+  background: var(--org-surface-hover);
+}
+.organizer-shell .wizard-header-save-btn,
+.organizer-shell .wizard-secondary-btn {
+  background: #ffffff;
+  border: 1px solid var(--et-blue, #0353c2);
+  color: var(--et-blue, #0353c2);
+  border-radius: var(--org-radius-sm);
+  min-height: 44px;
+  font-weight: 700;
+}
+.organizer-shell .wizard-header-save-btn:hover,
+.organizer-shell .wizard-secondary-btn:hover {
+  background: var(--org-surface-hover);
+}
+.organizer-shell .wizard-step-item,
+.organizer-shell .org-wizard-step-item {
+  color: var(--org-text-secondary);
+}
+.organizer-shell .wizard-step-item:hover,
+.organizer-shell .org-wizard-step-item:hover {
+  color: var(--et-blue, #0353c2);
+  background: var(--org-surface-hover);
+}
+.organizer-shell .wizard-step-item.is-active,
+.organizer-shell .org-wizard-step-item.is-active {
+  color: var(--et-blue, #0353c2);
+  border-bottom-color: var(--et-blue, #0353c2);
+  background: #ffffff;
+}
+.organizer-shell .org-wizard-step-item.is-active .org-wizard-step-circle,
+.organizer-shell .wizard-step-item.is-active .wizard-step-circle {
+  background-color: var(--et-blue, #0353c2);
+  border-color: var(--et-blue, #0353c2);
+  color: #ffffff;
+}
+.organizer-shell .wizard-section-intro h3,
+.organizer-shell .org-wizard-section-title {
+  color: var(--org-text-primary);
+}
+.organizer-shell .wizard-section-intro p,
+.organizer-shell .org-wizard-section-subtitle {
+  color: var(--org-text-secondary);
+}
+.organizer-shell .wizard-label {
+  color: var(--org-text-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+.organizer-shell .wizard-label input,
+.organizer-shell .wizard-label select,
+.organizer-shell .wizard-label textarea,
+.organizer-shell .org-input,
+.organizer-shell .org-textarea {
+  min-height: 44px;
+  background: #ffffff;
+  color: var(--org-text-primary);
+  border: 1px solid #94a3b8;
+  border-radius: var(--org-radius-sm);
+  font-size: 14px;
+}
+.organizer-shell .wizard-label input:focus,
+.organizer-shell .wizard-label select:focus,
+.organizer-shell .wizard-label textarea:focus,
+.organizer-shell .org-input:focus,
+.organizer-shell .org-textarea:focus {
+  border-color: var(--et-blue, #0353c2);
+  box-shadow: 0 0 0 3px rgba(3, 83, 194, 0.18);
+  outline: none;
+}
+.organizer-shell .wizard-label small,
+.organizer-shell .org-label-hint {
+  color: var(--org-text-muted);
+}
+.organizer-shell .wizard-label .req,
+.organizer-shell .org-label-required {
+  color: #b42318;
+}
+.organizer-shell .wizard-card-item,
+.organizer-shell .wizard-summary-stat,
+.organizer-shell .wizard-checklist-container,
+.organizer-shell .org-wizard-item-card {
+  background: #ffffff;
+  border: 1px solid var(--org-border-default);
+  border-radius: var(--org-radius-md);
+}
+.organizer-shell .wizard-card-header,
+.organizer-shell .org-wizard-item-card-title {
+  color: var(--org-text-primary);
+  border-bottom-color: var(--org-border-subtle);
+}
+.organizer-shell .wizard-delete-btn {
+  background: var(--org-status-danger-bg);
+  border: 1px solid var(--org-status-danger-border);
+  color: var(--org-status-danger);
+  min-height: 44px;
+  font-weight: 700;
+}
+.organizer-shell .wizard-delete-btn:hover {
+  background: #fbd0d5;
+}
+.organizer-shell .wizard-summary-stat span {
+  color: var(--org-text-secondary);
+}
+.organizer-shell .wizard-summary-stat strong {
+  color: var(--org-text-primary);
+}
+.organizer-shell .wizard-alert--info {
+  background: var(--org-status-info-bg);
+  border-color: var(--org-status-info-border);
+  color: var(--org-status-info);
+}
+.organizer-shell .wizard-alert--success {
+  background: var(--org-status-success-bg);
+  border-color: var(--org-status-success-border);
+  color: var(--org-status-success);
+}
+.organizer-shell .wizard-alert--error {
+  background: var(--org-status-danger-bg);
+  border-color: var(--org-status-danger-border);
+  color: var(--org-status-danger);
+}
+.organizer-shell .checklist-item--blocker {
+  background: var(--org-status-danger-bg);
+  border-color: var(--org-status-danger-border);
+  color: var(--org-status-danger);
+}
+.organizer-shell .checklist-item--blocker strong {
+  color: var(--org-status-danger);
+}
+.organizer-shell .checklist-item--warning {
+  background: var(--org-status-warning-bg);
+  border-color: var(--org-status-warning-border);
+  color: var(--org-status-warning);
+}
+.organizer-shell .checklist-item--warning strong {
+  color: var(--org-status-warning);
+}
+.organizer-shell .checklist-item--pass {
+  background: var(--org-status-success-bg);
+  border-color: var(--org-status-success-border);
+  color: var(--org-status-success);
+}
+.organizer-shell .checklist-item--pass strong {
+  color: var(--org-status-success);
+}
+
+/* ---- Contrast fixes found by the automated scan ---- */
+/* A global rule paints every <footer> near-black */
+.organizer-shell .org-wizard-footer,
+.organizer-shell .wizard-modal-footer {
+  background: #f4f6f8 !important;
+  color: var(--org-text-secondary);
+}
+.organizer-shell .org-wizard-footer span,
+.organizer-shell .org-wizard-footer-left span {
+  color: var(--org-text-secondary);
+}
+.organizer-shell .org-wizard-footer .org-btn-primary span,
+.organizer-shell .org-wizard-footer .wizard-secondary-btn span {
+  color: inherit;
+}
+.organizer-shell .org-wizard-footer .org-btn-primary:disabled {
+  background-color: #c7d0db;
+  color: #3d4756;
+}
+
+/* Section headings inside the wizard were light-on-light */
+.organizer-shell .wizard-modal-window :is(h4, h5, h6),
+.organizer-shell .org-wizard-window :is(h4, h5, h6) {
+  color: var(--org-text-primary);
+}
+
+/* Alerts: dark text on the tinted background, per status */
+.organizer-shell .org-alert-info,
+.organizer-shell .org-alert-info :is(strong, .org-alert-body, p, span) {
+  color: var(--org-status-info);
+}
+.organizer-shell .org-alert-success,
+.organizer-shell .org-alert-success :is(strong, .org-alert-body, p, span) {
+  color: var(--org-status-success);
+}
+.organizer-shell .org-alert-warning,
+.organizer-shell .org-alert-warning :is(strong, .org-alert-body, p, span) {
+  color: var(--org-status-warning);
+}
+.organizer-shell .org-alert-danger,
+.organizer-shell .org-alert-danger :is(strong, .org-alert-body, p, span) {
+  color: var(--org-status-danger);
+}
+
+/* Stepper */
+.organizer-shell .wizard-step-item.is-completed,
+.organizer-shell .org-wizard-step-item.is-completed {
+  color: var(--org-status-success);
+}
+.organizer-shell .wizard-step-item.is-completed .wizard-step-label {
+  color: var(--org-status-success);
+}
+.organizer-shell .wizard-step-label {
+  color: inherit;
+}
+
+/* Category info box */
+.organizer-shell .org-category-theme-info strong {
+  color: var(--org-text-primary);
+}
+.organizer-shell .org-category-theme-info span {
+  color: var(--org-text-secondary);
+}
+
+/* Dashboard small text */
+.organizer-shell .org-stat-hint,
+.organizer-shell .org-main-eyebrow {
+  color: var(--org-text-muted);
+}
+.organizer-shell .org-chip-role {
+  background-color: #e3edfb;
+  border-color: #b3cdf3;
+  color: #0b3f91;
+}
+.organizer-shell .org-sidebar-security-note,
+.organizer-shell .org-sidebar-user-info > span {
+  color: #c4d0e4;
+}
+.organizer-shell .org-sidebar-nav-item {
+  font-weight: 600;
+}
+
+/* Sidebar footer label is styled inline; active nav item text */
+.organizer-shell .org-sidebar-user-info > span {
+  color: #c4d0e4 !important;
+}
+.organizer-shell .org-sidebar-nav-item.is-active,
+.organizer-shell .org-sidebar-nav-item.is-active span {
+  color: #ffffff;
+}
+.organizer-shell .org-btn-primary:disabled,
+.organizer-shell .org-btn-primary:disabled span {
+  color: #2b3440;
+}
+
+/* The dialog is a flex column with a scrolling body: header, stepper and footer must not shrink */
+.organizer-shell :is(.org-wizard-header, .wizard-modal-header, .org-wizard-stepper, .wizard-step-bar, .org-wizard-footer, .wizard-modal-footer) {
+  flex: 0 0 auto;
+}
+.organizer-shell :is(.org-wizard-stepper, .wizard-step-bar) {
+  min-height: 56px;
+  overflow-x: auto;
+}
+.organizer-shell :is(.wizard-step-item, .org-wizard-step-item) {
+  min-height: 56px;
+  flex-shrink: 0;
+}
+
+/* ---- Touch targets (44px) and status chips ---- */
+.organizer-shell .org-topbar-logo,
+.organizer-shell .org-topbar-back-link,
+.organizer-shell .org-topbar-actions :is(a, button),
+.organizer-shell .org-btn,
+.organizer-shell .org-sidebar-nav-item,
+.organizer-shell .org-sidebar-logout-btn {
+  min-height: 44px;
+}
+.organizer-shell .org-topbar-logo {
+  min-width: 44px;
+}
+.organizer-shell .org-chip-published {
+  background-color: var(--org-status-success-bg);
+  border-color: var(--org-status-success-border);
+  color: var(--org-status-success);
+}
+.organizer-shell .org-chip-draft {
+  background-color: var(--org-status-warning-bg);
+  border-color: var(--org-status-warning-border);
+  color: var(--org-status-warning);
+}
+
+/* Sidebar menu links on small screens were laid out inline at ~30px */
+.organizer-shell .org-sidebar-nav-item {
+  display: flex !important;
+  align-items: center;
+  min-height: 44px !important;
+}
+
+/* A long organization name must truncate inside the rail, not stretch it */
+.organizer-shell .org-sidebar,
+.organizer-shell .org-sidebar-org-card,
+.organizer-shell .org-sidebar-org-header,
+.organizer-shell .org-sidebar-org-header > * {
+  min-width: 0;
+}
+.organizer-shell .org-sidebar {
+  overflow: hidden;
+}
+.organizer-shell .org-sidebar-org-name {
+  display: block;
+  max-width: 100%;
+}
+.organizer-shell .org-layout > * {
+  min-width: 0;
+}
+
+/* Top bar on phones: keep one line */
+.organizer-shell .org-topbar-back-link {
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .organizer-shell .org-topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .organizer-shell .org-topbar-actions {
+    gap: 8px;
+  }
+  .organizer-shell .org-topbar-back-link {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .organizer-shell .org-topbar-actions .org-btn {
+    padding: 0 12px;
+  }
+}
+
+.organizer-shell .org-sidebar > *,
+.organizer-shell .org-sidebar-org-card > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.organizer-shell .org-sidebar-org-card {
+  overflow: hidden;
+}
+
+.organizer-shell .org-sidebar-mobile-top {
+  grid-template-columns: minmax(0, 1fr);
+}
+.organizer-shell .org-sidebar-mobile-top > *,
+.organizer-shell .org-sidebar-org-block,
+.organizer-shell .org-sidebar-org-block > * {
+  min-width: 0;
+  max-width: 100%;
+}
