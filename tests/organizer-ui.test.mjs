@@ -69,6 +69,29 @@ test('getDefaultDraftDates generates chronologically sound relational dates', ()
   assert.ok(saleEnd <= start, 'Ticket sales end before or when event starts');
 });
 
+test('organizer auth inputs keep readable text across focus and browser autofill states', async () => {
+  const css = await readFile(
+    new URL('../src/components/organizer-ui/organizer-ui.css', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(
+    css,
+    /\.organizer-auth\s+\.org-input:focus\s*\{[^}]*background-color:\s*#0d121c[^}]*color:\s*#ffffff/is,
+    'Focused organizer auth fields must keep a dark surface with visible text',
+  );
+  assert.match(
+    css,
+    /\.organizer-auth\s+\.org-input::placeholder\s*\{[^}]*color:\s*#94a3b8[^}]*opacity:\s*1/is,
+    'Organizer auth placeholders must remain readable',
+  );
+  assert.match(
+    css,
+    /\.organizer-auth\s+\.org-input:-webkit-autofill[\s\S]*-webkit-text-fill-color:\s*#ffffff[\s\S]*box-shadow:\s*0\s+0\s+0\s+1000px\s+#0d121c\s+inset/i,
+    'Chrome autofill must preserve the dark field and light text contract',
+  );
+});
+
 test('organizer-ui component files exist and contain no emoji icons', async () => {
   const fileUrls = [
     '../src/components/organizer-ui/OrganizerIcons.tsx',
