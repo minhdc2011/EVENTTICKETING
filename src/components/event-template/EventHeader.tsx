@@ -1,6 +1,8 @@
 import type * as React from 'react';
 import {buildPublicPath, navigatePublicRoute} from '../../domain/publicRoute';
 import type {PublicEventRecord} from '../../services/eventService';
+import {GlobalHeader} from '../site/GlobalHeader';
+import {useBuyerSession} from '../site/useBuyerSession';
 
 const onSpaNav = (target: string) => (e: React.MouseEvent) => {
   if (!e.metaKey && !e.ctrlKey) {
@@ -24,6 +26,7 @@ export function EventHeader({
 }: EventHeaderProps) {
   const isPreview = event.publicationStatus !== 'CONG_KHAI';
   const isConcert = event.templateKey === 'SUPER_CONCERT_2026';
+  const {session, signOut} = useBuyerSession();
 
   return (
     <>
@@ -47,32 +50,9 @@ export function EventHeader({
         </aside>
       )}
 
-      <header className="et-header">
-        <div className="et-header-left">
-          <a
-            href={buildPublicPath(window.location.pathname, 'events')}
-            onClick={onSpaNav('events')}
-            className="et-brand"
-            aria-label="EventTicketing — Về trang khám phá sự kiện"
-          >
-            <span className="et-brand-badge">ET</span>
-            EV<span>ENT</span>
-          </a>
+      <GlobalHeader session={session} onSignOut={signOut} />
 
-          <a
-            href={buildPublicPath(window.location.pathname, 'events')}
-            onClick={onSpaNav('events')}
-            className="et-nav-back-link"
-            aria-label="Khám phá sự kiện"
-            title="Quay lại khám phá sự kiện"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-            <span className="et-nav-back-text">Khám phá</span>
-          </a>
-        </div>
-
+      <header className="et-topbar">
         <nav className="et-nav-links" aria-label="Điều hướng trang sự kiện">
           {isConcert ? (
             <>

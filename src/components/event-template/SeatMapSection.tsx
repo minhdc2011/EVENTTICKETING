@@ -7,7 +7,17 @@ import {
   subscribeToSeatUpdates,
   type RealtimeConnectionStatus,
 } from '../../services/seatRealtimeService';
-import {runtimeConfig} from '../../config/runtime';
+import {getActiveEventContext, runtimeConfig} from '../../config/runtime';
+import {loadEventPurchaseConfig} from '../../services/eventService';
+import {resolvePurchaseLimits, DEFAULT_HOLD_MINUTES} from '../../domain/purchaseLimits.js';
+import {
+  isStandingZone,
+  sumStanding,
+  setStandingQuantity,
+  buildStandingHoldItems,
+  calculateStandingTotal,
+  findZoneForTier,
+} from '../../domain/standingSelection.js';
 import {deriveSaleStatus} from '../../domain/eventStatus';
 import {dispatchToast} from '../../domain/runtimeOverlays.js';
 import {
@@ -28,14 +38,17 @@ import {MapToolbar} from './MapToolbar';
 import {StadiumOverview} from './StadiumOverview';
 import {ZoneSeatGrid} from './ZoneSeatGrid';
 import {SelectionSummary} from './SelectionSummary';
+import {StandingTicketPicker} from './StandingTicketPicker';
 import {HoldConfirmationDialog} from './HoldConfirmationDialog';
 import './SeatMapSection.css';
 
 export interface SeatMapSectionProps {
   event?: PublicEventRecord | null;
+  /** Ticket tier picked in the tier list: the map focuses its zone (tier.code === zone MaKhuVuc). */
+  selectedTier?: {code: string} | null;
 }
 
-export function SeatMapSection({event}: SeatMapSectionProps) {
+export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps) {
   const [catalog, setCatalog] = useState<TicketingCatalog | null>(null);
   const [catalogState, setCatalogState] = useState<'loading' | 'ready' | 'error' | 'empty'>('loading');
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
@@ -58,6 +71,9 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
   const [realtimeBanner, setRealtimeBanner] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState<string>('');
   const [showContextMapModal, setShowContextMapModal] = useState<boolean>(false);
+  const [standing, setStanding] = useState<Record<string, number>>({});
+  const [clock, setClock] = useState<number>(() => Date.now());
+  const [limits, setLimits] = useState(() => resolvePurchaseLimits(null));
 
   const holdButtonRef = useRef<HTMLButtonElement>(null);
   const pendingHoldSeatCodesRef = useRef<Set<string> | null>(null);
@@ -72,13 +88,34 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
   const saleStatus = useMemo(() => {
     if (!event) return 'ON_SALE';
     return deriveSaleStatus({
-      now: new Date(),
+      now: new Date(clock),
       saleStartsAt: event.saleStartsAt,
       saleEndsAt: event.saleEndsAt,
       databaseStatus: event.databaseSaleStatus,
       hasAvailability: true,
     });
-  }, [event]);
+  }, [event, clock]);
+
+  // Re-evaluate the sale window while the page stays open (opens/closes without a reload)
+  useEffect(() => {
+    const timer = window.setInterval(() => setClock(Date.now()), 15_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  // Purchase limits and hold duration come from the event configuration (defaults when unavailable)
+  useEffect(() => {
+    let cancelled = false;
+    setLimits(resolvePurchaseLimits(null));
+    if (!event) return undefined;
+    void loadEventPurchaseConfig(event).then((config) => {
+      if (!cancelled) {
+        setLimits(resolvePurchaseLimits({maxTicketsPerOrder: config.maxTicketsPerOrder, holdMinutes: config.holdMinutes}));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [event?.id]);
 
   const saleOpen = saleStatus === 'ON_SALE';
   const isMock = runtimeConfig.useMockData;
@@ -96,6 +133,7 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
       activeScopeRef.current = currentScopeKey;
 
       setSelectedSeats([]);
+      setStanding({});
       setHeldSeatsSnapshot([]);
       setInspectedSeat(null);
       setActiveHold(null);
@@ -194,6 +232,7 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
       if (secondsLeft <= 0) {
         setActiveHold(null);
         setSelectedSeats([]);
+        setStanding({});
         setHeldSeatsSnapshot([]);
         setIsHoldDialogOpen(false);
         setIsReleasePending(false);
@@ -224,6 +263,24 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
     if (!catalog) return [];
     return groupSeatsByZoneAndRow(catalog.seats, catalog.zones);
   }, [catalog]);
+
+  const standingZones = useMemo(
+    () => (catalog?.zones || []).filter((zone) => isStandingZone(zone)),
+    [catalog]
+  );
+  const standingCount = sumStanding(standing);
+  const roomLeft = Math.max(0, limits.maxPerOrder - selectedSeats.length - standingCount);
+  const holdLabel = `${limits.holdMinutes || DEFAULT_HOLD_MINUTES} phút`;
+
+  // Tier chosen in the ticket list -> focus its zone on the map
+  useEffect(() => {
+    if (!selectedTier || !catalog) return;
+    const zone = findZoneForTier(selectedTier, catalog.zones);
+    if (!zone || isStandingZone(zone)) return;
+    setFilter(String(zone.KhuVucID));
+    setSelectedZoneId(zone.KhuVucID);
+    setZoom(1);
+  }, [selectedTier, catalog]);
 
   const activeZoneGroup = useMemo(() => {
     if (selectedZoneId == null) return null;
@@ -277,6 +334,7 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
       const evaluation = evaluateSeatSelection({
         seat,
         selectedSeats,
+        maxCap: Math.max(0, limits.maxPerOrder - standingCount),
         saleOpen,
         isPending,
         hasActiveHold: Boolean(activeHold),
@@ -294,7 +352,7 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
         return;
       }
 
-      const next = toggleSeatSelection(selectedSeats, seat);
+      const next = toggleSeatSelection(selectedSeats, seat, Math.max(0, limits.maxPerOrder - standingCount));
       setSelectedSeats(next);
       setInspectedSeat(seat);
 
@@ -303,13 +361,33 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
       )}`;
       setAnnouncement(msg);
     },
-    [activeHold, isPending, saleOpen, selectedSeats]
+    [activeHold, isPending, limits.maxPerOrder, saleOpen, selectedSeats, standingCount]
   );
 
   // Clear all seats
+  const handleStandingChange = useCallback(
+    (zoneCode: string, quantity: number) => {
+      if (!saleOpen || isPending || activeHold) return;
+      const zone = (catalog?.zones || []).find((z) => z.MaKhuVuc === zoneCode);
+      const result = setStandingQuantity(standing, zoneCode, quantity, {
+        maxPerOrder: limits.maxPerOrder,
+        seatedCount: selectedSeats.length,
+        available: zone?.TongSoGhe ?? Infinity,
+      });
+      setStanding(result.standing);
+      const msg = result.clamped
+        ? `Tối đa ${limits.maxPerOrder} vé mỗi lượt đặt.`
+        : `${zone?.TenKhuVuc || zoneCode}: ${result.quantity} vé đứng.`;
+      setAnnouncement(msg);
+      if (result.clamped) dispatchToast({message: msg, type: 'warning'});
+    },
+    [activeHold, catalog?.zones, isPending, limits.maxPerOrder, saleOpen, selectedSeats.length, standing]
+  );
+
   const handleClearAll = useCallback(() => {
     setSelectedSeats([]);
-    setAnnouncement('Đã bỏ chọn tất cả ghế.');
+    setStanding({});
+    setAnnouncement('Đã bỏ chọn tất cả vé.');
   }, []);
 
   // Remove single seat
@@ -325,7 +403,7 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
       return;
     }
 
-    if (!selectedSeats.length || !saleOpen || isPending) return;
+    if ((!selectedSeats.length && standingCount === 0) || !saleOpen || isPending) return;
 
     if (!isConnectionTrusted) {
       const warnMsg = 'Kết nối dữ liệu ghế chưa ổn định. Vui lòng đợi kết nối lại trước khi giữ ghế.';
@@ -342,13 +420,14 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
       return;
     }
 
+    const standingItems = buildStandingHoldItems(standing, catalog?.zones || []);
     const pendingSeatCodes = selectedSeats.map((seat) => seat.MaGheDayDu);
     pendingHoldSeatCodesRef.current = new Set(pendingSeatCodes);
     setIsPending(true);
     try {
       const holdResult = await createSeatHold({
-        eventId: event?.slug || runtimeConfig.eventId,
-        items: holdItemsResult.items,
+        eventId: getActiveEventContext().eventId || event?.slug || runtimeConfig.eventId,
+        items: [...holdItemsResult.items, ...standingItems],
       });
 
       setActiveHold({
@@ -361,8 +440,8 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
       const secs = calculateRemainingSeconds(holdResult.expiresAt);
       setRemainingSeconds(secs);
       setIsHoldDialogOpen(true);
-      setRealtimeBanner('Đã giữ ghế tạm trong 5 phút · Chưa phát sinh thanh toán');
-      setAnnouncement(`Đã giữ ${selectedSeats.length} ghế thành công.`);
+      setRealtimeBanner(`Đã giữ chỗ tạm trong ${holdLabel} · Chưa phát sinh thanh toán`);
+      setAnnouncement(`Đã giữ ${selectedSeats.length + standingCount} vé thành công.`);
     } catch (err: any) {
       console.error('Lỗi yêu cầu giữ chỗ:', err);
       const isConflict =
@@ -407,7 +486,7 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
       pendingHoldSeatCodesRef.current = null;
       setIsPending(false);
     }
-  }, [activeHold, catalog?.zones, event?.slug, fetchCatalog, isConnectionTrusted, isPending, saleOpen, selectedSeats]);
+  }, [activeHold, catalog?.zones, event?.slug, fetchCatalog, holdLabel, isConnectionTrusted, isPending, saleOpen, selectedSeats, standing, standingCount]);
 
   // Release Hold (only clears state and announces success on confirmed release)
   const handleReleaseHold = useCallback(async () => {
@@ -456,7 +535,7 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
               {event?.name ? `Chọn chỗ ngồi · ${event.name}` : 'Chọn chỗ ngồi'}
             </h2>
             <p className="et-seatmap-subcopy">
-              Chọn khu vực, tìm vị trí yêu thích và giữ tối đa 4 vé trong một lượt đặt.
+              Chọn khu vực, tìm vị trí yêu thích và giữ tối đa {limits.maxPerOrder} vé trong một lượt đặt.
             </p>
           </div>
           <div className="et-seatmap-meta">
@@ -604,6 +683,14 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
               )}
             </div>
 
+            <StandingTicketPicker
+              zones={standingZones}
+              quantities={standing}
+              roomLeft={roomLeft}
+              disabled={!saleOpen || isPending || Boolean(activeHold)}
+              onChange={handleStandingChange}
+            />
+
             {/* Map Footnote */}
             <div className="et-map-footnote">
               <span id="map-hint">
@@ -640,6 +727,14 @@ export function SeatMapSection({event}: SeatMapSectionProps) {
           {/* Selection & Hold Summary Panel */}
           <SelectionSummary
             selectedSeats={selectedSeats}
+            standingLines={(Object.entries(standing) as Array<[string, number]>).map(([zoneCode, quantity]) => {
+              const zone = (catalog?.zones || []).find((z) => z.MaKhuVuc === zoneCode);
+              return {zoneCode, name: zone?.TenKhuVuc || zoneCode, quantity, price: Number(zone?.GiaVeNiemYet || 0)};
+            })}
+            standingTotal={calculateStandingTotal(standing, catalog?.zones || [])}
+            maxCap={limits.maxPerOrder}
+            holdLabel={holdLabel}
+            onChangeStanding={handleStandingChange}
             saleOpen={saleOpen}
             isPending={isPending}
             hasActiveHold={Boolean(activeHold)}

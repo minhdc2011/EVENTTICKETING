@@ -6,6 +6,8 @@ export interface ZoneRecord {
   TenKhuVuc: string;
   GiaVeNiemYet: number;
   MauSacHex?: string;
+  LoaiKhuVuc?: 'GHE_NGOI' | 'DUNG_STAND';
+  TongSoGhe?: number;
 }
 
 export interface SeatRecord {

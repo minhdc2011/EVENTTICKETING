@@ -2,8 +2,20 @@ import type {RefObject} from 'react';
 import type {SeatRecord} from '../../types/ticketing';
 import {formatMoneyVND, calculateSelectionTotal} from '../../domain/seatMap.js';
 
+export interface StandingLine {
+  zoneCode: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
 export interface SelectionSummaryProps {
   selectedSeats: SeatRecord[];
+  standingLines?: StandingLine[];
+  standingTotal?: number;
+  maxCap?: number;
+  holdLabel?: string;
+  onChangeStanding?: (zoneCode: string, quantity: number) => void;
   saleOpen: boolean;
   isPending: boolean;
   hasActiveHold: boolean;
@@ -16,6 +28,11 @@ export interface SelectionSummaryProps {
 
 export function SelectionSummary({
   selectedSeats,
+  standingLines = [],
+  standingTotal = 0,
+  maxCap = 4,
+  holdLabel = '5 phút',
+  onChangeStanding,
   saleOpen,
   isPending,
   hasActiveHold,
@@ -25,9 +42,9 @@ export function SelectionSummary({
   onClearAll,
   onProceedHold,
 }: SelectionSummaryProps) {
-  const totalAmount = calculateSelectionTotal(selectedSeats);
+  const totalAmount = calculateSelectionTotal(selectedSeats) + standingTotal;
   const totalFormatted = formatMoneyVND(totalAmount);
-  const count = selectedSeats.length;
+  const count = selectedSeats.length + standingLines.reduce((sum, line) => sum + line.quantity, 0);
 
   const isHoldDisabled =
     !count || !saleOpen || isPending || !isConnectionTrusted;
@@ -36,7 +53,7 @@ export function SelectionSummary({
     if (!saleOpen) return 'Đã đóng bán';
     if (isPending) return 'Đang kiểm tra ghế…';
     if (hasActiveHold) return 'Xem thời gian giữ ghế';
-    if (count > 0) return `Giữ ${count} ghế tạm · 5 phút →`;
+    if (count > 0) return `Giữ ${count} vé tạm · ${holdLabel} →`;
     return 'Chọn ghế để tiếp tục →';
   };
 
@@ -49,7 +66,7 @@ export function SelectionSummary({
             Ghế đã chọn
           </h2>
           <span id="count" className="et-summary-counter">
-            {count} / 4 vé
+            {count} / {maxCap} vé
           </span>
         </div>
 
@@ -67,6 +84,26 @@ export function SelectionSummary({
             </div>
           ) : (
             <>
+              {standingLines.map((line) => (
+                <article key={line.zoneCode} className="et-ticket-row" data-od-id={`standing-${line.zoneCode.toLowerCase()}`}>
+                  <div>
+                    <strong>{line.name}</strong>
+                    <p>Vé đứng · {line.quantity} vé</p>
+                  </div>
+                  <div className="et-ticket-right">
+                    <span>{formatMoneyVND(line.price * line.quantity)}</span>
+                    <button
+                      type="button"
+                      className="et-remove-btn"
+                      aria-label={`Bỏ vé đứng ${line.name}`}
+                      disabled={isPending || hasActiveHold}
+                      onClick={() => onChangeStanding?.(line.zoneCode, 0)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </article>
+              ))}
               {selectedSeats.map((seat) => (
                 <article
                   key={seat.GheID}
@@ -136,7 +173,7 @@ export function SelectionSummary({
           <p className="et-hold-note" id="hold-note">
             {hasActiveHold
               ? 'Đang giữ ghế trong phiên tạm thời. Nhấn để xem thời gian còn lại hoặc hủy giữ.'
-              : 'Ghế chỉ được giữ sau khi yêu cầu thành công. Thời gian giữ dự kiến: 5 phút.'}
+              : `Chỗ chỉ được giữ sau khi yêu cầu thành công. Thời gian giữ dự kiến: ${holdLabel}.`}
           </p>
 
           {!isConnectionTrusted && (

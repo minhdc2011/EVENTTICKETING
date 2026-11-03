@@ -491,7 +491,7 @@ test('public event detail architecture is unified across generic events and Supe
   // 2. Shared composition EventTemplate has a single main content tree for all events
   assert.match(templateTsx, /<main className="et-main">/i, 'Single unified main content tree');
   assert.doesNotMatch(templateTsx, /<main className="et-concert-sections">/i, 'No alternate main content tree for Super Concert');
-  assert.match(templateTsx, /className=\{`et-shell\s*\$\{isConcert\s*\?\s*['"]et-shell--concert['"]\s*:\s*['"]['"]\}`\}/i, 'EventTemplate provides unified .et-shell with concert variant');
+  assert.match(templateTsx, /className=\{`et-shell\s+et-site\s*\$\{isConcert\s*\?\s*['"]et-shell--concert['"]\s*:\s*['"]et-skin['"]\}`\}/i, 'EventTemplate provides unified .et-shell with concert variant and the light marketplace skin for other events');
   assert.match(templateTsx, /className="et-stage-ambient"/i, 'Shared composition provides stage ambient background');
   assert.match(templateTsx, /<EventHeader\s+event=\{event\}/i, 'Shared composition renders EventHeader');
   assert.match(templateTsx, /className="et-body-surface"/i, 'Shared composition wraps sections in et-body-surface');
@@ -527,7 +527,7 @@ test('public event detail architecture is unified across generic events and Supe
   assert.match(headerTsx, /href="#pricing-section"/i, 'Concert navigation includes pricing section');
   assert.match(headerTsx, /href="#seating-section"/i, 'Concert navigation includes seating map');
   assert.match(headerTsx, /id="btn-view-schedule"/i, 'Concert navigation includes schedule timeline modal trigger');
-  assert.match(headerTsx, /et-brand/i, 'Shared brand mark across all event pages');
+  assert.match(headerTsx, /<GlobalHeader\s/i, 'Shared brand mark across all event pages comes from the global header');
 
   // 7. Hero section in Super Concert has primary CTA in first viewport
   assert.match(heroHtml, /et-hero-primary-cta/i, 'Super Concert hero contains primary CTA button');
