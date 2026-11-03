@@ -546,7 +546,7 @@ sequenceDiagram
       DB->>DB: INSERT TO_CHUC + INSERT THANH_VIEN_TO_CHUC (VaiTro = CHU_SO_HUU)
       DB-->>OS: ToChucID
     end
-    OS-->>UI: Hiển thị workspace; vai trò VAN_HANH/SOAT_VE chỉ xem, thao tác ghi bị RLS chặn
+    OS-->>UI: Hiển thị workspace, vai trò VAN_HANH/SOAT_VE chỉ xem, thao tác ghi bị RLS chặn
   end
 ```
 
@@ -570,7 +570,7 @@ sequenceDiagram
   RPC_SAVE->>DB: Kiểm tra quyền co_quyen_bien_tap_to_chuc(orgId)
   RPC_SAVE->>DB: INSERT / UPDATE SU_KIEN (lưu MoTaChiTiet gộp timeline)
   RPC_SAVE->>DB: INSERT / UPDATE CAU_HINH_SU_KIEN (quan hệ 1-1 SuKienID, TuyChonMoRong)
-  RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC/hạng vé (kèm trigger kiểm tra SuKienID; chưa sinh GHE)
+  RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC/hạng vé (kèm trigger kiểm tra SuKienID, chưa sinh GHE)
   RPC_SAVE->>DB: Đồng bộ SU_KIEN_NGHE_SI và master catalog NGHE_SI
   DB-->>RPC_SAVE: Thành công
   RPC_SAVE-->>OS: Trả về eventId, slug, status: 'BAN_NHAP'
