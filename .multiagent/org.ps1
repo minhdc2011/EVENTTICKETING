@@ -163,7 +163,7 @@ if ($env:AGENTKIT_MOCK) {
     [IO.File]::WriteAllText($reviewFile, "[mock] director review skipped ($($images.Count) images ready)`nVERDICT: REVISE", $utf8)
 } else {
     $imgArgs = @(); foreach ($i in $images) { $imgArgs += "-i"; $imgArgs += $i }
-    $reviewPrompt | & codex exec -m $DirectorModel -c 'model_reasoning_effort="high"' -s read-only -C $wt @imgArgs `
+    $reviewPrompt | & codex exec -m $DirectorModel -c 'model_reasoning_effort="medium"' -s read-only -C $wt @imgArgs `
         -o $reviewFile - *> "$runAbs/5-director-review.log"
     Check "director review (codex)"
 }
