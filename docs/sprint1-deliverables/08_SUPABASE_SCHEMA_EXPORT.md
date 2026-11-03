@@ -1,6 +1,6 @@
 # 08 — Bản xuất schema Supabase live (03/11/2026)
 
-Nguồn: xuất từ Supabase dashboard project `qxkgkbayxxaakkwtepss`, ngày 03/11/2026, trước khi chạy migration `20261103090000_restrict_event_configuration_writes.sql` (policy `Members manage event configuration` bên dưới là bản cũ). ERD và Class Diagram trong `03_DATABASE_DESIGN.md` và `02_ANALYSIS_AND_SYSTEM_DESIGN.md` đã đối chiếu đủ mọi cột với file này.
+Nguồn: xuất từ Supabase dashboard project `qxkgkbayxxaakkwtepss`, ngày 03/11/2026, **sau khi** chạy migration `20261103090000_restrict_event_configuration_writes.sql` (policy ghi của `CAU_HINH_SU_KIEN` là `Editors manage event configuration`). ERD và Class Diagram trong `03_DATABASE_DESIGN.md` và `02_ANALYSIS_AND_SYSTEM_DESIGN.md` đã đối chiếu đủ mọi cột với file này.
 
 ## Table `SU_KIEN`
 
@@ -324,5 +324,5 @@ Quan he Mot - Mot (1 - 1) voi SU_KIEN: Moi su kien co dung 1 ban ghi cau hinh ng
 |--------|---------|-------|--------|-------|------------|
 | `Public Read Published CAU_HINH_SU_KIEN` | SELECT | public | PERMISSIVE | `(EXISTS ( SELECT 1    FROM "SU_KIEN" sk   WHERE ((sk."SuKienID" = "CAU_HINH_SU_KIEN"."SuKienID") AND ((sk."TrangThaiCongBo")::text = 'CONG_KHAI'::text))))` | — |
 | `Members read event configuration` | SELECT | authenticated | PERMISSIVE | `(EXISTS ( SELECT 1    FROM "SU_KIEN" sk   WHERE ((sk."SuKienID" = "CAU_HINH_SU_KIEN"."SuKienID") AND la_thanh_vien_to_chuc(sk."ToChucID"))))` | — |
-| `Members manage event configuration` | ALL | authenticated | PERMISSIVE | `(EXISTS ( SELECT 1    FROM "SU_KIEN" sk   WHERE ((sk."SuKienID" = "CAU_HINH_SU_KIEN"."SuKienID") AND la_thanh_vien_to_chuc(sk."ToChucID"))))` | `(EXISTS ( SELECT 1    FROM "SU_KIEN" sk   WHERE ((sk."SuKienID" = "CAU_HINH_SU_KIEN"."SuKienID") AND la_thanh_vien_to_chuc(sk."ToChucID"))))` |
+| `Editors manage event configuration` | ALL | authenticated | PERMISSIVE | `(EXISTS ( SELECT 1    FROM "SU_KIEN" sk   WHERE ((sk."SuKienID" = "CAU_HINH_SU_KIEN"."SuKienID") AND co_quyen_bien_tap_to_chuc(sk."ToChucID"))))` | `(EXISTS ( SELECT 1    FROM "SU_KIEN" sk   WHERE ((sk."SuKienID" = "CAU_HINH_SU_KIEN"."SuKienID") AND co_quyen_bien_tap_to_chuc(sk."ToChucID"))))` |
 

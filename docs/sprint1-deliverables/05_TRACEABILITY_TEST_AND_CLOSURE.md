@@ -39,7 +39,7 @@ Bảng `DIA_DIEM` chưa được UC nào ghi trực tiếp trong V1 (địa đi�
 | **FR-T1-03.4** | Preview bản nháp dùng chung `EventTemplate` | Trang sự kiện với `?preview=1` (`loadEventForPreview`) + `EventHeader` banner | `tests/event-template.test.mjs` | **Pass** |
 | **FR-T1-03.5** | Kiểm tra điều kiện & Công bố `cong_bo_su_kien` | `evaluatePublishReadiness` + RPC `cong_bo_su_kien` | `tests/organizer-uat.test.mjs` | **Pass** |
 | **FR-T1-03.6** | Mọi event dùng chung 1 template; đặc thù cắm Extension | `GenericEventPage`, `EventTemplate` | Architecture invariant tests | **Pass** |
-| **NFR-09 / QA-01** (bảo mật) | RLS 14/14 bảng, RPC `SECURITY DEFINER` an toàn; ghi `CAU_HINH_SU_KIEN` chỉ cho vai trò biên tập | Migrations `20261027120000`, `20261028100000`, `20261103090000` | System catalog live audit + tests | **Pass live**, trừ migration `20261103090000` chưa chạy trên live |
+| **NFR-09 / QA-01** (bảo mật) | RLS 14/14 bảng, RPC `SECURITY DEFINER` an toàn; ghi `CAU_HINH_SU_KIEN` chỉ cho vai trò biên tập | Migrations `20261027120000`, `20261028100000`, `20261103090000` | System catalog live audit + tests | **Pass live** (migration `20261103090000` đã chạy 03/11/2026, xác nhận qua `08_SUPABASE_SCHEMA_EXPORT.md`) |
 | **NFR-02 / QA-02** | Row lock `FOR UPDATE` + hết hạn 5 phút | RPC `tao_giu_cho_theo_suat`, pg_cron | Unit checks + static review | **Pass** |
 | **NFR-07 / QA-05, QA-06** | Accessibility (WCAG) & Responsive contracts | `event-template.css`, `index.css` | Invariant CSS tests | **Pass** |
 
