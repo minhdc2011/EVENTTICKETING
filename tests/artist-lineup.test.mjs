@@ -189,7 +189,7 @@ test('resolvePublicArtistsFallback enforces Super Concert fallback and generic e
 test('isSuperConcertEvent accurately detects concert variants and rejects generic events', () => {
   assert.equal(isSuperConcertEvent({templateKey: 'SUPER_CONCERT_2026'}), true);
   assert.equal(isSuperConcertEvent({code: 'SUPER_CONCERT_2026'}), true);
-  assert.equal(isSuperConcertEvent({id: 1}), true);
+  assert.equal(isSuperConcertEvent({id: 1}), false, 'a bare numeric id is not an identity');
   assert.equal(isSuperConcertEvent({slug: 'super-concert-2026'}), true);
 
   assert.equal(isSuperConcertEvent({templateKey: 'DEFAULT'}), false);

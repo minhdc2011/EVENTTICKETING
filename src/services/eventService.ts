@@ -1,5 +1,6 @@
 import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
+import {resolveTemplateKey} from '../domain/superConcert.js';
 
 export type PublicShowRecord = {
   id: number; slug: string; name: string; startsAt: string; endsAt: string;
@@ -98,7 +99,7 @@ function mapEvent(row: Record<string, unknown>, shows: PublicShowRecord[], reque
     slug: deduplicateSlug(String(row.Slug || runtimeConfig.eventId)).toLowerCase(), name: String(row.TenSuKien),
     slogan: row.Slogan ? String(row.Slogan) : undefined,
     description: row.MoTaChiTiet ? String(row.MoTaChiTiet) : undefined,
-    templateKey: row.TemplateKey === 'SUPER_CONCERT_2026' || Number(row.SuKienID) === 1 ? 'SUPER_CONCERT_2026' : 'DEFAULT',
+    templateKey: resolveTemplateKey(row),
     category: String(row.TheLoai || 'KHAC'),
     bannerUrl: row.BannerURL ? String(row.BannerURL) : undefined,
     posterUrl: row.PosterURL ? String(row.PosterURL) : undefined,
@@ -133,7 +134,8 @@ function legacyShow(row: Record<string, unknown>): PublicShowRecord {
 }
 
 function legacySlug(row: Record<string, unknown>) {
-  return Number(row.SuKienID) === 1 ? 'super-concert-2026' : `su-kien-${row.SuKienID}`;
+  // Older deployments have no Slug column: the configured concert id (VITE_EVENT_DATABASE_ID) keeps the concert slug.
+  return Number(row.SuKienID) === runtimeConfig.eventDatabaseId ? 'super-concert-2026' : `su-kien-${row.SuKienID}`;
 }
 
 export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
@@ -205,7 +207,7 @@ export async function loadPublicEvent(
   const normalizedSlug = deduplicateSlug(eventSlug);
   if (runtimeConfig.useMockData) {
     const fallbackSlug = runtimeConfig.eventId.toLowerCase().replaceAll('_', '-');
-    let mockEvent = MOCK_EVENTS.find((item) => item.slug === normalizedSlug || (item.id === 1 && normalizedSlug === fallbackSlug));
+    let mockEvent = MOCK_EVENTS.find((item) => item.slug === normalizedSlug || (item.code.toLowerCase().replaceAll('_', '-') === normalizedSlug && normalizedSlug === fallbackSlug));
     if (!mockEvent) {
       try {
         const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
