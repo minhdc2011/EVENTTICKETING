@@ -957,6 +957,27 @@
   color: #94a3b8;
 }
 
+.et-tier-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.et-tier-retry-btn:hover {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.35);
+}
+
 /* ==========================================================================
    DESKTOP BOOKING SUMMARY PANEL (Sticky Right Column)
    ========================================================================== */
