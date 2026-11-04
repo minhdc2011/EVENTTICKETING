@@ -263,9 +263,7 @@ export function EventCatalog() {
       <footer className="marketplace-footer">
         <div className="marketplace-footer-grid">
           <div className="marketplace-footer-brand-col">
-            <b className="marketplace-footer-brand">
-              EV<span>ENT</span>TICKETING
-            </b>
+            <b className="marketplace-footer-brand">EventTicketing</b>
             <p className="marketplace-footer-slogan">
               Nền tảng khám phá sự kiện, đặt vé an toàn và quản lý bán vé đa suất diễn tiêu chuẩn tại Việt Nam.
             </p>
