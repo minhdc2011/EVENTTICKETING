@@ -52,7 +52,9 @@ export interface SeatMapSectionProps {
 export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps) {
   const [catalog, setCatalog] = useState<TicketingCatalog | null>(null);
   const [catalogState, setCatalogState] = useState<'loading' | 'ready' | 'error' | 'empty'>('loading');
-  const [viewMode, setViewMode] = useState<'interactive' | 'official'>('interactive');
+  const [viewMode, setViewMode] = useState<'interactive' | 'official'>(
+    event?.seatingMapUrl ? 'official' : 'interactive',
+  );
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -148,8 +150,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       setFilter('all');
       setSearchQuery('');
       setZoom(1);
+      setViewMode(event?.seatingMapUrl ? 'official' : 'interactive');
     }
-  }, [currentScopeKey]);
+  }, [currentScopeKey, event?.seatingMapUrl]);
 
   // Load catalog (race-safe against stale async scope changes)
   const fetchCatalog = useCallback(async (): Promise<TicketingCatalog | null> => {
@@ -305,13 +308,15 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     if (newFilter !== 'all') {
       const zoneIdNum = Number(newFilter);
       if (Number.isInteger(zoneIdNum)) {
+        setViewMode('interactive');
         setSelectedZoneId(zoneIdNum);
       }
     } else {
       setSelectedZoneId(null);
+      if (event?.seatingMapUrl) setViewMode('official');
     }
     setZoom(1);
-  }, []);
+  }, [event?.seatingMapUrl]);
 
   const handleOfficialZoneSelect = useCallback((zone: ZoneRecord) => {
     setViewMode('interactive');
@@ -608,29 +613,6 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             />
 
             {/* Map Header */}
-            
-            {/* View Mode Switcher when official seating map is provided */}
-            {event?.seatingMapUrl && (
-              <div className="et-map-mode-switcher" role="group" aria-label="Chế độ xem sơ đồ">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('interactive')}
-                  className="et-map-mode-btn"
-                  aria-pressed={viewMode === 'interactive'}
-                >
-                  Sơ đồ chọn ghế trực quan
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('official')}
-                  className="et-map-mode-btn"
-                  aria-pressed={viewMode === 'official'}
-                >
-                  Sơ đồ khán đài BTC
-                </button>
-              </div>
-            )}
-
             <div className="et-map-card-head">
               <div>
                 <h2 id="map-title" data-od-id="map-title">

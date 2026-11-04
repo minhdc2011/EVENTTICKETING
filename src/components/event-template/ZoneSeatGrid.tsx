@@ -26,12 +26,20 @@ export interface ZoneSeatGridProps {
 }
 
 type SectorGeometry = 'left-wedge' | 'right-wedge' | 'center' | 'arc';
+type StageDirection = 'up-right' | 'up-left' | 'up';
 
 function getSectorGeometry(code: string): SectorGeometry {
   if (/^(SEC_(101|102|103|104|201_203|204_206|207_208)|ORCHESTRA_LEFT|MEZZANINE_LEFT|BOX_[ABC])$/.test(code)) return 'left-wedge';
   if (/^(SEC_(109|110|111|112|213_214|215_217|218_220)|ORCHESTRA_RIGHT|MEZZANINE_RIGHT|BOX_[DEF])$/.test(code)) return 'right-wedge';
   if (/^(SEC_209_212|UPPER_BALCONY)$/.test(code)) return 'arc';
   return 'center';
+}
+
+function getStageDirection(code: string): StageDirection {
+  const geometry = getSectorGeometry(code);
+  if (geometry === 'left-wedge') return 'up-right';
+  if (geometry === 'right-wedge') return 'up-left';
+  return 'up';
 }
 
 export function ZoneSeatGrid({
@@ -58,6 +66,8 @@ export function ZoneSeatGrid({
 
   const zoneName = zone.TenKhuVuc || zone.MaKhuVuc;
   const geometry = getSectorGeometry(zone.MaKhuVuc);
+  const stageDirection = getStageDirection(zone.MaKhuVuc);
+  const stageArrow = stageDirection === 'up-right' ? '↗' : stageDirection === 'up-left' ? '↖' : '↑';
   const q = searchQuery.trim().toLowerCase();
 
   const isSeatSelected = (seat: SeatRecord) =>
@@ -82,9 +92,13 @@ export function ZoneSeatGrid({
         <span>{backLabel}</span>
       </button>
 
-      {/* 2. Stage Orientation Line */}
-      <div className="et-stage-line" aria-hidden="true">
-        HƯỚNG SÂN KHẤU
+      {/* 2. Stage orientation follows the sector's real position in the venue. */}
+      <div
+        className={`et-stage-direction et-stage-direction--${stageDirection}`}
+        aria-label={`Hướng sân khấu ${stageDirection === 'up-right' ? 'chéo lên bên phải' : stageDirection === 'up-left' ? 'chéo lên bên trái' : 'thẳng phía trước'}`}
+      >
+        <span>SÂN KHẤU</span>
+        <b aria-hidden="true">{stageArrow}</b>
       </div>
 
       {/* 3. Seat Rows */}

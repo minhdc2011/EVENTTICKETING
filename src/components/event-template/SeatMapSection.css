@@ -299,41 +299,6 @@
   margin: 3px 0 0;
 }
 
-.et-map-mode-switcher {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 14px 18px 0;
-}
-
-.et-map-mode-btn {
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--seat-border);
-  border-radius: 8px;
-  background: var(--seat-bg);
-  color: var(--seat-muted);
-  font: 600 12px inherit;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.et-map-mode-btn:hover {
-  border-color: var(--seat-fg);
-  color: var(--seat-fg);
-}
-
-.et-map-mode-btn[aria-pressed='true'] {
-  background: var(--seat-accent);
-  border-color: var(--seat-accent);
-  color: var(--seat-ink);
-}
-
-.et-map-mode-btn:focus-visible {
-  outline: 3px solid var(--seat-accent);
-  outline-offset: 3px;
-}
-
 .et-view-tag {
   font: 10px var(--seat-font-mono);
   border: 1px solid var(--seat-border);
@@ -432,6 +397,50 @@
   letter-spacing: .08em;
   text-transform: uppercase;
 }
+
+.et-stage-direction {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 760px);
+  margin: 2px auto 20px;
+  color: var(--seat-text);
+  font-size: clamp(.82rem, 1.3vw, 1rem);
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.et-stage-direction::before {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--seat-border));
+}
+
+.et-stage-direction::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--seat-border), transparent);
+}
+
+.et-stage-direction b {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: #fff;
+  font-size: 1.45rem;
+  letter-spacing: 0;
+  background: #1d4ed8;
+  border-radius: 50%;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, .24);
+}
+
+.et-stage-direction--up-right { justify-content: flex-end; padding-left: 26%; }
+.et-stage-direction--up-left { justify-content: flex-start; padding-right: 26%; }
+.et-stage-direction--up-right::before,
+.et-stage-direction--up-left::after { flex: .35; }
 
 .et-sector-seat-shell--left-wedge .et-seat-row:nth-child(1) { transform: translateX(24px); }
 .et-sector-seat-shell--left-wedge .et-seat-row:nth-child(2) { transform: translateX(16px); }
@@ -602,18 +611,6 @@
 
 .et-back-btn:hover {
   text-decoration: underline;
-}
-
-.et-stage-line {
-  width: 72%;
-  margin: 8px auto 20px;
-  border-top: 3px solid var(--seat-border); /* impeccable-disable-line border-accent-on-rounded -- curved stage arc, not a card */
-  border-radius: 50%;
-  padding-top: 8px;
-  text-align: center;
-  font-size: 10px;
-  color: var(--seat-muted);
-  letter-spacing: 2px;
 }
 
 .et-seat-rows {

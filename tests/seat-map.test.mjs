@@ -594,6 +594,10 @@ test('official venue maps drill into exact visual sectors and return to the BTC 
   }
   assert.match(zoneSeatGridTsx, /getSectorGeometry/, 'Seat drilldown derives a sector-specific silhouette');
   assert.match(zoneSeatGridTsx, /et-sector-seat-shell--\$\{geometry\}/, 'Seat grid renders the derived sector silhouette');
+  assert.match(zoneSeatGridTsx, /getStageDirection/, 'Seat drilldown derives the stage direction from the selected sector');
+  assert.match(zoneSeatGridTsx, /up-right[\s\S]*up-left[\s\S]*up/, 'Left, right and central sectors receive distinct stage directions');
+  assert.match(seatMapSectionTsx, /event\?\.seatingMapUrl\s*\?\s*'official'\s*:\s*'interactive'/, 'Events with an official SVG open directly on the BTC map');
+  assert.doesNotMatch(seatMapSectionTsx, /et-map-mode-switcher/, 'The redundant two-map mode switcher is removed');
   assert.match(seatMapSectionTsx, /backLabel=\{event\?\.seatingMapUrl\s*\?\s*'Sơ đồ khán đài BTC'/, 'Back control names the official overview');
   assert.match(seatMapSectionTsx, /if\s*\(event\?\.seatingMapUrl\)\s*setViewMode\('official'\)/, 'Back control restores the official BTC map');
 });
