@@ -3135,10 +3135,18 @@
 
 .marketplace-heading h2 {
   margin: 0;
-  font: 900 clamp(36px, 6vw, 72px)/0.96 'Be Vietnam Pro', sans-serif;
+  font: 900 clamp(36px, 6vw, 72px)/1.12 'Be Vietnam Pro', sans-serif;
   letter-spacing: -0.05em;
   text-transform: uppercase;
   color: #0f172a;
+}
+
+.marketplace-heading h2 span {
+  display: block;
+}
+
+.marketplace-heading h2 span + span {
+  margin-top: 0.08em;
 }
 
 .marketplace-heading > span {
@@ -3443,13 +3451,9 @@
 
 .marketplace-footer-brand {
   display: block;
-  font: 900 24px/1 'Space Grotesk', sans-serif;
-  letter-spacing: -0.06em;
+  font: 800 24px/1.2 'Be Vietnam Pro', sans-serif;
+  letter-spacing: -0.01em;
   color: #0f172a;
-}
-
-.marketplace-footer-brand span {
-  color: #047857;
 }
 
 .marketplace-footer-slogan {
