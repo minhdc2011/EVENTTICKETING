@@ -27,7 +27,7 @@
 
   <!-- Title & Header Bar -->
   <rect x="0" y="0" width="1000" height="60" fill="#070d1a"/>
-  <text x="40" y="38" fill="#ffffff" font-size="18" font-weight="700" letter-spacing="1">TICKETMASTER ARENA SEATING CHART</text>
+  <text x="40" y="38" fill="#ffffff" font-size="18" font-weight="700" letter-spacing="1">EVENTTICKETING ARENA SEATING CHART</text>
   <text x="960" y="38" fill="#94a3b8" font-size="13" font-weight="500" text-anchor="end">SƠ ĐỒ NHÀ THI ĐẤU TIÊU CHUẨN END-STAGE</text>
 
   <!-- Arena Outer Perimeter Ring -->
