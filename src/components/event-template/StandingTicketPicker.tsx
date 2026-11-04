@@ -21,7 +21,11 @@ export function StandingTicketPicker({zones, quantities, roomLeft, disabled, onC
           const quantity = quantities[zone.MaKhuVuc] || 0;
           const label = zone.TenKhuVuc || zone.MaKhuVuc;
           return (
-            <li key={zone.KhuVucID} className="et-standing-row">
+            <li
+              key={zone.KhuVucID}
+              className="et-standing-row"
+              data-standing-zone={zone.MaKhuVuc}
+            >
               <div className="et-standing-info">
                 <span className="et-standing-name">{label}</span>
                 <span className="et-standing-price">{formatMoneyVND(zone.GiaVeNiemYet)} / vé</span>

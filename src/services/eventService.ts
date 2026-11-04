@@ -530,6 +530,71 @@ const EVENT_SPECIFIC_TIERS: Record<string, PublicTicketTier[]> = {
   ],
 };
 
+/** True when the repository ships a complete demo ticket catalog for this event. */
+export function hasFallbackCatalog(eventSlug?: string): boolean {
+  const cleanSlug = deduplicateSlug(eventSlug || '');
+  return Boolean(
+    EVENT_SPECIFIC_TIERS[cleanSlug]
+    || EVENT_SPECIFIC_TIERS[eventSlug || '']
+    || DEMO_MAP_SECTIONS[cleanSlug]
+    || DEMO_MAP_SECTIONS[eventSlug || ''],
+  );
+}
+
+type DemoMapSection = {
+  id: number;
+  code: string;
+  name: string;
+  price: number;
+  color: string;
+  standing?: boolean;
+  capacity?: number;
+};
+
+const ARENA_LOWER_SECTIONS = ['101', '102', '103', '104', '106', '107', '108', '109', '110', '111', '112'];
+const ARENA_UPPER_SECTIONS = ['201_203', '204_206', '207_208', '209_212', '213_214', '215_217', '218_220'];
+
+const DEMO_MAP_SECTIONS: Record<string, DemoMapSection[]> = {
+  'creative-tech-summit-2026': [
+    ...['A', 'B', 'C', 'D', 'E', 'F'].map((box, index) => ({
+      id: 2101 + index,
+      code: `BOX_${box}`,
+      name: `Private Box ${box}`,
+      price: 1200000,
+      color: '#10b981',
+      capacity: 24,
+    })),
+    {id: 2110, code: 'ORCHESTRA_LEFT', name: 'Orchestra Left', price: 650000, color: '#f59e0b'},
+    {id: 2111, code: 'ORCHESTRA_CENTER', name: 'Orchestra Center VIP', price: 1200000, color: '#d97706'},
+    {id: 2112, code: 'ORCHESTRA_RIGHT', name: 'Orchestra Right', price: 650000, color: '#f59e0b'},
+    {id: 2120, code: 'MEZZANINE_LEFT', name: 'Mezzanine Left', price: 650000, color: '#3b82f6'},
+    {id: 2121, code: 'MEZZANINE_CENTER', name: 'Front Mezzanine Center', price: 650000, color: '#2563eb'},
+    {id: 2122, code: 'MEZZANINE_RIGHT', name: 'Mezzanine Right', price: 650000, color: '#3b82f6'},
+    {id: 2130, code: 'UPPER_BALCONY', name: 'Upper Balcony', price: 350000, color: '#7c3aed'},
+  ],
+  'autumn-arena-festival-2026': [
+    {id: 3101, code: 'GA_PIT_LEFT', name: 'GA Pit Left', price: 1800000, color: '#10b981', standing: true, capacity: 750},
+    {id: 3102, code: 'GA_PIT_RIGHT', name: 'GA Pit Right', price: 1800000, color: '#10b981', standing: true, capacity: 750},
+    {id: 3111, code: 'FLOOR_1', name: 'Floor 1 VIP', price: 2500000, color: '#3b82f6'},
+    {id: 3112, code: 'FLOOR_2_VIP', name: 'Floor 2 VIP Trung tâm', price: 2500000, color: '#2563eb'},
+    {id: 3113, code: 'FLOOR_3', name: 'Floor 3 VIP', price: 2500000, color: '#3b82f6'},
+    ...ARENA_LOWER_SECTIONS.map((section, index) => ({
+      id: 3200 + index,
+      code: `SEC_${section}`,
+      name: `Section ${section.replace('_', '–')}`,
+      price: 1200000,
+      color: '#f59e0b',
+    })),
+    ...ARENA_UPPER_SECTIONS.map((section, index) => ({
+      id: 3300 + index,
+      code: `SEC_${section}`,
+      name: `Upper Section ${section.replace('_', '–')}`,
+      price: 650000,
+      color: '#8b5cf6',
+    })),
+  ],
+};
+
 export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<PublicTicketTier[]> {
   const specificTiers = EVENT_SPECIFIC_TIERS[event.slug] || EVENT_SPECIFIC_TIERS[deduplicateSlug(event.slug)];
   if (specificTiers && event.templateKey !== 'SUPER_CONCERT_2026') return specificTiers;
@@ -610,16 +675,28 @@ export {
 export function getFallbackCatalog(eventSlug?: string): TicketingCatalog {
   const cleanSlug = deduplicateSlug(eventSlug || '');
   const tiers = EVENT_SPECIFIC_TIERS[cleanSlug] || EVENT_SPECIFIC_TIERS[eventSlug || ''] || SUPER_CONCERT_TIERS;
-  
-  const zones: ZoneRecord[] = tiers.map((tier, idx) => ({
-    KhuVucID: tier.id || (idx + 1) * 10,
-    MaKhuVuc: tier.code,
-    TenKhuVuc: tier.name,
-    GiaVeNiemYet: tier.price,
-    MauSacHex: tier.color || '#3b82f6',
-    LoaiKhuVuc: (tier.code.includes('STAND') || tier.code.includes('PIT') || tier.code.includes('BIB')) ? 'DUNG_STAND' : 'GHE_NGOI',
-    TongSoGhe: tier.capacity || 200,
-  }));
+  const standingCodePattern = /(^|_)(STAND|STANDING|PIT|BIB|FANZONE)(_|$)/;
+  const mapSections = DEMO_MAP_SECTIONS[cleanSlug] || DEMO_MAP_SECTIONS[eventSlug || ''];
+
+  const zones: ZoneRecord[] = mapSections
+    ? mapSections.map((section) => ({
+        KhuVucID: section.id,
+        MaKhuVuc: section.code,
+        TenKhuVuc: section.name,
+        GiaVeNiemYet: section.price,
+        MauSacHex: section.color,
+        LoaiKhuVuc: section.standing ? 'DUNG_STAND' : 'GHE_NGOI',
+        TongSoGhe: section.capacity || 40,
+      }))
+    : tiers.map((tier, idx) => ({
+        KhuVucID: tier.id || (idx + 1) * 10,
+        MaKhuVuc: tier.code,
+        TenKhuVuc: tier.name,
+        GiaVeNiemYet: tier.price,
+        MauSacHex: tier.color || '#3b82f6',
+        LoaiKhuVuc: standingCodePattern.test(tier.code) ? 'DUNG_STAND' : 'GHE_NGOI',
+        TongSoGhe: tier.capacity || 200,
+      }));
 
   const seats: SeatRecord[] = [];
   let seatIdCounter = 1000;

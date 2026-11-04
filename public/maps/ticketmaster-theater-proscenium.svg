@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900" width="100%" height="100%" style="background: #0d1527; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <style>text { pointer-events: none; }</style>
   <defs>
     <linearGradient id="th-stage-grad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#b91c1c"/>
@@ -47,43 +48,49 @@
 
   <!-- Private Loge Boxes (Side Wall Suites) -->
   <g id="boxes-left" filter="url(#th-shadow)">
-    <rect x="110" y="210" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
+    <rect data-zone-code="BOX_A" role="button" tabindex="0" aria-label="Private Box A" x="110" y="210" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
     <text x="150" y="245" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">BOX A</text>
 
-    <rect x="100" y="285" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
+    <rect data-zone-code="BOX_B" role="button" tabindex="0" aria-label="Private Box B" x="100" y="285" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
     <text x="140" y="320" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">BOX B</text>
 
-    <rect x="90" y="360" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
+    <rect data-zone-code="BOX_C" role="button" tabindex="0" aria-label="Private Box C" x="90" y="360" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
     <text x="130" y="395" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">BOX C</text>
   </g>
 
   <g id="boxes-right" filter="url(#th-shadow)">
-    <rect x="810" y="210" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
+    <rect data-zone-code="BOX_D" role="button" tabindex="0" aria-label="Private Box D" x="810" y="210" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
     <text x="850" y="245" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">BOX D</text>
 
-    <rect x="820" y="285" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
+    <rect data-zone-code="BOX_E" role="button" tabindex="0" aria-label="Private Box E" x="820" y="285" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
     <text x="860" y="320" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">BOX E</text>
 
-    <rect x="830" y="360" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
+    <rect data-zone-code="BOX_F" role="button" tabindex="0" aria-label="Private Box F" x="830" y="360" width="80" height="60" rx="6" fill="#047857" stroke="#34d399" stroke-width="1.5"/>
     <text x="870" y="395" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">BOX F</text>
   </g>
 
   <!-- Tier 1: Orchestra Level (Tầng trệt) -->
   <g id="orchestra-level" filter="url(#th-shadow)">
     <!-- Orchestra Left -->
-    <path d="M 210 220 L 320 220 L 300 440 L 180 440 Z" fill="url(#th-orch-side)" stroke="#ffffff" stroke-width="1.5"/>
-    <text x="250" y="330" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle">ORCHESTRA</text>
-    <text x="250" y="350" fill="#fef3c7" font-size="11" font-weight="600" text-anchor="middle">LEFT</text>
+    <g data-zone-code="ORCHESTRA_LEFT" role="button" tabindex="0" aria-label="Orchestra Left">
+      <path d="M 210 220 L 320 220 L 300 440 L 180 440 Z" fill="url(#th-orch-side)" stroke="#ffffff" stroke-width="1.5"/>
+      <text x="250" y="330" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle" pointer-events="none">ORCHESTRA</text>
+      <text x="250" y="350" fill="#fef3c7" font-size="11" font-weight="600" text-anchor="middle" pointer-events="none">LEFT</text>
+    </g>
 
     <!-- Orchestra Center VIP -->
-    <path d="M 340 220 L 660 220 L 670 440 L 330 440 Z" fill="url(#th-orch-center)" stroke="#fde047" stroke-width="2"/>
-    <text x="500" y="325" fill="#ffffff" font-size="16" font-weight="800" text-anchor="middle">ORCHESTRA CENTER (VIP)</text>
-    <text x="500" y="350" fill="#fef08a" font-size="12" font-weight="700" text-anchor="middle">Khu vực khán phòng trung tâm VIP</text>
+    <g data-zone-code="ORCHESTRA_CENTER" role="button" tabindex="0" aria-label="Orchestra Center VIP">
+      <path d="M 340 220 L 660 220 L 670 440 L 330 440 Z" fill="url(#th-orch-center)" stroke="#fde047" stroke-width="2"/>
+      <text x="500" y="325" fill="#ffffff" font-size="16" font-weight="800" text-anchor="middle" pointer-events="none">ORCHESTRA CENTER (VIP)</text>
+      <text x="500" y="350" fill="#fef08a" font-size="12" font-weight="700" text-anchor="middle" pointer-events="none">Khu vực khán phòng trung tâm VIP</text>
+    </g>
 
     <!-- Orchestra Right -->
-    <path d="M 680 220 L 790 220 L 820 440 L 700 440 Z" fill="url(#th-orch-side)" stroke="#ffffff" stroke-width="1.5"/>
-    <text x="750" y="330" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle">ORCHESTRA</text>
-    <text x="750" y="350" fill="#fef3c7" font-size="11" font-weight="600" text-anchor="middle">RIGHT</text>
+    <g data-zone-code="ORCHESTRA_RIGHT" role="button" tabindex="0" aria-label="Orchestra Right">
+      <path d="M 680 220 L 790 220 L 820 440 L 700 440 Z" fill="url(#th-orch-side)" stroke="#ffffff" stroke-width="1.5"/>
+      <text x="750" y="330" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle" pointer-events="none">ORCHESTRA</text>
+      <text x="750" y="350" fill="#fef3c7" font-size="11" font-weight="600" text-anchor="middle" pointer-events="none">RIGHT</text>
+    </g>
   </g>
 
   <!-- Center Aisle Marker -->
@@ -92,10 +99,9 @@
 
   <!-- Tier 2: Mezzanine Level (Tầng lửng) -->
   <g id="mezzanine-level" filter="url(#th-shadow)">
-    <path d="M 160 480 L 840 480 L 860 610 L 140 610 Z" fill="url(#th-mezz)" stroke="#ffffff" stroke-width="1.5"/>
-    <!-- Left / Center / Right divisions -->
-    <line x1="360" y1="480" x2="350" y2="610" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 4"/>
-    <line x1="640" y1="480" x2="650" y2="610" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <path data-zone-code="MEZZANINE_LEFT" role="button" tabindex="0" aria-label="Mezzanine Left" d="M 160 480 L 360 480 L 350 610 L 140 610 Z" fill="url(#th-mezz)" stroke="#ffffff" stroke-width="1.5"/>
+    <path data-zone-code="MEZZANINE_CENTER" role="button" tabindex="0" aria-label="Front Mezzanine Center" d="M 360 480 L 640 480 L 650 610 L 350 610 Z" fill="url(#th-mezz)" stroke="#ffffff" stroke-width="1.5"/>
+    <path data-zone-code="MEZZANINE_RIGHT" role="button" tabindex="0" aria-label="Mezzanine Right" d="M 640 480 L 840 480 L 860 610 L 650 610 Z" fill="url(#th-mezz)" stroke="#ffffff" stroke-width="1.5"/>
 
     <text x="250" y="550" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle">MEZZANINE LEFT</text>
     <text x="500" y="540" fill="#ffffff" font-size="15" font-weight="800" text-anchor="middle">FRONT MEZZANINE (CENTER)</text>
@@ -105,7 +111,7 @@
 
   <!-- Tier 3: Balcony Tier (Tầng ban công cao) -->
   <g id="balcony-level" filter="url(#th-shadow)">
-    <path d="M 120 640 L 880 640 L 900 760 L 100 760 Z" fill="url(#th-balcony)" stroke="#ffffff" stroke-width="1.5"/>
+    <path data-zone-code="UPPER_BALCONY" role="button" tabindex="0" aria-label="Upper Balcony" d="M 120 640 L 880 640 L 900 760 L 100 760 Z" fill="url(#th-balcony)" stroke="#ffffff" stroke-width="1.5"/>
     <text x="500" y="700" fill="#ffffff" font-size="15" font-weight="800" text-anchor="middle">UPPER BALCONY · TẦNG BAN CÔNG</text>
     <text x="500" y="725" fill="#e9d5ff" font-size="11" text-anchor="middle">Khán đài tầng cao giá tiết kiệm</text>
   </g>

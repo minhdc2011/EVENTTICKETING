@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900" width="100%" height="100%" style="background: #0b1326; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <style>text { pointer-events: none; }</style>
   <defs>
     <linearGradient id="tm-stage-grad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#1e293b"/>
@@ -52,12 +53,12 @@
   <!-- Floor Pit / GA Standing -->
   <g id="floor-ga" filter="url(#tm-glow)">
     <!-- GA PIT Left -->
-    <path d="M 320 200 L 450 200 L 460 270 L 330 270 Z" fill="url(#tm-floor-ga)" stroke="#ffffff" stroke-width="1.5" opacity="0.95"/>
+    <path data-zone-code="GA_PIT_LEFT" role="button" tabindex="0" aria-label="GA Pit Left" d="M 320 200 L 450 200 L 460 270 L 330 270 Z" fill="url(#tm-floor-ga)" stroke="#ffffff" stroke-width="1.5" opacity="0.95"/>
     <text x="390" y="240" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">GA PIT LEFT</text>
     <text x="390" y="255" fill="#d1fae5" font-size="9" text-anchor="middle">Đứng tự do</text>
 
     <!-- GA PIT Right -->
-    <path d="M 550 200 L 680 200 L 670 270 L 540 270 Z" fill="url(#tm-floor-ga)" stroke="#ffffff" stroke-width="1.5" opacity="0.95"/>
+    <path data-zone-code="GA_PIT_RIGHT" role="button" tabindex="0" aria-label="GA Pit Right" d="M 550 200 L 680 200 L 670 270 L 540 270 Z" fill="url(#tm-floor-ga)" stroke="#ffffff" stroke-width="1.5" opacity="0.95"/>
     <text x="610" y="240" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">GA PIT RIGHT</text>
     <text x="610" y="255" fill="#d1fae5" font-size="9" text-anchor="middle">Đứng tự do</text>
   </g>
@@ -65,17 +66,17 @@
   <!-- Floor Reserved Seating (FLR 1, FLR 2, FLR 3) -->
   <g id="floor-reserved" filter="url(#tm-glow)">
     <!-- Floor Section 1 (Left) -->
-    <rect x="300" y="290" width="115" height="120" rx="6" fill="url(#tm-floor-seated)" stroke="#ffffff" stroke-width="1.5"/>
+    <rect data-zone-code="FLOOR_1" role="button" tabindex="0" aria-label="Floor 1 VIP" x="300" y="290" width="115" height="120" rx="6" fill="url(#tm-floor-seated)" stroke="#ffffff" stroke-width="1.5"/>
     <text x="357" y="345" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle">FLOOR 1</text>
     <text x="357" y="365" fill="#bfdbfe" font-size="10" text-anchor="middle">VIP Ghế ngồi</text>
 
     <!-- Floor Section 2 (Center VIP) -->
-    <rect x="435" y="290" width="130" height="135" rx="6" fill="#2563eb" stroke="#fbbf24" stroke-width="2"/>
+    <rect data-zone-code="FLOOR_2_VIP" role="button" tabindex="0" aria-label="Floor 2 VIP Trung tâm" x="435" y="290" width="130" height="135" rx="6" fill="#2563eb" stroke="#fbbf24" stroke-width="2"/>
     <text x="500" y="345" fill="#ffffff" font-size="14" font-weight="800" text-anchor="middle">FLOOR 2 (VIP)</text>
     <text x="500" y="365" fill="#fef08a" font-size="10" font-weight="700" text-anchor="middle">VIP Trung tâm</text>
 
     <!-- Floor Section 3 (Right) -->
-    <rect x="585" y="290" width="115" height="120" rx="6" fill="url(#tm-floor-seated)" stroke="#ffffff" stroke-width="1.5"/>
+    <rect data-zone-code="FLOOR_3" role="button" tabindex="0" aria-label="Floor 3 VIP" x="585" y="290" width="115" height="120" rx="6" fill="url(#tm-floor-seated)" stroke="#ffffff" stroke-width="1.5"/>
     <text x="642" y="345" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle">FLOOR 3</text>
     <text x="642" y="365" fill="#bfdbfe" font-size="10" text-anchor="middle">VIP Ghế ngồi</text>
   </g>
@@ -83,70 +84,70 @@
   <!-- Lower Bowl 100-Level (Horseshoe) -->
   <g id="lower-bowl" filter="url(#tm-glow)">
     <!-- Side Lower Left (Sec 101, 102, 103) -->
-    <path d="M 180 200 L 270 215 L 255 310 L 160 300 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_101" role="button" tabindex="0" aria-label="Section 101" d="M 180 200 L 270 215 L 255 310 L 160 300 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="215" y="260" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 101</text>
 
-    <path d="M 160 315 L 255 325 L 240 420 L 145 410 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_102" role="button" tabindex="0" aria-label="Section 102" d="M 160 315 L 255 325 L 240 420 L 145 410 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="200" y="375" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 102</text>
 
-    <path d="M 145 425 L 240 435 L 230 530 L 135 520 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_103" role="button" tabindex="0" aria-label="Section 103" d="M 145 425 L 240 435 L 230 530 L 135 520 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="185" y="485" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 103</text>
 
     <!-- Corner Lower Left (Sec 104, 105) -->
-    <path d="M 140 535 L 235 545 L 285 640 L 195 655 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_104" role="button" tabindex="0" aria-label="Section 104" d="M 140 535 L 235 545 L 285 640 L 195 655 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="215" y="600" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 104</text>
 
     <!-- End Lower Center (Sec 106, 107, 108) -->
-    <path d="M 300 645 L 390 645 L 390 735 L 290 735 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_106" role="button" tabindex="0" aria-label="Section 106" d="M 300 645 L 390 645 L 390 735 L 290 735 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="345" y="695" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 106</text>
 
-    <path d="M 410 645 L 590 645 L 590 735 L 410 735 Z" fill="url(#tm-lower-bowl)" stroke="#fbbf24" stroke-width="1.5"/>
+    <path data-zone-code="SEC_107" role="button" tabindex="0" aria-label="Section 107 Center" d="M 410 645 L 590 645 L 590 735 L 410 735 Z" fill="url(#tm-lower-bowl)" stroke="#fbbf24" stroke-width="1.5"/>
     <text x="500" y="685" fill="#ffffff" font-size="13" font-weight="800" text-anchor="middle">SEC 107 (CENTER)</text>
     <text x="500" y="705" fill="#fef08a" font-size="10" text-anchor="middle">Khán đài Trung tâm</text>
 
-    <path d="M 610 645 L 700 645 L 710 735 L 610 735 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_108" role="button" tabindex="0" aria-label="Section 108" d="M 610 645 L 700 645 L 710 735 L 610 735 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="655" y="695" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 108</text>
 
     <!-- Corner Lower Right (Sec 109, 110) -->
-    <path d="M 765 545 L 860 535 L 805 655 L 715 640 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_109" role="button" tabindex="0" aria-label="Section 109" d="M 765 545 L 860 535 L 805 655 L 715 640 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="785" y="600" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 109</text>
 
     <!-- Side Lower Right (Sec 111, 112, 113) -->
-    <path d="M 760 435 L 855 425 L 865 520 L 770 530 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_110" role="button" tabindex="0" aria-label="Section 110" d="M 760 435 L 855 425 L 865 520 L 770 530 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="815" y="485" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 110</text>
 
-    <path d="M 745 325 L 840 315 L 855 410 L 760 420 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_111" role="button" tabindex="0" aria-label="Section 111" d="M 745 325 L 840 315 L 855 410 L 760 420 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="800" y="375" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 111</text>
 
-    <path d="M 730 215 L 820 200 L 840 300 L 745 310 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
+    <path data-zone-code="SEC_112" role="button" tabindex="0" aria-label="Section 112" d="M 730 215 L 820 200 L 840 300 L 745 310 Z" fill="url(#tm-lower-bowl)" stroke="#ffffff" stroke-width="1"/>
     <text x="785" y="260" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">SEC 112</text>
   </g>
 
   <!-- Upper Bowl 200-Level Outer Ring -->
   <g id="upper-bowl" filter="url(#tm-glow)">
     <!-- Upper Left -->
-    <path d="M 60 210 L 150 220 L 125 410 L 40 400 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
+    <path data-zone-code="SEC_201_203" role="button" tabindex="0" aria-label="Sections 201 to 203" d="M 60 210 L 150 220 L 125 410 L 40 400 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
     <text x="95" y="315" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SEC 201-203</text>
 
-    <path d="M 40 420 L 125 430 L 110 610 L 20 595 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
+    <path data-zone-code="SEC_204_206" role="button" tabindex="0" aria-label="Sections 204 to 206" d="M 40 420 L 125 430 L 110 610 L 20 595 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
     <text x="75" y="520" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SEC 204-206</text>
 
     <!-- Upper End Curve -->
-    <path d="M 110 625 L 180 635 L 280 810 L 175 800 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
+    <path data-zone-code="SEC_207_208" role="button" tabindex="0" aria-label="Sections 207 to 208" d="M 110 625 L 180 635 L 280 810 L 175 800 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
     <text x="185" y="725" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SEC 207-208</text>
 
-    <path d="M 300 750 L 700 750 L 720 840 L 280 840 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
+    <path data-zone-code="SEC_209_212" role="button" tabindex="0" aria-label="Sections 209 to 212" d="M 300 750 L 700 750 L 720 840 L 280 840 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
     <text x="500" y="800" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle">UPPER TIER 209 - 212 (TẦNG CAO)</text>
     <text x="500" y="820" fill="#ddd6fe" font-size="10" text-anchor="middle">Tầm nhìn bao quát toàn bộ Arena</text>
 
-    <path d="M 820 635 L 890 625 L 825 800 L 720 810 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
+    <path data-zone-code="SEC_213_214" role="button" tabindex="0" aria-label="Sections 213 to 214" d="M 820 635 L 890 625 L 825 800 L 720 810 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
     <text x="815" y="725" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SEC 213-214</text>
 
     <!-- Upper Right -->
-    <path d="M 875 430 L 960 420 L 980 595 L 890 610 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
+    <path data-zone-code="SEC_215_217" role="button" tabindex="0" aria-label="Sections 215 to 217" d="M 875 430 L 960 420 L 980 595 L 890 610 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
     <text x="925" y="520" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SEC 215-217</text>
 
-    <path d="M 850 220 L 940 210 L 960 400 L 875 410 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
+    <path data-zone-code="SEC_218_220" role="button" tabindex="0" aria-label="Sections 218 to 220" d="M 850 220 L 940 210 L 960 400 L 875 410 Z" fill="url(#tm-upper-bowl)" stroke="#ffffff" stroke-width="0.8"/>
     <text x="905" y="315" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SEC 218-220</text>
   </g>
 

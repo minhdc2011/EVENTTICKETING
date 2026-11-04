@@ -325,7 +325,7 @@
 }
 
 /* ==========================================================================
-   SUPER CONCERT SEATING SECTION (Single column vertical stack per media_1793736967471_0b05056a.jpg)
+   SUPER CONCERT SEATING SECTION
    ========================================================================== */
 .et-skin.et-shell--concert #seating-section {
   background: transparent !important;
@@ -358,11 +358,12 @@
   margin-bottom: 16px !important;
 }
 
-/* Workarea: Map on top (100% width), Ghế đã chọn directly below (100% width) */
+/* Workarea: the stadium is the primary task surface; selection stays visible beside it. */
 .et-skin.et-shell--concert #seating-section .concert-seatmap-workarea {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 20px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  align-items: start;
+  gap: 18px !important;
   width: 100% !important;
 }
 .et-skin.et-shell--concert #seating-section .concert-seatmap-canvas {
@@ -370,16 +371,19 @@
   min-width: 0;
 }
 .et-skin.et-shell--concert #seating-section .concert-selection-summary-shell {
-  width: 100% !important;
+  width: auto !important;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: sticky;
+  top: 84px;
 }
 .et-skin.et-shell--concert #seating-section #selected-tickets-summary-card {
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 8px !important;
-  padding: 20px 24px !important;
+  padding: clamp(16px, 2vw, 20px) !important;
   box-shadow: none !important;
   color: #1f262d !important;
 }
@@ -543,6 +547,16 @@
 }
 .et-skin.et-shell--concert #seating-section .et-trust-note strong {
   color: #1f262d;
+}
+
+@media (max-width: 719px) {
+  .et-skin.et-shell--concert #seating-section .concert-seatmap-workarea {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .et-skin.et-shell--concert #seating-section .concert-selection-summary-shell {
+    position: static;
+  }
 }
 
 
