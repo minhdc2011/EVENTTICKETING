@@ -519,8 +519,13 @@ test('round 2 architectural and truthfulness verification', async () => {
   assert.match(seatMapSectionTsx, /currentScopeKey\s*=/i, 'Derives currentScopeKey from event and show IDs');
   assert.match(seatMapSectionTsx, /activeScopeRef\.current\s*!==\s*requestScope/i, 'Drops out-of-order catalog responses from previous scopes');
 
-  // 8. ticketDataService returns empty catalog for zero zones without throwing error
-  assert.match(ticketDataServiceTs, /if\s*\(zones\.length\s*===\s*0\)\s*\{\s*return\s*\{\s*zones:\s*\[\],\s*seats:\s*\[\]\s*\};\s*\}/i, 'Returns empty catalog on zero zones without throwing');
+  // 8. Built-in demo events receive their event-specific catalog when Supabase has no zones;
+  // ordinary organizer events retain the honest empty state.
+  assert.match(
+    ticketDataServiceTs,
+    /if\s*\(zones\.length\s*===\s*0\)\s*\{\s*return\s+hasFallbackCatalog\(active\.eventId\)[\s\S]*?getFallbackCatalog\(active\.eventId\)[\s\S]*?\{zones:\s*\[\],\s*seats:\s*\[\]\}/i,
+    'Uses the known demo catalog only for repository-backed events and otherwise returns empty'
+  );
 });
 
 test('round 3 hold request uses backend zone codes and protects async races', async () => {
@@ -562,6 +567,35 @@ test('round 3 hold request uses backend zone codes and protects async races', as
   assert.match(seatMapSectionTsx, /if\s*\(!activeHold\s*\|\|\s*isReleasePending\)\s*return/);
   assert.match(seatMapSectionTsx, /isReleasing=\{isReleasePending\}/);
   assert.match(holdDialogTsx, /disabled=\{isReleasing\}/);
+});
+
+test('official venue maps drill into exact visual sectors and return to the BTC overview', async () => {
+  const arenaSvg = await readFile(new URL('../public/maps/ticketmaster-arena-endstage.svg', import.meta.url), 'utf8');
+  const theaterSvg = await readFile(new URL('../public/maps/ticketmaster-theater-proscenium.svg', import.meta.url), 'utf8');
+  const eventServiceTs = await readFile(new URL('../src/services/eventService.ts', import.meta.url), 'utf8');
+  const seatMapSectionTsx = await readFile(new URL('../src/components/event-template/SeatMapSection.tsx', import.meta.url), 'utf8');
+  const zoneSeatGridTsx = await readFile(new URL('../src/components/event-template/ZoneSeatGrid.tsx', import.meta.url), 'utf8');
+
+  for (const code of ['SEC_101', 'SEC_102', 'SEC_112', 'FLOOR_1', 'GA_PIT_LEFT']) {
+    assert.match(arenaSvg, new RegExp(`data-zone-code="${code}"`), `Arena exposes ${code} independently`);
+  }
+  assert.match(eventServiceTs, /ARENA_LOWER_SECTIONS\s*=\s*\[[^\]]*'101'[^\]]*'112'/s, 'Catalog declares the independent lower sections');
+  assert.match(eventServiceTs, /code:\s*`SEC_\$\{section\}`/, 'Catalog turns each declared section into an independent zone');
+  assert.match(eventServiceTs, /code:\s*'FLOOR_1'/, 'Catalog contains Floor 1');
+  assert.match(eventServiceTs, /code:\s*'GA_PIT_LEFT'/, 'Catalog contains the left GA pit');
+  assert.doesNotMatch(arenaSvg, /data-zone-code="LOWER_BOWL"/, 'Arena does not collapse all lower sections into one target');
+
+  for (const code of ['BOX_A', 'BOX_F', 'ORCHESTRA_LEFT', 'ORCHESTRA_CENTER', 'MEZZANINE_RIGHT', 'UPPER_BALCONY']) {
+    assert.match(theaterSvg, new RegExp(`data-zone-code="${code}"`), `Theater exposes ${code} independently`);
+  }
+  assert.match(eventServiceTs, /code:\s*`BOX_\$\{box\}`/, 'Catalog turns each private box into an independent zone');
+  for (const code of ['ORCHESTRA_LEFT', 'ORCHESTRA_CENTER', 'MEZZANINE_RIGHT', 'UPPER_BALCONY']) {
+    assert.match(eventServiceTs, new RegExp(code), `Catalog contains ${code}`);
+  }
+  assert.match(zoneSeatGridTsx, /getSectorGeometry/, 'Seat drilldown derives a sector-specific silhouette');
+  assert.match(zoneSeatGridTsx, /et-sector-seat-shell--\$\{geometry\}/, 'Seat grid renders the derived sector silhouette');
+  assert.match(seatMapSectionTsx, /backLabel=\{event\?\.seatingMapUrl\s*\?\s*'Sơ đồ khán đài BTC'/, 'Back control names the official overview');
+  assert.match(seatMapSectionTsx, /if\s*\(event\?\.seatingMapUrl\)\s*setViewMode\('official'\)/, 'Back control restores the official BTC map');
 });
 
 

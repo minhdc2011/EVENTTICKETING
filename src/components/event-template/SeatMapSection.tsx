@@ -40,6 +40,7 @@ import {ZoneSeatGrid} from './ZoneSeatGrid';
 import {SelectionSummary} from './SelectionSummary';
 import {StandingTicketPicker} from './StandingTicketPicker';
 import {HoldConfirmationDialog} from './HoldConfirmationDialog';
+import {OfficialSeatingMap} from './OfficialSeatingMap';
 import './SeatMapSection.css';
 
 export interface SeatMapSectionProps {
@@ -278,6 +279,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     return groupedData.find((g) => g.zone.KhuVucID === selectedZoneId) || null;
   }, [groupedData, selectedZoneId]);
 
+  const activeStandingZone = useMemo(() => {
+    if (selectedZoneId == null) return null;
+    return standingZones.find((zone) => zone.KhuVucID === selectedZoneId) || null;
+  }, [selectedZoneId, standingZones]);
+  const activeDisplayZone = activeZoneGroup?.zone || activeStandingZone;
+
   // Search input change handler
   const handleSearchChange = useCallback(
     (query: string) => {
@@ -304,6 +311,26 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       setSelectedZoneId(null);
     }
     setZoom(1);
+  }, []);
+
+  const handleOfficialZoneSelect = useCallback((zone: ZoneRecord) => {
+    setViewMode('interactive');
+    setFilter(String(zone.KhuVucID));
+    setZoom(1);
+    setAnnouncement(`Đã mở khu ${zone.TenKhuVuc || zone.MaKhuVuc}.`);
+
+    if (isStandingZone(zone)) {
+      setSelectedZoneId(zone.KhuVucID);
+      window.requestAnimationFrame(() => {
+        document.querySelector(`[data-standing-zone="${zone.MaKhuVuc}"]`)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      });
+      return;
+    }
+
+    setSelectedZoneId(zone.KhuVucID);
   }, []);
 
   // Zoom handlers
@@ -609,25 +636,27 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                 <h2 id="map-title" data-od-id="map-title">
                   {viewMode === 'official'
                     ? 'Sơ đồ tổng quan do Ban tổ chức cung cấp'
-                    : activeZoneGroup
-                    ? `Khu ${activeZoneGroup.zone.TenKhuVuc || activeZoneGroup.zone.MaKhuVuc} · ${formatMoneyVND(
-                        activeZoneGroup.zone.GiaVeNiemYet
+                    : activeDisplayZone
+                    ? `Khu ${activeDisplayZone.TenKhuVuc || activeDisplayZone.MaKhuVuc} · ${formatMoneyVND(
+                        activeDisplayZone.GiaVeNiemYet
                       )} / vé`
                     : 'Tổng quan sân vận động'}
                 </h2>
                 <p id="map-subtitle">
                   {viewMode === 'official'
-                    ? 'Dùng để định hướng khu vực; chuyển về sơ đồ trực quan để chọn ghế.'
-                    : activeZoneGroup
-                    ? 'Hàng phía trước gần sân khấu hơn · Chọn ghế để đặt vé'
+                    ? 'Bấm trực tiếp vào đúng phân khu để xem và chọn ghế của riêng khu đó.'
+                    : activeDisplayZone
+                    ? isStandingZone(activeDisplayZone)
+                      ? 'Khu vé đứng · Chọn số lượng vé ở bộ điều khiển bên dưới'
+                      : 'Hàng phía trước gần sân khấu hơn · Chọn ghế để đặt vé'
                     : 'Chọn một phân khu để xem từng hàng ghế chi tiết'}
                 </p>
               </div>
               <span id="view-tag" className="et-view-tag">
                 {viewMode === 'official'
                   ? 'SƠ ĐỒ BTC'
-                  : activeZoneGroup
-                  ? `KHU ${activeZoneGroup.zone.MaKhuVuc || activeZoneGroup.zone.TenKhuVuc}`
+                  : activeDisplayZone
+                  ? `KHU ${activeDisplayZone.MaKhuVuc || activeDisplayZone.TenKhuVuc}`
                   : 'TỔNG QUAN'}
               </span>
             </div>
@@ -635,16 +664,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             {/* Map Viewport / State Panel */}
             <div className="et-map-viewport" id="map" data-od-id="interactive-map">
               {viewMode === 'official' && event?.seatingMapUrl ? (
-                <figure className="et-official-map">
-                  <img
-                    src={event.seatingMapUrl}
-                    alt={`Sơ đồ mặt bằng tổ chức của ${event.name}`}
-                    loading="eager"
-                  />
-                  <figcaption>
-                    Sơ đồ định hướng do Ban tổ chức cung cấp. Việc chọn và giữ ghế được thực hiện trong chế độ sơ đồ trực quan.
-                  </figcaption>
-                </figure>
+                <OfficialSeatingMap
+                  src={event.seatingMapUrl}
+                  eventName={event.name}
+                  zones={catalog?.zones || []}
+                  onSelectZone={handleOfficialZoneSelect}
+                />
               ) : catalogState === 'loading' ? (
                 <div className="et-state-panel" role="status">
                   <div className="et-spinner" aria-hidden="true" />
@@ -682,6 +707,25 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                     Xóa tìm kiếm
                   </button>
                 </div>
+              ) : activeStandingZone ? (
+                <div className="et-standing-zone-detail" data-sector-code={activeStandingZone.MaKhuVuc}>
+                  <button
+                    type="button"
+                    className="et-back-btn"
+                    onClick={() => {
+                      setSelectedZoneId(null);
+                      setFilter('all');
+                      if (event?.seatingMapUrl) setViewMode('official');
+                    }}
+                  >
+                    <span aria-hidden="true">←</span>
+                    <span>{event?.seatingMapUrl ? 'Sơ đồ khán đài BTC' : 'Tổng quan sân vận động'}</span>
+                  </button>
+                  <div className="et-standing-zone-shape">
+                    <strong>{activeStandingZone.TenKhuVuc || activeStandingZone.MaKhuVuc}</strong>
+                    <span>Vé đứng · Chọn số lượng ở bên dưới</span>
+                  </div>
+                </div>
               ) : activeZoneGroup ? (
                 <ZoneSeatGrid
                   zone={activeZoneGroup.zone}
@@ -695,9 +739,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                   inspectedSeat={inspectedSeat}
                   onInspectSeat={setInspectedSeat}
                   onToggleSeat={handleToggleSeat}
+                  backLabel={event?.seatingMapUrl ? 'Sơ đồ khán đài BTC' : 'Tổng quan sân vận động'}
                   onBackToOverview={() => {
                     setSelectedZoneId(null);
+                    setFilter('all');
                     setZoom(1);
+                    if (event?.seatingMapUrl) setViewMode('official');
                   }}
                 />
               ) : (
@@ -716,7 +763,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 
             {viewMode === 'interactive' && (
               <StandingTicketPicker
-                zones={standingZones}
+                zones={activeStandingZone ? [activeStandingZone] : standingZones}
                 quantities={standing}
                 roomLeft={roomLeft}
                 disabled={!saleOpen || isPending || Boolean(activeHold)}
@@ -728,9 +775,11 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             <div className="et-map-footnote">
               <span id="map-hint">
                 {viewMode === 'official'
-                  ? 'Sơ đồ tham khảo · Không chọn ghế trực tiếp tại đây'
-                  : activeZoneGroup
-                    ? 'Nhấn ghế để chọn / bỏ chọn'
+                  ? 'Bấm một phân khu để mở đúng lưới ghế của phân khu đó'
+                  : activeStandingZone
+                    ? 'Dùng nút − / + để chọn số lượng vé đứng'
+                    : activeZoneGroup
+                      ? 'Nhấn ghế để chọn / bỏ chọn'
                     : 'Nhấn vào phân khu để khám phá'}
               </span>
               {viewMode === 'interactive' && <span id="zoom-label">{Math.round(zoom * 100)}%</span>}

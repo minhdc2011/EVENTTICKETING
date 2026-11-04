@@ -22,6 +22,16 @@ export interface ZoneSeatGridProps {
   onInspectSeat: (seat: SeatRecord) => void;
   onToggleSeat: (seat: SeatRecord) => void;
   onBackToOverview: () => void;
+  backLabel?: string;
+}
+
+type SectorGeometry = 'left-wedge' | 'right-wedge' | 'center' | 'arc';
+
+function getSectorGeometry(code: string): SectorGeometry {
+  if (/^(SEC_(101|102|103|104|201_203|204_206|207_208)|ORCHESTRA_LEFT|MEZZANINE_LEFT|BOX_[ABC])$/.test(code)) return 'left-wedge';
+  if (/^(SEC_(109|110|111|112|213_214|215_217|218_220)|ORCHESTRA_RIGHT|MEZZANINE_RIGHT|BOX_[DEF])$/.test(code)) return 'right-wedge';
+  if (/^(SEC_209_212|UPPER_BALCONY)$/.test(code)) return 'arc';
+  return 'center';
 }
 
 export function ZoneSeatGrid({
@@ -37,6 +47,7 @@ export function ZoneSeatGrid({
   onInspectSeat,
   onToggleSeat,
   onBackToOverview,
+  backLabel = 'Tổng quan sân vận động',
 }: ZoneSeatGridProps) {
   const backButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -46,6 +57,7 @@ export function ZoneSeatGrid({
   }, [zone.KhuVucID]);
 
   const zoneName = zone.TenKhuVuc || zone.MaKhuVuc;
+  const geometry = getSectorGeometry(zone.MaKhuVuc);
   const q = searchQuery.trim().toLowerCase();
 
   const isSeatSelected = (seat: SeatRecord) =>
@@ -67,7 +79,7 @@ export function ZoneSeatGrid({
         onClick={onBackToOverview}
       >
         <span aria-hidden="true">←</span>
-        <span>Tổng quan sân vận động</span>
+        <span>{backLabel}</span>
       </button>
 
       {/* 2. Stage Orientation Line */}
@@ -76,12 +88,14 @@ export function ZoneSeatGrid({
       </div>
 
       {/* 3. Seat Rows */}
-      <div
-        className="et-seat-rows"
-        role="group"
-        aria-label={`Ghế khu ${zoneName}`}
-        style={{zoom}}
-      >
+      <div className={`et-sector-seat-shell et-sector-seat-shell--${geometry}`} data-sector-code={zone.MaKhuVuc}>
+        <strong className="et-sector-seat-name">{zoneName}</strong>
+        <div
+          className="et-seat-rows"
+          role="group"
+          aria-label={`Ghế khu ${zoneName}`}
+          style={{zoom}}
+        >
         {rows.map(({rowLabel, seats}) => (
           <div key={rowLabel} className="et-seat-row">
             <span className="et-row-label" aria-hidden="true">
@@ -115,7 +129,8 @@ export function ZoneSeatGrid({
               })}
             </div>
           </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* 4. Fixed Seat Detail Disclosure (below grid, does not obscure seats) */}
