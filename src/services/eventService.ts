@@ -83,7 +83,7 @@ const MOCK_GENERIC_EVENT: PublicEventRecord = {
   contactEmail: 'contact@creativetech.vn', contactHotline: '024-3788-0099',
 };
 
-// Event phân bổ sơ đồ Ticketmaster Arena End-Stage
+// Event sử dụng sơ đồ arena end-stage tham khảo.
 const MOCK_ARENA_SHOW: PublicShowRecord = {
   id: 31, slug: 'dem-arena', name: 'Đêm diễn Arena Quốc tế',
   startsAt: '2026-11-21T18:30:00+07:00', endsAt: '2026-11-21T23:30:00+07:00',
@@ -95,7 +95,7 @@ const MOCK_ARENA_EVENT: PublicEventRecord = {
   id: 3, code: 'AUTUMN_ARENA_FESTIVAL_2026', slug: 'autumn-arena-festival-2026',
   name: 'Autumn Arena International Music Festival 2026',
   slogan: 'ĐẠI NHẠC HỘI ARENA QUỐC TẾ THÁNG 11',
-  description: 'Đêm nhạc hội quy mô lớn theo tiêu chuẩn Arena quốc tế với hệ thống âm thanh ánh sáng hiện đại bậc nhất và sơ đồ chỗ ngồi chuẩn Ticketmaster End-Stage.',
+  description: 'Đêm nhạc hội quy mô lớn theo tiêu chuẩn Arena quốc tế với hệ thống âm thanh ánh sáng hiện đại và sơ đồ chỗ ngồi end-stage.',
   templateKey: 'DEFAULT', category: 'AM_NHAC',
   bannerUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=900&q=86',
@@ -125,7 +125,6 @@ const MOCK_TICKETGO_MUSIQUE: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'AM_NHAC',
   bannerUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=900&q=86',
-  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-theater-proscenium.svg'),
   startsAt: MOCK_MUSIQUE_SHOW.startsAt, endsAt: MOCK_MUSIQUE_SHOW.endsAt,
   saleStartsAt: MOCK_MUSIQUE_SHOW.saleStartsAt, saleEndsAt: MOCK_MUSIQUE_SHOW.saleEndsAt,
   venueName: 'Cung Văn hóa Hữu nghị Việt Xô', address: '91 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội',
@@ -150,7 +149,6 @@ const MOCK_TICKETGO_MOMANG: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'AM_NHAC',
   bannerUrl: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=86',
-  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-arena-endstage.svg'),
   startsAt: MOCK_MOMANG_SHOW.startsAt, endsAt: MOCK_MOMANG_SHOW.endsAt,
   saleStartsAt: MOCK_MOMANG_SHOW.saleStartsAt, saleEndsAt: MOCK_MOMANG_SHOW.saleEndsAt,
   venueName: 'Sân khấu Ngoài trời Bảo tàng Hà Nội', address: 'Đường Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội',
@@ -175,7 +173,6 @@ const MOCK_TICKETGO_GOMSHOW: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'SAN_KHAU',
   bannerUrl: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?auto=format&fit=crop&w=900&q=86',
-  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-theater-proscenium.svg'),
   startsAt: MOCK_GOM_SHOW.startsAt, endsAt: MOCK_GOM_SHOW.endsAt,
   saleStartsAt: MOCK_GOM_SHOW.saleStartsAt, saleEndsAt: MOCK_GOM_SHOW.saleEndsAt,
   venueName: 'Rạp Khăn Quàng Đỏ', address: '36 Lý Thái Tổ, Hoàn Kiếm, Hà Nội',
@@ -200,7 +197,6 @@ const MOCK_TICKETGO_TRAMHUONG: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'WORKSHOP',
   bannerUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=900&q=86',
-  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-theater-proscenium.svg'),
   startsAt: MOCK_TRAMHUONG_SHOW.startsAt, endsAt: MOCK_TRAMHUONG_SHOW.endsAt,
   saleStartsAt: MOCK_TRAMHUONG_SHOW.saleStartsAt, saleEndsAt: MOCK_TRAMHUONG_SHOW.saleEndsAt,
   venueName: 'Không gian Nghệ thuật Heritage Space', address: '173 Xuân Thủy, Cầu Giấy, Hà Nội',
@@ -225,7 +221,6 @@ const MOCK_TICKETGO_MARATHON: PublicEventRecord = {
   templateKey: 'DEFAULT', category: 'THE_THAO',
   bannerUrl: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1800&q=86',
   posterUrl: 'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=900&q=86',
-  seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-arena-endstage.svg'),
   startsAt: MOCK_MARATHON_SHOW.startsAt, endsAt: MOCK_MARATHON_SHOW.endsAt,
   saleStartsAt: MOCK_MARATHON_SHOW.saleStartsAt, saleEndsAt: MOCK_MARATHON_SHOW.saleEndsAt,
   venueName: 'Công viên Yên Sở', address: 'Gamuda City, Hoàng Mai, Hà Nội',
@@ -269,7 +264,7 @@ function mapEvent(row: Record<string, unknown>, shows: PublicShowRecord[], reque
     bannerUrl: row.BannerURL ? String(row.BannerURL) : undefined,
     posterUrl: row.PosterURL ? String(row.PosterURL) : undefined,
     trailerUrl: row.TrailerURL ? String(row.TrailerURL) : undefined,
-    seatingMapUrl: row.SoDoTongQuanURL ? String(row.SoDoTongQuanURL) : undefined,
+    seatingMapUrl: row.SoDoTongQuanURL ? resolveAssetUrl(String(row.SoDoTongQuanURL)) : undefined,
     ageRestriction: row.QuyDinhDoTuoi ? String(row.QuyDinhDoTuoi) : undefined,
     refundPolicy: row.ChinhSachHoanHuy ? String(row.ChinhSachHoanHuy) : undefined,
     termsAndConditions: row.QuyDinhThamGia ? String(row.QuyDinhThamGia) : undefined,

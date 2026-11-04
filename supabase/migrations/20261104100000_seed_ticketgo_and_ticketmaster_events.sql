@@ -1,9 +1,9 @@
--- Migration: Thêm 5 sự kiện từ Ticketgo và 2 sự kiện kèm sơ đồ Ticketmaster (Tháng 11/2026)
+-- Migration: Thêm 5 sự kiện tham khảo Ticketgo và 2 sự kiện kèm sơ đồ chỗ ngồi tham khảo (Tháng 11/2026)
 -- Ngày tạo: 04/11/2026
 
 BEGIN;
 
--- 1. Cập nhật sơ đồ Ticketmaster cho Creative Tech Summit
+-- 1. Cập nhật sơ đồ nhà hát tham khảo cho Creative Tech Summit
 UPDATE public."SU_KIEN"
 SET "SoDoTongQuanURL" = '/maps/ticketmaster-theater-proscenium.svg'
 WHERE "Slug" = 'creative-tech-summit-2026';
@@ -13,7 +13,7 @@ INSERT INTO public."TO_CHUC" ("TenToChuc", "Slug")
 VALUES ('Ban Tổ Chức Ticketgo & Đối Tác', 'ticketgo-partners')
 ON CONFLICT ("Slug") DO NOTHING;
 
--- 3. Tạo sự kiện Autumn Arena International Music Festival 2026 (Sơ đồ Ticketmaster Arena)
+-- 3. Tạo sự kiện Autumn Arena International Music Festival 2026 (sơ đồ arena end-stage)
 INSERT INTO public."SU_KIEN" (
     "TenSuKien", "Slug", "ToChucID", "Slogan", "MoTaChiTiet", "TheLoai", "TemplateKey",
     "ThoiGianBatDau", "ThoiGianKetThuc", "ThoiGianMoBanVe", "ThoiGianDongBanVe",
@@ -25,7 +25,7 @@ SELECT
     'autumn-arena-festival-2026',
     t."ToChucID",
     'ĐẠI NHẠC HỘI ARENA QUỐC TẾ THÁNG 11',
-    'Đêm nhạc hội quy mô lớn theo tiêu chuẩn Arena quốc tế với hệ thống âm thanh ánh sáng hiện đại bậc nhất và sơ đồ chỗ ngồi chuẩn Ticketmaster End-Stage.',
+    'Đêm nhạc hội quy mô lớn theo tiêu chuẩn Arena quốc tế với hệ thống âm thanh ánh sáng hiện đại và sơ đồ chỗ ngồi end-stage.',
     'AM_NHAC',
     'DEFAULT',
     '2026-11-21 18:30:00+07',

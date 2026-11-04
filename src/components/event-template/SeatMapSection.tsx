@@ -1,4 +1,3 @@
-import {resolveAssetUrl} from '../../domain/assetHelper';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {PublicEventRecord} from '../../services/eventService';
 import type {TicketingCatalog, SeatRecord, ZoneRecord} from '../../types/ticketing';
@@ -72,7 +71,6 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const [connectionStatus, setConnectionStatus] = useState<RealtimeConnectionStatus>('CONNECTING');
   const [realtimeBanner, setRealtimeBanner] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState<string>('');
-  const [showContextMapModal, setShowContextMapModal] = useState<boolean>(false);
   const [standing, setStanding] = useState<Record<string, number>>({});
   const [clock, setClock] = useState<number>(() => Date.now());
   const [limits, setLimits] = useState(() => resolvePurchaseLimits(null));
@@ -586,40 +584,22 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             
             {/* View Mode Switcher when official seating map is provided */}
             {event?.seatingMapUrl && (
-              <div style={{display: 'flex', gap: '8px', padding: '0 16px 12px 16px', flexWrap: 'wrap'}}>
+              <div className="et-map-mode-switcher" role="group" aria-label="Chế độ xem sơ đồ">
                 <button
                   type="button"
                   onClick={() => setViewMode('interactive')}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    background: viewMode === 'interactive' ? '#0353c2' : '#ffffff',
-                    color: viewMode === 'interactive' ? '#ffffff' : '#475569',
-                    border: '1px solid ' + (viewMode === 'interactive' ? '#0353c2' : '#cbd5e1'),
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className="et-map-mode-btn"
+                  aria-pressed={viewMode === 'interactive'}
                 >
                   Sơ đồ chọn ghế trực quan
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('official')}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    background: viewMode === 'official' ? '#0353c2' : '#ffffff',
-                    color: viewMode === 'official' ? '#ffffff' : '#475569',
-                    border: '1px solid ' + (viewMode === 'official' ? '#0353c2' : '#cbd5e1'),
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className="et-map-mode-btn"
+                  aria-pressed={viewMode === 'official'}
                 >
-                  Sơ đồ khán đài BTC (Ticketmaster)
+                  Sơ đồ khán đài BTC
                 </button>
               </div>
             )}
@@ -627,20 +607,26 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             <div className="et-map-card-head">
               <div>
                 <h2 id="map-title" data-od-id="map-title">
-                  {activeZoneGroup
+                  {viewMode === 'official'
+                    ? 'Sơ đồ tổng quan do Ban tổ chức cung cấp'
+                    : activeZoneGroup
                     ? `Khu ${activeZoneGroup.zone.TenKhuVuc || activeZoneGroup.zone.MaKhuVuc} · ${formatMoneyVND(
                         activeZoneGroup.zone.GiaVeNiemYet
                       )} / vé`
                     : 'Tổng quan sân vận động'}
                 </h2>
                 <p id="map-subtitle">
-                  {activeZoneGroup
+                  {viewMode === 'official'
+                    ? 'Dùng để định hướng khu vực; chuyển về sơ đồ trực quan để chọn ghế.'
+                    : activeZoneGroup
                     ? 'Hàng phía trước gần sân khấu hơn · Chọn ghế để đặt vé'
                     : 'Chọn một phân khu để xem từng hàng ghế chi tiết'}
                 </p>
               </div>
               <span id="view-tag" className="et-view-tag">
-                {activeZoneGroup
+                {viewMode === 'official'
+                  ? 'SƠ ĐỒ BTC'
+                  : activeZoneGroup
                   ? `KHU ${activeZoneGroup.zone.MaKhuVuc || activeZoneGroup.zone.TenKhuVuc}`
                   : 'TỔNG QUAN'}
               </span>
@@ -648,7 +634,18 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 
             {/* Map Viewport / State Panel */}
             <div className="et-map-viewport" id="map" data-od-id="interactive-map">
-              {catalogState === 'loading' ? (
+              {viewMode === 'official' && event?.seatingMapUrl ? (
+                <figure className="et-official-map">
+                  <img
+                    src={event.seatingMapUrl}
+                    alt={`Sơ đồ mặt bằng tổ chức của ${event.name}`}
+                    loading="eager"
+                  />
+                  <figcaption>
+                    Sơ đồ định hướng do Ban tổ chức cung cấp. Việc chọn và giữ ghế được thực hiện trong chế độ sơ đồ trực quan.
+                  </figcaption>
+                </figure>
+              ) : catalogState === 'loading' ? (
                 <div className="et-state-panel" role="status">
                   <div className="et-spinner" aria-hidden="true" />
                   <h3>Đang tải sơ đồ</h3>
@@ -717,24 +714,30 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               )}
             </div>
 
-            <StandingTicketPicker
-              zones={standingZones}
-              quantities={standing}
-              roomLeft={roomLeft}
-              disabled={!saleOpen || isPending || Boolean(activeHold)}
-              onChange={handleStandingChange}
-            />
+            {viewMode === 'interactive' && (
+              <StandingTicketPicker
+                zones={standingZones}
+                quantities={standing}
+                roomLeft={roomLeft}
+                disabled={!saleOpen || isPending || Boolean(activeHold)}
+                onChange={handleStandingChange}
+              />
+            )}
 
             {/* Map Footnote */}
             <div className="et-map-footnote">
               <span id="map-hint">
-                {activeZoneGroup ? 'Nhấn ghế để chọn / bỏ chọn' : 'Nhấn vào phân khu để khám phá'}
+                {viewMode === 'official'
+                  ? 'Sơ đồ tham khảo · Không chọn ghế trực tiếp tại đây'
+                  : activeZoneGroup
+                    ? 'Nhấn ghế để chọn / bỏ chọn'
+                    : 'Nhấn vào phân khu để khám phá'}
               </span>
-              <span id="zoom-label">{Math.round(zoom * 100)}%</span>
+              {viewMode === 'interactive' && <span id="zoom-label">{Math.round(zoom * 100)}%</span>}
             </div>
 
             {/* Visible Status Legend */}
-            <div className="et-legend" aria-label="Chú giải trạng thái ghế" data-od-id="seat-legend">
+            {viewMode === 'interactive' && <div className="et-legend" aria-label="Chú giải trạng thái ghế" data-od-id="seat-legend">
               <span className="et-legend-item">
                 <i className="et-sample" aria-hidden="true" />
                 <span>Còn trống</span>
@@ -755,7 +758,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                 <i className="et-sample blocked" aria-hidden="true">−</i>
                 <span>Không mở bán</span>
               </span>
-            </div>
+            </div>}
           </section>
 
           {/* Selection & Hold Summary Panel */}
@@ -779,34 +782,6 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             onProceedHold={handleProceedHold}
           />
         </div>
-
-        {/* Optional Contextual Seating Map Reference (Requirement 3) */}
-        {event?.seatingMapUrl && (
-          <div style={{marginTop: '16px'}}>
-            <button
-              type="button"
-              className="et-context-map-btn"
-              onClick={() => setShowContextMapModal((prev) => !prev)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-4 h-4">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <path d="m21 15-5-5L5 21" />
-              </svg>
-              <span>{showContextMapModal ? 'Ẩn sơ đồ đính kèm từ BTC' : 'Xem sơ đồ đính kèm từ Ban tổ chức'}</span>
-            </button>
-
-            {showContextMapModal && (
-              <div style={{marginTop: '12px', maxWidth: '640px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--seat-border)'}}>
-                <img
-                  src={event.seatingMapUrl}
-                  alt={`Sơ đồ mặt bằng tổ chức của ${event.name}`}
-                  style={{width: '100%', height: 'auto', display: 'block'}}
-                />
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Accessible screen reader announcement live region */}
         <span className="sr-only" aria-live="polite">

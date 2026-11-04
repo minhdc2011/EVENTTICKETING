@@ -299,6 +299,41 @@
   margin: 3px 0 0;
 }
 
+.et-map-mode-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 18px 0;
+}
+
+.et-map-mode-btn {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--seat-border);
+  border-radius: 8px;
+  background: var(--seat-bg);
+  color: var(--seat-muted);
+  font: 600 12px inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.et-map-mode-btn:hover {
+  border-color: var(--seat-fg);
+  color: var(--seat-fg);
+}
+
+.et-map-mode-btn[aria-pressed='true'] {
+  background: var(--seat-accent);
+  border-color: var(--seat-accent);
+  color: var(--seat-ink);
+}
+
+.et-map-mode-btn:focus-visible {
+  outline: 3px solid var(--seat-accent);
+  outline-offset: 3px;
+}
+
 .et-view-tag {
   font: 10px var(--seat-font-mono);
   border: 1px solid var(--seat-border);
@@ -319,6 +354,31 @@
   padding: 12px 20px 0;
   background-image: radial-gradient(var(--seat-border) 0.7px, transparent 0.7px);
   background-size: 18px 18px;
+}
+
+.et-official-map {
+  width: min(100%, 820px);
+  margin: 8px auto 18px;
+  border: 1px solid var(--seat-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--seat-bg);
+}
+
+.et-official-map img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 620px;
+  object-fit: contain;
+}
+
+.et-official-map figcaption {
+  padding: 12px 16px;
+  border-top: 1px solid var(--seat-border);
+  color: var(--seat-muted);
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 /* Stadium Overview SVG */
@@ -996,26 +1056,6 @@
   margin-top: 14px;
   text-align: center;
   line-height: 1.5;
-}
-
-/* Optional Contextual Seating Map Thumbnail / Link */
-.et-context-map-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--seat-accent);
-  font-size: 12px;
-  background: none;
-  border: 1px solid var(--seat-border);
-  border-radius: 6px;
-  padding: 6px 12px;
-  min-height: 44px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.et-context-map-btn:hover {
-  border-color: var(--seat-accent);
 }
 
 /* Accessibility */

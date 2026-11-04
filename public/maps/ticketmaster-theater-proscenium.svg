@@ -27,8 +27,8 @@
 
   <!-- Title & Header Bar -->
   <rect x="0" y="0" width="1000" height="60" fill="#070c18"/>
-  <text x="40" y="38" fill="#ffffff" font-size="18" font-weight="700" letter-spacing="1">TICKETMASTER THEATER & AUDITORIUM SEATING CHART</text>
-  <text x="960" y="38" fill="#94a3b8" font-size="13" font-weight="500" text-anchor="end">SƠ ĐỒ NHÀ HÁT & KHÁN PHÒNG CAO CẤP</text>
+  <text x="40" y="38" fill="#ffffff" font-size="18" font-weight="700" letter-spacing="1">EVENTTICKETING THEATER &amp; AUDITORIUM SEATING CHART</text>
+  <text x="960" y="38" fill="#94a3b8" font-size="13" font-weight="500" text-anchor="end">SƠ ĐỒ NHÀ HÁT &amp; KHÁN PHÒNG CAO CẤP</text>
 
   <!-- Theater Walls -->
   <path d="M 120 180 L 100 780 L 900 780 L 880 180 Z" fill="none" stroke="#1e293b" stroke-width="2"/>
