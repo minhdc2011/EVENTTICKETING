@@ -10,21 +10,21 @@ Sơ đồ UML chuẩn (ranh giới hệ thống, «include»/«extend») là Hì
 flowchart LR
   K([Khán giả])
   B([Ban tổ chức])
-  subgraph S1K[Sprint 1 - cụm Khán giả]
+  subgraph S1K["Sprint 1 - cụm Khán giả"]
     T101([UC-T1-01 Xem thông tin sự kiện])
     T102([UC-T1-02 Xem sơ đồ và trạng thái ghế])
     T103([UC-T1-03 Zoom/Pan sơ đồ])
     T104([UC-T1-04 Tooltip ghế/giá vé])
     T105([UC-T1-05 Cập nhật trạng thái ghế realtime])
   end
-  subgraph S1B[Sprint 1 - cụm Ban tổ chức, FR-T1-03]
+  subgraph S1B["Sprint 1 - cụm Ban tổ chức, FR-T1-03"]
     B01([UC-BTC-01 Đăng nhập BTC])
     B02([UC-BTC-02 Tạo tổ chức])
     B03([UC-BTC-03 Tạo/sửa nháp sự kiện])
     B04([UC-BTC-04 Xem trước])
     B05([UC-BTC-05 Công bố sự kiện])
   end
-  subgraph S3[Sprint 3 - nền tảng đã dựng sớm, không tính nghiệm thu Sprint 1]
+  subgraph S3["Sprint 3 - nền tảng đã dựng sớm, không tính nghiệm thu Sprint 1"]
     T301([UC-T3-01 Chọn ghế])
     T302([UC-T3-02 Giữ chỗ 5 phút])
   end
@@ -115,7 +115,7 @@ Nghiệm thu Sprint 1 dừng ở bước D (xem sự kiện, suất diễn, hạ
 
 ```mermaid
 flowchart TB
-  subgraph ClientLayer[Tầng Trình bày (React 19 / Vite Client)]
+  subgraph ClientLayer["Tầng Trình bày (React 19 / Vite Client)"]
     R[App Router]
     MP[Marketplace / Catalog View]
     EP[EventTemplate dùng chung đa sự kiện]
@@ -129,7 +129,7 @@ flowchart TB
     R --> OP
   end
 
-  subgraph ServiceLayer[Tầng Dịch vụ & Domain Logic (src/services & src/domain)]
+  subgraph ServiceLayer["Tầng Dịch vụ & Domain Logic (src/services & src/domain)"]
     BAS[BuyerAuthService: Đăng nhập & Session người mua]
     OS[OrganizerService: Quản trị tổ chức & Lưu Aggregate sự kiện]
     ES[EventService: Truy vấn danh mục sự kiện & Suất diễn]
@@ -140,9 +140,9 @@ flowchart TB
     SRS[SeatRealtimeService: WebSocket quản lý trạng thái ghế]
   end
 
-  subgraph SupabaseLayer[Tầng Dữ liệu & Nền tảng Cloud (Supabase / PostgreSQL 15+)]
+  subgraph SupabaseLayer["Tầng Dữ liệu & Nền tảng Cloud (Supabase / PostgreSQL 15+)"]
     AUTH[Supabase Auth: Quản lý danh tính auth.users]
-    DB[(14 Bảng CSDL Schema public + Ràng buộc toàn vẹn)]
+    DB[("14 Bảng CSDL Schema public + Ràng buộc toàn vẹn")]
     RPC[Hàm giao dịch Transactional RPC: SECURITY DEFINER]
     RLS[Hệ thống chính sách bảo mật dòng Row Level Security]
     WS[Kênh phát Realtime Publications: GHE, KHU_VUC]
@@ -175,16 +175,50 @@ flowchart TB
 
 ---
 
-## 5. Thiết kế hướng đối tượng — Class Diagram từ Repository
+## 5. Thiết kế hướng đối tượng — Class Diagram từ Repository (Phân định B-C-E theo Cụm Phân hệ)
 
-Sơ đồ lớp được trích xuất trực tiếp từ cấu trúc mã nguồn dự án (`src/domain/` và `src/services/`). **Đảm bảo mỗi bảng trong số 14 bảng ERD đều có đúng một lớp Entity tương ứng**, kết hợp với các lớp Service chịu trách nhiệm điều phối nghiệp vụ:
+Sơ đồ lớp được trích xuất trực tiếp từ cấu trúc mã nguồn dự án (`src/components/`, `src/services/` và `src/domain/`), được **phân nhóm và gắn ký hiệu chuẩn mực theo mô hình Boundary – Control – Entity (B-C-E)**:
+- **Nhóm Boundary (`<<Boundary>>`)**: Các lớp giao diện đại diện cho màn hình và thành phần UI tương tác với người dùng.
+- **Nhóm Control (`<<Control>>`)**: Các lớp Service chịu trách nhiệm điều phối nghiệp vụ, xử lý logic use case và kết nối hạ tầng.
+- **Nhóm Entity (`<<Entity>>`)**: **Đảm bảo mỗi bảng trong số 14 bảng ERD đều có đúng một lớp Entity tương ứng** lưu trữ dữ liệu và mô hình hóa hành vi nghiệp vụ.
+
+Để tối ưu khả năng đọc hiểu và quan sát luồng tương tác, **các lớp Boundary, Control và Entity tương ứng với nhau được gom nhóm lại gần nhau theo 4 Cụm Phân hệ Nghiệp vụ (Subsystem Packages)**:
+1. **Cụm 1: Quản trị Ban Tổ Chức & Phân quyền (Organizer Portal & RBAC)**: `OrganizerPortalView` (B) $\rightarrow$ `OrganizerService` (C) $\rightarrow$ `ToChuc`, `ThanhVienToChuc` (E).
+2. **Cụm 2: Khám phá & Chi tiết Sự kiện (Event Detail & Catalog)**: `EventDetailPage` (B) $\rightarrow$ `EventService`, `ScheduleService`, `ArtistService` (C) $\rightarrow$ `SuKien`, `CauHinhSuKien`, `SuatDien`, `DiaDiem`, `SuKienNgheSi`, `NgheSi` (E).
+3. **Cụm 3: Sơ đồ ghế, Phân khu & Giữ chỗ (Seating Map, Realtime & Booking)**: `SeatMapView`, `TicketTiersSection` (B) $\rightarrow$ `TicketDataService`, `SeatRealtimeService`, `BookingService` (C) $\rightarrow$ `PhienBanSoDo`, `KhuVuc`, `Ghe`, `GiuCho`, `ChiTietGiuCho` (E).
+4. **Cụm 4: Định danh & Tài khoản (Buyer Auth & Identity)**: `BuyerAuthModal` (B) $\rightarrow$ `BuyerAuthService` (C) $\rightarrow$ `HoSoNguoiDung` (E).
+
+---
+
+### 5.1. Sơ đồ lớp tổng thể toàn hệ thống (Gom cụm B-C-E tương ứng)
 
 ```mermaid
 classDiagram
   direction TB
 
-  %% 14 LỚP ENTITY TƯƠNG ỨNG 14 BẢNG ERD
+  %% ==============================================================
+  %% CỤM 1: QUẢN TRỊ BAN TỔ CHỨC & PHÂN QUYỀN (ORGANIZER & RBAC)
+  %% ==============================================================
+  class OrganizerPortalView {
+    <<Boundary>>
+    +renderDashboard()
+    +onCreateEventWizard()
+    +onPreviewEvent(eventId)
+    +onPublishEvent(eventId)
+  }
+
+  class OrganizerService {
+    <<Control>>
+    +getOrganizerSession()
+    +loadOrganizerWorkspace()
+    +createOrganization(name, slug)
+    +saveFullEventDraft(input)
+    +loadEventForPreview(eventId)
+    +publishEvent(eventId)
+  }
+
   class ToChuc {
+    <<Entity>>
     +uuid toChucId
     +string tenToChuc
     +string slug
@@ -195,18 +229,8 @@ classDiagram
     +validateInput() boolean
   }
 
-  class HoSoNguoiDung {
-    +uuid nguoiDungId
-    +string hoTen
-    +string anhDaiDienUrl
-    +string loaiTaiKhoan
-    +Date ngayTao
-    +Date ngayCapNhat
-    +isOrganizer() boolean
-    +isAdmin() boolean
-  }
-
   class ThanhVienToChuc {
+    <<Entity>>
     +uuid id
     +uuid toChucId
     +uuid nguoiDungId
@@ -216,7 +240,41 @@ classDiagram
     +canManage() boolean
   }
 
+  OrganizerPortalView ..> OrganizerService : administers
+  OrganizerService ..> ToChuc : manages
+  OrganizerService ..> ThanhVienToChuc : authorizes
+  ToChuc "1" <-- "0..N" ThanhVienToChuc
+
+  %% ==============================================================
+  %% CỤM 2: KHÁM PHÁ & CHI TIẾT SỰ KIỆN (EVENT DETAIL & CATALOG)
+  %% ==============================================================
+  class EventDetailPage {
+    <<Boundary>>
+    +render()
+    +onSelectShow(showId)
+    +onViewSchedule()
+  }
+
+  class EventService {
+    <<Control>>
+    +loadPublicEvents()
+    +loadPublicEvent(slug)
+    +loadPublicTicketTiers(event)
+  }
+
+  class ScheduleService {
+    <<Control>>
+    +loadPublicSchedule(event)
+    +parseTimelineFromDescription(description, eventId)
+  }
+
+  class ArtistService {
+    <<Control>>
+    +loadPublicArtists(event)
+  }
+
   class SuKien {
+    <<Entity>>
     +int suKienId
     +uuid toChucId
     +string tenSuKien
@@ -238,145 +296,65 @@ classDiagram
     +string bannerUrl
     +string posterUrl
     +string trailerUrl
-    +string soDoTongQuanUrl
-    +string quyDinhDoTuoi
-    +string duongDanTrucTuyen
-    +string huongDanThamGiaTrucTuyen
-    +string chinhSachHoanHuy
-    +string quyDinhThamGia
-    +string emailLienHe
-    +string hotlineLienHe
-    +string fanpageUrl
-    +string soGiayPhepBieuDien
-    +Date ngayTao
-    +Date ngayCapNhat
-    +parseTimelineFromDescription() PublicScheduleItem[]
     +isPublished() boolean
+    +isDraft() boolean
+    +isSaleActive() boolean
+    +isConcert() boolean
   }
 
   class CauHinhSuKien {
+    <<Entity>>
+    +int cauHinhId
     +int suKienId
-    +int thoiGianGiuChoPhut
+    +int thoiGianGiuChoGiay
     +int soVeToiDaMoiDon
-    +boolean choPhepChonCho
-    +boolean yeuCauCccd
-    +boolean choPhepChuyenNhuong
-    +Json tuyChonMoRong
+    +boolean choPhepChonGhe
+    +boolean yeuCauXacMinhOtp
+    +Date ngayTao
     +Date ngayCapNhat
+    +isValidHoldDuration() boolean
     +validateHoldLimits(count) boolean
-    +getCustomOption(key) any
   }
 
   class DiaDiem {
-    +bigint diaDiemId
+    <<Entity>>
+    +int diaDiemId
     +uuid toChucId
     +string tenDiaDiem
     +string diaChi
-    +string muiGio
-    +int sucChua
+    +int sucChuaToiDa
     +Date ngayTao
-    +hasCapacity() boolean
-  }
-
-  class PhienBanSoDo {
-    +uuid phienBanSoDoId
-    +bigint diaDiemId
-    +int soPhienBan
-    +string tenPhienBan
-    +Json duLieuSoDo
-    +boolean daKhoa
-    +Date ngayTao
-    +isLocked() boolean
+    +validateCapacity() boolean
   }
 
   class SuatDien {
-    +bigint suatDienId
+    <<Entity>>
+    +int suatDienId
     +int suKienId
-    +string slug
-    +string tenSuatDien
-    +bigint diaDiemId
-    +uuid phienBanSoDoId
-    +string muiGio
-    +Date thoiGianMoCua
+    +int diaDiemId
     +Date thoiGianBatDau
     +Date thoiGianKetThuc
-    +Date thoiGianMoBanVe
-    +Date thoiGianDongBanVe
-    +string trangThai
-    +Date ngayTao
-    +Date ngayCapNhat
+    +string trangThaiMoBanOverride
+    +string ghiChu
+    +isUpcoming() boolean
+    +isCompleted() boolean
     +deriveSaleStatus() string
-    +isInSaleWindow() boolean
-  }
-
-  class KhuVuc {
-    +int khuVucId
-    +bigint suatDienId
-    +int suKienId
-    +string maKhuVuc
-    +string tenKhuVuc
-    +string loaiKhuVuc
-    +numeric giaVeNiemYet
-    +string mauSacHex
-    +string moTaQuyenLoi
-    +int tongSoGhe
-    +int soVeToiThieuMoiDon
-    +int soVeToiDaMoiDon
-    +parseTierBenefits() string[]
-    +computeZoneLayouts() Layout
-    +isStanding() boolean
-  }
-
-  class Ghe {
-    +int gheId
-    +int khuVucId
-    +string soHang
-    +string soGhe
-    +string maGheDayDu
-    +string trangThai
-    +int toaDoX
-    +int toaDoY
-    +evaluateSeatSelection(selected) Result
-    +reconcileSeatUpdate(newSeat) Ghe
-    +isAvailable() boolean
-  }
-
-  class GiuCho {
-    +uuid giuChoId
-    +bigint suatDienId
-    +int suKienId
-    +uuid phienNguoiDung
-    +string trangThai
-    +Date hetHanLuc
-    +Date ngayTao
-    +Date ngayCapNhat
-    +calculateRemainingSeconds() int
-    +isExpired() boolean
-    +canRelease() boolean
-  }
-
-  class ChiTietGiuCho {
-    +bigint id
-    +uuid giuChoId
-    +int khuVucId
-    +int gheId
-    +string maVe
-    +int soLuong
-    +isSeatSpecific() boolean
   }
 
   class NgheSi {
+    <<Entity>>
     +int ngheSiId
+    +uuid toChucId
     +string hoTen
     +string ngheDanh
     +string vaiTroChinh
     +string tieuSu
     +string hinhAnhUrl
-    +Date ngayTao
-    +normalizeArtistRow() ArtistItem
+    +string getDisplayName() string
   }
 
   class SuKienNgheSi {
+    <<Entity>>
     +int id
     +int suKienId
     +int ngheSiId
@@ -385,59 +363,133 @@ classDiagram
     +sortArtists() SuKienNgheSi[]
   }
 
-  %% CÁC LỚP SERVICE TẦNG THỰC THI (src/services/)
-  class BuyerAuthService {
-    +getBuyerSession()
-    +signInBuyer(email, password)
-    +signUpBuyer(email, password)
+  EventDetailPage ..> EventService : triggers load
+  EventDetailPage ..> ScheduleService : triggers parse
+  EventDetailPage ..> ArtistService : triggers lineup
+  EventService ..> SuKien : retrieves
+  EventService ..> SuatDien : retrieves
+  ScheduleService ..> SuKien : parses description
+  ArtistService ..> SuKienNgheSi : queries
+  ArtistService ..> NgheSi : queries
+  SuKien "1" <--> "1" CauHinhSuKien
+  SuKien "1" <-- "1..N" SuatDien
+  DiaDiem "1" <-- "0..N" SuatDien
+  SuKien "1" <-- "0..N" SuKienNgheSi
+  NgheSi "1" <-- "0..N" SuKienNgheSi
+
+  %% ==============================================================
+  %% CỤM 3: SƠ ĐỒ GHẾ, PHÂN KHU & GIỮ CHỖ (SEATING & BOOKING)
+  %% ==============================================================
+  class SeatMapView {
+    <<Boundary>>
+    +renderSeatGrid()
+    +onSelectZone(zoneId)
+    +onSelectSeat(seatId)
+    +zoomPan(scale, offset)
   }
 
-  class OrganizerService {
-    +getOrganizerSession()
-    +loadOrganizerWorkspace()
-    +createOrganization(name, slug)
-    +saveFullEventDraft(input)
-    +loadEventForPreview(eventId)
-    +publishEvent(eventId)
-  }
-
-  class EventService {
-    +loadPublicEvents()
-    +loadPublicEvent(slug)
-    +loadPublicTicketTiers(event)
-  }
-
-  class ScheduleService {
-    +loadPublicSchedule(event)
-    +parseTimelineFromDescription(description, eventId)
-  }
-
-  class ArtistService {
-    +loadPublicArtists(event)
+  class TicketTiersSection {
+    <<Boundary>>
+    +renderTiers()
+    +onSelectTier(zoneId)
+    +onBookSeats()
   }
 
   class TicketDataService {
+    <<Control>>
     +loadTicketingCatalog()
   }
 
+  class SeatRealtimeService {
+    <<Control>>
+    +subscribeToSeatUpdates(listener, onConnectionStatus, options) unsubscribeFn
+  }
+
   class BookingService {
+    <<Control>>
     +createSeatHold(payload)
     +releaseSeatHold(holdId)
   }
 
-  class SeatRealtimeService {
-    +subscribeToSeatUpdates(listener, onConnectionStatus, options) unsubscribeFn
+  class PhienBanSoDo {
+    <<Entity>>
+    +int phienBanId
+    +int diaDiemId
+    +string tenPhienBan
+    +json cauHinhToaDo
+    +boolean dangHoatDong
+    +Date ngayTao
+    +isActive() boolean
   }
 
-  %% MỐI QUAN HỆ GIỮA CÁC LỚP ENTITY
-  ToChuc "1" <-- "0..N" ThanhVienToChuc
-  HoSoNguoiDung "1" <-- "0..N" ThanhVienToChuc
-  ToChuc "1" <-- "0..N" SuKien
-  SuKien "1" <--> "1" CauHinhSuKien
-  ToChuc "1" <-- "0..N" DiaDiem
+  class KhuVuc {
+    <<Entity>>
+    +int khuVucId
+    +int suatDienId
+    +int suKienId
+    +string maKhuVuc
+    +string tenKhuVuc
+    +string loaiPhanKhu
+    +decimal giaVe
+    +int tongSoVe
+    +int soVeDaBan
+    +string[] danhSachQuyenLoi
+    +isStanding() boolean
+    +isSeated() boolean
+    +isSoldOut() boolean
+    +getAvailableCount() int
+  }
+
+  class Ghe {
+    <<Entity>>
+    +int gheId
+    +int khuVucId
+    +string maGhe
+    +string hangGhe
+    +int soGhe
+    +string trangThai
+    +boolean khoaBoiAdmin
+    +isAvailable() boolean
+    +isLocked() boolean
+    +canSelect() boolean
+  }
+
+  class GiuCho {
+    <<Entity>>
+    +int giuChoId
+    +int suKienId
+    +int suatDienId
+    +uuid nguoiDungId
+    +string phienNguoiDung
+    +string trangThai
+    +Date thoiGianGiuCho
+    +Date thoiGianHetHan
+    +isExpired() boolean
+    +isActive() boolean
+    +canRelease() boolean
+  }
+
+  class ChiTietGiuCho {
+    <<Entity>>
+    +int chiTietGiuChoId
+    +int giuChoId
+    +int khuVucId
+    +int gheId
+    +int soLuong
+    +decimal giaTien
+    +isStandingHold() boolean
+    +isSeatHold() boolean
+    +getSubtotal() decimal
+  }
+
+  SeatMapView ..> TicketDataService : loads zones/seats
+  SeatMapView ..> SeatRealtimeService : listens realtime
+  TicketTiersSection ..> BookingService : requests hold
+  TicketDataService ..> KhuVuc : loads
+  TicketDataService ..> Ghe : loads
+  BookingService ..> GiuCho : creates/releases
+  BookingService ..> ChiTietGiuCho : manages
   DiaDiem "1" <-- "0..N" PhienBanSoDo
-  SuKien "1" <-- "1..N" SuatDien
-  DiaDiem "1" <-- "0..N" SuatDien
   PhienBanSoDo "0..1" <-- "0..N" SuatDien
   SuatDien "1" <-- "1..N" KhuVuc
   KhuVuc "1" <-- "0..N" Ghe
@@ -445,27 +497,291 @@ classDiagram
   GiuCho "1" <-- "1..N" ChiTietGiuCho
   KhuVuc "1" <-- "0..N" ChiTietGiuCho
   Ghe "0..1" <-- "0..N" ChiTietGiuCho
-  SuKien "1" <-- "0..N" SuKienNgheSi
-  NgheSi "1" <-- "0..N" SuKienNgheSi
 
-  %% SERVICE LIÊN KẾT ENTITY
-  EventService ..> SuKien : retrieves
-  EventService ..> SuatDien : retrieves
-  ScheduleService ..> SuKien : parses description
-  ArtistService ..> SuKienNgheSi : queries
-  ArtistService ..> NgheSi : queries
-  TicketDataService ..> KhuVuc : loads
-  TicketDataService ..> Ghe : loads
-  BookingService ..> GiuCho : creates/releases
-  BookingService ..> ChiTietGiuCho : manages
-  OrganizerService ..> ToChuc : manages
+  %% ==============================================================
+  %% CỤM 4: ĐỊNH DANH & TÀI KHOẢN (BUYER AUTH & IDENTITY)
+  %% ==============================================================
+  class BuyerAuthModal {
+    <<Boundary>>
+    +open(mode)
+    +onSubmitLogin(email, password)
+    +onSubmitOtp(email, otp)
+  }
+
+  class BuyerAuthService {
+    <<Control>>
+    +getBuyerSession()
+    +signInBuyer(email, password)
+    +signUpBuyer(email, password)
+    +requestBuyerOtp(email)
+    +verifyBuyerOtp(email, token)
+  }
+
+  class HoSoNguoiDung {
+    <<Entity>>
+    +uuid nguoiDungId
+    +string hoTen
+    +string anhDaiDienUrl
+    +string loaiTaiKhoan
+    +Date ngayTao
+    +Date ngayCapNhat
+    +isOrganizer() boolean
+    +isAdmin() boolean
+  }
+
+  BuyerAuthModal ..> BuyerAuthService : authenticates
+  BuyerAuthService ..> HoSoNguoiDung : loads/validates
+
+  %% ==============================================================
+  %% LIÊN KẾT LIÊN CỤM (CROSS-CLUSTER RELATIONSHIPS)
+  %% ==============================================================
+  HoSoNguoiDung "1" <-- "0..N" ThanhVienToChuc
+  ToChuc "1" <-- "0..N" SuKien
+  ToChuc "1" <-- "0..N" DiaDiem
   OrganizerService ..> SuKien : saves aggregate
   OrganizerService ..> CauHinhSuKien : configures
-  BuyerAuthService ..> HoSoNguoiDung : authenticates
 ```
 
-> **Chú thích về Class Diagram.** (1) Repo viết dạng module hàm (`createSeatHold`, `loadPublicEvent`...), không có `class BookingService`; mỗi *lớp Service* trong sơ đồ gom các hàm export của cùng một file `src/services/*.ts`, tên phương thức Service là tên hàm thật. (2) `GiuCho`, `ChiTietGiuCho` và `BookingService` phục vụ UC-T3-02 (Sprint 3, đã dựng sớm), không tính nghiệm thu Sprint 1. (3) Phương thức của *lớp Entity* (ví dụ `isExpired()`, `canRelease()`, `isLocked()`, `validateHoldLimits()`) là **hành vi nghiệp vụ được mô hình hóa** theo quy tắc trong SRS/RPC, không nhất thiết có hàm trùng tên trong mã nguồn; logic tương ứng nằm ở `src/domain/*` hoặc trong RPC của PostgreSQL.
+---
 
+### 5.2. Các sơ đồ B-C-E chi tiết theo từng Phân hệ Nghiệp vụ
+
+Để dễ dàng theo dõi kiến trúc khi phân tích từng ca sử dụng độc lập, 4 sơ đồ dưới đây cô lập bộ ba Boundary – Control – Entity của từng phân hệ:
+
+#### 1. Phân hệ Quản trị Ban Tổ Chức & Phân quyền
+```mermaid
+classDiagram
+  direction LR
+  class OrganizerPortalView {
+    <<Boundary>>
+    +renderDashboard()
+    +onCreateEventWizard()
+    +onPreviewEvent(eventId)
+    +onPublishEvent(eventId)
+  }
+  class OrganizerService {
+    <<Control>>
+    +getOrganizerSession()
+    +loadOrganizerWorkspace()
+    +createOrganization(name, slug)
+    +saveFullEventDraft(input)
+    +publishEvent(eventId)
+  }
+  class ToChuc {
+    <<Entity>>
+    +uuid toChucId
+    +string tenToChuc
+    +string slug
+    +string trangThai
+    +isActive() boolean
+  }
+  class ThanhVienToChuc {
+    <<Entity>>
+    +uuid id
+    +uuid toChucId
+    +string vaiTro
+    +canEdit() boolean
+  }
+
+  OrganizerPortalView ..> OrganizerService : thao tác quản trị
+  OrganizerService ..> ToChuc : quản lý tổ chức
+  OrganizerService ..> ThanhVienToChuc : kiểm tra quyền hạn
+  ToChuc "1" <-- "0..N" ThanhVienToChuc : chứa thành viên
+```
+
+#### 2. Phân hệ Khám phá & Chi tiết Sự kiện
+```mermaid
+classDiagram
+  direction LR
+  class EventDetailPage {
+    <<Boundary>>
+    +render()
+    +onSelectShow(showId)
+    +onViewSchedule()
+  }
+  class EventService {
+    <<Control>>
+    +loadPublicEvents()
+    +loadPublicEvent(slug)
+  }
+  class ScheduleService {
+    <<Control>>
+    +loadPublicSchedule(event)
+    +parseTimelineFromDescription()
+  }
+  class ArtistService {
+    <<Control>>
+    +loadPublicArtists(event)
+  }
+  class SuKien {
+    <<Entity>>
+    +int suKienId
+    +string tenSuKien
+    +string moTaChiTiet
+    +isPublished() boolean
+  }
+  class CauHinhSuKien {
+    <<Entity>>
+    +int cauHinhId
+    +int thoiGianGiuChoGiay
+    +int soVeToiDaMoiDon
+  }
+  class SuatDien {
+    <<Entity>>
+    +int suatDienId
+    +Date thoiGianBatDau
+    +deriveSaleStatus() string
+  }
+  class NgheSi {
+    <<Entity>>
+    +int ngheSiId
+    +string ngheDanh
+  }
+  class SuKienNgheSi {
+    <<Entity>>
+    +int suKienId
+    +int ngheSiId
+    +int thuTuHienThi
+  }
+
+  EventDetailPage ..> EventService : gọi tải dữ liệu
+  EventDetailPage ..> ScheduleService : gọi bóc tách lịch
+  EventDetailPage ..> ArtistService : gọi tải nghệ sĩ
+  EventService ..> SuKien : truy vấn
+  EventService ..> SuatDien : truy vấn
+  ScheduleService ..> SuKien : phân tích mô tả
+  ArtistService ..> SuKienNgheSi : truy vấn thứ tự
+  ArtistService ..> NgheSi : nạp thông tin
+  SuKien "1" <--> "1" CauHinhSuKien
+  SuKien "1" <-- "1..N" SuatDien
+  SuKien "1" <-- "0..N" SuKienNgheSi
+  NgheSi "1" <-- "0..N" SuKienNgheSi
+```
+
+#### 3. Phân hệ Sơ đồ ghế, Phân khu & Giữ chỗ đặt vé
+```mermaid
+classDiagram
+  direction LR
+  class SeatMapView {
+    <<Boundary>>
+    +renderSeatGrid()
+    +onSelectSeat(seatId)
+    +zoomPan(scale, offset)
+  }
+  class TicketTiersSection {
+    <<Boundary>>
+    +renderTiers()
+    +onBookSeats()
+  }
+  class TicketDataService {
+    <<Control>>
+    +loadTicketingCatalog()
+  }
+  class SeatRealtimeService {
+    <<Control>>
+    +subscribeToSeatUpdates()
+  }
+  class BookingService {
+    <<Control>>
+    +createSeatHold(payload)
+    +releaseSeatHold(holdId)
+  }
+  class KhuVuc {
+    <<Entity>>
+    +int khuVucId
+    +string tenKhuVuc
+    +decimal giaVe
+    +isSoldOut() boolean
+  }
+  class Ghe {
+    <<Entity>>
+    +int gheId
+    +string maGhe
+    +string trangThai
+    +isAvailable() boolean
+  }
+  class GiuCho {
+    <<Entity>>
+    +int giuChoId
+    +Date thoiGianHetHan
+    +isExpired() boolean
+  }
+  class ChiTietGiuCho {
+    <<Entity>>
+    +int chiTietGiuChoId
+    +int soLuong
+    +decimal giaTien
+  }
+
+  SeatMapView ..> TicketDataService : nạp ghế
+  SeatMapView ..> SeatRealtimeService : lắng nghe WebSocket
+  TicketTiersSection ..> BookingService : gửi yêu cầu giữ chỗ
+  TicketDataService ..> KhuVuc : nạp phân khu
+  TicketDataService ..> Ghe : nạp trạng thái ghế
+  BookingService ..> GiuCho : tạo / hủy giữ chỗ
+  BookingService ..> ChiTietGiuCho : ghi chi tiết vé
+  KhuVuc "1" <-- "0..N" Ghe
+  GiuCho "1" <-- "1..N" ChiTietGiuCho
+  KhuVuc "1" <-- "0..N" ChiTietGiuCho
+  Ghe "0..1" <-- "0..N" ChiTietGiuCho
+```
+
+#### 4. Phân hệ Định danh & Tài khoản Khán giả
+```mermaid
+classDiagram
+  direction LR
+  class BuyerAuthModal {
+    <<Boundary>>
+    +open(mode)
+    +onSubmitLogin(email, password)
+    +onSubmitOtp(email, otp)
+  }
+  class BuyerAuthService {
+    <<Control>>
+    +getBuyerSession()
+    +signInBuyer(email, password)
+    +verifyBuyerOtp(email, token)
+  }
+  class HoSoNguoiDung {
+    <<Entity>>
+    +uuid nguoiDungId
+    +string hoTen
+    +string loaiTaiKhoan
+    +isOrganizer() boolean
+  }
+
+  BuyerAuthModal ..> BuyerAuthService : gửi thông tin xác thực
+  BuyerAuthService ..> HoSoNguoiDung : nạp hồ sơ & phân loại vai trò
+```
+
+---
+
+> **Chú thích về Class Diagram phân định B-C-E.** (1) Sơ đồ phân tách tường minh 3 nhóm: **Boundary (`<<Boundary>>`)** là các component giao diện người dùng; **Control (`<<Control>>`)** là các lớp Service điều phối luồng nghiệp vụ; **Entity (`<<Entity>>`)** gồm đúng **14 lớp ánh xạ 1–1 với 14 bảng ERD**. (2) Các lớp Boundary không thao tác trực tiếp lên Entity mà thông qua Control/Service; Control tương tác với Entity và điều phối cơ sở dữ liệu. (3) `GiuCho`, `ChiTietGiuCho` và `BookingService` phục vụ UC-T3-02 (Sprint 3, đã dựng nền tảng từ Sprint 1). (4) Phương thức của các lớp Entity là hành vi nghiệp vụ được mô hình hóa theo quy tắc trong SRS/RPC.
+
+### Bảng phân loại chi tiết theo Mô hình Boundary – Control – Entity (B-C-E)
+
+#### 1. Nhóm Boundary (`<<Boundary>>` — Giao diện người dùng)
+| Lớp Boundary | File mã nguồn tương ứng | Vai trò giao diện & Người dùng tương tác |
+|---|---|---|
+| `EventDetailPage` | `src/views/EventDetailView.tsx` | Màn hình chi tiết sự kiện công khai (Lineup, Lịch trình, nút Mua vé) — Khán giả. |
+| `SeatMapView` | `src/components/seatmap/SeatMapSection.tsx` | Sơ đồ phân khu sân khấu, hiển thị ghế, zoom/pan và chọn ghế — Khán giả. |
+| `TicketTiersSection` | `src/components/event/TicketTiersSection.tsx` | Bảng chọn hạng vé, hiển thị giá niêm yết và số lượng đặt — Khán giả. |
+| `OrganizerPortalView` | `src/views/OrganizerPortal.tsx` | Bảng điều khiển quản trị viên: tạo sự kiện, kiểm tra điều kiện công bố — Ban Tổ Chức. |
+| `BuyerAuthModal` | `src/components/auth/BuyerAuthModal.tsx` | Hộp thoại xác thực tài khoản và xác minh OTP — Khán giả. |
+
+#### 2. Nhóm Control (`<<Control>>` — Lớp điều phối nghiệp vụ / Services)
+| Lớp Control | File mã nguồn tương ứng | Nhiệm vụ điều phối Use Case |
+|---|---|---|
+| `EventService` | `src/services/eventService.ts` | Điều phối UC-T1-01: nạp danh mục và chi tiết sự kiện đã công bố. |
+| `ScheduleService` | `src/services/scheduleService.ts` | Bóc tách và định dạng lịch trình timeline từ mô tả sự kiện. |
+| `ArtistService` | `src/services/artistService.ts` | Truy vấn và sắp xếp danh sách nghệ sĩ biểu diễn theo thứ tự hiển thị. |
+| `TicketDataService` | `src/services/ticketDataService.ts` | Nạp dữ liệu khu vực, hạng vé và danh sách ghế của suất diễn cho sơ đồ. |
+| `SeatRealtimeService` | `src/services/seatRealtimeService.ts` | Điều phối kênh WebSocket Realtime lắng nghe trạng thái ghế thay đổi (`UC-T1-05`). |
+| `BookingService` | `src/services/bookingService.ts` | Điều phối giao dịch giữ chỗ 5 phút, giải phóng ghế và kiểm soát giới hạn vé. |
+| `OrganizerService` | `src/services/organizerService.ts` | Điều phối toàn bộ nghiệp vụ BTC: tạo tổ chức, lưu nháp sự kiện, kiểm tra và công bố. |
+| `BuyerAuthService` | `src/services/buyerAuthService.ts` | Quản lý phiên đăng nhập và định danh người mua vé. |
+
+#### 3. Nhóm Entity (`<<Entity>>` — 14 Thực thể dữ liệu miền nghiệp vụ tương ứng 14 Bảng ERD)
 ### Bảng đối chiếu 14 Bảng ERD ↔ 14 Lớp Entity ↔ Lớp Service & File nguồn
 
 | Bảng CSDL | Lớp Entity | Lớp Service xử lý chính | File nguồn trong Repo | Vai trò và hành vi chính |
