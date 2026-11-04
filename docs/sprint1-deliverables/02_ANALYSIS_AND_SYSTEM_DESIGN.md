@@ -807,7 +807,9 @@ classDiagram
 
 Sprint 1: SD-01 đến SD-04. Sprint 3 (nền tảng đã dựng sớm): SD-05, SD-06. Bản phân tích mức nghiệp vụ (lớp Boundary/Control/Entity) nằm ở Hình 5.3–5.8 của tài liệu đặc tả; các sơ đồ dưới đây là mức thiết kế, dùng đúng tên hàm và RPC trong mã nguồn.
 
-> **Quy ước biểu diễn đối tượng UML (Object Lifeline)**: Theo chuẩn phân tích thiết kế hướng đối tượng (OOAD/UML), tác nhân (Actor) tương tác trong thời gian chạy (runtime) với các **đối tượng/thực thể (Objects/Instances)** chứ không tương tác với Lớp tĩnh (Class). Do đó, tên của mỗi đối tượng tham gia tương tác (Participant Lifeline) được biểu diễn chuẩn mực theo cú pháp vô danh `:TênLớp` (ví dụ `:EventDetailPage`, `:EventService`, `:PostgreSQL`).
+> **Quy ước biểu diễn đối tượng UML & Phân định B-C-E (Stereotyped Object Lifelines)**:
+> 1. **Đối tượng thực thi (Objects/Instances)**: Theo chuẩn phân tích thiết kế hướng đối tượng (OOAD/UML), tác nhân (Actor) tương tác ở runtime với các thực thể đối tượng cụ thể chứ không tương tác với Lớp tĩnh (Class). Do đó, tên đối tượng được ký hiệu chuẩn theo cú pháp vô danh `:TênLớp`.
+> 2. **Ký hiệu phân loại B-C-E**: Mỗi đối tượng tham gia tương tác (Lifeline) được gắn ký hiệu phân loại chuẩn mực: **`«Boundary»`** (Giao diện người dùng), **`«Control»`** (Dịch vụ điều phối nghiệp vụ & Stored Procedures), và **`«Entity»`** (Tầng dữ liệu / CSDL lưu trữ).
 
 ### SD-01: Người mua xem danh mục, chi tiết sự kiện, suất diễn, lineup và timeline (UC-T1-01, Sprint 1)
 
@@ -815,11 +817,11 @@ Sprint 1: SD-01 đến SD-04. Sprint 3 (nền tảng đã dựng sớm): SD-05, 
 ```mermaid
 sequenceDiagram
   actor U as Người mua
-  participant UI as :EventDetailPage
-  participant ES as :EventService
-  participant SS as :ScheduleService
-  participant AS as :ArtistService
-  participant DB as :PostgreSQL
+  participant UI as «Boundary»<br/>:EventDetailPage
+  participant ES as «Control»<br/>:EventService
+  participant SS as «Control»<br/>:ScheduleService
+  participant AS as «Control»<br/>:ArtistService
+  participant DB as «Entity»<br/>:PostgreSQL
 
   U->>UI: Truy cập URL /events/:slug
   UI->>ES: loadPublicEvent(slug)
@@ -850,11 +852,11 @@ Luồng Sprint 1 chỉ đọc: tải danh mục khu vực/ghế của suất di�
 ```mermaid
 sequenceDiagram
   actor U as Người mua A
-  participant UI as :SeatMapView
-  participant TDS as :TicketDataService
-  participant SRS as :SeatRealtimeService
-  participant DB as :PostgreSQL
-  participant WS as :SupabaseRealtime
+  participant UI as «Boundary»<br/>:SeatMapView
+  participant TDS as «Control»<br/>:TicketDataService
+  participant SRS as «Control»<br/>:SeatRealtimeService
+  participant DB as «Entity»<br/>:PostgreSQL
+  participant WS as «Control»<br/>:SupabaseRealtime
 
   U->>UI: Mở sơ đồ ghế của suất diễn showId
   UI->>TDS: loadTicketingCatalog()
@@ -886,10 +888,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   actor O as Ban tổ chức
-  participant UI as :OrganizerPortalView
-  participant OS as :OrganizerService
-  participant AUTH as :SupabaseAuth
-  participant DB as :PostgreSQL
+  participant UI as «Boundary»<br/>:OrganizerPortalView
+  participant OS as «Control»<br/>:OrganizerService
+  participant AUTH as «Control»<br/>:SupabaseAuth
+  participant DB as «Entity»<br/>:PostgreSQL
 
   O->>UI: Nhập email và mật khẩu
   UI->>OS: signInOrganizer(email, password)
@@ -924,11 +926,11 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   actor O as Ban tổ chức
-  participant UI as :OrganizerPortalView
-  participant OS as :OrganizerService
-  participant RPC_SAVE as :RPCLuuSuKien
-  participant RPC_PUB as :RPCCongBoSuKien
-  participant DB as :PostgreSQL
+  participant UI as «Boundary»<br/>:OrganizerPortalView
+  participant OS as «Control»<br/>:OrganizerService
+  participant RPC_SAVE as «Control»<br/>:RPCLuuSuKien
+  participant RPC_PUB as «Control»<br/>:RPCCongBoSuKien
+  participant DB as «Entity»<br/>:PostgreSQL
 
   O->>UI: Nhập thông tin sự kiện, timeline Markdown, cấu hình 1-1, suất diễn, hạng vé & nghệ sĩ
   UI->>OS: saveFullEventDraft(payload)
@@ -967,12 +969,12 @@ Sprint 3 (FR-T3-01) – lát cắt kỹ thuật đã dựng sớm, không tính 
 ```mermaid
 sequenceDiagram
   actor U as Người mua
-  participant UI as :SeatMapView
-  participant BS as :BookingService
-  participant RPC as :RPCTaoGiuCho
-  participant TRG as :TriggerKiemTraSuatDien
-  participant DB as :PostgreSQL
-  participant WS as :RealtimePublication
+  participant UI as «Boundary»<br/>:SeatMapView
+  participant BS as «Control»<br/>:BookingService
+  participant RPC as «Control»<br/>:RPCTaoGiuCho
+  participant TRG as «Control»<br/>:TriggerKiemTraSuatDien
+  participant DB as «Entity»<br/>:PostgreSQL
+  participant WS as «Control»<br/>:RealtimePublication
 
   Note over U,UI: Tiền điều kiện: đã xem sơ đồ (SD-02), sự kiện đang mở bán
 
@@ -1011,13 +1013,13 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   actor U as Người mua
-  participant UI as :SeatMapView
-  participant BS as :BookingService
-  participant RPC_HUY as :RPCHuyGiuCho
-  participant CRON as :CronService
-  participant RPC_EXP as :RPCExpireHolds
-  participant DB as :PostgreSQL
-  participant WS as :RealtimePublication
+  participant UI as «Boundary»<br/>:SeatMapView
+  participant BS as «Control»<br/>:BookingService
+  participant RPC_HUY as «Control»<br/>:RPCHuyGiuCho
+  participant CRON as «Control»<br/>:CronService
+  participant RPC_EXP as «Control»<br/>:RPCExpireHolds
+  participant DB as «Entity»<br/>:PostgreSQL
+  participant WS as «Control»<br/>:RealtimePublication
 
   alt Trường hợp 1: Người mua chủ động hủy
     U->>UI: Nhấn nút "Hủy giữ chỗ"
