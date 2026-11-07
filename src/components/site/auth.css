@@ -47,8 +47,13 @@
   font-size: 1rem;
   cursor: pointer;
 }
-.et-auth__tabs button:hover {
+.et-auth__tabs button:hover:not(:disabled) {
   color: var(--et-blue);
+}
+.et-auth__tabs button:disabled,
+.et-auth__switch button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 .et-auth__tabs button.is-active {
   color: var(--et-blue);
