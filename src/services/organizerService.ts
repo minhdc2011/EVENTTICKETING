@@ -2,6 +2,15 @@ import {runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
 import {embedTimelineInDescription, stripTimelineFromDescription} from '../domain/eventTimeline.js';
 import {generateSeatRows} from '../domain/seatGeneration.js';
+import {
+  ACCOUNT_PORTALS,
+  authorizePortalSignIn,
+  createAuthChangeHandler,
+  loadPortalSession,
+  MOCK_ACCOUNT_PROFILES_KEY,
+  readMockAccountKind,
+  registerMockAccount,
+} from '../domain/accountAccess';
 import type {PublicEventRecord, PublicShowRecord} from './eventService';
 import type {Json} from '../types/database.types';
 
@@ -89,7 +98,6 @@ import {
 } from '../domain/organizerValidation';
 
 const MOCK_SESSION = 'eventticketing:mock-organizer-session';
-const MOCK_ACCOUNT_KIND = 'eventticketing:mock-account-kind';
 const MOCK_EVENTS = 'eventticketing:mock-organizer-events';
 const MOCK_ORGS = 'eventticketing:mock-organizer-orgs';
 
@@ -104,77 +112,64 @@ const mockDefaultOrg: OrganizerMembership = {
   role: 'CHU_SO_HUU',
 };
 
+type BaseSession = {userId: string; email: string};
+
+function readMockSessionBase(): BaseSession | null {
+  const email = localStorage.getItem(MOCK_SESSION);
+  return email ? {userId: 'mock-user', email} : null;
+}
+
+/** Only returns a session whose HO_SO_NGUOI_DUNG role is verified and allowed in the organizer portal. */
 export async function getOrganizerSession(): Promise<OrganizerSession | null> {
   if (runtimeConfig.useMockData) {
-    let email = localStorage.getItem(MOCK_SESSION);
-    let storedKind = localStorage.getItem(MOCK_ACCOUNT_KIND);
-    if (!email) {
-      const buyerRaw = localStorage.getItem('eventticketing:mock-buyer-session');
-      if (buyerRaw) {
-        try {
-          const parsed = JSON.parse(buyerRaw);
-          email = parsed.email || null;
-          storedKind = parsed.accountKind || storedKind || 'USER';
-        } catch {
-          email = buyerRaw;
-        }
-      }
-    }
-    if (!email) return null;
-    const accountKind = storedKind || (email.toLowerCase().includes('buyer') ? 'USER' : 'ORGANIZER');
-    return {userId: 'mock-user', email, accountKind};
+    return loadPortalSession({
+      portal: ACCOUNT_PORTALS.ORGANIZER,
+      loadSession: readMockSessionBase,
+      loadProfile: (base) => readMockAccountKind(localStorage, base.email),
+    });
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const {data} = await requireSupabaseClient().auth.getSession();
-  if (!data.session?.user) return null;
-
-  let accountKind = 'USER';
-  try {
-    const {data: profile} = await (requireSupabaseClient() as any)
-      .from('HO_SO_NGUOI_DUNG')
-      .select('LoaiTaiKhoan')
-      .eq('NguoiDungID', data.session.user.id)
-      .maybeSingle();
-    if (profile?.LoaiTaiKhoan) {
-      accountKind = String(profile.LoaiTaiKhoan);
-    }
-  } catch (err) {
-    console.warn('Không thể nạp loại tài khoản:', err);
-  }
-
-  return {
-    userId: data.session.user.id,
-    email: data.session.user.email || '',
-    accountKind,
-  };
+  const client = requireSupabaseClient();
+  return loadPortalSession({
+    portal: ACCOUNT_PORTALS.ORGANIZER,
+    loadSession: async () => {
+      const {data} = await client.auth.getSession();
+      const user = data.session?.user;
+      return user ? {userId: user.id, email: user.email || ''} : null;
+    },
+    loadProfile: (base) =>
+      (client as any)
+        .from('HO_SO_NGUOI_DUNG')
+        .select('LoaiTaiKhoan')
+        .eq('NguoiDungID', base.userId)
+        .maybeSingle(),
+  });
 }
 
 export function subscribeOrganizerAuth(callback: (session: OrganizerSession | null) => void): () => void {
+  let unsubscribed = false;
+  const handle = createAuthChangeHandler<OrganizerSession>({
+    resolveSession: getOrganizerSession,
+    emit: callback,
+    isActive: () => !unsubscribed,
+  });
   if (runtimeConfig.useMockData) {
     const handler = (e: StorageEvent) => {
-      if (
-        e.key === MOCK_SESSION ||
-        e.key === MOCK_ACCOUNT_KIND ||
-        e.key === 'eventticketing:mock-buyer-session'
-      ) {
-        void getOrganizerSession().then(callback);
+      if (e.key === MOCK_SESSION || e.key === MOCK_ACCOUNT_PROFILES_KEY) {
+        void handle({});
       }
     };
     window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
+    return () => {
+      unsubscribed = true;
+      window.removeEventListener('storage', handler);
+    };
   }
-  let unsubscribed = false;
   let cleanup: (() => void) | undefined;
   void import('./supabaseClient').then(({requireSupabaseClient}) => {
     if (unsubscribed) return;
     const {data} = requireSupabaseClient().auth.onAuthStateChange((_event, session) => {
-      if (!session?.user) {
-        callback(null);
-      } else {
-        void getOrganizerSession().then((s) => {
-          if (!unsubscribed) callback(s);
-        });
-      }
+      void handle(session?.user ? session : null);
     });
     cleanup = () => data.subscription.unsubscribe();
   });
@@ -185,36 +180,67 @@ export function subscribeOrganizerAuth(callback: (session: OrganizerSession | nu
 }
 
 export async function signInOrganizer(email: string, password: string): Promise<void> {
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail.includes('@') || password.length < 6) {
+    throw new Error('Email hoặc mật khẩu chưa hợp lệ.');
+  }
   if (runtimeConfig.useMockData) {
-    if (!email.includes('@') || password.length < 6) throw new Error('Email hoặc mật khẩu chưa hợp lệ.');
-    localStorage.setItem(MOCK_SESSION, email);
+    await authorizePortalSignIn({
+      portal: ACCOUNT_PORTALS.ORGANIZER,
+      loadProfile: () => readMockAccountKind(localStorage, cleanEmail),
+      revokeSession: () => localStorage.removeItem(MOCK_SESSION),
+    });
+    localStorage.setItem(MOCK_SESSION, cleanEmail);
     notifyMockAuthChange();
     return;
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const {error} = await requireSupabaseClient().auth.signInWithPassword({email, password});
+  const client = requireSupabaseClient();
+  const {data, error} = await client.auth.signInWithPassword({email: cleanEmail, password});
   if (error) throw mapAuthError(error);
+
+  await authorizePortalSignIn({
+    portal: ACCOUNT_PORTALS.ORGANIZER,
+    loadProfile: () =>
+      (client as any)
+        .from('HO_SO_NGUOI_DUNG')
+        .select('LoaiTaiKhoan')
+        .eq('NguoiDungID', data.user.id)
+        .maybeSingle(),
+    revokeSession: async () => {
+      const {error: signOutError} = await client.auth.signOut();
+      if (!signOutError) return;
+      try {
+        await client.auth.signOut({scope: 'local'});
+      } catch {
+        // getOrganizerSession still returns null for a wrong-portal account.
+      }
+    },
+  });
 }
 
 export async function signUpOrganizer(
   email: string,
   password: string,
 ): Promise<{userId?: string; email?: string; hasSession: boolean}> {
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail.includes('@') || password.length < 6) {
+    throw new Error('Email hoặc mật khẩu chưa hợp lệ.');
+  }
   if (runtimeConfig.useMockData) {
-    if (!email.includes('@') || password.length < 6) throw new Error('Email hoặc mật khẩu chưa hợp lệ.');
-    localStorage.setItem(MOCK_SESSION, email);
+    registerMockAccount(localStorage, cleanEmail);
     if (!localStorage.getItem(MOCK_ORGS)) {
       localStorage.setItem(MOCK_ORGS, JSON.stringify([]));
     }
     notifyMockAuthChange();
-    return {userId: 'mock-user', email, hasSession: true};
+    return {userId: 'mock-user', email: cleanEmail, hasSession: false};
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const {data, error} = await requireSupabaseClient().auth.signUp({email, password});
+  const {data, error} = await requireSupabaseClient().auth.signUp({email: cleanEmail, password});
   if (error) throw mapAuthError(error);
   return {
     userId: data.user?.id,
-    email: data.user?.email || email,
+    email: data.user?.email || cleanEmail,
     hasSession: Boolean(data.session?.user),
   };
 }

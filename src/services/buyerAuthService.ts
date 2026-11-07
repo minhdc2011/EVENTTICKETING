@@ -1,5 +1,14 @@
 import {runtimeConfig} from '../config/runtime';
 import {mapAuthError} from '../domain/organizerValidation';
+import {
+  ACCOUNT_PORTALS,
+  authorizePortalSignIn,
+  createAuthChangeHandler,
+  loadPortalSession,
+  MOCK_ACCOUNT_PROFILES_KEY,
+  readMockAccountKind,
+  registerMockAccount,
+} from '../domain/accountAccess';
 
 export type BuyerSession = {
   userId: string;
@@ -9,73 +18,76 @@ export type BuyerSession = {
 };
 
 const MOCK_BUYER_SESSION = 'eventticketing:mock-buyer-session';
-const MOCK_ACCOUNT_KIND = 'eventticketing:mock-account-kind';
 
 export async function getBuyerSession(): Promise<BuyerSession | null> {
   if (runtimeConfig.useMockData) {
-    const raw = localStorage.getItem(MOCK_BUYER_SESSION);
-    if (!raw) return null;
-    const kind = localStorage.getItem(MOCK_ACCOUNT_KIND) || 'USER';
-    try {
-      const parsed = JSON.parse(raw) as BuyerSession;
-      return {...parsed, accountKind: parsed.accountKind || kind};
-    } catch {
-      return {userId: 'mock-buyer', email: raw, accountKind: kind};
-    }
+    return loadPortalSession<BuyerSession>({
+      portal: ACCOUNT_PORTALS.BUYER,
+      loadSession: readMockBuyerSessionBase,
+      loadProfile: (base) => readMockAccountKind(localStorage, base.email),
+    });
   }
   try {
     const {requireSupabaseClient} = await import('./supabaseClient');
-    const {data} = await requireSupabaseClient().auth.getSession();
-    if (!data.session?.user) return null;
-
-    let accountKind = 'USER';
-    try {
-      const {data: profile} = await (requireSupabaseClient() as any)
-        .from('HO_SO_NGUOI_DUNG')
-        .select('LoaiTaiKhoan')
-        .eq('NguoiDungID', data.session.user.id)
-        .maybeSingle();
-      if (profile?.LoaiTaiKhoan) {
-        accountKind = String(profile.LoaiTaiKhoan);
-      }
-    } catch {
-      // Fallback to USER
-    }
-
-    return {
-      userId: data.session.user.id,
-      email: data.session.user.email || '',
-      fullName: data.session.user.user_metadata?.full_name || '',
-      accountKind,
-    };
+    const client = requireSupabaseClient();
+    return await loadPortalSession<BuyerSession>({
+      portal: ACCOUNT_PORTALS.BUYER,
+      loadSession: async () => {
+        const {data} = await client.auth.getSession();
+        const user = data.session?.user;
+        if (!user) return null;
+        // fullName is display-only and never decides the role.
+        return {userId: user.id, email: user.email || '', fullName: user.user_metadata?.full_name || ''};
+      },
+      loadProfile: (base) =>
+        (client as any)
+          .from('HO_SO_NGUOI_DUNG')
+          .select('LoaiTaiKhoan')
+          .eq('NguoiDungID', base.userId)
+          .maybeSingle(),
+    });
   } catch {
     return null;
   }
 }
 
+function readMockBuyerSessionBase(): BuyerSession | null {
+  const raw = localStorage.getItem(MOCK_BUYER_SESSION);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Partial<BuyerSession> | null;
+    if (!parsed || typeof parsed !== 'object' || !parsed.email) return null;
+    return {userId: parsed.userId || 'mock-buyer', email: parsed.email, fullName: parsed.fullName};
+  } catch {
+    return {userId: 'mock-buyer', email: raw};
+  }
+}
+
 export function subscribeBuyerAuth(callback: (session: BuyerSession | null) => void): () => void {
+  let unsubscribed = false;
+  const handle = createAuthChangeHandler<BuyerSession>({
+    resolveSession: getBuyerSession,
+    emit: callback,
+    isActive: () => !unsubscribed,
+  });
   if (runtimeConfig.useMockData) {
     const handler = (e: StorageEvent) => {
-      if (e.key === MOCK_BUYER_SESSION) {
-        void getBuyerSession().then(callback);
+      if (e.key === MOCK_BUYER_SESSION || e.key === MOCK_ACCOUNT_PROFILES_KEY) {
+        void handle({});
       }
     };
     window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
+    return () => {
+      unsubscribed = true;
+      window.removeEventListener('storage', handler);
+    };
   }
-  let unsubscribed = false;
   let cleanup: (() => void) | undefined;
   void import('./supabaseClient').then(({requireSupabaseClient}) => {
     if (unsubscribed) return;
     try {
       const {data} = requireSupabaseClient().auth.onAuthStateChange((_event, session) => {
-        if (!session?.user) {
-          callback(null);
-        } else {
-          void getBuyerSession().then((s) => {
-            if (!unsubscribed) callback(s);
-          });
-        }
+        void handle(session?.user ? session : null);
       });
       cleanup = () => data.subscription.unsubscribe();
     } catch {
@@ -94,36 +106,46 @@ export async function signInBuyer(email: string, password: string): Promise<Buye
     throw new Error('Email hoặc mật khẩu chưa hợp lệ (mật khẩu tối thiểu 6 ký tự).');
   }
   if (runtimeConfig.useMockData) {
-    const kind = localStorage.getItem(MOCK_ACCOUNT_KIND) || 'USER';
+    const accountKind = await authorizePortalSignIn({
+      portal: ACCOUNT_PORTALS.BUYER,
+      loadProfile: () => readMockAccountKind(localStorage, cleanEmail),
+      revokeSession: () => localStorage.removeItem(MOCK_BUYER_SESSION),
+    });
     const session: BuyerSession = {
       userId: `buyer-${cleanEmail.replace(/[^a-zA-Z0-9]/g, '')}`,
       email: cleanEmail,
-      accountKind: kind,
+      accountKind,
     };
     localStorage.setItem(MOCK_BUYER_SESSION, JSON.stringify(session));
     window.dispatchEvent(new StorageEvent('storage', {key: MOCK_BUYER_SESSION}));
     return session;
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
-  const {data, error} = await requireSupabaseClient().auth.signInWithPassword({
+  const client = requireSupabaseClient();
+  const {data, error} = await client.auth.signInWithPassword({
     email: cleanEmail,
     password,
   });
   if (error) throw mapAuthError(error);
 
-  let accountKind = 'USER';
-  try {
-    const {data: profile} = await (requireSupabaseClient() as any)
-      .from('HO_SO_NGUOI_DUNG')
-      .select('LoaiTaiKhoan')
-      .eq('NguoiDungID', data.user.id)
-      .maybeSingle();
-    if (profile?.LoaiTaiKhoan) {
-      accountKind = String(profile.LoaiTaiKhoan);
-    }
-  } catch {
-    // fallback
-  }
+  const accountKind = await authorizePortalSignIn({
+    portal: ACCOUNT_PORTALS.BUYER,
+    loadProfile: () =>
+      (client as any)
+        .from('HO_SO_NGUOI_DUNG')
+        .select('LoaiTaiKhoan')
+        .eq('NguoiDungID', data.user.id)
+        .maybeSingle(),
+    revokeSession: async () => {
+      const {error: signOutError} = await client.auth.signOut();
+      if (!signOutError) return;
+      try {
+        await client.auth.signOut({scope: 'local'});
+      } catch {
+        // getBuyerSession still returns null for a wrong-portal account.
+      }
+    },
+  });
 
   return {
     userId: data.user.id,
@@ -143,6 +165,7 @@ export async function signUpBuyer(
     throw new Error('Email hoặc mật khẩu chưa hợp lệ (mật khẩu tối thiểu 6 ký tự).');
   }
   if (runtimeConfig.useMockData) {
+    registerMockAccount(localStorage, cleanEmail);
     const session: BuyerSession = {
       userId: `buyer-${cleanEmail.replace(/[^a-zA-Z0-9]/g, '')}`,
       email: cleanEmail,
