@@ -90,10 +90,10 @@ export async function loadPortalSession({portal, loadSession, loadProfile}) {
 
 export function createAuthChangeHandler({resolveSession, emit, isActive = () => true}) {
   let generation = 0;
-  return async function handleAuthChange(rawSession) {
+  async function handleAuthChange(rawSession) {
     const current = ++generation;
     if (!rawSession) {
-      emit(null);
+      if (isActive()) emit(null);
       return;
     }
     let session = null;
@@ -103,7 +103,33 @@ export function createAuthChangeHandler({resolveSession, emit, isActive = () => 
       session = null;
     }
     if (current !== generation || !isActive()) return;
+    const rawUserId = rawSession && rawSession.user && rawSession.user.id;
+    if (session && rawUserId && session.userId !== rawUserId) {
+      emit(null);
+      return;
+    }
     emit(session || null);
+  }
+  // Drops any resolve still in flight (sign-out, unsubscribe, account switch).
+  handleAuthChange.invalidate = () => {
+    generation += 1;
+  };
+  // Re-reads the session through the same versioned path (no raw session id to compare).
+  handleAuthChange.refresh = () => handleAuthChange({});
+  return handleAuthChange;
+}
+
+// Per-attempt token: begin() returns isCurrent(), invalidate() makes every earlier attempt stale.
+export function createAuthAttemptGuard() {
+  let attempt = 0;
+  return {
+    begin() {
+      const mine = ++attempt;
+      return () => mine === attempt;
+    },
+    invalidate() {
+      attempt += 1;
+    },
   };
 }
 

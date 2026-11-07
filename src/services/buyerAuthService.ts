@@ -63,6 +63,13 @@ function readMockBuyerSessionBase(): BuyerSession | null {
   }
 }
 
+const activeBuyerRefreshers = new Set<() => Promise<void>>();
+
+/** Re-reads the buyer session for every live subscriber through the versioned handler (stale results are dropped). */
+export async function refreshBuyerSession(): Promise<void> {
+  await Promise.all([...activeBuyerRefreshers].map((refresh) => refresh()));
+}
+
 export function subscribeBuyerAuth(callback: (session: BuyerSession | null) => void): () => void {
   let unsubscribed = false;
   const handle = createAuthChangeHandler<BuyerSession>({
@@ -70,6 +77,12 @@ export function subscribeBuyerAuth(callback: (session: BuyerSession | null) => v
     emit: callback,
     isActive: () => !unsubscribed,
   });
+  activeBuyerRefreshers.add(handle.refresh);
+  const teardown = () => {
+    unsubscribed = true;
+    handle.invalidate();
+    activeBuyerRefreshers.delete(handle.refresh);
+  };
   if (runtimeConfig.useMockData) {
     const handler = (e: StorageEvent) => {
       if (e.key === MOCK_BUYER_SESSION || e.key === MOCK_ACCOUNT_PROFILES_KEY) {
@@ -77,8 +90,9 @@ export function subscribeBuyerAuth(callback: (session: BuyerSession | null) => v
       }
     };
     window.addEventListener('storage', handler);
+    void handle({});
     return () => {
-      unsubscribed = true;
+      teardown();
       window.removeEventListener('storage', handler);
     };
   }
@@ -86,16 +100,18 @@ export function subscribeBuyerAuth(callback: (session: BuyerSession | null) => v
   void import('./supabaseClient').then(({requireSupabaseClient}) => {
     if (unsubscribed) return;
     try {
+      // Supabase emits INITIAL_SESSION right after attaching, so the first state also goes through `handle`.
       const {data} = requireSupabaseClient().auth.onAuthStateChange((_event, session) => {
         void handle(session?.user ? session : null);
       });
       cleanup = () => data.subscription.unsubscribe();
     } catch {
       // Supabase unconfigured or error
+      if (!unsubscribed) callback(null);
     }
   });
   return () => {
-    unsubscribed = true;
+    teardown();
     if (cleanup) cleanup();
   };
 }

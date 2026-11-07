@@ -1,4 +1,5 @@
 import {useState, type FormEvent} from 'react';
+import {canAccessPortal} from '../../domain/accountAccess';
 import {
   signInOrganizer,
   signUpOrganizer,
@@ -64,7 +65,7 @@ export function OrganizerAuthView({
     }
   }
 
-  if (session) {
+  if (session && canAccessPortal(session.accountKind, 'ORGANIZER')) {
     return (
       <main className="org-auth-container org-auth-session-container">
         <div className="org-auth-card organizer-auth-card org-auth-session-card">

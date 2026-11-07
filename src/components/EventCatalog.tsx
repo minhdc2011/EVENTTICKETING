@@ -4,7 +4,7 @@ import {buildPublicPath, navigatePublicRoute} from '../domain/publicRoute';
 import {pickFeaturedEvent} from './event-template/eventTemplateLogic.js';
 import {EventRow} from './site/EventRow';
 import {FeaturedEvent} from './site/FeaturedEvent';
-import {getBuyerSession, signOutBuyer, subscribeBuyerAuth, type BuyerSession} from '../services/buyerAuthService';
+import {refreshBuyerSession, signOutBuyer, subscribeBuyerAuth, type BuyerSession} from '../services/buyerAuthService';
 import {CATEGORY_THEMES, CATEGORY_KEYS, getCategoryTheme} from '../domain/categoryThemes.js';
 import {GlobalHeader} from './site/GlobalHeader';
 import {SearchBlock} from './site/SearchBlock';
@@ -61,14 +61,14 @@ export function EventCatalog() {
   useEffect(() => {
     document.title = 'EventTicketing — Khám phá sự kiện';
     fetchEvents();
-    void getBuyerSession().then(setBuyerSession);
     const unsub = subscribeBuyerAuth(setBuyerSession);
     return unsub;
   }, []);
 
   const handleSignOut = async () => {
     await signOutBuyer();
-    setBuyerSession(await getBuyerSession());
+    setBuyerSession(null);
+    void refreshBuyerSession();
   };
 
   const isReady = state === 'ready';
