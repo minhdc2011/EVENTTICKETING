@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState, type FormEvent, type MouseEvent} from 'react';
+import {useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type MouseEvent} from 'react';
 import {canAccessPortal, createAuthAttemptGuard} from '../domain/accountAccess';
 import {buildPublicPath, navigatePublicRoute} from '../domain/publicRoute';
 import {
@@ -37,7 +37,10 @@ export function BuyerAuth({page}: {page?: string}) {
   const [message, setMessage] = useState<{type: 'error' | 'success'; text: string} | null>(null);
 
   const attemptGuard = useRef(createAuthAttemptGuard());
-  const isBuyerSession =Boolean(session && canAccessPortal(session.accountKind, 'BUYER'));
+  const submittingRef = useRef(false);
+  const loginTabRef = useRef<HTMLButtonElement>(null);
+  const registerTabRef = useRef<HTMLButtonElement>(null);
+  const isBuyerSession = Boolean(session && canAccessPortal(session.accountKind, 'BUYER'));
   const activeSession = isBuyerSession ? session : null;
 
   useEffect(() => {
@@ -49,6 +52,7 @@ export function BuyerAuth({page}: {page?: string}) {
   }, [mode, activeSession]);
 
   useEffect(() => {
+    if (submittingRef.current) return;
     if (page === 'register') setMode('register');
     if (page === 'login') setMode('login');
   }, [page]);
@@ -63,12 +67,30 @@ export function BuyerAuth({page}: {page?: string}) {
   }, []);
 
   function switchMode(next: 'login' | 'register') {
+    if (busy || submittingRef.current) return;
+    attemptGuard.current.invalidate();
     setMode(next);
     setMessage(null);
   }
 
+  function handleTabKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    const order: Array<'login' | 'register'> = ['login', 'register'];
+    const index = order.indexOf(mode);
+    let next: 'login' | 'register' | null = null;
+    if (e.key === 'ArrowRight') next = order[(index + 1) % order.length];
+    else if (e.key === 'ArrowLeft') next = order[(index - 1 + order.length) % order.length];
+    else if (e.key === 'Home') next = order[0];
+    else if (e.key === 'End') next = order[order.length - 1];
+    if (!next) return;
+    e.preventDefault();
+    if (busy || submittingRef.current) return;
+    switchMode(next);
+    (next === 'login' ? loginTabRef : registerTabRef).current?.focus();
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (busy || submittingRef.current) return;
     setMessage(null);
 
     if (mode === 'register' && password !== confirmPassword) {
@@ -82,6 +104,7 @@ export function BuyerAuth({page}: {page?: string}) {
     }
 
     const isCurrent = attemptGuard.current.begin();
+    submittingRef.current = true;
     setBusy(true);
     try {
       if (mode === 'login') {
@@ -122,12 +145,15 @@ export function BuyerAuth({page}: {page?: string}) {
         });
       }
     } finally {
+      submittingRef.current = false;
       setBusy(false);
     }
   }
 
   async function handleSignOut() {
+    if (busy || submittingRef.current) return;
     attemptGuard.current.invalidate();
+    submittingRef.current = true;
     setBusy(true);
     try {
       await signOutBuyer();
@@ -140,6 +166,7 @@ export function BuyerAuth({page}: {page?: string}) {
         text: err instanceof Error ? err.message : 'Không thể đăng xuất.',
       });
     } finally {
+      submittingRef.current = false;
       setBusy(false);
     }
   }
@@ -148,6 +175,7 @@ export function BuyerAuth({page}: {page?: string}) {
     <div
       className={`et-auth__message et-auth__message--${message.type}`}
       role={message.type === 'error' ? 'alert' : 'status'}
+      aria-live={message.type === 'error' ? 'assertive' : 'polite'}
     >
       {message.text}
     </div>
@@ -226,13 +254,16 @@ export function BuyerAuth({page}: {page?: string}) {
           </section>
         ) : (
           <section className="et-auth__card" aria-labelledby="auth-title">
-            <div className="et-auth__tabs" role="tablist" aria-label="Chọn chế độ đăng nhập hoặc đăng ký">
+            <div className="et-auth__tabs" role="tablist" aria-label="Chọn chế độ đăng nhập hoặc đăng ký" onKeyDown={handleTabKeyDown}>
               <button
                 type="button"
                 role="tab"
                 id="auth-tab-login"
+                ref={loginTabRef}
                 aria-selected={mode === 'login'}
                 aria-controls="auth-panel"
+                tabIndex={mode === 'login' ? 0 : -1}
+                disabled={busy}
                 className={mode === 'login' ? 'is-active' : ''}
                 onClick={() => switchMode('login')}
               >
@@ -242,8 +273,11 @@ export function BuyerAuth({page}: {page?: string}) {
                 type="button"
                 role="tab"
                 id="auth-tab-register"
+                ref={registerTabRef}
                 aria-selected={mode === 'register'}
                 aria-controls="auth-panel"
+                tabIndex={mode === 'register' ? 0 : -1}
+                disabled={busy}
                 className={mode === 'register' ? 'is-active' : ''}
                 onClick={() => switchMode('register')}
               >
@@ -348,7 +382,7 @@ export function BuyerAuth({page}: {page?: string}) {
 
               <p className="et-auth__switch">
                 {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}{' '}
-                <button type="button" onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}>
+                <button type="button" disabled={busy} onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}>
                   {mode === 'login' ? 'Đăng ký ngay' : 'Đăng nhập'}
                 </button>
               </p>
