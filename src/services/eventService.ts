@@ -4,6 +4,14 @@ import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
 import {resolveTemplateKey} from '../domain/superConcert.js';
 import {stripTimelineFromDescription} from '../domain/eventTimeline.js';
+import {
+  groupCatalogArtistsByEvent,
+  normalizeCatalogArtists,
+  type CatalogArtist,
+} from '../domain/catalogFilters.js';
+import {resolvePublicArtistsFallback} from '../domain/artistLineup.js';
+
+export type {CatalogArtist};
 
 export type PublicShowRecord = {
   id: number; slug: string; name: string; startsAt: string; endsAt: string;
@@ -24,7 +32,7 @@ export type PublicEventRecord = {
 
 export type PublicEventSummary = Pick<PublicEventRecord,
   'id' | 'slug' | 'name' | 'slogan' | 'description' | 'venueName' | 'startsAt' | 'publicationStatus' | 'category' | 'bannerUrl' | 'posterUrl'
-> & {showCount: number};
+> & {showCount: number; artists: CatalogArtist[]};
 
 export type PublicTicketTier = {
   id: number; code: string; name: string; price: number; color: string; description?: string;
@@ -298,11 +306,29 @@ function legacySlug(row: Record<string, unknown>) {
   return Number(row.SuKienID) === runtimeConfig.eventDatabaseId ? 'super-concert-2026' : `su-kien-${row.SuKienID}`;
 }
 
+function toSummary(event: PublicEventRecord, artists: CatalogArtist[] = []): PublicEventSummary {
+  return {
+    id: event.id,
+    slug: event.slug,
+    name: event.name,
+    slogan: event.slogan,
+    description: event.description,
+    venueName: event.venueName,
+    startsAt: event.startsAt,
+    publicationStatus: event.publicationStatus,
+    category: event.category,
+    bannerUrl: event.bannerUrl,
+    posterUrl: event.posterUrl,
+    showCount: event.shows.length,
+    artists,
+  };
+}
+
 export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
   if (runtimeConfig.useMockData) {
-    const baseEvents = MOCK_EVENTS.map(({id, slug, name, slogan, description, venueName, startsAt, publicationStatus, category, bannerUrl, posterUrl, shows}) => ({
-      id, slug, name, slogan, description, venueName, startsAt, publicationStatus, category, bannerUrl, posterUrl, showCount: shows.length,
-    }));
+    const baseEvents = MOCK_EVENTS.map((event) =>
+      toSummary(event, normalizeCatalogArtists(resolvePublicArtistsFallback(event), 'mock')),
+    );
     try {
       const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
       const published = stored.filter((e) => e.status === 'CONG_KHAI').map((e) => ({
@@ -318,6 +344,15 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
         bannerUrl: e.bannerUrl ? String(e.bannerUrl) : undefined,
         posterUrl: e.posterUrl ? String(e.posterUrl) : undefined,
         showCount: Number(e.showCount || 1),
+        artists: normalizeCatalogArtists(
+          (Array.isArray(e.artists) ? e.artists : []).map((a: any) => ({
+            NgheSiID: a.artistId ?? a.id,
+            NgheDanh: a.name,
+            HoTen: a.realName || a.name,
+            ThuTuHienThi: a.order,
+          })),
+          'mock',
+        ),
       }));
       return [...baseEvents, ...published];
     } catch {
@@ -329,7 +364,12 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
       credentials: 'include', headers: {Accept: 'application/json'},
     });
     if (!response.ok) throw new Error(`Không thể tải danh mục sự kiện: HTTP ${response.status}`);
-    return (await response.json() as {data: PublicEventSummary[]}).data;
+    const payload = (await response.json()) as {data?: any[]};
+    const items = Array.isArray(payload?.data) ? payload.data : [];
+    return items.map((e: any) => ({
+      ...e,
+      artists: Array.isArray(e.artists) ? normalizeCatalogArtists(e.artists, 'api') : [],
+    }));
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
   const supabase = requireSupabaseClient();
@@ -348,24 +388,58 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
       slogan: row.Slogan ?? undefined, description: row.MoTaChiTiet ?? undefined,
       venueName: String(row.TenSanVanDong), startsAt: String(row.ThoiGianBatDau),
       publicationStatus: 'CONG_KHAI' as const, category: 'KHAC', showCount: 1,
+      artists: [],
     }));
   }
   if (error) throw error;
-  const supabaseEvents = (data ?? []).map((row: Record<string, any>) => ({
-    id: Number(row.SuKienID), slug: deduplicateSlug(String(row.Slug)), name: String(row.TenSuKien),
-    slogan: row.Slogan ?? undefined, description: row.MoTaChiTiet ?? undefined,
-    venueName: String(row.TenSanVanDong), startsAt: String(row.ThoiGianBatDau),
-    category: String(row.TheLoai || 'KHAC'), bannerUrl: row.BannerURL ?? undefined, posterUrl: row.PosterURL ?? undefined,
-    publicationStatus: 'CONG_KHAI' as const,
-    showCount: Array.isArray(row.SUAT_DIEN) ? row.SUAT_DIEN.length : (row.SUAT_DIEN ? 1 : 0),
-  }));
+
+  let artistMap = new Map<number, CatalogArtist[]>();
+  const ids = (data ?? [])
+    .map((row: Record<string, any>) => Number(row.SuKienID))
+    .filter((id: number) => Number.isFinite(id) && id > 0);
+
+  if (ids.length > 0) {
+    try {
+      const {data: linkRows, error: linkError} = await supabase
+        .from('SU_KIEN_NGHE_SI')
+        .select('SuKienID, NgheSiID, VaiTroTrongSuKien, ThuTuHienThi, NGHE_SI(NgheSiID, HoTen, NgheDanh)')
+        .in('SuKienID', ids)
+        .order('ThuTuHienThi');
+      if (linkError) {
+        console.warn('Không thể tải nghệ sĩ sự kiện:', linkError);
+      } else if (linkRows) {
+        artistMap = groupCatalogArtistsByEvent(linkRows, 'db');
+      }
+    } catch (err) {
+      console.warn('Lỗi khi tải quan hệ nghệ sĩ sự kiện:', err);
+    }
+  }
+
+  const supabaseEvents = (data ?? []).map((row: Record<string, any>) => {
+    const id = Number(row.SuKienID);
+    return {
+      id,
+      slug: deduplicateSlug(String(row.Slug)),
+      name: String(row.TenSuKien),
+      slogan: row.Slogan ?? undefined,
+      description: row.MoTaChiTiet ?? undefined,
+      venueName: String(row.TenSanVanDong),
+      startsAt: String(row.ThoiGianBatDau),
+      category: String(row.TheLoai || 'KHAC'),
+      bannerUrl: row.BannerURL ?? undefined,
+      posterUrl: row.PosterURL ?? undefined,
+      publicationStatus: 'CONG_KHAI' as const,
+      showCount: Array.isArray(row.SUAT_DIEN) ? row.SUAT_DIEN.length : (row.SUAT_DIEN ? 1 : 0),
+      artists: artistMap.get(id) ?? [],
+    };
+  });
 
   const existingSlugs = new Set(supabaseEvents.map((e) => e.slug));
   const fallbackEnrichedEvents = MOCK_EVENTS
     .filter((e) => !existingSlugs.has(e.slug) && e.publicationStatus === 'CONG_KHAI')
-    .map(({id, slug, name, slogan, description, venueName, startsAt, publicationStatus, category, bannerUrl, posterUrl, shows}) => ({
-      id, slug, name, slogan, description, venueName, startsAt, publicationStatus, category, bannerUrl, posterUrl, showCount: shows.length,
-    }));
+    .map((event) =>
+      toSummary(event, normalizeCatalogArtists(resolvePublicArtistsFallback(event), 'mock')),
+    );
 
   return [...supabaseEvents, ...fallbackEnrichedEvents];
 }
