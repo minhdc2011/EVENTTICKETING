@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useMemo, useState, type FormEvent} from 'react';
 import type * as React from 'react';
+import {canAccessPortal} from '../domain/accountAccess';
 import {navigatePublicRoute} from '../domain/publicRoute';
 import {
   canManageOrganizationEvents,
@@ -133,7 +134,7 @@ export function OrganizerPortal({page}: {page: string}) {
     return (
       <OrganizerFrame>
         <OrganizerAuthView
-          session={session}
+          session={session && canAccessPortal(session.accountKind, 'ORGANIZER') ? session : null}
           onChanged={refreshSession}
           onLoginSuccess={() => navigatePublicRoute('organizer')}
         />

@@ -2,6 +2,11 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import {
+  ACCOUNT_PORTALS,
+  canAccessPortal,
+  evaluatePortalAccess,
+} from '../src/domain/accountAccess.js';
+import {
   ACCOUNT_KINDS,
   canManageOrganizationEvents,
   evaluatePublishReadiness,
@@ -281,6 +286,90 @@ test('capability matrix: ORGANIZER authentication, onboarding entry point, and m
   const readiness = evaluatePublishReadiness(validAggregate);
   assert.equal(readiness.isReady, true);
   assert.equal(readiness.blockers.length, 0);
+});
+
+test('portal access matrix: USER->BUYER allowed, USER->ORGANIZER denied, ORGANIZER reverse, ADMIN both', () => {
+  assert.equal(canAccessPortal('USER', ACCOUNT_PORTALS.BUYER), true);
+  assert.equal(canAccessPortal('USER', ACCOUNT_PORTALS.ORGANIZER), false);
+  assert.equal(canAccessPortal('ORGANIZER', ACCOUNT_PORTALS.BUYER), false);
+  assert.equal(canAccessPortal('ORGANIZER', ACCOUNT_PORTALS.ORGANIZER), true);
+  assert.equal(canAccessPortal('ADMIN', ACCOUNT_PORTALS.BUYER), true);
+  assert.equal(canAccessPortal('ADMIN', ACCOUNT_PORTALS.ORGANIZER), true);
+
+  const makeProfile = (kind) => ({data: {LoaiTaiKhoan: kind}, error: null});
+  assert.equal(evaluatePortalAccess(makeProfile('USER'), ACCOUNT_PORTALS.BUYER).allowed, true);
+  assert.equal(evaluatePortalAccess(makeProfile('USER'), ACCOUNT_PORTALS.ORGANIZER).allowed, false);
+  assert.equal(evaluatePortalAccess(makeProfile('ORGANIZER'), ACCOUNT_PORTALS.BUYER).allowed, false);
+  assert.equal(evaluatePortalAccess(makeProfile('ORGANIZER'), ACCOUNT_PORTALS.ORGANIZER).allowed, true);
+  assert.equal(evaluatePortalAccess(makeProfile('ADMIN'), ACCOUNT_PORTALS.BUYER).allowed, true);
+  assert.equal(evaluatePortalAccess(makeProfile('ADMIN'), ACCOUNT_PORTALS.ORGANIZER).allowed, true);
+});
+
+test('static check: services do not infer kind from email substring or default to USER', async () => {
+  const buyerService = await readFile('src/services/buyerAuthService.ts', 'utf8');
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+  assert.ok(!buyerService.includes("includes('buyer')"), 'buyerAuthService must not include includes("buyer")');
+  assert.ok(!orgService.includes("includes('buyer')"), 'organizerService must not include includes("buyer")');
+  assert.ok(!buyerService.includes("let accountKind = 'USER'"), 'buyerAuthService must not contain let accountKind = USER');
+  assert.ok(!orgService.includes("let accountKind = 'USER'"), 'organizerService must not contain let accountKind = USER');
+});
+
+test('static check: organizerService uses loadPortalSession and createAuthChangeHandler without unsafe fallback', async () => {
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+  assert.ok(orgService.includes('loadPortalSession'), 'organizerService must use loadPortalSession');
+  assert.ok(orgService.includes('createAuthChangeHandler'), 'organizerService must use createAuthChangeHandler');
+  assert.ok(
+    !orgService.includes('accountKind = resolved.ok ? resolved.accountKind : undefined'),
+    'organizerService must not use undefined accountKind fallback',
+  );
+});
+
+test('static check: buyerAuthService uses loadPortalSession and createAuthChangeHandler', async () => {
+  const buyerService = await readFile('src/services/buyerAuthService.ts', 'utf8');
+  assert.ok(buyerService.includes('loadPortalSession'), 'buyerAuthService must use loadPortalSession');
+  assert.ok(buyerService.includes('createAuthChangeHandler'), 'buyerAuthService must use createAuthChangeHandler');
+});
+
+test('static check: neither service contains user_metadata near role decision or || USER fallback', async () => {
+  const buyerService = await readFile('src/services/buyerAuthService.ts', 'utf8');
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+
+  // No || 'USER' or || "USER" fallback in either service
+  assert.ok(!buyerService.includes("|| 'USER'"), "buyerAuthService must not contain || 'USER' fallback");
+  assert.ok(!buyerService.includes('|| "USER"'), 'buyerAuthService must not contain || "USER" fallback');
+  assert.ok(!orgService.includes("|| 'USER'"), "organizerService must not contain || 'USER' fallback");
+  assert.ok(!orgService.includes('|| "USER"'), 'organizerService must not contain || "USER" fallback');
+
+  // organizerService must not contain user_metadata
+  assert.ok(!orgService.includes('user_metadata'), 'organizerService must not reference user_metadata');
+
+  // buyerAuthService only uses user_metadata for display fullName and never for role decisions
+  assert.ok(
+    !buyerService.match(/user_metadata\?\.?(role|accountKind|LoaiTaiKhoan|kind)/i),
+    'buyerAuthService must not infer role/accountKind from user_metadata',
+  );
+  const metadataLines = buyerService.split('\n').filter((l) => l.includes('user_metadata'));
+  assert.ok(metadataLines.length > 0, 'buyerAuthService should only use user_metadata for fullName');
+  for (const line of metadataLines) {
+    assert.ok(line.includes('full_name'), 'user_metadata line must only read full_name');
+    assert.ok(!line.includes('accountKind'), 'user_metadata line must not set accountKind');
+    assert.ok(!line.includes('role'), 'user_metadata line must not set role');
+  }
+});
+
+test('static check: readMockSessionBase in organizerService no longer reads mock buyer session', async () => {
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+  const match = orgService.match(/function readMockSessionBase\(\)[\s\S]*?\n\}/);
+  assert.ok(match, 'readMockSessionBase function definition must be found');
+  const functionBody = match[0];
+  assert.ok(
+    !functionBody.includes('eventticketing:mock-buyer-session'),
+    'readMockSessionBase must not read eventticketing:mock-buyer-session',
+  );
+  assert.ok(
+    !functionBody.includes('mock-buyer-session'),
+    'readMockSessionBase must not reference mock-buyer-session',
+  );
 });
 
 test('overload bug regression: clean install and corrective migration guarantee unambiguous zero-arg helpers', async () => {
