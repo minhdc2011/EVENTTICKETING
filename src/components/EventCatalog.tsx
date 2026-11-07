@@ -8,6 +8,8 @@ import {getBuyerSession, signOutBuyer, subscribeBuyerAuth, type BuyerSession} fr
 import {CATEGORY_THEMES, CATEGORY_KEYS, getCategoryTheme} from '../domain/categoryThemes.js';
 import {GlobalHeader} from './site/GlobalHeader';
 import {SearchBlock} from './site/SearchBlock';
+import {ArtistFilter} from './site/ArtistFilter';
+import {collectCatalogArtistOptions, filterCatalogEvents} from '../domain/catalogFilters.js';
 import {
   CategoryIcon,
   IconBuilding,
@@ -40,6 +42,7 @@ export function EventCatalog() {
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('ALL');
+  const [selectedArtistKey, setSelectedArtistKey] = useState('');
   const [buyerSession, setBuyerSession] = useState<BuyerSession | null>(null);
 
   const fetchEvents = () => {
@@ -71,14 +74,29 @@ export function EventCatalog() {
   const isReady = state === 'ready';
   const countsByCategory = useMemo(() => countEventsByCategory(events), [events]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return events.filter((event) => {
-      const catMatch = category === 'ALL' || getCategoryTheme(event.category).key === category;
-      const searchMatch = !q || `${event.name} ${event.venueName || ''}`.toLowerCase().includes(q);
-      return catMatch && searchMatch;
-    });
-  }, [events, query, category]);
+  const artistOptions = useMemo(() => collectCatalogArtistOptions(events), [events]);
+  const selectedArtist = artistOptions.find((artist) => artist.key === selectedArtistKey);
+
+  const filtered = useMemo(
+    () =>
+      filterCatalogEvents(events, {
+        artistKeys: selectedArtistKey ? [selectedArtistKey] : [],
+        category,
+        query,
+      }),
+    [events, query, category, selectedArtistKey],
+  );
+
+  const resetFilters = () => {
+    setQuery('');
+    setCategory('ALL');
+    setSelectedArtistKey('');
+  };
+  const hasActiveFilter = Boolean(query.trim()) || Boolean(selectedArtistKey) || category !== 'ALL';
+  const activeCategoryLabel =
+    category !== 'ALL' && category in CATEGORY_THEMES
+      ? CATEGORY_THEMES[category as keyof typeof CATEGORY_THEMES].label
+      : category;
 
   const featured = useMemo(() => pickFeaturedEvent(events), [events]);
 
@@ -198,14 +216,32 @@ export function EventCatalog() {
           })}
         </div>
 
+        <ArtistFilter artists={artistOptions} value={selectedArtistKey} onChange={setSelectedArtistKey} />
+
         {/* Query feedback */}
-        {isReady && query.trim() && (
-          <div className="marketplace-query-feedback">
+        {isReady && hasActiveFilter && (
+          <div className="marketplace-query-feedback" role="status" aria-live="polite">
             <span>
-              Kết quả tìm kiếm cho: <strong>"{query}"</strong> ({filtered.length} sự kiện)
+              Đang lọc
+              {selectedArtist && (
+                <>
+                  {' '}nghệ sĩ: <strong>{selectedArtist.name}</strong>
+                </>
+              )}
+              {category !== 'ALL' && (
+                <>
+                  {' '}thể loại: <strong>{activeCategoryLabel}</strong>
+                </>
+              )}
+              {query.trim() && (
+                <>
+                  {' '}từ khóa: <strong>"{query.trim()}"</strong>
+                </>
+              )}{' '}
+              ({filtered.length} sự kiện)
             </span>
-            <button type="button" onClick={() => setQuery('')}>
-              Xóa từ khóa
+            <button type="button" onClick={resetFilters}>
+              Đặt lại bộ lọc
             </button>
           </div>
         )}
@@ -239,10 +275,7 @@ export function EventCatalog() {
             <button
               type="button"
               className="marketplace-reset-btn"
-              onClick={() => {
-                setQuery('');
-                setCategory('ALL');
-              }}
+              onClick={resetFilters}
             >
               Xem tất cả sự kiện
             </button>
