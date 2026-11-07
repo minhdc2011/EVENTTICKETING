@@ -146,6 +146,13 @@ export async function getOrganizerSession(): Promise<OrganizerSession | null> {
   });
 }
 
+const activeOrganizerRefreshers = new Set<() => Promise<void>>();
+
+/** Re-reads the organizer session for every live subscriber through the versioned handler (stale results are dropped). */
+export async function refreshOrganizerSession(): Promise<void> {
+  await Promise.all([...activeOrganizerRefreshers].map((refresh) => refresh()));
+}
+
 export function subscribeOrganizerAuth(callback: (session: OrganizerSession | null) => void): () => void {
   let unsubscribed = false;
   const handle = createAuthChangeHandler<OrganizerSession>({
@@ -153,6 +160,12 @@ export function subscribeOrganizerAuth(callback: (session: OrganizerSession | nu
     emit: callback,
     isActive: () => !unsubscribed,
   });
+  activeOrganizerRefreshers.add(handle.refresh);
+  const teardown = () => {
+    unsubscribed = true;
+    handle.invalidate();
+    activeOrganizerRefreshers.delete(handle.refresh);
+  };
   if (runtimeConfig.useMockData) {
     const handler = (e: StorageEvent) => {
       if (e.key === MOCK_SESSION || e.key === MOCK_ACCOUNT_PROFILES_KEY) {
@@ -160,21 +173,28 @@ export function subscribeOrganizerAuth(callback: (session: OrganizerSession | nu
       }
     };
     window.addEventListener('storage', handler);
+    void handle({});
     return () => {
-      unsubscribed = true;
+      teardown();
       window.removeEventListener('storage', handler);
     };
   }
   let cleanup: (() => void) | undefined;
   void import('./supabaseClient').then(({requireSupabaseClient}) => {
     if (unsubscribed) return;
-    const {data} = requireSupabaseClient().auth.onAuthStateChange((_event, session) => {
-      void handle(session?.user ? session : null);
-    });
-    cleanup = () => data.subscription.unsubscribe();
+    try {
+      // Supabase emits INITIAL_SESSION right after attaching, so the first state also goes through `handle`.
+      const {data} = requireSupabaseClient().auth.onAuthStateChange((_event, session) => {
+        void handle(session?.user ? session : null);
+      });
+      cleanup = () => data.subscription.unsubscribe();
+    } catch {
+      // Supabase unconfigured or error
+      if (!unsubscribed) callback(null);
+    }
   });
   return () => {
-    unsubscribed = true;
+    teardown();
     if (cleanup) cleanup();
   };
 }

@@ -50,7 +50,17 @@ export function createAuthChangeHandler<S>(args: {
   resolveSession: () => PromiseLike<S | null> | S | null;
   emit: (session: S | null) => void;
   isActive?: () => boolean;
-}): (rawSession: unknown) => Promise<void>;
+}): AuthChangeHandler;
+export interface AuthChangeHandler {
+  (rawSession: unknown): Promise<void>;
+  invalidate: () => void;
+  refresh: () => Promise<void>;
+}
+export interface AuthAttemptGuard {
+  begin: () => () => boolean;
+  invalidate: () => void;
+}
+export function createAuthAttemptGuard(): AuthAttemptGuard;
 export function readMockAccountKind(
   storage: Pick<MockStorage, 'getItem'>,
   email: string,

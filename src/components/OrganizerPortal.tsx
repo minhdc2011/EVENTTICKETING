@@ -1,16 +1,15 @@
 import {useCallback, useEffect, useMemo, useState, type FormEvent} from 'react';
 import type * as React from 'react';
-import {canAccessPortal} from '../domain/accountAccess';
 import {navigatePublicRoute} from '../domain/publicRoute';
 import {
   canManageOrganizationEvents,
   createOrganization,
   filterEventsByOrganization,
-  getOrganizerSession,
   isOrganizerAccount,
   loadOrganizerWorkspace,
   loadSavedActiveOrganizationId,
   publishEvent,
+  refreshOrganizerSession,
   resolveActiveOrganizationId,
   saveActiveOrganizationId,
   signOutOrganizer,
@@ -99,26 +98,19 @@ export function OrganizerPortal({page}: {page: string}) {
   const [loading, setLoading] = useState(true);
 
   const refreshSession = useCallback(async () => {
-    setLoading(true);
-    try {
-      const activeSession = await getOrganizerSession();
-      setSession(activeSession);
-    } catch {
-      setSession(null);
-    } finally {
-      setLoading(false);
-    }
+    await refreshOrganizerSession();
   }, []);
 
   useEffect(() => {
     document.title = 'Organizer Studio | EventTicketing';
-    void refreshSession();
     const unsubscribe = subscribeOrganizerAuth((newSession) => {
       setSession(newSession);
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [refreshSession]);
+  }, []);
+
+  const allowed = session && isOrganizerAccount(session.accountKind);
 
   if (loading) {
     return (
@@ -130,11 +122,27 @@ export function OrganizerPortal({page}: {page: string}) {
     );
   }
 
-  if (!session || page === 'login') {
+  if (session && !allowed) {
+    return (
+      <OrganizerFrame>
+        <OrganizerAccessDeniedView
+          session={session}
+          onSignOut={async () => {
+            await signOutOrganizer();
+            setSession(null);
+            await refreshOrganizerSession();
+            navigatePublicRoute('organizer/login');
+          }}
+        />
+      </OrganizerFrame>
+    );
+  }
+
+  if (!allowed || page === 'login') {
     return (
       <OrganizerFrame>
         <OrganizerAuthView
-          session={session && canAccessPortal(session.accountKind, 'ORGANIZER') ? session : null}
+          session={allowed ? session : null}
           onChanged={refreshSession}
           onLoginSuccess={() => navigatePublicRoute('organizer')}
         />
@@ -142,19 +150,8 @@ export function OrganizerPortal({page}: {page: string}) {
     );
   }
 
-  if (!isOrganizerAccount(session.accountKind)) {
-    return (
-      <OrganizerFrame>
-        <OrganizerAccessDeniedView
-          session={session}
-          onSignOut={async () => {
-            await signOutOrganizer();
-            await refreshSession();
-            navigatePublicRoute('organizer/login');
-          }}
-        />
-      </OrganizerFrame>
-    );
+  if (!session) {
+    return null;
   }
 
   return <OrganizerDashboard session={session} />;
