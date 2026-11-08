@@ -88,9 +88,11 @@
   overscroll-behavior-inline: contain;
   scroll-behavior: smooth;
   scroll-snap-type: inline mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: var(--et-ink-muted) var(--et-bg);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
+.et-artist-filter__track::-webkit-scrollbar { display: none; }
 
 .et-artist-card {
   display: flex;
