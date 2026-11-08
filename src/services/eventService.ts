@@ -349,6 +349,8 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
             NgheSiID: a.artistId ?? a.id,
             NgheDanh: a.name,
             HoTen: a.realName || a.name,
+            VaiTroChinh: a.role,
+            HinhAnhURL: a.imageUrl,
             ThuTuHienThi: a.order,
           })),
           'mock',
@@ -402,7 +404,7 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
     try {
       const {data: linkRows, error: linkError} = await supabase
         .from('SU_KIEN_NGHE_SI')
-        .select('SuKienID, NgheSiID, VaiTroTrongSuKien, ThuTuHienThi, NGHE_SI(NgheSiID, HoTen, NgheDanh)')
+        .select('SuKienID, NgheSiID, VaiTroTrongSuKien, ThuTuHienThi, NGHE_SI(NgheSiID, HoTen, NgheDanh, VaiTroChinh, HinhAnhURL)')
         .in('SuKienID', ids)
         .order('ThuTuHienThi');
       if (linkError) {

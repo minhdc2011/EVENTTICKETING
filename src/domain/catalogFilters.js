@@ -32,7 +32,13 @@ export function normalizeCatalogArtists(rows, source) {
     const key = catalogArtistKey(source, artist.id, artist.name);
     if (seen.has(key)) continue;
     seen.add(key);
-    result.push({key, id: artist.id, name: artist.name});
+    result.push({
+      key,
+      id: artist.id,
+      name: artist.name,
+      ...(artist.imageUrl ? {imageUrl: artist.imageUrl} : {}),
+      ...(artist.role && artist.role !== 'Nghệ sĩ biểu diễn' ? {role: artist.role} : {}),
+    });
   }
   return result;
 }
@@ -61,13 +67,29 @@ export function groupCatalogArtistsByEvent(linkRows, source = 'db') {
  * Unique artist options across events (by key), sorted by name in 'vi' locale.
  */
 export function collectCatalogArtistOptions(events) {
-  const byKey = new Map();
+  const byName = new Map();
   for (const event of Array.isArray(events) ? events : []) {
+    const countedInEvent = new Set();
     for (const artist of event?.artists ?? []) {
-      if (artist?.key && !byKey.has(artist.key)) byKey.set(artist.key, artist);
+      if (!artist?.key) continue;
+      const nameKey = String(artist.name ?? '').trim().toLocaleLowerCase('vi');
+      if (!nameKey) continue;
+      if (!byName.has(nameKey)) {
+        byName.set(nameKey, {...artist, aliasKeys: [artist.key], eventCount: 0});
+      } else {
+        const option = byName.get(nameKey);
+        if (!option.aliasKeys.includes(artist.key)) option.aliasKeys.push(artist.key);
+        if (!option.imageUrl && artist.imageUrl) option.imageUrl = artist.imageUrl;
+        if (!option.role && artist.role) option.role = artist.role;
+      }
+      if (!countedInEvent.has(nameKey)) {
+        const option = byName.get(nameKey);
+        option.eventCount += 1;
+        countedInEvent.add(nameKey);
+      }
     }
   }
-  return [...byKey.values()].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
 }
 
 /**

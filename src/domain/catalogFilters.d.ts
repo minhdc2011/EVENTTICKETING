@@ -4,6 +4,10 @@ export type CatalogArtist = {
   key: string;
   id: number;
   name: string;
+  imageUrl?: string;
+  role?: string;
+  eventCount?: number;
+  aliasKeys?: string[];
 };
 
 export type CatalogFilterState = {

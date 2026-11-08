@@ -76,21 +76,30 @@ export function EventCatalog() {
 
   const artistOptions = useMemo(() => collectCatalogArtistOptions(events), [events]);
   const selectedArtist = artistOptions.find((artist) => artist.key === selectedArtistKey);
+  const selectedArtistKeys = selectedArtist?.aliasKeys ?? (selectedArtistKey ? [selectedArtistKey] : []);
 
   const filtered = useMemo(
     () =>
       filterCatalogEvents(events, {
-        artistKeys: selectedArtistKey ? [selectedArtistKey] : [],
+        artistKeys: selectedArtistKeys,
         category,
         query,
       }),
-    [events, query, category, selectedArtistKey],
+    [events, query, category, selectedArtistKeys],
   );
 
   const resetFilters = () => {
     setQuery('');
     setCategory('ALL');
     setSelectedArtistKey('');
+  };
+
+  const handleArtistChange = (artistKey: string) => {
+    setSelectedArtistKey(artistKey);
+    if (artistKey) {
+      setQuery('');
+      setCategory('ALL');
+    }
   };
   const hasActiveFilter = Boolean(query.trim()) || Boolean(selectedArtistKey) || category !== 'ALL';
   const activeCategoryLabel =
@@ -216,7 +225,7 @@ export function EventCatalog() {
           })}
         </div>
 
-        <ArtistFilter artists={artistOptions} value={selectedArtistKey} onChange={setSelectedArtistKey} />
+        <ArtistFilter artists={artistOptions} value={selectedArtistKey} onChange={handleArtistChange} />
 
         {/* Query feedback */}
         {isReady && hasActiveFilter && (
@@ -286,7 +295,7 @@ export function EventCatalog() {
         {isReady && filtered.length > 0 && (
         <section className="et-event-list" aria-label="Danh sách sự kiện">
           {filtered.map((event) => (
-            <EventRow key={event.id} event={event} />
+            <EventRow key={`${event.id}:${event.slug}`} event={event} />
           ))}
         </section>
         )}
