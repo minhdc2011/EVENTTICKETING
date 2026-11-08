@@ -1,4 +1,5 @@
 import type {MouseEvent, ReactNode} from 'react';
+import {canAccessPortal} from '../../domain/accountAccess';
 import {buildPublicPath, navigatePublicRoute} from '../../domain/publicRoute';
 import type {BuyerSession} from '../../services/buyerAuthService';
 import './site.css';
@@ -88,7 +89,7 @@ export function GlobalHeader({
           <RouteLink target="organizer" className="et-header__link">
             Dành cho BTC
           </RouteLink>
-          {session ? (
+          {session && canAccessPortal(session.accountKind, 'BUYER') ? (
             <>
               <RouteLink target="account" className="et-header__link et-header__badge" title={session.email}>
                 <span className="et-header__badge-text">{emailName}</span>

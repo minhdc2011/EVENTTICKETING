@@ -1,0 +1,108 @@
+.et-artist-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--et-space-2) var(--et-space-3);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 0 var(--et-space-4);
+  color: var(--et-ink);
+}
+
+.et-artist-filter__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--et-space-1);
+  box-sizing: border-box;
+  flex: 1 1 16rem;
+  max-width: 28rem;
+  min-width: 0;
+  border-radius: var(--et-radius-md);
+}
+
+.et-artist-filter__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--et-ink-muted);
+}
+
+.et-artist-filter__select {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: var(--et-tap-min);
+  padding: var(--et-space-2) var(--et-space-3);
+  border: 1px solid var(--et-border);
+  border-radius: var(--et-radius-md);
+  background: var(--et-surface);
+  color: var(--et-ink);
+  font: inherit;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.et-artist-filter__select:disabled {
+  background: var(--et-bg);
+  color: var(--et-ink-muted);
+  cursor: not-allowed;
+}
+
+.et-artist-filter__hint {
+  flex: 1 1 100%;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--et-ink-muted);
+  overflow-wrap: anywhere;
+}
+
+.et-artist-filter__clear {
+  box-sizing: border-box;
+  min-height: var(--et-tap-min);
+  max-width: 100%;
+  padding: var(--et-space-2) var(--et-space-4);
+  border: 1px solid var(--et-border);
+  border-radius: var(--et-radius-sm);
+  background: var(--et-surface);
+  color: var(--et-blue);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.et-artist-filter__clear:hover {
+  color: var(--et-blue-hover);
+  border-color: var(--et-blue);
+}
+
+.et-artist-filter__select:focus-visible,
+.et-artist-filter__clear:focus-visible,
+.et-artist-filter__field:focus-within {
+  outline: 3px solid var(--et-focus);
+  outline-offset: 2px;
+}
+
+.et-artist-filter__field:focus-within .et-artist-filter__select:focus-visible {
+  outline: none;
+}
+
+@media (max-width: 480px) {
+  .et-artist-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .et-artist-filter__field {
+    flex-basis: auto;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .et-artist-filter__clear {
+    width: 100%;
+  }
+}

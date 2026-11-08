@@ -5,11 +5,11 @@ import {
   canManageOrganizationEvents,
   createOrganization,
   filterEventsByOrganization,
-  getOrganizerSession,
   isOrganizerAccount,
   loadOrganizerWorkspace,
   loadSavedActiveOrganizationId,
   publishEvent,
+  refreshOrganizerSession,
   resolveActiveOrganizationId,
   saveActiveOrganizationId,
   signOutOrganizer,
@@ -98,26 +98,19 @@ export function OrganizerPortal({page}: {page: string}) {
   const [loading, setLoading] = useState(true);
 
   const refreshSession = useCallback(async () => {
-    setLoading(true);
-    try {
-      const activeSession = await getOrganizerSession();
-      setSession(activeSession);
-    } catch {
-      setSession(null);
-    } finally {
-      setLoading(false);
-    }
+    await refreshOrganizerSession();
   }, []);
 
   useEffect(() => {
     document.title = 'Organizer Studio | EventTicketing';
-    void refreshSession();
     const unsubscribe = subscribeOrganizerAuth((newSession) => {
       setSession(newSession);
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [refreshSession]);
+  }, []);
+
+  const allowed = session && isOrganizerAccount(session.accountKind);
 
   if (loading) {
     return (
@@ -129,11 +122,27 @@ export function OrganizerPortal({page}: {page: string}) {
     );
   }
 
-  if (!session || page === 'login') {
+  if (session && !allowed) {
+    return (
+      <OrganizerFrame>
+        <OrganizerAccessDeniedView
+          session={session}
+          onSignOut={async () => {
+            await signOutOrganizer();
+            setSession(null);
+            await refreshOrganizerSession();
+            navigatePublicRoute('organizer/login');
+          }}
+        />
+      </OrganizerFrame>
+    );
+  }
+
+  if (!allowed || page === 'login') {
     return (
       <OrganizerFrame>
         <OrganizerAuthView
-          session={session}
+          session={allowed ? session : null}
           onChanged={refreshSession}
           onLoginSuccess={() => navigatePublicRoute('organizer')}
         />
@@ -141,19 +150,8 @@ export function OrganizerPortal({page}: {page: string}) {
     );
   }
 
-  if (!isOrganizerAccount(session.accountKind)) {
-    return (
-      <OrganizerFrame>
-        <OrganizerAccessDeniedView
-          session={session}
-          onSignOut={async () => {
-            await signOutOrganizer();
-            await refreshSession();
-            navigatePublicRoute('organizer/login');
-          }}
-        />
-      </OrganizerFrame>
-    );
+  if (!session) {
+    return null;
   }
 
   return <OrganizerDashboard session={session} />;
@@ -184,6 +182,7 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   const [events, setEvents] = useState<OrganizerEvent[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'error' | 'status'>('status');
   const [publishingId, setPublishingId] = useState<number | null>(null);
   const [busyOrg, setBusyOrg] = useState(false);
   const [wizardAggregate, setWizardAggregate] = useState<FullEventAggregateInput | null>(null);
@@ -264,12 +263,14 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     try {
       const created = await createOrganization(String(data.get('name')), String(data.get('slug')));
       setMessage('Tạo tổ chức thành công.');
+      setMessageType('status');
       await refresh();
       if (created?.organizationId) {
         handleSelectOrg(created.organizationId);
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không thể tạo tổ chức.');
+      setMessageType('error');
     } finally {
       setBusyOrg(false);
     }
@@ -284,23 +285,27 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   async function handleStartEdit(eventId: number) {
     if (!activeOrg || !canEdit) return;
     setMessage('Đang nạp dữ liệu sự kiện…');
+    setMessageType('status');
     try {
       const aggregate = await loadEventForEditing(eventId);
       setWizardAggregate(aggregate);
       setMessage('');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không thể tải sự kiện để chỉnh sửa.');
+      setMessageType('error');
     }
   }
 
   async function publish(id: number) {
     if (!canEdit || !activeOrg) {
       setMessage('Tài khoản của bạn chỉ có quyền xem, không thể công bố sự kiện.');
+      setMessageType('error');
       return;
     }
     const target = orgEvents.find((e) => e.id === id);
     if (!target) {
       setMessage('Sự kiện không thuộc tổ chức đang chọn.');
+      setMessageType('error');
       return;
     }
     setPublishingId(id);
@@ -308,9 +313,11 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     try {
       await publishEvent(id);
       setMessage('Công bố sự kiện thành công! Sự kiện đã xuất hiện trên marketplace.');
+      setMessageType('status');
       await refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không thể công bố sự kiện.');
+      setMessageType('error');
     } finally {
       setPublishingId(null);
     }
@@ -355,7 +362,11 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
           </header>
 
           {message && (
-            <div className="org-alert org-alert-info organizer-message" role="status">
+            <div
+              className={`org-alert ${messageType === 'error' ? 'org-alert-danger' : 'org-alert-info'} organizer-message`}
+              role={messageType === 'error' ? 'alert' : 'status'}
+              aria-live={messageType === 'error' ? 'assertive' : 'polite'}
+            >
               <div className="org-alert-body">{message}</div>
             </div>
           )}
@@ -425,6 +436,7 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
                 await refresh();
                 if (isPublished) {
                   setMessage('Sự kiện đã được công bố thành công lên marketplace!');
+                  setMessageType('status');
                 }
               }}
             />
