@@ -46,7 +46,6 @@
   flex: 0 0 auto;
 }
 
-.et-artist-filter__clear,
 .et-artist-filter__arrow {
   min-height: var(--et-tap-min);
   border: 1px solid var(--et-border);
@@ -54,13 +53,6 @@
   color: var(--et-ink);
   font: inherit;
   cursor: pointer;
-}
-
-.et-artist-filter__clear {
-  padding: var(--et-space-2) var(--et-space-3);
-  border-radius: var(--et-radius-sm);
-  color: var(--et-blue);
-  font-weight: 700;
 }
 
 .et-artist-filter__arrow {
@@ -130,6 +122,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: var(--artist-focus, 50% 40%);
   transition: transform 260ms ease;
 }
 
@@ -180,8 +173,29 @@
 .et-artist-card:hover .et-artist-card__media img { transform: scale(1.035); }
 .et-artist-card.is-active strong { color: var(--et-blue); }
 
+.et-artist-card--view-all .et-artist-card__media {
+  place-items: end start;
+  padding: clamp(1.1rem, 3vw, 2rem);
+  background: var(--et-ink);
+  color: var(--et-surface);
+}
+
+.et-artist-card__view-all-icon {
+  display: inline-grid;
+  place-items: center;
+  width: var(--et-tap-min);
+  height: var(--et-tap-min);
+  border: 1px solid color-mix(in srgb, var(--et-surface) 48%, transparent);
+  border-radius: var(--et-radius-sm);
+}
+
+.et-artist-card--view-all:hover .et-artist-card__view-all-icon svg {
+  transform: translateX(0.25rem);
+}
+
+.et-artist-card__view-all-icon svg { transition: transform 180ms ease; }
+
 .et-artist-card:focus-visible,
-.et-artist-filter__clear:focus-visible,
 .et-artist-filter__arrow:focus-visible {
   outline: 3px solid var(--et-focus);
   outline-offset: 2px;
@@ -191,7 +205,6 @@
   .et-artist-filter__header { align-items: flex-start; }
   .et-artist-filter__header p { font-size: 0.875rem; }
   .et-artist-filter__arrow { display: none; }
-  .et-artist-filter__clear { max-width: 8.5rem; }
   .et-artist-card { flex-basis: min(78vw, 17rem); }
 }
 

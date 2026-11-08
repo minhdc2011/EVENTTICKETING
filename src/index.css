@@ -3245,6 +3245,29 @@
   text-decoration: underline;
 }
 
+.marketplace-results {
+  scroll-margin-top: 6.5rem;
+}
+
+.marketplace-results:focus { outline: none; }
+
+.marketplace-artist-results-heading {
+  margin: 0 0 1rem;
+}
+
+.marketplace-artist-results-heading span {
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.marketplace-artist-results-heading h3 {
+  margin: 0.15rem 0 0;
+  color: #0f172a;
+  font: 800 clamp(1.4rem, 3vw, 2.4rem)/1.08 'Be Vietnam Pro', sans-serif;
+  letter-spacing: -0.03em;
+}
+
 /* ==========================================================================
    MARKETPLACE EVENT GRID & CATEGORY CARDS
    ========================================================================== */

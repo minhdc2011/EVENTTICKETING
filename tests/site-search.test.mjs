@@ -191,8 +191,8 @@ test('ArtistFilter.tsx markup and accessibility standards', async () => {
   );
   assert.match(
     tsx,
-    /className="et-artist-filter__clear"[\s\S]*?>\s*Xem tất cả nghệ sĩ\s*<\/button>/,
-    'ArtistFilter must provide a clear action when an artist is selected',
+    /className="et-artist-card et-artist-card--view-all"[\s\S]*?<strong>Xem tất cả nghệ sĩ<\/strong>/,
+    'ArtistFilter must provide a final carousel card that clears the artist filter',
   );
   assert.match(
     tsx,
@@ -215,7 +215,7 @@ test('ArtistFilter.css uses exclusively --et-* tokens with no raw hex colors', a
   assert.match(css, /\.et-artist-filter\b/, 'ArtistFilter.css must define .et-artist-filter');
   assert.match(css, /\.et-artist-filter__track\b/, 'ArtistFilter.css must define the carousel track');
   assert.match(css, /\.et-artist-card\b/, 'ArtistFilter.css must define artist cards');
-  assert.match(css, /\.et-artist-filter__clear\b/, 'ArtistFilter.css must define .et-artist-filter__clear');
+  assert.match(css, /\.et-artist-card--view-all\b/, 'ArtistFilter.css must define the final view-all card');
 
   const hexMatches = css.match(/#[0-9a-fA-F]{3,8}\b/g);
   assert.equal(
@@ -243,8 +243,8 @@ test('ArtistFilter.css enforces tap targets, font size, and visible focus outlin
   );
   assert.match(
     css,
-    /\.et-artist-filter__clear,\s*\.et-artist-filter__arrow\s*\{[\s\S]*?min-height:\s*var\(--et-tap-min\);/,
-    'ArtistFilter controls must enforce min-height: var(--et-tap-min)',
+    /\.et-artist-filter__arrow\s*\{[\s\S]*?min-height:\s*var\(--et-tap-min\);/,
+    'ArtistFilter arrow controls must enforce min-height: var(--et-tap-min)',
   );
   assert.match(
     css,
@@ -345,6 +345,11 @@ test('EventCatalog.tsx integrates ArtistFilter and handles three-way filtering a
     tsx,
     /role="status"\s+aria-live="polite"/,
     'marketplace-query-feedback must be an accessible status region with polite announcements',
+  );
+  assert.match(
+    tsx,
+    /resultsRef\.current\?\.scrollIntoView\(\{behavior:\s*'smooth',\s*block:\s*'start'\}\)/,
+    'Selecting an artist must bring the filtered results into view',
   );
   assert.match(
     tsx,

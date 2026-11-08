@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState, type CSSProperties} from 'react';
 import type {CatalogArtist} from '../../domain/catalogFilters.js';
 import {IconArrowRight} from '../common/Icons';
 import './ArtistFilter.css';
@@ -12,6 +12,16 @@ export type ArtistFilterProps = {
 
 const initialsFor = (name: string) =>
   name.split(/\s+/).filter(Boolean).slice(-2).map((part) => part[0]).join('').toUpperCase();
+
+const mediaFocusFor = (name: string) => {
+  const key = name.trim().toLocaleLowerCase('vi');
+  if (key.includes('sơn tùng') || key.includes('son tung')) return '50% 28%';
+  if (key.includes('soobin')) return '50% 34%';
+  if (key === 'suboi') return '50% 30%';
+  if (key === 'mono') return '50% 42%';
+  if (key.includes('dj mie')) return '50% 34%';
+  return '50% 40%';
+};
 
 export function ArtistFilter({artists, value, onChange, disabled = false}: ArtistFilterProps) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -58,11 +68,6 @@ export function ArtistFilter({artists, value, onChange, disabled = false}: Artis
           <p>Chọn nghệ sĩ để xem tất cả sự kiện họ góp mặt.</p>
         </div>
         <div className="et-artist-filter__actions">
-          {value && (
-            <button type="button" className="et-artist-filter__clear" onClick={() => onChange('')}>
-              Xem tất cả nghệ sĩ
-            </button>
-          )}
           <button
             type="button"
             className="et-artist-filter__arrow et-artist-filter__arrow--back"
@@ -103,7 +108,11 @@ export function ArtistFilter({artists, value, onChange, disabled = false}: Artis
               disabled={disabled}
               onClick={() => onChange(isActive ? '' : artist.key)}
             >
-              <span className="et-artist-card__media" aria-hidden="true">
+              <span
+                className="et-artist-card__media"
+                aria-hidden="true"
+                style={{'--artist-focus': mediaFocusFor(artist.name)} as CSSProperties}
+              >
                 <span className="et-artist-card__initials">{initialsFor(artist.name)}</span>
                 {artist.imageUrl && (
                   <img
@@ -122,6 +131,22 @@ export function ArtistFilter({artists, value, onChange, disabled = false}: Artis
             </button>
           );
         })}
+        <button
+          type="button"
+          className="et-artist-card et-artist-card--view-all"
+          data-artist-id="all"
+          disabled={disabled}
+          onClick={() => onChange('')}
+        >
+          <span className="et-artist-card__media" aria-hidden="true">
+            <span className="et-artist-card__view-all-icon"><IconArrowRight size={30} /></span>
+          </span>
+          <span className="et-artist-card__meta">
+            <span className="et-artist-card__role">Toàn bộ danh mục</span>
+            <strong>Xem tất cả nghệ sĩ</strong>
+            <span className="et-artist-card__count">Bỏ bộ lọc và xem mọi sự kiện</span>
+          </span>
+        </button>
       </div>
     </section>
   );
