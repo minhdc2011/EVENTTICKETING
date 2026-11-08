@@ -16,7 +16,7 @@ License terms: [Unsplash License](https://unsplash.com/license).
 
 - `artists/son-tung-mtp.png` — [Sơn Tùng M-TP, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Son_Tung_M-TP_1_(2021).png)
 - `artists/soobin.jpg` — [SOOBIN — All-Rounder The Final 2025, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:SOOBIN_-_LIVE_CONCERT_ALL-ROUNDER_THE_FINAL_2025.jpg)
-- `artists/suboi.jpg` — [Suboi, Wikimedia Commons, CC BY 3.0](https://commons.wikimedia.org/wiki/File:SUBOI_%E2%80%93_BATTLE_OF_THE_BRIDES_2_%E2%80%93_HCMC_PREMIERE_%E2%80%93_P2.jpg)
-- `artists/chillies-logo.jpg` — [Chillies band logo, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Chillies_band%27s_logo.jpg)
-- `artists/mono-mark.svg` — original project artwork; used instead of an unverified portrait.
-- `artists/dj-mie-stage.jpg` — [professional DJ controls, Unsplash License](https://unsplash.com/photos/a-person-using-a-dj-controller-in-a-dark-room-LU3dfAdWS0Y); role-specific stage image, not presented as a portrait.
+- `artists/suboi-portrait.jpg` — [Suboi performing, Wikimedia Commons, CC BY-SA 2.0](https://commons.wikimedia.org/wiki/File:SUBOI_(cropped).jpg)
+- `artists/chillies-live.jpg` — [Chillies live concert, VnExpress; artist-provided press photo](https://vnexpress.net/hang-nghin-fan-hoa-giong-cung-chillies-4583000.html)
+- `artists/mono-live.jpg` — [MONO performing at Hoa Xuân Ca 2025, VTV](https://vtv.vn/truyen-hinh/mono-khoe-vu-dao-sau-1-nam-tap-luyen-miet-mai-20250127212922927.htm)
+- `artists/dj-mie-rap-viet.jpg` — [DJ Mie performing on Rap Việt, Znews / FB Rap Việt](https://znews.vn/dj-mie-toi-phai-dat-may-vest-de-quay-rap-viet-post1124460.html)

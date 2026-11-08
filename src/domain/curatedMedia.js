@@ -28,10 +28,10 @@ const ARTIST_MEDIA = new Map([
   ['son tung m-tp', '/media/artists/son-tung-mtp.png'],
   ['soobin hoàng sơn', '/media/artists/soobin.jpg'],
   ['soobin hoang son', '/media/artists/soobin.jpg'],
-  ['suboi', '/media/artists/suboi.jpg'],
-  ['mono', '/media/artists/mono-mark.svg'],
-  ['chillies', '/media/artists/chillies-logo.jpg'],
-  ['dj mie', '/media/artists/dj-mie-stage.jpg'],
+  ['suboi', '/media/artists/suboi-portrait.jpg'],
+  ['mono', '/media/artists/mono-live.jpg'],
+  ['chillies', '/media/artists/chillies-live.jpg'],
+  ['dj mie', '/media/artists/dj-mie-rap-viet.jpg'],
 ]);
 
 function normalizeLookupKey(value) {

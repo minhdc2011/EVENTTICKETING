@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState, type MouseEvent} from 'react';
+import {useEffect, useMemo, useRef, useState, type MouseEvent} from 'react';
 import {loadPublicEvents, type PublicEventSummary} from '../services/eventService';
 import {buildPublicPath, navigatePublicRoute} from '../domain/publicRoute';
 import {pickFeaturedEvent} from './event-template/eventTemplateLogic.js';
@@ -44,6 +44,7 @@ export function EventCatalog() {
   const [category, setCategory] = useState('ALL');
   const [selectedArtistKey, setSelectedArtistKey] = useState('');
   const [buyerSession, setBuyerSession] = useState<BuyerSession | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const fetchEvents = () => {
     setState('loading');
@@ -100,6 +101,9 @@ export function EventCatalog() {
       setQuery('');
       setCategory('ALL');
     }
+    window.requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'});
+    });
   };
   const hasActiveFilter = Boolean(query.trim()) || Boolean(selectedArtistKey) || category !== 'ALL';
   const activeCategoryLabel =
@@ -227,6 +231,14 @@ export function EventCatalog() {
           })}
         </div>
 
+        <div ref={resultsRef} className="marketplace-results" tabIndex={-1}>
+          {isReady && selectedArtist && (
+            <div className="marketplace-artist-results-heading">
+              <span>Sự kiện có sự góp mặt của</span>
+              <h3>{selectedArtist.name}</h3>
+            </div>
+          )}
+
         {/* Query feedback */}
         {isReady && hasActiveFilter && (
           <div className="marketplace-query-feedback" role="status" aria-live="polite">
@@ -299,6 +311,7 @@ export function EventCatalog() {
           ))}
         </section>
         )}
+        </div>
       </main>
 
       {/* Trustworthy Marketplace Footer */}
