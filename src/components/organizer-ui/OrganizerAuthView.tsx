@@ -1,4 +1,5 @@
-import {useState, type FormEvent} from 'react';
+import {useEffect, useRef, useState, type FormEvent} from 'react';
+import {canAccessPortal, createAuthAttemptGuard} from '../../domain/accountAccess';
 import {
   signInOrganizer,
   signUpOrganizer,
@@ -28,43 +29,71 @@ export function OrganizerAuthView({
   const [isSuccess, setIsSuccess] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  const attemptGuard = useRef(createAuthAttemptGuard());
+  const submittingRef = useRef(false);
+
+  useEffect(() => {
+    const guard = attemptGuard.current;
+    return () => {
+      guard.invalidate();
+    };
+  }, []);
+
+  function switchMode(next: 'login' | 'signup') {
+    if (busy || submittingRef.current) return;
+    attemptGuard.current.invalidate();
+    setMode(next);
+    setMessage('');
+    setIsSuccess(false);
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy || submittingRef.current) return;
+    const isCurrent = attemptGuard.current.begin();
+    submittingRef.current = true;
     setBusy(true);
     setMessage('');
     setIsSuccess(false);
     const form = new FormData(event.currentTarget);
+    const currentMode = mode;
     try {
       const email = String(form.get('email'));
       const password = String(form.get('password'));
-      if (mode === 'login') {
+      if (currentMode === 'login') {
         await signInOrganizer(email, password);
+        if (!isCurrent()) return;
         await onChanged();
+        if (!isCurrent()) return;
         onLoginSuccess();
       } else {
         const result = await signUpOrganizer(email, password);
-        await onChanged();
-        if (result.hasSession) {
-          setIsSuccess(true);
-          setMessage('Đăng ký và đăng nhập thành công!');
-          onLoginSuccess();
-        } else {
+        if (!isCurrent()) return;
+        if (!result.hasSession) {
           setIsSuccess(true);
           setMessage(
             'Tài khoản đã được tạo thành công! Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập.',
           );
           setMode('login');
+        } else {
+          setIsSuccess(true);
+          setMessage(
+            'Tài khoản đã được tạo với vai trò Khán giả (USER). Quyền Ban tổ chức cần được Quản trị viên kích hoạt trước khi đăng nhập Studio.',
+          );
+          setMode('login');
         }
       }
     } catch (error) {
+      if (!isCurrent()) return;
       setIsSuccess(false);
       setMessage(error instanceof Error ? error.message : 'Không thể xác thực thông tin.');
     } finally {
+      submittingRef.current = false;
       setBusy(false);
     }
   }
 
-  if (session) {
+  if (session && canAccessPortal(session.accountKind, 'ORGANIZER')) {
     return (
       <main className="org-auth-container org-auth-session-container">
         <div className="org-auth-card organizer-auth-card org-auth-session-card">
@@ -134,24 +163,18 @@ export function OrganizerAuthView({
           <button
             type="button"
             aria-pressed={mode === 'login'}
+            disabled={busy}
             className={`org-auth-tab-btn ${mode === 'login' ? 'is-active' : ''}`}
-            onClick={() => {
-              setMode('login');
-              setMessage('');
-              setIsSuccess(false);
-            }}
+            onClick={() => switchMode('login')}
           >
             Đăng nhập Studio
           </button>
           <button
             type="button"
             aria-pressed={mode === 'signup'}
+            disabled={busy}
             className={`org-auth-tab-btn ${mode === 'signup' ? 'is-active' : ''}`}
-            onClick={() => {
-              setMode('signup');
-              setMessage('');
-              setIsSuccess(false);
-            }}
+            onClick={() => switchMode('signup')}
           >
             Đăng ký tài khoản
           </button>
@@ -201,6 +224,7 @@ export function OrganizerAuthView({
             <div
               className={`org-alert ${isSuccess ? 'org-alert-success' : 'org-alert-danger'} organizer-message`}
               role={isSuccess ? 'status' : 'alert'}
+              aria-live={isSuccess ? 'polite' : 'assertive'}
             >
               {isSuccess ? (
                 <IconCheck className="org-alert-icon" size={18} />

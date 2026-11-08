@@ -2,6 +2,14 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import {
+  ACCOUNT_PORTALS,
+  canAccessPortal,
+  createAuthAttemptGuard,
+  createAuthChangeHandler,
+  evaluatePortalAccess,
+  loadPortalSession,
+} from '../src/domain/accountAccess.js';
+import {
   ACCOUNT_KINDS,
   canManageOrganizationEvents,
   evaluatePublishReadiness,
@@ -281,6 +289,314 @@ test('capability matrix: ORGANIZER authentication, onboarding entry point, and m
   const readiness = evaluatePublishReadiness(validAggregate);
   assert.equal(readiness.isReady, true);
   assert.equal(readiness.blockers.length, 0);
+});
+
+test('portal access matrix: USER->BUYER allowed, USER->ORGANIZER denied, ORGANIZER reverse, ADMIN both', () => {
+  assert.equal(canAccessPortal('USER', ACCOUNT_PORTALS.BUYER), true);
+  assert.equal(canAccessPortal('USER', ACCOUNT_PORTALS.ORGANIZER), false);
+  assert.equal(canAccessPortal('ORGANIZER', ACCOUNT_PORTALS.BUYER), false);
+  assert.equal(canAccessPortal('ORGANIZER', ACCOUNT_PORTALS.ORGANIZER), true);
+  assert.equal(canAccessPortal('ADMIN', ACCOUNT_PORTALS.BUYER), true);
+  assert.equal(canAccessPortal('ADMIN', ACCOUNT_PORTALS.ORGANIZER), true);
+
+  const makeProfile = (kind) => ({data: {LoaiTaiKhoan: kind}, error: null});
+  assert.equal(evaluatePortalAccess(makeProfile('USER'), ACCOUNT_PORTALS.BUYER).allowed, true);
+  assert.equal(evaluatePortalAccess(makeProfile('USER'), ACCOUNT_PORTALS.ORGANIZER).allowed, false);
+  assert.equal(evaluatePortalAccess(makeProfile('ORGANIZER'), ACCOUNT_PORTALS.BUYER).allowed, false);
+  assert.equal(evaluatePortalAccess(makeProfile('ORGANIZER'), ACCOUNT_PORTALS.ORGANIZER).allowed, true);
+  assert.equal(evaluatePortalAccess(makeProfile('ADMIN'), ACCOUNT_PORTALS.BUYER).allowed, true);
+  assert.equal(evaluatePortalAccess(makeProfile('ADMIN'), ACCOUNT_PORTALS.ORGANIZER).allowed, true);
+});
+
+test('static check: services do not infer kind from email substring or default to USER', async () => {
+  const buyerService = await readFile('src/services/buyerAuthService.ts', 'utf8');
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+  assert.ok(!buyerService.includes("includes('buyer')"), 'buyerAuthService must not include includes("buyer")');
+  assert.ok(!orgService.includes("includes('buyer')"), 'organizerService must not include includes("buyer")');
+  assert.ok(!buyerService.includes("let accountKind = 'USER'"), 'buyerAuthService must not contain let accountKind = USER');
+  assert.ok(!orgService.includes("let accountKind = 'USER'"), 'organizerService must not contain let accountKind = USER');
+});
+
+test('static check: organizerService uses loadPortalSession and createAuthChangeHandler without unsafe fallback', async () => {
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+  assert.ok(orgService.includes('loadPortalSession'), 'organizerService must use loadPortalSession');
+  assert.ok(orgService.includes('createAuthChangeHandler'), 'organizerService must use createAuthChangeHandler');
+  assert.ok(
+    !orgService.includes('accountKind = resolved.ok ? resolved.accountKind : undefined'),
+    'organizerService must not use undefined accountKind fallback',
+  );
+});
+
+test('static check: buyerAuthService uses loadPortalSession and createAuthChangeHandler', async () => {
+  const buyerService = await readFile('src/services/buyerAuthService.ts', 'utf8');
+  assert.ok(buyerService.includes('loadPortalSession'), 'buyerAuthService must use loadPortalSession');
+  assert.ok(buyerService.includes('createAuthChangeHandler'), 'buyerAuthService must use createAuthChangeHandler');
+});
+
+const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+function deferred() {
+  let resolve;
+  const promise = new Promise((r) => {
+    resolve = r;
+  });
+  return {promise, resolve};
+}
+
+test('auth handler: a stale resolve after invalidate or sign-out emits nothing', async () => {
+  const slow = deferred();
+  const emitted = [];
+  const handle = createAuthChangeHandler({resolveSession: () => slow.promise, emit: (s) => emitted.push(s)});
+
+  const pending = handle({user: {id: 'u1'}});
+  handle.invalidate();
+  slow.resolve({userId: 'u1', email: 'a@b.vn', accountKind: 'USER'});
+  await pending;
+  assert.deepEqual(emitted, []);
+
+  const slow2 = deferred();
+  const emitted2 = [];
+  const handle2 = createAuthChangeHandler({resolveSession: () => slow2.promise, emit: (s) => emitted2.push(s)});
+  const pending2 = handle2({user: {id: 'u1'}});
+  await handle2(null); // sign-out lands while the read is in flight
+  slow2.resolve({userId: 'u1', email: 'a@b.vn', accountKind: 'USER'});
+  await pending2;
+  assert.deepEqual(emitted2, [null]);
+});
+
+test('auth handler: inactive subscriptions never emit', async () => {
+  let active = true;
+  const emitted = [];
+  const handle = createAuthChangeHandler({
+    resolveSession: async () => ({userId: 'u1', email: 'a@b.vn'}),
+    emit: (s) => emitted.push(s),
+    isActive: () => active,
+  });
+  const pending = handle({});
+  active = false;
+  await pending;
+  await handle(null);
+  assert.deepEqual(emitted, []);
+});
+
+test('auth handler: account switch (userId mismatch) emits null, matching id emits the session', async () => {
+  const session = {userId: 'u1', email: 'a@b.vn', accountKind: 'USER'};
+  const emitted = [];
+  const handle = createAuthChangeHandler({resolveSession: async () => session, emit: (s) => emitted.push(s)});
+  await handle({user: {id: 'u2'}});
+  await handle({user: {id: 'u1'}});
+  await handle({});
+  assert.deepEqual(emitted, [null, session, session]);
+});
+
+test('auth handler: refresh goes through the same versioned path as subscription events', async () => {
+  const slow = deferred();
+  const fast = {userId: 'u1', email: 'a@b.vn', accountKind: 'USER'};
+  const reads = [slow.promise, Promise.resolve(fast)];
+  const emitted = [];
+  const handle = createAuthChangeHandler({resolveSession: () => reads.shift(), emit: (s) => emitted.push(s)});
+  const first = handle({});
+  const second = handle.refresh();
+  await second;
+  slow.resolve({userId: 'old', email: 'old@b.vn', accountKind: 'USER'});
+  await first;
+  await tick();
+  assert.deepEqual(emitted, [fast]);
+});
+
+test('auth handler: wrong-portal profiles resolve to null (ORGANIZER at BUYER, USER at ORGANIZER)', async () => {
+  const base = {userId: 'u1', email: 'a@b.vn'};
+  const resolveFor = (portal, kind) => () =>
+    loadPortalSession({portal, loadSession: () => base, loadProfile: () => ({data: {LoaiTaiKhoan: kind}, error: null})});
+
+  for (const [portal, kind, expected] of [
+    [ACCOUNT_PORTALS.BUYER, 'ORGANIZER', null],
+    [ACCOUNT_PORTALS.ORGANIZER, 'USER', null],
+    [ACCOUNT_PORTALS.BUYER, 'USER', {...base, accountKind: 'USER'}],
+    [ACCOUNT_PORTALS.ORGANIZER, 'ADMIN', {...base, accountKind: 'ADMIN'}],
+  ]) {
+    const emitted = [];
+    const handle = createAuthChangeHandler({resolveSession: resolveFor(portal, kind), emit: (s) => emitted.push(s)});
+    await handle({user: {id: 'u1'}});
+    assert.deepEqual(emitted, [expected], `${kind} at ${portal}`);
+  }
+});
+
+// Mirrors BuyerAuth.handleSubmit: sign in -> guard -> refresh -> guard -> message/navigate.
+function makeLoginHarness(currentUser) {
+  const events = [];
+  let state;
+  let active = true;
+  const resolveSession = async () => (currentUser.id ? {userId: currentUser.id, email: `${currentUser.id}@b.vn`} : null);
+  const handle = createAuthChangeHandler({
+    resolveSession,
+    emit: (s) => {
+      state = s;
+    },
+    isActive: () => active,
+  });
+  const guard = createAuthAttemptGuard();
+  async function submit(signIn) {
+    const isCurrent = guard.begin();
+    try {
+      await signIn();
+      if (!isCurrent()) return;
+      await handle.refresh();
+      if (!isCurrent()) return;
+      events.push('message');
+      events.push('navigate');
+    } catch {
+      if (isCurrent()) events.push('error');
+    }
+  }
+  return {
+    events,
+    guard,
+    handle,
+    submit,
+    getState: () => state,
+    deactivate: () => {
+      active = false;
+      guard.invalidate();
+      handle.invalidate();
+    },
+  };
+}
+
+test('login race: sign-out while sign-in is pending never restores account A', async () => {
+  const user = {id: null};
+  const h = makeLoginHarness(user);
+  const pendingSignIn = deferred();
+  const run = h.submit(() => pendingSignIn.promise);
+  await h.handle(null); // sign-out lands first
+  h.guard.invalidate();
+  user.id = 'A'; // A's sign-in settles late
+  pendingSignIn.resolve();
+  await run;
+  assert.equal(h.getState(), null);
+  assert.deepEqual(h.events, []);
+});
+
+test('login race: sign-out followed by a refresh reads null, never stale A', async () => {
+  const user = {id: 'A'};
+  const h = makeLoginHarness(user);
+  const pendingSignIn = deferred();
+  const run = h.submit(() => pendingSignIn.promise);
+  user.id = null;
+  await h.handle(null);
+  h.guard.invalidate();
+  pendingSignIn.resolve();
+  await run;
+  await h.handle.refresh();
+  assert.equal(h.getState(), null);
+  assert.ok(!h.events.includes('navigate'));
+});
+
+test('login race: account switch to B while A is pending leaves state on B', async () => {
+  const user = {id: 'B'};
+  const h = makeLoginHarness(user);
+  const pendingSignIn = deferred();
+  const run = h.submit(() => pendingSignIn.promise);
+  await h.handle({user: {id: 'B'}});
+  h.guard.invalidate();
+  pendingSignIn.resolve({userId: 'A'});
+  await run;
+  assert.equal(h.getState().userId, 'B');
+  assert.deepEqual(h.events, []);
+});
+
+test('login race: unsubscribe while A is pending emits nothing and navigates nowhere', async () => {
+  const user = {id: 'A'};
+  const h = makeLoginHarness(user);
+  const pendingSignIn = deferred();
+  const run = h.submit(() => pendingSignIn.promise);
+  h.deactivate();
+  pendingSignIn.resolve();
+  await run;
+  assert.equal(h.getState(), undefined);
+  assert.deepEqual(h.events, []);
+});
+
+test('auth attempt guard: a newer attempt or invalidate makes older attempts stale', () => {
+  const guard = createAuthAttemptGuard();
+  const first = guard.begin();
+  assert.equal(first(), true);
+  const second = guard.begin();
+  assert.equal(first(), false);
+  assert.equal(second(), true);
+  guard.invalidate();
+  assert.equal(second(), false);
+});
+
+test('static check: BuyerAuth takes session state only from subscription/refresh, guarded per attempt', async () => {
+  const src = await readFile('src/components/BuyerAuth.tsx', 'utf8');
+  assert.ok(!/setSession\(\s*(nextSession|result\.session)/.test(src), 'BuyerAuth must not set session from sign-in results');
+  assert.ok(src.includes('refreshBuyerSession'));
+  assert.ok(src.includes('createAuthAttemptGuard'));
+  assert.ok(/guard\.invalidate\(\);\s*unsub\(\)/.test(src), 'subscribe cleanup must invalidate the guard');
+});
+
+test('static check: both services route state through the handler with invalidate and refresh', async () => {
+  const buyerService = await readFile('src/services/buyerAuthService.ts', 'utf8');
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+  for (const [name, src] of [['buyerAuthService', buyerService], ['organizerService', orgService]]) {
+    assert.ok(src.includes('handle.invalidate()'), `${name} must invalidate the handler on unsubscribe`);
+    assert.ok(src.includes('void handle({})'), `${name} must emit the initial mock session through the handler`);
+    assert.match(src, /onAuthStateChange[\s\S]*?catch/, `${name} must guard onAuthStateChange with try/catch`);
+  }
+  assert.ok(buyerService.includes('export async function refreshBuyerSession'));
+  assert.ok(orgService.includes('export async function refreshOrganizerSession'));
+});
+
+test('static check: useBuyerSession and EventCatalog do not read the session outside the subscription', async () => {
+  for (const file of ['src/components/site/useBuyerSession.ts', 'src/components/EventCatalog.tsx']) {
+    const src = await readFile(file, 'utf8');
+    assert.ok(!/getBuyerSession\(\)\s*\.then\(\s*set/.test(src), `${file} must not call getBuyerSession().then(set...)`);
+    assert.ok(!/set\w*\(\s*await getBuyerSession\(\)/.test(src), `${file} must not set state from a bare getBuyerSession`);
+    assert.ok(src.includes('subscribeBuyerAuth'), `${file} must use subscribeBuyerAuth`);
+  }
+});
+
+test('static check: neither service contains user_metadata near role decision or || USER fallback', async () => {
+  const buyerService = await readFile('src/services/buyerAuthService.ts', 'utf8');
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+
+  // No || 'USER' or || "USER" fallback in either service
+  assert.ok(!buyerService.includes("|| 'USER'"), "buyerAuthService must not contain || 'USER' fallback");
+  assert.ok(!buyerService.includes('|| "USER"'), 'buyerAuthService must not contain || "USER" fallback');
+  assert.ok(!orgService.includes("|| 'USER'"), "organizerService must not contain || 'USER' fallback");
+  assert.ok(!orgService.includes('|| "USER"'), 'organizerService must not contain || "USER" fallback');
+
+  // organizerService must not contain user_metadata
+  assert.ok(!orgService.includes('user_metadata'), 'organizerService must not reference user_metadata');
+
+  // buyerAuthService only uses user_metadata for display fullName and never for role decisions
+  assert.ok(
+    !buyerService.match(/user_metadata\?\.?(role|accountKind|LoaiTaiKhoan|kind)/i),
+    'buyerAuthService must not infer role/accountKind from user_metadata',
+  );
+  const metadataLines = buyerService.split('\n').filter((l) => l.includes('user_metadata'));
+  assert.ok(metadataLines.length > 0, 'buyerAuthService should only use user_metadata for fullName');
+  for (const line of metadataLines) {
+    assert.ok(line.includes('full_name'), 'user_metadata line must only read full_name');
+    assert.ok(!line.includes('accountKind'), 'user_metadata line must not set accountKind');
+    assert.ok(!line.includes('role'), 'user_metadata line must not set role');
+  }
+});
+
+test('static check: readMockSessionBase in organizerService no longer reads mock buyer session', async () => {
+  const orgService = await readFile('src/services/organizerService.ts', 'utf8');
+  const match = orgService.match(/function readMockSessionBase\(\)[\s\S]*?\n\}/);
+  assert.ok(match, 'readMockSessionBase function definition must be found');
+  const functionBody = match[0];
+  assert.ok(
+    !functionBody.includes('eventticketing:mock-buyer-session'),
+    'readMockSessionBase must not read eventticketing:mock-buyer-session',
+  );
+  assert.ok(
+    !functionBody.includes('mock-buyer-session'),
+    'readMockSessionBase must not reference mock-buyer-session',
+  );
 });
 
 test('overload bug regression: clean install and corrective migration guarantee unambiguous zero-arg helpers', async () => {

@@ -33,7 +33,7 @@ test('account view shows email, name, account type and keeps sign out and the or
   assert.match(src, /session\.fullName/);
   assert.match(src, /ACCOUNT_KIND_LABELS/);
   assert.match(src, /onClick=\{handleSignOut\}/);
-  assert.match(src, /Mở Studio BTC/);
+  assert.match(src, /organizer\/login/);
 });
 
 test('the email-confirmation notice is kept after sign-up', async () => {
