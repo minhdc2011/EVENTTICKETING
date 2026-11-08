@@ -161,23 +161,23 @@ test('ArtistFilter.tsx markup and accessibility standards', async () => {
   );
   assert.match(
     tsx,
-    /<label[^>]*className=["']et-artist-filter__label["'][^>]*htmlFor=\{selectId\}[^>]*>\s*Nghệ sĩ\s*<\/label>/,
-    'ArtistFilter must render explicit label "Nghệ sĩ" bound to select via htmlFor',
+    /<section className="et-artist-filter" aria-labelledby="artist-discovery-title">/,
+    'ArtistFilter must expose a labelled discovery section',
   );
   assert.match(
     tsx,
-    /<select[^>]*className=["']et-artist-filter__select["']/,
-    'ArtistFilter must render a keyboard-accessible native <select> element',
+    /<h2 id="artist-discovery-title">Nghệ sĩ<\/h2>/,
+    'ArtistFilter must use the Vietnamese heading "Nghệ sĩ"',
   );
   assert.match(
     tsx,
-    /<option value="">Tất cả nghệ sĩ<\/option>/,
-    'ArtistFilter must have default option "Tất cả nghệ sĩ" with empty string value',
+    /className="et-artist-filter__track"[\s\S]*?role="list"/,
+    'ArtistFilter must render a horizontally discoverable artist list',
   );
   assert.match(
     tsx,
-    /value=\{artist\.key\}/,
-    'ArtistFilter options must use artist.key as value',
+    /aria-pressed=\{isActive\}/,
+    'Artist cards must expose their selected state',
   );
   assert.match(
     tsx,
@@ -191,13 +191,18 @@ test('ArtistFilter.tsx markup and accessibility standards', async () => {
   );
   assert.match(
     tsx,
-    /<button[^>]*type="button"[^>]*className="et-artist-filter__clear"[\s\S]*?>\s*Bỏ chọn nghệ sĩ\s*<\/button>/,
-    'ArtistFilter must provide a clear button labeled "Bỏ chọn nghệ sĩ" when an artist is selected',
+    /className="et-artist-filter__clear"[\s\S]*?>\s*Xem tất cả nghệ sĩ\s*<\/button>/,
+    'ArtistFilter must provide a clear action when an artist is selected',
   );
   assert.match(
     tsx,
-    /aria-describedby=\{isEmpty \? hintId : undefined\}/,
-    'ArtistFilter must link empty hint via aria-describedby',
+    /onClick=\{\(\) => onChange\(isActive \? '' : artist\.key\)\}/,
+    'Clicking an artist card must select it and clicking again must clear it',
+  );
+  assert.match(
+    tsx,
+    /et-artist-card__initials[\s\S]*?artist\.imageUrl[\s\S]*?onError=/,
+    'Artist cards must show the artist image with an initials fallback',
   );
 });
 
@@ -208,7 +213,8 @@ test('ArtistFilter.css uses exclusively --et-* tokens with no raw hex colors', a
   );
 
   assert.match(css, /\.et-artist-filter\b/, 'ArtistFilter.css must define .et-artist-filter');
-  assert.match(css, /\.et-artist-filter__select\b/, 'ArtistFilter.css must define .et-artist-filter__select');
+  assert.match(css, /\.et-artist-filter__track\b/, 'ArtistFilter.css must define the carousel track');
+  assert.match(css, /\.et-artist-card\b/, 'ArtistFilter.css must define artist cards');
   assert.match(css, /\.et-artist-filter__clear\b/, 'ArtistFilter.css must define .et-artist-filter__clear');
 
   const hexMatches = css.match(/#[0-9a-fA-F]{3,8}\b/g);
@@ -232,23 +238,13 @@ test('ArtistFilter.css enforces tap targets, font size, and visible focus outlin
 
   assert.match(
     css,
-    /\.et-artist-filter__select\s*\{[\s\S]*?min-height:\s*var\(--et-tap-min\);/,
-    '.et-artist-filter__select must enforce min-height: var(--et-tap-min)',
+    /\.et-artist-card\s*\{[\s\S]*?min-height:\s*var\(--et-tap-min\);/,
+    '.et-artist-card must enforce min-height: var(--et-tap-min)',
   );
   assert.match(
     css,
-    /\.et-artist-filter__select\s*\{[\s\S]*?font-size:\s*1rem;/,
-    '.et-artist-filter__select must set font-size: 1rem (>= 16px)',
-  );
-  assert.match(
-    css,
-    /\.et-artist-filter__clear\s*\{[\s\S]*?min-height:\s*var\(--et-tap-min\);/,
-    '.et-artist-filter__clear must enforce min-height: var(--et-tap-min)',
-  );
-  assert.match(
-    css,
-    /\.et-artist-filter__clear\s*\{[\s\S]*?font-size:\s*1rem;/,
-    '.et-artist-filter__clear must set font-size: 1rem',
+    /\.et-artist-filter__clear,\s*\.et-artist-filter__arrow\s*\{[\s\S]*?min-height:\s*var\(--et-tap-min\);/,
+    'ArtistFilter controls must enforce min-height: var(--et-tap-min)',
   );
   assert.match(
     css,
@@ -265,23 +261,23 @@ test('ArtistFilter.css prevents horizontal overflow and defines responsive mobil
 
   assert.match(
     css,
-    /\.et-artist-filter\s*\{[\s\S]*?flex-wrap:\s*wrap;[\s\S]*?max-width:\s*100%;[\s\S]*?min-width:\s*0;/,
-    '.et-artist-filter must allow flex wrapping and clamp width to prevent overflow',
+    /\.et-artist-filter__track\s*\{[\s\S]*?overflow-x:\s*auto;[\s\S]*?scroll-snap-type:\s*inline mandatory;/,
+    'Artist carousel must scroll horizontally and snap cards',
   );
   assert.match(
     css,
-    /\.et-artist-filter__select\s*\{[\s\S]*?text-overflow:\s*ellipsis;/,
-    '.et-artist-filter__select must use text-overflow: ellipsis for long artist names',
+    /\.et-artist-card strong\s*\{[\s\S]*?text-overflow:\s*ellipsis;/,
+    'Artist cards must truncate long names safely',
   );
   assert.match(
     css,
-    /@media\s*\(\s*max-width:\s*480px\s*\)[\s\S]*?\.et-artist-filter\s*\{[\s\S]*?flex-direction:\s*column;/,
-    '@media (max-width: 480px) must stack .et-artist-filter as column',
+    /@media\s*\(\s*max-width:\s*720px\s*\)[\s\S]*?\.et-artist-card\s*\{\s*flex-basis:\s*min\(78vw, 17rem\);/,
+    'Mobile artist cards must retain a swipeable peek of the next card',
   );
   assert.match(
     css,
-    /@media\s*\(\s*max-width:\s*480px\s*\)[\s\S]*?\.et-artist-filter__clear\s*\{[\s\S]*?width:\s*100%;/,
-    '@media (max-width: 480px) must expand clear button to full width',
+    /@media\s*\(\s*max-width:\s*720px\s*\)[\s\S]*?\.et-artist-filter__arrow\s*\{\s*display:\s*none;/,
+    'Mobile layout must prefer direct swipe over redundant arrow controls',
   );
 });
 
@@ -308,13 +304,23 @@ test('EventCatalog.tsx integrates ArtistFilter and handles three-way filtering a
   );
   assert.match(
     tsx,
-    /<ArtistFilter\s+artists=\{artistOptions\}\s+value=\{selectedArtistKey\}\s+onChange=\{setSelectedArtistKey\}\s*\/>/,
+    /<ArtistFilter\s+artists=\{artistOptions\}\s+value=\{selectedArtistKey\}\s+onChange=\{handleArtistChange\}\s*\/>/,
     'EventCatalog.tsx must render ArtistFilter with artists, value, and onChange props',
   );
   assert.match(
     tsx,
-    /filterCatalogEvents\(events,\s*\{\s*artistKeys:\s*selectedArtistKey\s*\?\s*\[selectedArtistKey\]\s*:\s*\[\],\s*category,\s*query,?\s*\}\)/,
+    /const handleArtistChange = \(artistKey: string\) => \{[\s\S]*?setSelectedArtistKey\(artistKey\);[\s\S]*?setQuery\(''\);[\s\S]*?setCategory\('ALL'\);/,
+    'Selecting an artist must clear conflicting keyword and category filters',
+  );
+  assert.match(
+    tsx,
+    /filterCatalogEvents\(events,\s*\{\s*artistKeys:\s*selectedArtistKeys,\s*category,\s*query,?\s*\}\)/,
     'EventCatalog.tsx must filter events using filterCatalogEvents with artist, category, and query',
+  );
+  assert.match(
+    tsx,
+    /selectedArtist\?\.aliasKeys \?\? \(selectedArtistKey \? \[selectedArtistKey\] : \[\]\)/,
+    'EventCatalog.tsx must include merged source aliases for one artist identity',
   );
   assert.match(
     tsx,
@@ -325,6 +331,11 @@ test('EventCatalog.tsx integrates ArtistFilter and handles three-way filtering a
     tsx,
     /role="status"\s+aria-live="polite"/,
     'marketplace-query-feedback must be an accessible status region with polite announcements',
+  );
+  assert.match(
+    tsx,
+    /<EventRow key=\{`\$\{event\.id\}:\$\{event\.slug\}`\} event=\{event\} \/>/,
+    'Event rows must use a unique id-and-slug key across database and fallback sources',
   );
   assert.match(
     tsx,
@@ -390,6 +401,11 @@ test('Catalog filter integration: combined artist, category, query filtering and
     artistOptions.map((a) => a.key),
     ['mock:3', 'db:2', 'db:1'],
     'Options must be deduplicated and sorted in vi locale',
+  );
+  assert.equal(
+    artistOptions.find((artist) => artist.key === 'db:1')?.eventCount,
+    3,
+    'Artist options must count every event featuring that artist',
   );
 
   // 2. Default state (no artistKey): all events are returned, including events without artists

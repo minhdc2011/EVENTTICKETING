@@ -1,5 +1,6 @@
-import {useId} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import type {CatalogArtist} from '../../domain/catalogFilters.js';
+import {IconArrowRight} from '../common/Icons';
 import './ArtistFilter.css';
 
 export type ArtistFilterProps = {
@@ -9,9 +10,13 @@ export type ArtistFilterProps = {
   disabled?: boolean;
 };
 
+const initialsFor = (name: string) =>
+  name.split(/\s+/).filter(Boolean).slice(-2).map((part) => part[0]).join('').toUpperCase();
+
 export function ArtistFilter({artists, value, onChange, disabled = false}: ArtistFilterProps) {
-  const selectId = useId();
-  const hintId = `${selectId}-hint`;
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [canScrollBack, setCanScrollBack] = useState(false);
+  const [canScrollForward, setCanScrollForward] = useState(false);
 
   const seen = new Set<string>();
   const options = artists.filter((artist) => {
@@ -20,42 +25,104 @@ export function ArtistFilter({artists, value, onChange, disabled = false}: Artis
     return true;
   });
 
-  const isEmpty = options.length === 0;
-  const selectedKnown = options.some((artist) => artist.key === value);
-  const currentValue = selectedKnown ? value : '';
+  const updateScrollState = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    setCanScrollBack(track.scrollLeft > 4);
+    setCanScrollForward(track.scrollLeft + track.clientWidth < track.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const track = trackRef.current;
+    if (!track) return;
+    const observer = new ResizeObserver(updateScrollState);
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, [options.length, updateScrollState]);
+
+  const scrollByPage = (direction: -1 | 1) => {
+    const track = trackRef.current;
+    if (!track) return;
+    track.scrollBy({left: direction * Math.max(track.clientWidth * 0.82, 280), behavior: 'smooth'});
+  };
+
+  if (options.length === 0) return null;
 
   return (
-    <div className="et-artist-filter">
-      <div className="et-artist-filter__field">
-        <label className="et-artist-filter__label" htmlFor={selectId}>
-          Nghệ sĩ
-        </label>
-        <select
-          id={selectId}
-          className="et-artist-filter__select"
-          value={currentValue}
-          disabled={disabled || isEmpty}
-          aria-describedby={isEmpty ? hintId : undefined}
-          onChange={(event) => onChange(event.target.value)}
-        >
-          <option value="">Tất cả nghệ sĩ</option>
-          {options.map((artist) => (
-            <option key={artist.key} value={artist.key} data-artist-id={String(artist.id)}>
-              {artist.name}
-            </option>
-          ))}
-        </select>
+    <section className="et-artist-filter" aria-labelledby="artist-discovery-title">
+      <div className="et-artist-filter__header">
+        <div>
+          <span className="et-artist-filter__rule" aria-hidden="true" />
+          <h2 id="artist-discovery-title">Nghệ sĩ</h2>
+          <p>Chọn nghệ sĩ để xem tất cả sự kiện họ góp mặt.</p>
+        </div>
+        <div className="et-artist-filter__actions">
+          {value && (
+            <button type="button" className="et-artist-filter__clear" onClick={() => onChange('')}>
+              Xem tất cả nghệ sĩ
+            </button>
+          )}
+          <button
+            type="button"
+            className="et-artist-filter__arrow et-artist-filter__arrow--back"
+            aria-label="Xem nghệ sĩ phía trước"
+            disabled={!canScrollBack}
+            onClick={() => scrollByPage(-1)}
+          >
+            <IconArrowRight size={22} />
+          </button>
+          <button
+            type="button"
+            className="et-artist-filter__arrow"
+            aria-label="Xem thêm nghệ sĩ"
+            disabled={!canScrollForward}
+            onClick={() => scrollByPage(1)}
+          >
+            <IconArrowRight size={22} />
+          </button>
+        </div>
       </div>
-      {isEmpty && (
-        <p className="et-artist-filter__hint" id={hintId}>
-          Chưa có dữ liệu nghệ sĩ cho các sự kiện này.
-        </p>
-      )}
-      {currentValue && (
-        <button type="button" className="et-artist-filter__clear" onClick={() => onChange('')}>
-          Bỏ chọn nghệ sĩ
-        </button>
-      )}
-    </div>
+
+      <div
+        ref={trackRef}
+        className="et-artist-filter__track"
+        role="list"
+        aria-label="Danh sách nghệ sĩ"
+        onScroll={updateScrollState}
+      >
+        {options.map((artist) => {
+          const isActive = artist.key === value;
+          return (
+            <button
+              key={artist.key}
+              type="button"
+              className={`et-artist-card${isActive ? ' is-active' : ''}`}
+              data-artist-id={String(artist.id)}
+              aria-pressed={isActive}
+              disabled={disabled}
+              onClick={() => onChange(isActive ? '' : artist.key)}
+            >
+              <span className="et-artist-card__media" aria-hidden="true">
+                <span className="et-artist-card__initials">{initialsFor(artist.name)}</span>
+                {artist.imageUrl && (
+                  <img
+                    src={artist.imageUrl}
+                    alt=""
+                    loading="lazy"
+                    onError={(event) => { event.currentTarget.hidden = true; }}
+                  />
+                )}
+              </span>
+              <span className="et-artist-card__meta">
+                <span className="et-artist-card__role">{artist.role || 'Nghệ sĩ biểu diễn'}</span>
+                <strong>{artist.name}</strong>
+                <span className="et-artist-card__count">{artist.eventCount ?? 0} sự kiện</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
