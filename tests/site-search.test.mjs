@@ -266,6 +266,16 @@ test('ArtistFilter.css prevents horizontal overflow and defines responsive mobil
   );
   assert.match(
     css,
+    /\.et-artist-filter__track\s*\{[\s\S]*?scrollbar-width:\s*none;[\s\S]*?-ms-overflow-style:\s*none;/,
+    'Artist carousel must hide the native scrollbar while preserving horizontal scrolling',
+  );
+  assert.match(
+    css,
+    /\.et-artist-filter__track::\-webkit-scrollbar\s*\{\s*display:\s*none;\s*\}/,
+    'Artist carousel must hide the WebKit scrollbar',
+  );
+  assert.match(
+    css,
     /\.et-artist-card strong\s*\{[\s\S]*?text-overflow:\s*ellipsis;/,
     'Artist cards must truncate long names safely',
   );
@@ -306,6 +316,10 @@ test('EventCatalog.tsx integrates ArtistFilter and handles three-way filtering a
     tsx,
     /<ArtistFilter\s+artists=\{artistOptions\}\s+value=\{selectedArtistKey\}\s+onChange=\{handleArtistChange\}\s*\/>/,
     'EventCatalog.tsx must render ArtistFilter with artists, value, and onChange props',
+  );
+  assert.ok(
+    tsx.indexOf('<ArtistFilter') < tsx.indexOf('<div className="marketplace-heading">'),
+    'Artist discovery must appear before the primary experience catalog heading',
   );
   assert.match(
     tsx,

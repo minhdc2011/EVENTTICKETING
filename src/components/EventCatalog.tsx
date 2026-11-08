@@ -171,6 +171,8 @@ export function EventCatalog() {
 
       {/* Main Catalog Discovery */}
       <main id="events" className="marketplace-main">
+        <ArtistFilter artists={artistOptions} value={selectedArtistKey} onChange={handleArtistChange} />
+
         <div className="marketplace-heading">
           <div>
             <p className="marketplace-eyebrow">EVENTTICKETING · VIỆT NAM</p>
@@ -224,8 +226,6 @@ export function EventCatalog() {
             );
           })}
         </div>
-
-        <ArtistFilter artists={artistOptions} value={selectedArtistKey} onChange={handleArtistChange} />
 
         {/* Query feedback */}
         {isReady && hasActiveFilter && (
