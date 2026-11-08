@@ -1,4 +1,5 @@
 import {isSuperConcertEvent} from './superConcert.js';
+import {resolveCuratedArtistImage} from './curatedMedia.js';
 /**
  * Public artist domain helpers and seeded Super Concert artist records.
  * Provides defensive normalization for Supabase relational rows and mock fallbacks.
@@ -14,7 +15,7 @@ export const SUPER_CONCERT_ARTISTS = [
     primaryRole: 'Pop / R&B',
     eventRole: 'Headliner Stage',
     bio: 'Nghệ sĩ biểu diễn hàng đầu Việt Nam, biểu tượng Pop/R&B đương đại với hàng loạt bản hit quốc tế xô đổ mọi kỷ lục lượt nghe.',
-    imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80',
+    imageUrl: resolveCuratedArtistImage('Sơn Tùng M-TP'),
     order: 1,
   },
   {
@@ -26,7 +27,7 @@ export const SUPER_CONCERT_ARTISTS = [
     primaryRole: 'R&B / Ballad',
     eventRole: 'Headliner Stage',
     bio: 'Hoàng tử R&B/Ballad của làng nhạc Việt, giọng ca thực lực với khả năng trình diễn sân khấu và sáng tác thượng thừa.',
-    imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80',
+    imageUrl: resolveCuratedArtistImage('Soobin Hoàng Sơn'),
     order: 2,
   },
   {
@@ -38,7 +39,7 @@ export const SUPER_CONCERT_ARTISTS = [
     primaryRole: 'Hip-hop / Rap',
     eventRole: 'Opening Stage',
     bio: 'Nữ hoàng Hip-hop/Rap Việt Nam, biểu tượng nữ quyền âm nhạc với phong cách rap gai góc, flow lôi cuốn và tư duy quốc tế.',
-    imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80',
+    imageUrl: resolveCuratedArtistImage('Suboi'),
     order: 3,
   },
   {
@@ -50,7 +51,7 @@ export const SUPER_CONCERT_ARTISTS = [
     primaryRole: 'Dance-pop',
     eventRole: 'Opening Stage',
     bio: 'Ngôi sao Gen Z bùng nổ của dòng nhạc Dance-pop, phong cách biểu diễn trẻ trung, vũ đạo điêu luyện và năng lượng sân khấu bùng cháy.',
-    imageUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80',
+    imageUrl: resolveCuratedArtistImage('MONO'),
     order: 4,
   },
   {
@@ -62,7 +63,7 @@ export const SUPER_CONCERT_ARTISTS = [
     primaryRole: 'Indie Pop / Rock',
     eventRole: 'Opening Stage',
     bio: 'Ban nhạc Indie Pop/Rock được yêu thích nhất với những giai điệu mộc mạc, sâu lắng chạm đến trái tim của hàng triệu khán giả trẻ.',
-    imageUrl: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=600&q=80',
+    imageUrl: resolveCuratedArtistImage('Chillies'),
     order: 5,
   },
   {
@@ -73,8 +74,8 @@ export const SUPER_CONCERT_ARTISTS = [
     role: 'EDM / Remix',
     primaryRole: 'EDM / Remix',
     eventRole: 'Warm-up DJ Set',
-    bio: 'Búp bê DJ quyến rũ hàng đầu Việt Nam, chuyên gia khuấy động các lễ hội âm nhạc với các bản phối EDM/Remix cực kỳ bùng nổ.',
-    imageUrl: 'https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?auto=format&fit=crop&w=600&q=80',
+    bio: 'DJ nổi bật của Việt Nam, được biết đến với phong cách trình diễn năng động và những bản phối EDM/Remix giàu năng lượng.',
+    imageUrl: resolveCuratedArtistImage('DJ Mie'),
     order: 6,
   },
 ];
@@ -116,7 +117,22 @@ export function normalizeArtistRow(row) {
 
   const rawImage =
     artistObj.HinhAnhURL ?? row.HinhAnhURL ?? artistObj.imageUrl ?? row.imageUrl ?? undefined;
-  const imageUrl = rawImage ? String(rawImage).trim() : undefined;
+  const normalizedRawImage = rawImage ? String(rawImage).trim() : undefined;
+  const legacyStockImageIds = [
+    'photo-1516450360452-9312f5e86fc7',
+    'photo-1508700115892-45ecd05ae2ad',
+    'photo-1514525253161-7a46d19cd819',
+    'photo-1493225457124-a3eb161ffa5f',
+    'photo-1465847899084-d164df4dedc6',
+    'photo-1571266028243-3716f02d2d2e',
+  ];
+  const usesLegacyStockImage = legacyStockImageIds.some((imageId) =>
+    normalizedRawImage?.includes(imageId)
+  );
+  const imageUrl =
+    !normalizedRawImage || usesLegacyStockImage
+      ? resolveCuratedArtistImage(name) || normalizedRawImage
+      : normalizedRawImage;
 
   const rawBio = artistObj.TieuSu ?? row.TieuSu ?? artistObj.bio ?? row.bio ?? undefined;
   const bio = rawBio ? String(rawBio).trim() : undefined;

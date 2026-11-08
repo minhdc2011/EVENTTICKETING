@@ -1,4 +1,5 @@
 import {resolveAssetUrl} from '../domain/assetHelper';
+import {applyCuratedEventMedia, resolveCuratedEventMedia} from '../domain/curatedMedia.js';
 import type {TicketingCatalog, ZoneRecord, SeatRecord} from '../types/ticketing';
 import {isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
@@ -59,7 +60,7 @@ const MOCK_EVENT: PublicEventRecord = {
   slogan: 'SỰ KIỆN ÂM NHẠC TRỌNG ĐIỂM 2026',
   description: 'Đêm đại nhạc hội quy mô 40.000 khán giả tại SVĐ Quốc gia Mỹ Đình.',
   templateKey: 'SUPER_CONCERT_2026', category: 'AM_NHAC',
-  bannerUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1800&q=86',
+  ...resolveCuratedEventMedia('super-concert-2026'),
   startsAt: MOCK_SHOW.startsAt, endsAt: MOCK_SHOW.endsAt,
   saleStartsAt: MOCK_SHOW.saleStartsAt, saleEndsAt: MOCK_SHOW.saleEndsAt,
   venueName: 'SVĐ Quốc gia Mỹ Đình', address: 'Đường Lê Đức Thọ, Nam Từ Liêm, Hà Nội',
@@ -105,8 +106,7 @@ const MOCK_ARENA_EVENT: PublicEventRecord = {
   slogan: 'ĐẠI NHẠC HỘI ARENA QUỐC TẾ THÁNG 11',
   description: 'Đêm nhạc hội quy mô lớn theo tiêu chuẩn Arena quốc tế với hệ thống âm thanh ánh sáng hiện đại và sơ đồ chỗ ngồi end-stage.',
   templateKey: 'DEFAULT', category: 'AM_NHAC',
-  bannerUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1800&q=86',
-  posterUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=900&q=86',
+  ...resolveCuratedEventMedia('autumn-arena-festival-2026'),
   seatingMapUrl: resolveAssetUrl('/maps/ticketmaster-arena-endstage.svg'),
   startsAt: MOCK_ARENA_SHOW.startsAt, endsAt: MOCK_ARENA_SHOW.endsAt,
   saleStartsAt: MOCK_ARENA_SHOW.saleStartsAt, saleEndsAt: MOCK_ARENA_SHOW.saleEndsAt,
@@ -131,8 +131,7 @@ const MOCK_TICKETGO_MUSIQUE: PublicEventRecord = {
   slogan: 'ĐÊM NHẠC TÌNH CA VƯỢT THỜI GIAN · NHẠC SĨ ĐỨC TRÍ',
   description: 'Đêm nhạc trữ tình đặc sắc được dàn dựng công phu bởi Nhạc sĩ Đức Trí cùng các giọng ca hàng đầu: Quang Dũng, Lê Hiếu, Hoàng Hải, Nguyên Hà.',
   templateKey: 'DEFAULT', category: 'AM_NHAC',
-  bannerUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1800&q=86',
-  posterUrl: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=900&q=86',
+  ...resolveCuratedEventMedia('musique-de-salon-de-nho-mot-thoi'),
   startsAt: MOCK_MUSIQUE_SHOW.startsAt, endsAt: MOCK_MUSIQUE_SHOW.endsAt,
   saleStartsAt: MOCK_MUSIQUE_SHOW.saleStartsAt, saleEndsAt: MOCK_MUSIQUE_SHOW.saleEndsAt,
   venueName: 'Cung Văn hóa Hữu nghị Việt Xô', address: '91 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội',
@@ -155,8 +154,7 @@ const MOCK_TICKETGO_MOMANG: PublicEventRecord = {
   slogan: 'GIAI ĐIỆU HOÀNG HÔN THƠ MỘNG VÀ CẢM XÚC THĂNG HOA',
   description: 'Không gian âm nhạc ngoài trời ấn tượng tụ hội Phan Mạnh Quỳnh, ST Sơn Thạch, Bùi Công Nam với những bản hit được phối khí hoàn toàn mới.',
   templateKey: 'DEFAULT', category: 'AM_NHAC',
-  bannerUrl: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&w=1800&q=86',
-  posterUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=86',
+  ...resolveCuratedEventMedia('mo-mang-men-say-2'),
   startsAt: MOCK_MOMANG_SHOW.startsAt, endsAt: MOCK_MOMANG_SHOW.endsAt,
   saleStartsAt: MOCK_MOMANG_SHOW.saleStartsAt, saleEndsAt: MOCK_MOMANG_SHOW.saleEndsAt,
   venueName: 'Sân khấu Ngoài trời Bảo tàng Hà Nội', address: 'Đường Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội',
@@ -262,7 +260,7 @@ function mapShow(row: Record<string, unknown>): PublicShowRecord {
 function mapEvent(row: Record<string, unknown>, shows: PublicShowRecord[], requestedShowSlug?: string): PublicEventRecord {
   const selectedShow = shows.find((show) => show.slug === requestedShowSlug) ?? shows[0];
   if (!selectedShow) throw new PublicEventNotFoundError();
-  return {
+  return applyCuratedEventMedia({
     id: Number(row.SuKienID), code: String(row.Slug || runtimeConfig.eventId),
     slug: deduplicateSlug(String(row.Slug || runtimeConfig.eventId)).toLowerCase(), name: String(row.TenSuKien),
     slogan: row.Slogan ? String(row.Slogan) : undefined,
@@ -288,7 +286,7 @@ function mapEvent(row: Record<string, unknown>, shows: PublicShowRecord[], reque
     venueName: String(row.TenSanVanDong || 'Địa điểm tổ chức'), address: String(row.DiaDiem || ''), capacity: Number(row.SucChua || 100),
     databaseSaleStatus: selectedShow.databaseSaleStatus, publicationStatus: 'CONG_KHAI',
     selectedShow, shows,
-  };
+  }) as PublicEventRecord;
 }
 
 function legacyShow(row: Record<string, unknown>): PublicShowRecord {
@@ -307,7 +305,7 @@ function legacySlug(row: Record<string, unknown>) {
 }
 
 function toSummary(event: PublicEventRecord, artists: CatalogArtist[] = []): PublicEventSummary {
-  return {
+  return applyCuratedEventMedia({
     id: event.id,
     slug: event.slug,
     name: event.name,
@@ -321,7 +319,7 @@ function toSummary(event: PublicEventRecord, artists: CatalogArtist[] = []): Pub
     posterUrl: event.posterUrl,
     showCount: event.shows.length,
     artists,
-  };
+  }) as PublicEventSummary;
 }
 
 export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
@@ -368,10 +366,10 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
     if (!response.ok) throw new Error(`Không thể tải danh mục sự kiện: HTTP ${response.status}`);
     const payload = (await response.json()) as {data?: any[]};
     const items = Array.isArray(payload?.data) ? payload.data : [];
-    return items.map((e: any) => ({
+    return items.map((e: any) => applyCuratedEventMedia({
       ...e,
       artists: Array.isArray(e.artists) ? normalizeCatalogArtists(e.artists, 'api') : [],
-    }));
+    }) as PublicEventSummary);
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
   const supabase = requireSupabaseClient();
@@ -385,13 +383,13 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
       .select('SuKienID, TenSuKien, Slogan, MoTaChiTiet, TenSanVanDong, ThoiGianBatDau, TrangThaiCongBo')
       .eq('TrangThaiCongBo', 'CONG_KHAI').order('ThoiGianBatDau');
     if (legacyError) throw legacyError;
-    return (legacyRows ?? []).map((row: Record<string, any>) => ({
+    return (legacyRows ?? []).map((row: Record<string, any>) => applyCuratedEventMedia({
       id: Number(row.SuKienID), slug: legacySlug(row), name: String(row.TenSuKien),
       slogan: row.Slogan ?? undefined, description: row.MoTaChiTiet ?? undefined,
       venueName: String(row.TenSanVanDong), startsAt: String(row.ThoiGianBatDau),
       publicationStatus: 'CONG_KHAI' as const, category: 'KHAC', showCount: 1,
       artists: [],
-    }));
+    }) as PublicEventSummary);
   }
   if (error) throw error;
 
@@ -419,7 +417,7 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
 
   const supabaseEvents = (data ?? []).map((row: Record<string, any>) => {
     const id = Number(row.SuKienID);
-    return {
+    return applyCuratedEventMedia({
       id,
       slug: deduplicateSlug(String(row.Slug)),
       name: String(row.TenSuKien),
@@ -433,7 +431,7 @@ export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
       publicationStatus: 'CONG_KHAI' as const,
       showCount: Array.isArray(row.SUAT_DIEN) ? row.SUAT_DIEN.length : (row.SUAT_DIEN ? 1 : 0),
       artists: artistMap.get(id) ?? [],
-    };
+    }) as PublicEventSummary;
   });
 
   const existingSlugs = new Set(supabaseEvents.map((e) => e.slug));

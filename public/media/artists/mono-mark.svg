@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+  <title id="title">MONO artist mark</title>
+  <desc id="desc">MONO wordmark on a dark concert stage background</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07101d"/>
+      <stop offset="0.55" stop-color="#111b35"/>
+      <stop offset="1" stop-color="#05060b"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d8ff3e" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#d8ff3e" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#bg)"/>
+  <path d="M140 0h180L540 900H380zM880 0h180L820 900H660z" fill="url(#beam)" opacity=".42"/>
+  <circle cx="600" cy="360" r="210" fill="none" stroke="#d8ff3e" stroke-opacity=".2" stroke-width="2"/>
+  <path d="M120 930h960" stroke="#d8ff3e" stroke-opacity=".45" stroke-width="4"/>
+  <text x="600" y="655" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="230" font-weight="800" letter-spacing="30" text-anchor="middle">MONO</text>
+  <text x="600" y="760" fill="#d8ff3e" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" letter-spacing="16" text-anchor="middle">DANCE-POP</text>
+</svg>

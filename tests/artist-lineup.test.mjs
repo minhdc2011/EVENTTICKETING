@@ -27,7 +27,11 @@ test('Super Concert seeded artist lineup contains all 6 artists in correct ThuTu
     assert.equal(actual.name, expected.name, `Artist ${index + 1} stage name matches`);
     assert.equal(actual.role, expected.role, `Artist ${index + 1} role matches`);
     assert.equal(actual.order, expected.order, `Artist ${index + 1} display order matches`);
-    assert.ok(actual.imageUrl && actual.imageUrl.startsWith('https://'), `Artist ${index + 1} has valid image URL`);
+    assert.match(
+      actual.imageUrl ?? '',
+      /^(?:https:\/\/|\/(?:[^/]+\/)?media\/artists\/)/,
+      `Artist ${index + 1} has a valid remote or self-hosted image URL`
+    );
   });
 
   // Verify list is strictly ordered by display order (ThuTuHienThi) 1..6
