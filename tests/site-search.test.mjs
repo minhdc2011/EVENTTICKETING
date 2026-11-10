@@ -171,7 +171,7 @@ test('ArtistFilter.tsx markup and accessibility standards', async () => {
   );
   assert.match(
     tsx,
-    /className="et-artist-filter__track"[\s\S]*?role="list"/,
+    /et-artist-filter__track[\s\S]*?role="list"/,
     'ArtistFilter must render a horizontally discoverable artist list',
   );
   assert.match(
@@ -192,7 +192,7 @@ test('ArtistFilter.tsx markup and accessibility standards', async () => {
   assert.match(
     tsx,
     /className="et-artist-card et-artist-card--view-all"[\s\S]*?<strong>Xem tất cả nghệ sĩ<\/strong>/,
-    'ArtistFilter must provide a final carousel card that clears the artist filter',
+    'ArtistFilter must provide a final carousel card that expands the full artist list',
   );
   assert.match(
     tsx,

@@ -86,6 +86,31 @@
 
 .et-artist-filter__track::-webkit-scrollbar { display: none; }
 
+/* Expanded: every artist visible in a wrapping grid instead of a carousel */
+.et-artist-filter__track.is-expanded {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(13rem, 22vw, 17rem), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.75rem) clamp(0.85rem, 2vw, 1.5rem);
+  overflow: visible;
+  scroll-snap-type: none;
+}
+
+.et-artist-filter__track.is-expanded .et-artist-card { flex: initial; }
+
+.et-artist-filter__collapse {
+  min-height: var(--et-tap-min);
+  padding: 0 var(--et-space-4);
+  border: 1px solid var(--et-border);
+  border-radius: var(--et-radius-sm);
+  background: var(--et-surface);
+  color: var(--et-ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.et-artist-filter__collapse:focus-visible { outline: 3px solid var(--et-focus); outline-offset: 2px; }
+
 .et-artist-card {
   display: flex;
   flex: 0 0 clamp(14.5rem, 23vw, 20rem);

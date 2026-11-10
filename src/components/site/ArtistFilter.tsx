@@ -27,6 +27,10 @@ export function ArtistFilter({artists, value, onChange, disabled = false}: Artis
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  // Picking an artist (or clearing) returns to the compact carousel.
+  useEffect(() => setExpanded(false), [value]);
 
   const seen = new Set<string>();
   const options = artists.filter((artist) => {
@@ -68,30 +72,42 @@ export function ArtistFilter({artists, value, onChange, disabled = false}: Artis
           <p>Chọn nghệ sĩ để xem tất cả sự kiện họ góp mặt.</p>
         </div>
         <div className="et-artist-filter__actions">
-          <button
-            type="button"
-            className="et-artist-filter__arrow et-artist-filter__arrow--back"
-            aria-label="Xem nghệ sĩ phía trước"
-            disabled={!canScrollBack}
-            onClick={() => scrollByPage(-1)}
-          >
-            <IconArrowRight size={22} />
-          </button>
-          <button
-            type="button"
-            className="et-artist-filter__arrow"
-            aria-label="Xem thêm nghệ sĩ"
-            disabled={!canScrollForward}
-            onClick={() => scrollByPage(1)}
-          >
-            <IconArrowRight size={22} />
-          </button>
+          {expanded ? (
+            <button
+              type="button"
+              className="et-artist-filter__collapse"
+              onClick={() => setExpanded(false)}
+            >
+              Thu gọn
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="et-artist-filter__arrow et-artist-filter__arrow--back"
+                aria-label="Xem nghệ sĩ phía trước"
+                disabled={!canScrollBack}
+                onClick={() => scrollByPage(-1)}
+              >
+                <IconArrowRight size={22} />
+              </button>
+              <button
+                type="button"
+                className="et-artist-filter__arrow"
+                aria-label="Xem thêm nghệ sĩ"
+                disabled={!canScrollForward}
+                onClick={() => scrollByPage(1)}
+              >
+                <IconArrowRight size={22} />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       <div
         ref={trackRef}
-        className="et-artist-filter__track"
+        className={`et-artist-filter__track${expanded ? ' is-expanded' : ''}`}
         role="list"
         aria-label="Danh sách nghệ sĩ"
         onScroll={updateScrollState}
@@ -131,22 +147,25 @@ export function ArtistFilter({artists, value, onChange, disabled = false}: Artis
             </button>
           );
         })}
-        <button
-          type="button"
-          className="et-artist-card et-artist-card--view-all"
-          data-artist-id="all"
-          disabled={disabled}
-          onClick={() => onChange('')}
-        >
-          <span className="et-artist-card__media" aria-hidden="true">
-            <span className="et-artist-card__view-all-icon"><IconArrowRight size={30} /></span>
-          </span>
-          <span className="et-artist-card__meta">
-            <span className="et-artist-card__role">Toàn bộ danh mục</span>
-            <strong>Xem tất cả nghệ sĩ</strong>
-            <span className="et-artist-card__count">Bỏ bộ lọc và xem mọi sự kiện</span>
-          </span>
-        </button>
+        {!expanded && (
+          <button
+            type="button"
+            className="et-artist-card et-artist-card--view-all"
+            data-artist-id="all"
+            disabled={disabled}
+            aria-expanded={false}
+            onClick={() => setExpanded(true)}
+          >
+            <span className="et-artist-card__media" aria-hidden="true">
+              <span className="et-artist-card__view-all-icon"><IconArrowRight size={30} /></span>
+            </span>
+            <span className="et-artist-card__meta">
+              <span className="et-artist-card__role">{options.length} nghệ sĩ</span>
+              <strong>Xem tất cả nghệ sĩ</strong>
+              <span className="et-artist-card__count">Mở toàn bộ danh sách</span>
+            </span>
+          </button>
+        )}
       </div>
     </section>
   );
