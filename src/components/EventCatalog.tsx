@@ -1,9 +1,8 @@
 import {useEffect, useMemo, useRef, useState, type MouseEvent} from 'react';
 import {loadPublicEvents, type PublicEventSummary} from '../services/eventService';
 import {buildPublicPath, navigatePublicRoute} from '../domain/publicRoute';
-import {pickFeaturedEvent} from './event-template/eventTemplateLogic.js';
 import {EventRow} from './site/EventRow';
-import {FeaturedEvent} from './site/FeaturedEvent';
+import {FeaturedCarousel} from './site/FeaturedCarousel';
 import {refreshBuyerSession, signOutBuyer, subscribeBuyerAuth, type BuyerSession} from '../services/buyerAuthService';
 import {CATEGORY_THEMES, CATEGORY_KEYS, getCategoryTheme} from '../domain/categoryThemes.js';
 import {GlobalHeader} from './site/GlobalHeader';
@@ -118,8 +117,6 @@ export function EventCatalog() {
       ? CATEGORY_THEMES[category as keyof typeof CATEGORY_THEMES].label
       : category;
 
-  const featured = useMemo(() => pickFeaturedEvent(events), [events]);
-
   return (
     <div className="et-site et-catalog">
       <GlobalHeader
@@ -136,7 +133,7 @@ export function EventCatalog() {
       />
 
       {/* Featured / Hero Area */}
-      <FeaturedEvent event={featured} />
+      <FeaturedCarousel events={events} />
 
       {/* Trust & Reassurance Strip */}
       <section className="marketplace-trust-strip" aria-label="Cam kết dịch vụ">
