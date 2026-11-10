@@ -980,7 +980,7 @@ sequenceDiagram
 
   U->>UI: Chọn 1–4 chỗ (Ghế ngồi hoặc Vé đứng)
   UI->>BS: createSeatHold({ eventId, showId, sessionId, items })
-  BS->>RPC: Gọi RPC giao dịch tao_giu_cho_theo_suat(p_payload)
+  BS->>RPC: Gọi RPC giao dịch tao_giu_cho_theo_suat(p_suat_dien_id, p_phien_id, p_items)
   RPC->>DB: BEGIN TRANSACTION;
   RPC->>DB: Khóa hàng SELECT FOR UPDATE trên KHU_VUC và GHE
 
