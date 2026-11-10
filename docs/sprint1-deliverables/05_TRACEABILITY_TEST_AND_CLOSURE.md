@@ -2,7 +2,7 @@
 
 ## 1. Ma trận liên kết kiến trúc (UC → Bảng ERD → Lớp Class → Sequence Diagram)
 
-> **Quy ước mã thống nhất (02/11/2026).** Mã yêu cầu theo SRS: `FR-T1-01..04` (Sprint 1), `FR-T3-01` (Sprint 3). `FR-T1-03` (cổng Ban tổ chức, `REQ-T1-08`) gồm `FR-T1-03.1..03.6`. Mã Use Case theo tài liệu đặc tả `Requirements_UseCases_Sprint1`: `UC-T1-01..05`, `UC-BTC-01..05`, `UC-T3-01..02`. NFR dùng đúng số hiệu ở Phần 2 của SRS.
+> **Quy ước mã thống nhất (02/11/2026).** Mã yêu cầu theo SRS: `FR-T1-01..04` (Sprint 1), `FR-T3-01` (Sprint 3). `FR-T1-03` (cổng Ban tổ chức, `REQ-T1-08`) gồm `FR-T1-03.1..03.6`. Mã Use Case theo tài liệu đặc tả `Requirements_UseCases_Sprint1`: `UC-T1-01..05`, `UC-BTC-01..05`, `UC-T2-01..02`, `UC-T4-01..05` (Sprint 2), `UC-T3-01..02`. NFR dùng đúng số hiệu ở Phần 2 của SRS.
 
 | Mã UC | FR | Sprint | Bảng ERD tham gia | Lớp Entity / Service (thiết kế) | Lớp phân tích (đặc tả) | Sequence |
 |---|---|:---:|---|---|---|:---:|
@@ -16,8 +16,17 @@
 | **UC-BTC-03** | FR-T1-03.3 | 1 | `SU_KIEN`, `CAU_HINH_SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `CauHinhSuKien`, `SuatDien`, `KhuVuc`, `NgheSi`, `SuKienNgheSi` • `OrganizerService` | `EventEditorPage`, `EventAdminController` | SD-04 |
 | **UC-BTC-04** | FR-T1-03.4 | 1 | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc` • `OrganizerService`, `EventService` | `EventEditorPage`, `EventAdminController` | SD-04 |
 | **UC-BTC-05** | FR-T1-03.5 | 1 | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc` • `OrganizerService` | `EventAdminController` | SD-04 |
+| **UC-T2-01** | FR-T2-01 | 2 | `CAU_HINH_SU_KIEN` (cột `YeuCauXacMinhOTP`), `HO_SO_NGUOI_DUNG` | `CauHinhSuKien`, `HoSoNguoiDung` | — (hoàn thiện cuối kỳ) | SD OTP (Sprint 2) |
+| **UC-T2-02** | FR-T2-02 | 2 | `CAU_HINH_SU_KIEN` (cột `SoVeToiDaMoiDon`), `GIU_CHO`, `CHI_TIET_GIU_CHO` | `CauHinhSuKien`, `GiuCho`, `ChiTietGiuCho` | — (hoàn thiện cuối kỳ) | SD OTP + 4 vé (Sprint 2) |
+| **UC-T4-01** | FR-T4-02 | 2 | `QUY_TAC_GIA`, `KHU_VUC` | `QuyTacGia`, `KhuVuc` | — (hoàn thiện cuối kỳ) | SD DP cấu hình khung giá (Sprint 2) |
+| **UC-T4-02** | FR-T4-04 | 2 | `QUY_TAC_GIA`, `DE_XUAT_GIA`, `KHU_VUC` | `QuyTacGia`, `DeXuatGia` | — (hoàn thiện cuối kỳ) | SD DP tính đề xuất giá (Sprint 2) |
+| **UC-T4-03** | FR-T4-04 | 2 | `DE_XUAT_GIA`, `NHAT_KY_GIA`, `KHU_VUC` | `DeXuatGia`, `NhatKyGia` | — (hoàn thiện cuối kỳ) | SD DP duyệt/từ chối (Sprint 2) |
+| **UC-T4-04** | FR-T4-04 | 2 | `KHU_VUC`, `NHAT_KY_GIA` | `KhuVuc`, `NhatKyGia` | — (hoàn thiện cuối kỳ) | SD DP giá hiện hành (Sprint 2) |
+| **UC-T4-05** | FR-T4-02 | 2 | `QUY_TAC_GIA`, `KHU_VUC` | `QuyTacGia`, `KhuVuc` | — (hoàn thiện cuối kỳ) | SD DP kiểm tra sàn/trần (Sprint 2) |
 | **UC-T3-01** | FR-T3-01 | 3 | `KHU_VUC`, `GHE` | `KhuVuc`, `Ghe` | `SeatMapView` | SD-05 |
 | **UC-T3-02** | FR-T3-01 | 3 | `GIU_CHO`, `CHI_TIET_GIU_CHO`, `GHE`, `KHU_VUC`, `SUAT_DIEN` | `GiuCho`, `ChiTietGiuCho`, `Ghe` • `BookingService` | `SeatHoldController`, `SeatLock`, `Seat` | SD-05, SD-06 |
+
+Các dòng Sprint 2 điền theo ERD 17 bảng (`QUY_TAC_GIA`, `DE_XUAT_GIA`, `NHAT_KY_GIA` là bảng mới; OTP là cột `YeuCauXacMinhOTP` của `CAU_HINH_SU_KIEN`) và các sequence đã soạn trong kế hoạch Sprint 2; cột lớp phân tích sẽ hoàn thiện ở cuối kỳ.
 
 Bảng `DIA_DIEM` chưa được UC nào ghi trực tiếp trong V1 (địa điểm của sự kiện do BTC tạo đang lưu bằng cột văn bản của `SU_KIEN`); bảng có trong CSDL để `SUAT_DIEN` tham chiếu.
 
@@ -53,7 +62,7 @@ npm run check
 ```
 
 - **TypeScript Type-check (`tsc --noEmit`)**: **Pass**, 0 lỗi.
-- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **146/146 tests PASS (0 fail, 0 skipped)** (03/11/2026; mốc 02/11/2026 là 145/145, thêm 1 test cho migration quyền `CAU_HINH_SU_KIEN`).
+- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **263/263 tests PASS (0 fail, 0 skipped)** (chạy lại 10/11/2026 trên `main` tại commit `0a73837`; mốc 03/11/2026 là 146/146, các test tăng thêm đến từ các thay đổi giao diện/sơ đồ ghế sau mốc đó).
 - **Production Build (`vite build`)**: **Pass**, đóng gói thành công ra thư mục `dist/`.
 - **Cơ sở dữ liệu Supabase Live (`qxkgkbayxxaakkwtepss`)**:
   - Đầy đủ **14 bảng `public`** đã bật RLS, xác nhận qua REST API probe.
@@ -84,4 +93,4 @@ npm run check
 - [x] Class Diagram trích xuất từ repo với 14 lớp Entity tương ứng 1–1 với 14 bảng ERD kết hợp các lớp Service.
 - [x] 4 Sequence Diagram cho Sprint 1 (SD-01..04) và 2 Sequence Diagram cho nền tảng Sprint 3 (SD-05, SD-06).
 - [x] Ma trận liên kết (UC → FR → ERD → Class thiết kế/phân tích → Sequence) dùng mã UC thống nhất với tài liệu đặc tả.
-- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 146/146 tests pass (03/11/2026).
+- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 263/263 tests pass (chạy lại 10/11/2026).
