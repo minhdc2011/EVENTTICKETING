@@ -13,19 +13,10 @@ const onSpaNav = (target: string) => (e: React.MouseEvent) => {
 
 type EventHeaderProps = {
   event: PublicEventRecord;
-  saleOpen: boolean;
-  onOpenSchedule?: () => void;
-  hasSchedule?: boolean;
 };
 
-export function EventHeader({
-  event,
-  saleOpen,
-  onOpenSchedule,
-  hasSchedule = false,
-}: EventHeaderProps) {
+export function EventHeader({event}: EventHeaderProps) {
   const isPreview = event.publicationStatus !== 'CONG_KHAI';
-  const isConcert = event.templateKey === 'SUPER_CONCERT_2026';
   const {session, signOut} = useBuyerSession();
 
   return (
@@ -51,87 +42,6 @@ export function EventHeader({
       )}
 
       <GlobalHeader session={session} onSignOut={signOut} />
-
-      <header className="et-topbar">
-        <nav className="et-nav-links" aria-label="Điều hướng trang sự kiện">
-          {isConcert ? (
-            <>
-              <a href="#artist-lineup" className="et-nav-link">Nghệ sĩ</a>
-              <a href="#pricing-section" className="et-nav-link">Hạng vé</a>
-              <a href="#seating-section" className="et-nav-link">Sơ đồ ghế</a>
-              <a href="#concert-guide-section" className="et-nav-link">Lưu ý & Địa điểm</a>
-              <button
-                id="btn-view-schedule"
-                type="button"
-                onClick={onOpenSchedule}
-                className="et-nav-timeline-btn cursor-pointer"
-                title="Xem lịch trình sự kiện"
-                aria-label="Lịch trình sự kiện"
-              >
-                <span className="et-timeline-btn-full">Timeline</span>
-                <span className="et-timeline-btn-compact">Lịch</span>
-              </button>
-              <a
-                href="#seating-section"
-                className="et-nav-cta"
-                aria-label="Chuyển đến phần sơ đồ vé"
-              >
-                <span
-                  className="et-live-dot"
-                  style={{
-                    backgroundColor: saleOpen ? '#34d399' : '#fbbf24',
-                    boxShadow: saleOpen ? '0 0 10px #34d399' : '0 0 10px #fbbf24',
-                  }}
-                />
-                <span className="et-cta-label-full">{saleOpen ? 'Chọn vé ngay' : 'Xem sơ đồ vé'}</span>
-                <span className="et-cta-label-compact">{saleOpen ? 'Chọn vé' : 'Sơ đồ'}</span>
-              </a>
-            </>
-          ) : (
-            <>
-              <a
-                href={buildPublicPath(window.location.pathname, 'events')}
-                onClick={onSpaNav('events')}
-                className="et-nav-link"
-              >
-                Tất cả sự kiện
-              </a>
-              {hasSchedule && onOpenSchedule && (
-                <button
-                  type="button"
-                  onClick={onOpenSchedule}
-                  className="et-nav-link cursor-pointer bg-transparent border-0"
-                  title="Xem lịch trình sự kiện"
-                >
-                  Lịch trình
-                </button>
-              )}
-              <a
-                href={buildPublicPath(window.location.pathname, 'organizer')}
-                onClick={onSpaNav('organizer')}
-                className="et-nav-link"
-              >
-                Dành cho BTC
-              </a>
-              <a
-                href="#tickets"
-                className="et-nav-cta"
-                aria-label="Chuyển đến phần danh sách vé"
-              >
-                <span
-                  className="et-live-dot"
-                  style={{
-                    backgroundColor: saleOpen ? '#34d399' : '#fbbf24',
-                    boxShadow: saleOpen ? '0 0 10px #34d399' : '0 0 10px #fbbf24',
-                  }}
-                />
-                <span className="et-cta-label-full">{saleOpen ? 'Xem và chọn vé' : 'Xem hạng vé'}</span>
-                <span className="et-cta-label-compact">{saleOpen ? 'Chọn vé' : 'Hạng vé'}</span>
-              </a>
-            </>
-          )}
-        </nav>
-      </header>
     </>
   );
 }

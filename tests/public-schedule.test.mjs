@@ -273,7 +273,6 @@ test('architectural removal of legacy schedule modal markup and dead bindings fr
 
   // 4. Shared React components use callback props rather than DOM class manipulation
   assert.doesNotMatch(headerTsx, /document\.getElementById\('schedule-modal'\)/i, 'EventHeader does not mutate DOM classList');
-  assert.match(headerTsx, /onClick=\{onOpenSchedule\}/i, 'EventHeader wires onOpenSchedule callback');
 
   assert.doesNotMatch(heroTsx, /document\.getElementById\('schedule-modal'\)/i, 'EventHero does not mutate DOM classList');
   assert.match(heroTsx, /onClick=\{onOpenSchedule\}/i, 'EventHero wires onOpenSchedule callback');

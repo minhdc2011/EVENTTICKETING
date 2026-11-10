@@ -423,13 +423,9 @@ test('public event detail architecture is unified across generic events and Supe
   assert.match(genericPageTsx, /id="stA"/i, 'Supplies stA starfield hook');
   assert.match(genericPageTsx, /id="stB"/i, 'Supplies stB starfield hook');
 
-  // 6. Shared EventHeader supports both generic and concert navigation
-  assert.match(headerTsx, /isConcert/i, 'EventHeader detects concert template');
-  assert.match(headerTsx, /href="#artist-lineup"/i, 'Concert navigation includes artist lineup');
-  assert.match(headerTsx, /href="#pricing-section"/i, 'Concert navigation includes pricing section');
-  assert.match(headerTsx, /href="#seating-section"/i, 'Concert navigation includes seating map');
-  assert.match(headerTsx, /id="btn-view-schedule"/i, 'Concert navigation includes schedule timeline modal trigger');
+  // 6. Shared EventHeader: global header only, no secondary in-page topbar
   assert.match(headerTsx, /<GlobalHeader\s/i, 'Shared brand mark across all event pages comes from the global header');
+  assert.doesNotMatch(headerTsx, /et-topbar/i, 'Event pages have no secondary topbar with CTA/navigation');
 
   // 7. Hero section in Super Concert has primary CTA in first viewport
   assert.match(heroHtml, /et-hero-primary-cta/i, 'Super Concert hero contains primary CTA button');
@@ -437,13 +433,6 @@ test('public event detail architecture is unified across generic events and Supe
   assert.match(logicSource, /isConcert \? '#seating-section'/i, 'Super Concert primary CTA links directly to seat selection');
   assert.doesNotMatch(heroHtml, /font-syne/i, 'Hero does not use font-syne');
   assert.doesNotMatch(heroHtml, /tracking-\[-0\.055em\]/i, 'Hero does not use extreme negative tracking');
-
-  // 8. Compact mobile header contract: no wrapped text, 44px touch targets, nonessential buttons hidden under 390px
-  assert.match(templateCss, /@media\s*\(max-width:\s*767px\)[\s\S]*?\.et-nav-back-text\s*\{[^}]*display:\s*none/i, 'Back link label hidden on mobile to prevent wrapping');
-  assert.match(templateCss, /\.et-nav-back-link\s*\{[^}]*min-height:\s*44px/i, 'Back link has min 44px touch target');
-  assert.match(templateCss, /@media\s*\(max-width:\s*767px\)[\s\S]*?\.et-nav-cta\s*\{[^}]*min-height:\s*44px/i, 'Header CTA has min 44px touch target on mobile');
-  assert.match(headerTsx, /et-cta-label-compact/i, 'Header CTA renders compact responsive label');
-  assert.match(templateCss, /@media\s*\(max-width:\s*390px\)[\s\S]*?\.et-nav-timeline-btn\s*\{[^}]*display:\s*none/i, 'Nonessential timeline button hidden under 390px to prevent clipping');
 
   // 9. Mobile sticky bar computes minimum price dynamically from loaded tiers
   assert.match(mobileStickyTsx, /Math\.min\(\.\.\.tiers\.map/i, 'Calculates dynamic minPrice from loaded tiers');
