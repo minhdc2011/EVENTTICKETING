@@ -8,7 +8,7 @@
   min-width: 0;
 }
 
-.et-artist-card-name {
+.et-lineup-name {
   margin: 0;
   color: #0f172a;
   font-family: var(--font-display, var(--font-sans));
@@ -16,13 +16,13 @@
   font-weight: 700;
 }
 
-.et-artist-card-role {
+.et-lineup-role {
   margin: 2px 0 0;
   color: #64748b;
   font-size: 0.75rem;
 }
 
-.et-artist-card {
+.et-lineup-card {
   position: relative;
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -34,11 +34,11 @@
   will-change: transform;
 }
 
-.et-artist-card:hover {
+.et-lineup-card:hover {
   transform: translateY(-4px) scale(1.01);
 }
 
-.et-artist-card:focus-visible {
+.et-lineup-card:focus-visible {
   outline: 2px solid var(--et-cat-accent, #d8ff3e);
   outline-offset: 2px;
 }
@@ -59,15 +59,15 @@
               filter 0.3s ease;
 }
 
-.et-artist-card:hover .et-artist-image {
+.et-lineup-card:hover .et-artist-image {
   transform: scale(1.08);
 }
 
-.et-artist-card-name {
+.et-lineup-name {
   transition: color 0.2s ease;
 }
 
-.et-artist-card:hover .et-artist-card-name {
+.et-lineup-card:hover .et-lineup-name {
   color: #0353c2;
 }
 
@@ -129,10 +129,10 @@
 
 /* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .et-artist-card,
-  .et-artist-card:hover,
+  .et-lineup-card,
+  .et-lineup-card:hover,
   .et-artist-image,
-  .et-artist-card:hover .et-artist-image {
+  .et-lineup-card:hover .et-artist-image {
     transform: none !important;
     transition: none !important;
   }

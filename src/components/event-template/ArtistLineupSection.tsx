@@ -114,7 +114,7 @@ export function ArtistLineupSection({
           {displayedArtists.map((artist) => (
             <div
               key={artist.id}
-              className="group relative overflow-hidden et-artist-card"
+              className="group relative overflow-hidden et-lineup-card"
             >
               <div className="aspect-square w-full overflow-hidden bg-slate-900 relative et-artist-image-container">
                 {artist.imageUrl ? (
@@ -136,8 +136,8 @@ export function ArtistLineupSection({
                 />
               </div>
               <div className="p-3 text-center">
-                <h3 className="et-artist-card-name">{artist.name}</h3>
-                <p className="et-artist-card-role">{artist.role}</p>
+                <h3 className="et-lineup-name">{artist.name}</h3>
+                <p className="et-lineup-role">{artist.role}</p>
               </div>
             </div>
           ))}
