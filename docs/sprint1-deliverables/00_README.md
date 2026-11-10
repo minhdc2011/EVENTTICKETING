@@ -11,6 +11,22 @@ Bộ hồ sơ này chứng minh chuỗi **yêu cầu khách hàng → phân tíc
 - Nền tảng: dữ liệu đa sự kiện, RLS/RBAC, realtime trạng thái ghế, giao diện sự kiện dùng chung và extension cho nội dung đặc thù.
 - Chưa hoàn thành trong Sprint 1: cổng thanh toán thật, ví vé/QR động, hoàn tiền tự động, hàng đợi quy mô lớn, chống bot hoàn chỉnh và dashboard doanh thu hoàn chỉnh.
 
+## Trạng thái hiện tại (10/11/2026)
+
+- Sprint 1 (SRS phiên bản 1.2): hoàn thành, `npm run check` pass (TypeScript, **263/263 tests**, build 174 modules).
+- Sprint 2 đang triển khai: xác minh OTP và giới hạn 4 vé mỗi đơn (`FR-T2-01`, `FR-T2-02`), Dynamic Pricing (`FR-T4-02`, `FR-T4-04`). Phần đã có sẵn trong repo (hạ tầng đăng nhập người mua, cột cấu hình `SoVeToiDaMoiDon`) được trình bày là phần dựng trước; chỉ trình bày những gì repo đã thực hiện.
+- Tài khoản demo (Ban tổ chức, người mua) và kịch bản reset dữ liệu do nhóm chuẩn bị riêng; không ghi mật khẩu trong tài liệu nộp.
+
+### Phân loại phần repo so với SRS
+
+| Loại | Nội dung | Xử lý |
+|---|---|---|
+| **A. Đã là yêu cầu** | Cổng Ban tổ chức (`FR-T1-03`); tài khoản người mua đăng nhập (cần cho OTP, thuộc `FR-T2-01`) | Đã có trong SRS / làm trong Sprint 2 |
+| **B. Hạ tầng, không là FR** | Marketplace danh mục, tìm kiếm, EventTemplate, design system, realtime, RLS | Ghi là nền tảng, không viết thành FR |
+| **C. Đóng băng** | Artist discovery carousel, ảnh curated, dữ liệu seed, rà soát UI/UX | Không tính vào phạm vi; dừng thêm tính năng cho đến khi xong WBS Sprint 2 |
+
+Không đưa `.agentkit.yaml`, `.multiagent/`, `dist/`, `node_modules` vào gói nộp.
+
 ## Danh mục tài liệu
 
 1. `01_SRS_REQUIREMENTS.md` — đặc tả yêu cầu và phạm vi.
