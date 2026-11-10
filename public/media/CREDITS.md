@@ -20,3 +20,7 @@ License terms: [Unsplash License](https://unsplash.com/license).
 - `artists/chillies-live.jpg` — [Chillies live concert, VnExpress; artist-provided press photo](https://vnexpress.net/hang-nghin-fan-hoa-giong-cung-chillies-4583000.html)
 - `artists/mono-live.jpg` — [MONO performing at Hoa Xuân Ca 2025, VTV](https://vtv.vn/truyen-hinh/mono-khoe-vu-dao-sau-1-nam-tap-luyen-miet-mai-20250127212922927.htm)
 - `artists/dj-mie-rap-viet.jpg` — [DJ Mie performing on Rap Việt, Znews / FB Rap Việt](https://znews.vn/dj-mie-toi-phai-dat-may-vest-de-quay-rap-viet-post1124460.html)
+
+## Test artists (fictional)
+
+- `artists/test/*.svg` — generated illustrations for fictional artists used only in mock catalog data (`src/domain/mockCatalogArtists.js`). They do not depict real people.

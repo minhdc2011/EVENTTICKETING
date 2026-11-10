@@ -11,6 +11,7 @@ import {
   type CatalogArtist,
 } from '../domain/catalogFilters.js';
 import {resolvePublicArtistsFallback} from '../domain/artistLineup.js';
+import {resolveMockCatalogExtraArtists} from '../domain/mockCatalogArtists.js';
 
 export type {CatalogArtist};
 
@@ -325,7 +326,13 @@ function toSummary(event: PublicEventRecord, artists: CatalogArtist[] = []): Pub
 export async function loadPublicEvents(): Promise<PublicEventSummary[]> {
   if (runtimeConfig.useMockData) {
     const baseEvents = MOCK_EVENTS.map((event) =>
-      toSummary(event, normalizeCatalogArtists(resolvePublicArtistsFallback(event), 'mock')),
+      toSummary(
+        event,
+        normalizeCatalogArtists(
+          [...resolvePublicArtistsFallback(event), ...resolveMockCatalogExtraArtists(event)],
+          'mock',
+        ),
+      ),
     );
     try {
       const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
