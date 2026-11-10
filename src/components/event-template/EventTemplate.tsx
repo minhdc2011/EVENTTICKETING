@@ -170,6 +170,24 @@ export function EventTemplate({
     };
   }, [isConcert, event.id, event.selectedShow?.id]);
 
+  // Smooth in-page anchor navigation (nav, hero CTA, footer). Prevents the default hash
+  // jump so the URL/route is untouched.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      const anchor = (e.target as Element | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null;
+      const href = anchor?.getAttribute('href') ?? '';
+      if (!anchor || href.length < 2 || href.startsWith('#/')) return;
+      const target = document.getElementById(href.slice(1));
+      if (!target) return;
+      e.preventDefault();
+      const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'});
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
+
   useEffect(() => {
     const timer = window.setInterval(() => setClock(Date.now()), 30_000);
     return () => window.clearInterval(timer);
@@ -236,7 +254,7 @@ export function EventTemplate({
             {/* Section 01: Overview / Introduction */}
             <section className="et-content-section" aria-labelledby="overview-heading">
               <div className="et-section-header">
-                <span className="et-section-kicker">01 / TỔNG QUAN SỰ KIỆN</span>
+                <span className="et-section-kicker">TỔNG QUAN SỰ KIỆN</span>
                 <h2 id="overview-heading" className="et-section-title">
                   {cleanSlogan || 'GIỚI THIỆU SỰ KIỆN'}
                 </h2>

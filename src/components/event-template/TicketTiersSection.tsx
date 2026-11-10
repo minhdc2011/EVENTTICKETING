@@ -16,7 +16,7 @@ export function TicketTiersSection({
   return (
     <section id="tickets" className="et-content-section" aria-labelledby="tickets-heading">
       <div className="et-section-header">
-        <span className="et-section-kicker">02 / HẠNG VÉ & GIÁ VÉ</span>
+        <span className="et-section-kicker">HẠNG VÉ & GIÁ VÉ</span>
         <h2 id="tickets-heading" className="et-section-title">
           BẢNG GIÁ VÉ & QUYỀN LỢI
         </h2>

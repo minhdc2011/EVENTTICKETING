@@ -35,7 +35,14 @@ export default function App() {
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error' | 'not-found'>('loading');
 
   useEffect(() => {
-    const handleRouteChange = () => setRoute(readRoute());
+    // In-page anchors (#tickets, #seating-section…) fire hashchange too. Keep the same
+    // route object when nothing meaningful changed, otherwise the event reloads and the
+    // anchor target unmounts before the browser can scroll to it.
+    const handleRouteChange = () =>
+      setRoute((prev) => {
+        const next = readRoute();
+        return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
+      });
     window.addEventListener('hashchange', handleRouteChange);
     window.addEventListener('popstate', handleRouteChange);
     return () => {

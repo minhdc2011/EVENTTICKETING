@@ -99,20 +99,14 @@ export function ArtistLineupSection({
     <section
       id="artist-lineup"
       aria-labelledby="artist-lineup-heading"
-      className="scroll-focus-section section-dimmed py-12 border-b border-white/[0.085] et-artist-lineup-section"
+      className="et-content-section et-artist-lineup-section"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="editorial-heading mb-8 flex items-end justify-between gap-4">
-          <div>
-            <span className="editorial-kicker">Live performance</span>
-            <h2
-              id="artist-lineup-heading"
-              className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-white mt-2"
-            >
-              DÀN NGHỆ SĨ KHÁCH MỜI
-            </h2>
-          </div>
-          <span className="section-number hidden sm:block">01 / 03</span>
+      <div>
+        <div className="et-section-header">
+          <span className="et-section-kicker">DÀN NGHỆ SĨ</span>
+          <h2 id="artist-lineup-heading" className="et-section-title">
+            DÀN NGHỆ SĨ KHÁCH MỜI
+          </h2>
         </div>
 
         {/* Responsive Artist Cards Grid */}
@@ -120,7 +114,7 @@ export function ArtistLineupSection({
           {displayedArtists.map((artist) => (
             <div
               key={artist.id}
-              className="group relative rounded-2xl overflow-hidden liquid-glass hover:scale-[1.02] transition-all duration-300 et-artist-card focus-within:ring-2 focus-within:ring-amber-400"
+              className="group relative overflow-hidden et-artist-card"
             >
               <div className="aspect-square w-full overflow-hidden bg-slate-900 relative et-artist-image-container">
                 {artist.imageUrl ? (
@@ -142,10 +136,8 @@ export function ArtistLineupSection({
                 />
               </div>
               <div className="p-3 text-center">
-                <h3 className="font-bold text-sm text-white group-hover:text-amber-400 transition font-display et-artist-card-name">
-                  {artist.name}
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">{artist.role}</p>
+                <h3 className="et-artist-card-name">{artist.name}</h3>
+                <p className="et-artist-card-role">{artist.role}</p>
               </div>
             </div>
           ))}
