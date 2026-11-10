@@ -186,15 +186,12 @@ export function EventCatalog() {
 
         <div id="catalog-heading" className="marketplace-heading">
           <div>
-            <p className="marketplace-eyebrow">EVENTTICKETING · VIỆT NAM</p>
-            <h2>
-              <span>Chọn trải nghiệm</span>
-              <span>của bạn</span>
-            </h2>
+            <span className="marketplace-heading__rule" aria-hidden="true" />
+            <h2>Chọn trải nghiệm của bạn</h2>
+            <p>
+              Các sự kiện đã được Ban tổ chức công bố chính thức. Dữ liệu lịch diễn, sơ đồ khán đài và tồn kho hạng vé được cập nhật tức thời.
+            </p>
           </div>
-          <span>
-            Các sự kiện đã được Ban tổ chức công bố chính thức. Dữ liệu lịch diễn, sơ đồ khán đài và tồn kho hạng vé được cập nhật tức thời.
-          </span>
         </div>
 
         {/* Category Filter Pills */}

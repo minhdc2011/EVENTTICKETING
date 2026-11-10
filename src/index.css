@@ -3123,41 +3123,31 @@
 }
 
 .marketplace-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 32px;
   margin-bottom: 32px;
 }
 
-.marketplace-eyebrow {
-  color: #64748b;
-  font: 800 11px/1 'Space Grotesk', sans-serif;
-  letter-spacing: 0.18em;
-  margin: 0 0 10px;
+.marketplace-heading__rule {
+  display: block;
+  width: 3rem;
+  height: 0.3rem;
+  margin-bottom: 0.75rem;
+  background: var(--et-ink, #0f172a);
 }
 
 .marketplace-heading h2 {
   margin: 0;
-  font: 900 clamp(36px, 6vw, 72px)/1.12 'Be Vietnam Pro', sans-serif;
-  letter-spacing: -0.05em;
+  font-size: clamp(1.75rem, 4vw, 3.25rem);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
   text-transform: uppercase;
-  color: #0f172a;
+  color: var(--et-ink, #0f172a);
 }
 
-.marketplace-heading h2 span {
-  display: block;
-}
-
-.marketplace-heading h2 span + span {
-  margin-top: 0.08em;
-}
-
-.marketplace-heading > span {
-  max-width: 440px;
-  color: #64748b;
-  font-size: 14px;
-  line-height: 1.65;
+.marketplace-heading p {
+  max-width: 38rem;
+  margin: 0.5rem 0 0;
+  color: var(--et-ink-muted, #64748b);
+  font-size: 0.95rem;
 }
 
 /* Category Filter Pills */
@@ -4859,11 +4849,6 @@
   }
   .marketplace-trust-inner {
     grid-template-columns: 1fr;
-  }
-  .marketplace-heading {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
   }
   .marketplace-footer-grid {
     grid-template-columns: 1fr;
