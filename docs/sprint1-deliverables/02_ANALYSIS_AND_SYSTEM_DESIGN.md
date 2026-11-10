@@ -2,7 +2,7 @@
 
 ## 1. Use case tổng quan và danh mục Use Case
 
-> **Quy ước mã thống nhất (02/11/2026).** Mã yêu cầu theo SRS: `FR-T1-01..04` (Sprint 1), `FR-T3-01` (Sprint 3). `FR-T1-03` (cổng Ban tổ chức) gồm `FR-T1-03.1..03.6`, trước đây ký hiệu `FR-O01..O06`. Mã Use Case theo tài liệu đặc tả `Requirements_UseCases_Sprint1`: `UC-T1-01..05`, `UC-BTC-01..05`, `UC-T3-01..02`. NFR dùng đúng số hiệu ở Phần 2 của SRS; các ràng buộc chất lượng nội bộ ghi là `QA-xx`.
+> **Quy ước mã thống nhất (02/11/2026).** Mã yêu cầu theo SRS: `FR-T1-01..04` (Sprint 1), `FR-T3-01` (Sprint 3). `FR-T1-03` (cổng Ban tổ chức, `REQ-T1-08`) gồm `FR-T1-03.1..03.6`. Mã Use Case theo tài liệu đặc tả `Requirements_UseCases_Sprint1`: `UC-T1-01..05`, `UC-BTC-01..05`, `UC-T3-01..02`. NFR dùng đúng số hiệu ở Phần 2 của SRS.
 
 Sơ đồ UML chuẩn (ranh giới hệ thống, «include»/«extend») là Hình 5.1 và Hình 5.5 trong tài liệu đặc tả `Requirements_UseCases_Sprint1`. Sơ đồ dưới đây là bản tóm tắt để đối chiếu với thiết kế; nét đứt là quan hệ «include»/«extend».
 
