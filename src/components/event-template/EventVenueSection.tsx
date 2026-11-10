@@ -15,7 +15,7 @@ export function EventVenueSection({event}: EventVenueSectionProps) {
   return (
     <section className="et-content-section" aria-labelledby="venue-heading">
       <div className="et-section-header">
-        <span className="et-section-kicker">03 / HÌNH THỨC & ĐỊA ĐIỂM</span>
+        <span className="et-section-kicker">HÌNH THỨC & ĐỊA ĐIỂM</span>
         <h2 id="venue-heading" className="et-section-title">
           ĐỊA ĐIỂM & HƯỚNG DẪN THAM GIA
         </h2>

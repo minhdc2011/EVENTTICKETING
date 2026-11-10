@@ -11,7 +11,7 @@ export function EventPolicySection({event}: EventPolicySectionProps) {
   return (
     <section className="et-content-section" aria-labelledby="policy-heading">
       <div className="et-section-header">
-        <span className="et-section-kicker">05 / QUY ĐỊNH & CHÍNH SÁCH</span>
+        <span className="et-section-kicker">QUY ĐỊNH & CHÍNH SÁCH</span>
         <h2 id="policy-heading" className="et-section-title">
           ĐIỀU KHOẢN THAM GIA
         </h2>

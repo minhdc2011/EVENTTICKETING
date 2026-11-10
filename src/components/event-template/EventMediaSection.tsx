@@ -12,7 +12,7 @@ export function EventMediaSection({event}: EventMediaSectionProps) {
   return (
     <section className="et-content-section" aria-labelledby="media-heading">
       <div className="et-section-header">
-        <span className="et-section-kicker">04 / SƠ ĐỒ & TRAILER</span>
+        <span className="et-section-kicker">SƠ ĐỒ & TRAILER</span>
         <h2 id="media-heading" className="et-section-title">
           HÌNH ẢNH & SƠ ĐỒ PHÂN KHU
         </h2>

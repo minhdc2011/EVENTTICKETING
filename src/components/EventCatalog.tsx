@@ -105,7 +105,14 @@ export function EventCatalog() {
       resultsRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'});
     });
   };
-  const hasActiveFilter = Boolean(query.trim()) || Boolean(selectedArtistKey) || category !== 'ALL';
+  // Header category click: apply the filter and jump to the "Chọn trải nghiệm của bạn" block
+  const handleHeaderCategorySelect = (key: string) => {
+    setCategory(key);
+    window.requestAnimationFrame(() => {
+      document.getElementById('catalog-heading')?.scrollIntoView({behavior: 'smooth', block: 'start'});
+    });
+  };
+  const hasActiveFilter =Boolean(query.trim()) || Boolean(selectedArtistKey) || category !== 'ALL';
   const activeCategoryLabel =
     category !== 'ALL' && category in CATEGORY_THEMES
       ? CATEGORY_THEMES[category as keyof typeof CATEGORY_THEMES].label
@@ -120,12 +127,12 @@ export function EventCatalog() {
         onSignOut={handleSignOut}
         categories={CATEGORY_KEYS.map((k) => ({key: k, label: CATEGORY_THEMES[k].label}))}
         activeCategory={category}
-        onCategorySelect={setCategory}
+        onCategorySelect={handleHeaderCategorySelect}
       />
       <SearchBlock
         value={query}
         onChange={setQuery}
-        onSubmit={() => document.getElementById('events')?.scrollIntoView()}
+        onSubmit={() => document.getElementById('events')?.scrollIntoView({behavior: 'smooth', block: 'start'})}
       />
 
       {/* Featured / Hero Area */}
@@ -177,7 +184,7 @@ export function EventCatalog() {
       <main id="events" className="marketplace-main">
         <ArtistFilter artists={artistOptions} value={selectedArtistKey} onChange={handleArtistChange} />
 
-        <div className="marketplace-heading">
+        <div id="catalog-heading" className="marketplace-heading">
           <div>
             <p className="marketplace-eyebrow">EVENTTICKETING · VIỆT NAM</p>
             <h2>

@@ -11,7 +11,7 @@ export function EventContactSection({event}: EventContactSectionProps) {
   return (
     <section className="et-content-section" aria-labelledby="contact-heading">
       <div className="et-section-header">
-        <span className="et-section-kicker">06 / LIÊN HỆ & BẢN QUYỀN</span>
+        <span className="et-section-kicker">LIÊN HỆ & BẢN QUYỀN</span>
         <h2 id="contact-heading" className="et-section-title">
           BAN TỔ CHỨC & HỖ TRỢ
         </h2>

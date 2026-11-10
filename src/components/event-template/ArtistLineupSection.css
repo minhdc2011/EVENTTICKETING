@@ -5,14 +5,28 @@
 
 .et-artist-lineup-section {
   position: relative;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.085);
-  padding-top: clamp(2.5rem, 5vw, 3.5rem);
-  padding-bottom: clamp(3rem, 6vw, 4rem);
+  min-width: 0;
+}
+
+.et-artist-card-name {
+  margin: 0;
+  color: #0f172a;
+  font-family: var(--font-display, var(--font-sans));
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.et-artist-card-role {
+  margin: 2px 0 0;
+  color: #64748b;
+  font-size: 0.75rem;
 }
 
 .et-artist-card {
   position: relative;
-  border-radius: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.3s ease,
@@ -54,7 +68,7 @@
 }
 
 .et-artist-card:hover .et-artist-card-name {
-  color: var(--et-cat-accent, #d8ff3e) !important;
+  color: #0353c2;
 }
 
 /* Compact honest loading and error states */

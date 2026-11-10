@@ -318,7 +318,7 @@ test('EventCatalog.tsx integrates ArtistFilter and handles three-way filtering a
     'EventCatalog.tsx must render ArtistFilter with artists, value, and onChange props',
   );
   assert.ok(
-    tsx.indexOf('<ArtistFilter') < tsx.indexOf('<div className="marketplace-heading">'),
+    tsx.indexOf('<ArtistFilter') < tsx.indexOf('<div id="catalog-heading" className="marketplace-heading">'),
     'Artist discovery must appear before the primary experience catalog heading',
   );
   assert.match(
