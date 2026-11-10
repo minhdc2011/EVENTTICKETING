@@ -232,12 +232,7 @@ export function EventTemplate({
       <div className="et-stage-ambient" aria-hidden="true" />
       {slots?.ambient}
 
-      <EventHeader
-        event={event}
-        saleOpen={saleStatus === 'ON_SALE'}
-        onOpenSchedule={handleOpenSchedule}
-        hasSchedule={hasSchedule}
-      />
+      <EventHeader event={event} />
 
       <EventHero
         event={event}
