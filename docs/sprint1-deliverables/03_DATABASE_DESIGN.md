@@ -244,7 +244,7 @@ Các quan hệ cha - con phân cấp tự nhiên trong chuỗi cung ứng vé s�
 | `PHIEN_BAN_SO_DO` | `SUAT_DIEN` | `0..1 : 0..N` | `SUAT_DIEN.PhienBanSoDoID` | Một phiên bản sơ đồ được áp dụng cho một hoặc nhiều suất diễn. |
 | `SU_KIEN` | `SUAT_DIEN` | `1 : 1..N` | `SUAT_DIEN.SuKienID` | Một sự kiện có ít nhất một hoặc nhiều suất diễn (Multi-show, `Unique(SuKienID, Slug)`). |
 | `SUAT_DIEN` | `KHU_VUC` | `1 : 1..N` | `KHU_VUC.SuatDienID` | **Cha chính**: Mỗi suất diễn chia thành nhiều phân khu / hạng vé (`Unique(SuatDienID, MaKhuVuc)`). |
-| `KHU_VUC` | `GHE` | `1 : 0..N` | `GHE.KhuVucID` | Mỗi phân khu ghế ngồi chứa nhiều vị trí ghế vật lý cụ thể (`Unique(KhuVucID, MaGheDayDu)`). |
+| `KHU_VUC` | `GHE` | `1 : 0..N` | `GHE.KhuVucID` | Mỗi phân khu ghế ngồi chứa nhiều vị trí ghế vật lý cụ thể (`Unique(KhuVucID, MaGheDayDu)`). Từ migration `20261111090000`, `GHE` do RPC `dong_bo_ghe_su_kien` sinh/trim; vai trò `authenticated` không còn quyền INSERT/UPDATE/DELETE trực tiếp, chỉ đọc (RLS `Members read show seats`) và thay đổi `TrangThai` qua RPC giữ chỗ. |
 | `SUAT_DIEN` | `GIU_CHO` | `1 : 0..N` | `GIU_CHO.SuatDienID` | **Cha chính**: Các giao dịch giữ chỗ phát sinh trên từng suất diễn cụ thể. |
 | `GIU_CHO` | `CHI_TIET_GIU_CHO` | `1 : 1..N` | `CHI_TIET_GIU_CHO.GiuChoID` | Một phiên giữ chỗ chứa từ 1 đến 4 vé/ghế (`CASCADE` khi xóa phiên giữ chỗ). |
 | `KHU_VUC` | `CHI_TIET_GIU_CHO` | `1 : 0..N` | `CHI_TIET_GIU_CHO.KhuVucID` | Mỗi dòng chi tiết giữ chỗ trỏ về phân khu/hạng vé tương ứng. |

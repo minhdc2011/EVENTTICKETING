@@ -38,8 +38,9 @@ Bảng `DIA_DIEM` chưa được UC nào ghi trực tiếp trong V1 (địa đi�
 |---|---|---|---|---|
 | **FR-T1-01** | Route event/show; `SU_KIEN 1:N SUAT_DIEN` | `App.tsx`, `publicRoute`, `EventCatalog` | `tests/product-foundation.test.mjs` | **Pass** |
 | **FR-T1-02** (hạng vé, giá) | `KHU_VUC` theo suất diễn (Cha chính `SuatDienID`) | `eventService`, `TicketTiersSection` | `tests/event-template.test.mjs` | **Pass** |
+| **FR-T1-02** (AC-02.4, khu hết ghế trên sơ đồ tổng quát) | `GHE.TrangThai` theo `KhuVucID` | `summarizeZoneAvailability` (`seatMap.js`), `StadiumOverview` | `tests/zone-availability.test.mjs` (hành vi) + kiểm tra trình duyệt 11/11/2026 (TC-T1-09) | **Pass** (khu hết ghế bị làm mờ, viền đứt, nhãn chữ "× HẾT VÉ"; vẫn mở được để xem) |
 | **FR-T1-02** (realtime, UC-T1-05) | `GHE`, Realtime WebSocket subscription | `seatRealtimeService`, `seatRealtime` domain | `tests/seat-realtime.test.mjs` | **Pass** |
-| **FR-T1-04** | Zoom/pan, lọc khu, tìm ghế, tooltip trên dữ liệu `KHU_VUC`, `GHE` đã tải | `SeatMapSection`, `ZoneSeatGrid`, `SeatButton`, `filterSeatsByQuery` | `tests/seat-map.test.mjs` + `tests/event-template.test.mjs` | **Một phần**: test tự động đạt; chạy tay 10/11/2026: tooltip, lọc khu đạt; TC-T1-12 đạt một phần (chưa cuộn chuột/kéo); TC-T1-15 không đạt (xem WBS Sprint 2: 6.7, 6.8) |
+| **FR-T1-04** | Zoom/pan, lọc khu, tìm ghế, tooltip trên dữ liệu `KHU_VUC`, `GHE` đã tải | `SeatMapSection`, `MapPanZoom`, `ZoneSeatGrid`, `SeatButton`; logic thuần `seatSearch.js`, `panZoom.js` | `tests/seat-search.test.mjs`, `tests/pan-zoom.test.mjs` (hành vi) + `tests/seat-map.test.mjs` + kiểm tra trình duyệt 11/11/2026 | **Pass** theo kiểm tra trình duyệt tự động (TC-T1-12: nút ±, Ctrl+cuộn, kéo, pinch, phím; TC-T1-15: mã sai báo "Không tìm thấy ghế", mã đúng làm nổi bật và đưa ghế vào khung nhìn). Cần chạy tay lại Test Log để xác nhận chính thức |
 | **FR-T3-01** *(Sprint 3, lát cắt kỹ thuật)* | `GIU_CHO`, `CHI_TIET_GIU_CHO`, RPC transaction 5 phút | `bookingService`, `tao_giu_cho_theo_suat` | `tests/database-relationships.test.mjs` | **Pass** |
 | **FR-T1-01** (timeline) | Lịch trình sự kiện gộp trong `SU_KIEN.MoTaChiTiet` | `SU_KIEN.MoTaChiTiet`, `parseTimelineFromDescription`, `ScheduleDialog` | `tests/database-relationships.test.mjs` + `tests/public-schedule.test.mjs` | **Pass** |
 | **FR-T1-03.1** | Ranh giới tài khoản `USER` và `ORGANIZER` | `BuyerAuth`, `OrganizerAuthView`, `HO_SO_NGUOI_DUNG` | `tests/account-boundary.test.mjs` | **Pass** |
@@ -48,9 +49,9 @@ Bảng `DIA_DIEM` chưa được UC nào ghi trực tiếp trong V1 (địa đi�
 | **FR-T1-03.4** | Preview bản nháp dùng chung `EventTemplate` | Trang sự kiện với `?preview=1` (`loadEventForPreview`) + `EventHeader` banner | `tests/event-template.test.mjs` | **Pass** |
 | **FR-T1-03.5** | Kiểm tra điều kiện & Công bố `cong_bo_su_kien` | `evaluatePublishReadiness` + RPC `cong_bo_su_kien` | `tests/organizer-uat.test.mjs` | **Pass** |
 | **FR-T1-03.6** | Mọi event dùng chung 1 template; đặc thù cắm Extension | `GenericEventPage`, `EventTemplate` | Architecture invariant tests | **Pass** |
-| **NFR-09** (bảo mật) | RLS 14/14 bảng, RPC `SECURITY DEFINER` an toàn; ghi `CAU_HINH_SU_KIEN` chỉ cho vai trò biên tập | Migrations `20261027120000`, `20261028100000`, `20261103090000` | System catalog live audit + tests | **Pass live** (migration `20261103090000` đã chạy 03/11/2026, xác nhận qua `08_SUPABASE_SCHEMA_EXPORT.md`) |
-| **NFR-02** | Row lock `FOR UPDATE` + hết hạn 5 phút | RPC `tao_giu_cho_theo_suat`, pg_cron | Unit checks + static review | **Pass** |
-| **NFR-07** | Accessibility (WCAG) & Responsive contracts | `event-template.css`, `index.css` | Invariant CSS tests | **Pass** |
+| **NFR-09** (bảo mật) | RLS 14/14 bảng, RPC `SECURITY DEFINER` an toàn; ghi `CAU_HINH_SU_KIEN` chỉ cho vai trò biên tập; **ghế (`GHE`) chỉ ghi qua RPC** | Migrations `20261027120000`, `20261028100000`, `20261103090000`; **`20261111090000_server_side_seat_generation.sql` (mới)** | System catalog live audit + tests; `supabase/tests/server_side_seat_generation.sql` (27 kiểm tra) | **Pass live** cho các migration đến `20261103090000`. Migration `20261111090000` đã viết nhưng **chưa áp dụng lên Supabase live và test pgTAP chưa được chạy** (chưa có Supabase local) |
+| **NFR-02** | Row lock `FOR UPDATE` + hết hạn 5 phút | RPC `tao_giu_cho_theo_suat`, pg_cron | Static review; `scripts/nfr/hold-contention.mjs` (20 phiên cùng giữ 1 ghế) đã viết | **Chưa đo**: thiết kế đúng theo đọc mã, chưa có kết quả chạy thật vì cần Supabase staging/local (xem `docs/NFR_MEASUREMENTS.md`) |
+| **NFR-07** | Accessibility (WCAG) & Responsive contracts | `event-template.css`, `index.css`, `MapPanZoom`, `colorContrast.js` | Lighthouse 11/11/2026 (4 trang × mobile/desktop): Accessibility 100 ở cả 8 lượt; luồng bàn phím 16/16 bước đạt; `tests/color-contrast.test.mjs` | **Pass** (số đo trong `docs/NFR_MEASUREMENTS.md`) |
 
 ---
 
@@ -62,7 +63,7 @@ npm run check
 ```
 
 - **TypeScript Type-check (`tsc --noEmit`)**: **Pass**, 0 lỗi.
-- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **263/263 tests PASS (0 fail, 0 skipped)** (chạy lại 10/11/2026 trên `main` tại commit `0a73837`; mốc 03/11/2026 là 146/146, các test tăng thêm đến từ các thay đổi giao diện/sơ đồ ghế sau mốc đó).
+- **Automated Test Suite (`node --test tests/*.test.mjs`)**: **293/293 tests PASS (0 fail, 0 skipped)** (chạy 11/11/2026 trên nhánh `docs/sprint1-closure-update`, chưa merge `main`; mốc 10/11/2026 trên `main` là 263/263, mốc 03/11/2026 là 146/146; 30 test tăng thêm là test hành vi cho tìm ghế, zoom/pan, khu hết ghế, tương phản màu và quy tắc sinh ghế). `npm audit`: 0 lỗ hổng.
 - **Production Build (`vite build`)**: **Pass**, đóng gói thành công ra thư mục `dist/`.
 - **Cơ sở dữ liệu Supabase Live (`qxkgkbayxxaakkwtepss`)**:
   - Đầy đủ **14 bảng `public`** đã bật RLS, xác nhận qua REST API probe.
@@ -93,4 +94,4 @@ npm run check
 - [x] Class Diagram trích xuất từ repo với 14 lớp Entity tương ứng 1–1 với 14 bảng ERD kết hợp các lớp Service.
 - [x] 4 Sequence Diagram cho Sprint 1 (SD-01..04) và 2 Sequence Diagram cho nền tảng Sprint 3 (SD-05, SD-06).
 - [x] Ma trận liên kết (UC → FR → ERD → Class thiết kế/phân tích → Sequence) dùng mã UC thống nhất với tài liệu đặc tả.
-- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 263/263 tests pass (chạy lại 10/11/2026).
+- [x] Kiểm tra thực tế trên Supabase Live xác nhận đủ 14 bảng và kiểm thử tự động đạt 293/293 tests pass (chạy lại 11/11/2026 trên nhánh tích hợp, chưa merge `main`).
