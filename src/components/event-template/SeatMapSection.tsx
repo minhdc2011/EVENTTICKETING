@@ -40,6 +40,7 @@ import {SelectionSummary} from './SelectionSummary';
 import {StandingTicketPicker} from './StandingTicketPicker';
 import {HoldConfirmationDialog} from './HoldConfirmationDialog';
 import {OfficialSeatingMap} from './OfficialSeatingMap';
+import {MapPanZoom, usePanZoom} from './MapPanZoom';
 import './SeatMapSection.css';
 
 export interface SeatMapSectionProps {
@@ -57,7 +58,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [zoom, setZoom] = useState<number>(1);
+  const panZoom = usePanZoom();
+  const {zoomIn: handleZoomIn, zoomOut: handleZoomOut, reset: handleZoomReset} = panZoom;
+  const zoom = panZoom.view.zoom;
   const [selectedSeats, setSelectedSeats] = useState<SeatRecord[]>([]);
   const [heldSeatsSnapshot, setHeldSeatsSnapshot] = useState<SeatRecord[]>([]);
   const [inspectedSeat, setInspectedSeat] = useState<SeatRecord | null>(null);
@@ -148,7 +151,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       setSelectedZoneId(null);
       setFilter('all');
       setSearchQuery('');
-      setZoom(1);
+      handleZoomReset();
       setViewMode(event?.seatingMapUrl ? 'official' : 'interactive');
     }
   }, [currentScopeKey, event?.seatingMapUrl]);
@@ -320,13 +323,11 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       setSelectedZoneId(null);
       if (event?.seatingMapUrl) setViewMode('official');
     }
-    setZoom(1);
   }, [event?.seatingMapUrl]);
 
   const handleOfficialZoneSelect = useCallback((zone: ZoneRecord) => {
     setViewMode('interactive');
     setFilter(String(zone.KhuVucID));
-    setZoom(1);
     setAnnouncement(`Đã mở khu ${zone.TenKhuVuc || zone.MaKhuVuc}.`);
 
     if (isStandingZone(zone)) {
@@ -343,18 +344,10 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     setSelectedZoneId(zone.KhuVucID);
   }, []);
 
-  // Zoom handlers
-  const handleZoomIn = useCallback(() => {
-    setZoom((z) => Math.min(1.4, +(z + 0.15).toFixed(2)));
-  }, []);
-
-  const handleZoomOut = useCallback(() => {
-    setZoom((z) => Math.max(0.8, +(z - 0.15).toFixed(2)));
-  }, []);
-
-  const handleZoomReset = useCallback(() => {
-    setZoom(1);
-  }, []);
+  // Camera reset whenever the visible map changes (zone drill-down, official/interactive switch)
+  useEffect(() => {
+    handleZoomReset();
+  }, [selectedZoneId, viewMode, currentScopeKey, handleZoomReset]);
 
   // Seat toggle handler
   const handleToggleSeat = useCallback(
@@ -657,6 +650,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 
             {/* Map Viewport / State Panel */}
             <div className="et-map-viewport" id="map" data-od-id="interactive-map">
+              <MapPanZoom controller={panZoom} label="Sơ đồ chỗ ngồi. Giữ Ctrl và cuộn để thu phóng, kéo để di chuyển, hoặc dùng phím + − 0 và các mũi tên.">
               {viewMode === 'official' && event?.seatingMapUrl ? (
                 <OfficialSeatingMap
                   src={event.seatingMapUrl}
@@ -718,15 +712,14 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                   saleOpen={saleOpen}
                   isPending={isPending}
                   hasActiveHold={Boolean(activeHold)}
-                  zoom={zoom}
                   inspectedSeat={inspectedSeat}
                   onInspectSeat={setInspectedSeat}
                   onToggleSeat={handleToggleSeat}
+                  onRevealSeat={panZoom.reveal}
                   backLabel={event?.seatingMapUrl ? 'Sơ đồ khán đài BTC' : 'Tổng quan sân vận động'}
                   onBackToOverview={() => {
                     setSelectedZoneId(null);
                     setFilter('all');
-                    setZoom(1);
                     if (event?.seatingMapUrl) setViewMode('official');
                   }}
                 />
@@ -735,13 +728,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                   zones={catalog?.zones || []}
                   seats={catalog?.seats || []}
                   activeFilter={filter}
-                  zoom={zoom}
                   onSelectZone={(zoneId) => {
                     setSelectedZoneId(zoneId);
-                    setZoom(1);
                   }}
                 />
               )}
+              </MapPanZoom>
             </div>
 
             {viewMode === 'interactive' && (
@@ -765,7 +757,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                       ? 'Nhấn ghế để chọn / bỏ chọn'
                     : 'Nhấn vào phân khu để khám phá'}
               </span>
-              {viewMode === 'interactive' && <span id="zoom-label">{Math.round(zoom * 100)}%</span>}
+              <span id="zoom-label" aria-live="polite">Thu phóng {Math.round(zoom * 100)}%</span>
             </div>
 
             {/* Visible Status Legend */}

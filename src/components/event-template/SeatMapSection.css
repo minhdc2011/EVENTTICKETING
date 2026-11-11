@@ -1265,3 +1265,36 @@
 @media (prefers-reduced-motion: reduce) {
   .et-seat[data-search-hit='true'] { animation: none; }
 }
+
+/* Pan / zoom surface: Ctrl+wheel, drag, pinch, keyboard. Layout size never changes with zoom. */
+.et-pz {
+  position: relative;
+  width: 100%;
+  min-height: 408px;
+  overflow: clip;
+  touch-action: pan-y;
+  cursor: default;
+  border-radius: 8px;
+}
+
+.et-pz[data-zoomed='true'] { touch-action: none; cursor: grab; }
+.et-pz[data-dragging='true'] { cursor: grabbing; user-select: none; }
+.et-pz[data-dragging='true'] * { pointer-events: none; }
+
+.et-pz:focus-visible { outline: 3px solid var(--et-focus, #0353c2); outline-offset: 2px; }
+
+.et-pz__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 100%;
+  min-height: 408px;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .et-pz__content { transition: transform 120ms ease-out; }
+  .et-pz[data-dragging='true'] .et-pz__content { transition: none; }
+}

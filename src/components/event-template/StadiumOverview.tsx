@@ -6,7 +6,6 @@ export interface StadiumOverviewProps {
   zones: ZoneRecord[];
   seats: SeatRecord[];
   activeFilter: string;
-  zoom: number;
   onSelectZone: (zoneId: number) => void;
 }
 
@@ -14,7 +13,6 @@ export function StadiumOverview({
   zones,
   seats,
   activeFilter,
-  zoom,
   onSelectZone,
 }: StadiumOverviewProps) {
   const layouts = computeZoneLayouts(zones, 380, 65);
@@ -36,11 +34,7 @@ export function StadiumOverview({
       viewBox="0 0 760 440"
       role="group"
       aria-label="Sơ đồ tổng quan sân vận động"
-      style={{
-        transform: `scale(${zoom})`,
-        width: `${Math.round(zoom * 100)}%`,
-        maxWidth: `${Math.round(760 * zoom)}px`,
-      }}
+      style={{width: '100%', maxWidth: '760px'}}
     >
       <defs>
         <pattern id="et-stadium-grid" width="20" height="20" patternUnits="userSpaceOnUse">
