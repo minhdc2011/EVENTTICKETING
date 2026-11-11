@@ -1,7 +1,6 @@
 import {runtimeConfig} from '../config/runtime';
 import {deduplicateSlug} from '../domain/publicRoute';
 import {embedTimelineInDescription, stripTimelineFromDescription} from '../domain/eventTimeline.js';
-import {generateSeatRows} from '../domain/seatGeneration.js';
 import {
   ACCOUNT_PORTALS,
   authorizePortalSignIn,
@@ -546,46 +545,11 @@ export async function saveFullEventDraft(
   if (error) throw mapDatabaseError(error);
   const data = rpcData as {eventId: number | string; slug: string; status?: string};
   const savedEventId = Number(data.eventId);
-  const seatWarning = await ensureSeatsForSeatedTiers(supabase, savedEventId);
   return {
     eventId: savedEventId,
     slug: String(data.slug),
     status: String(data.status || 'BAN_NHAP'),
-    ...(seatWarning ? {warning: seatWarning} : {}),
   };
-}
-
-/**
- * The save RPC creates seated zones (GHE_NGOI) without any GHE rows, and the hold RPC needs a free GHE row.
- * After saving, create the missing seats of every seated zone (editors may write GHE under RLS).
- * Never fails the save: returns a warning message instead.
- */
-async function ensureSeatsForSeatedTiers(supabase: any, eventId: number): Promise<string | null> {
-  try {
-    const {data: zones, error} = await supabase
-      .from('KHU_VUC')
-      .select('KhuVucID, MaKhuVuc, TongSoGhe')
-      .eq('SuKienID', eventId)
-      .eq('LoaiKhuVuc', 'GHE_NGOI');
-    if (error) throw error;
-    for (const zone of zones ?? []) {
-      const {count, error: countError} = await supabase
-        .from('GHE')
-        .select('GheID', {count: 'exact', head: true})
-        .eq('KhuVucID', zone.KhuVucID);
-      if (countError) throw countError;
-      const missing = generateSeatRows(String(zone.MaKhuVuc), Number(zone.TongSoGhe || 0), Number(count || 0));
-      for (let i = 0; i < missing.length; i += 500) {
-        const chunk = missing.slice(i, i + 500).map((seat) => ({...seat, KhuVucID: zone.KhuVucID}));
-        const {error: insertError} = await supabase.from('GHE').insert(chunk);
-        if (insertError) throw insertError;
-      }
-    }
-    return null;
-  } catch (err) {
-    console.warn('Không tạo được ghế cho hạng vé có chỗ ngồi:', err);
-    return 'Đã lưu sự kiện nhưng chưa tạo được ghế cho hạng vé có chỗ ngồi. Hãy lưu lại để thử tạo lần nữa.';
-  }
 }
 
 export async function loadEventForEditing(eventId: number): Promise<FullEventAggregateInput> {
