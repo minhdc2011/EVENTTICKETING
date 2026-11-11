@@ -98,7 +98,7 @@ export function MobileStickyBar({
             disabled={isCtaDisabled}
             onClick={handleCtaClick}
             className="et-mobile-cta-btn"
-            aria-label={ctaAriaLabel}
+            title={ctaAriaLabel}
           >
             {isConcert && isSaleOpen && (
               <span

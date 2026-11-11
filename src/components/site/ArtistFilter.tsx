@@ -108,7 +108,7 @@ export function ArtistFilter({artists, value, onChange, disabled = false}: Artis
       <div
         ref={trackRef}
         className={`et-artist-filter__track${expanded ? ' is-expanded' : ''}`}
-        role="list"
+        role="group"
         aria-label="Danh sách nghệ sĩ"
         onScroll={updateScrollState}
       >

@@ -171,7 +171,7 @@ test('ArtistFilter.tsx markup and accessibility standards', async () => {
   );
   assert.match(
     tsx,
-    /et-artist-filter__track[\s\S]*?role="list"/,
+    /et-artist-filter__track[\s\S]*?role="group"/,
     'ArtistFilter must render a horizontally discoverable artist list',
   );
   assert.match(

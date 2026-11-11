@@ -796,7 +796,7 @@
 
 .et-section-desc {
   margin: 0;
-  color: #64748b;
+  color: #4f5d70;
   font-size: 14px;
   line-height: 1.6;
 }
@@ -886,7 +886,7 @@
 
 .et-tier-avail-badge--soldout {
   background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
+  color: #b91c1c;
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
@@ -1154,7 +1154,7 @@
   padding: 0 20px;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #dc2626;
+  color: #b91c1c;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 700;
@@ -1165,7 +1165,7 @@
 .et-trailer-link-btn:hover {
   background: rgba(239, 68, 68, 0.18);
   border-color: #ef4444;
-  color: #b91c1c;
+  color: #991b1b;
 }
 
 /* Venue & Instructions */
