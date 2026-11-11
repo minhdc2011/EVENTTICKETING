@@ -22,8 +22,6 @@ import {deriveSaleStatus} from '../../domain/eventStatus';
 import {dispatchToast} from '../../domain/runtimeOverlays.js';
 import {
   groupSeatsByZoneAndRow,
-  filterSeatsByQuery,
-  findZoneForSeatQuery,
   evaluateSeatSelection,
   toggleSeatSelection,
   reconcileSeatUpdate,
@@ -37,6 +35,7 @@ import {
 import {MapToolbar} from './MapToolbar';
 import {StadiumOverview} from './StadiumOverview';
 import {ZoneSeatGrid} from './ZoneSeatGrid';
+import {resolveSeatSearch} from '../../domain/seatSearch.js';
 import {SelectionSummary} from './SelectionSummary';
 import {StandingTicketPicker} from './StandingTicketPicker';
 import {HoldConfirmationDialog} from './HoldConfirmationDialog';
@@ -288,15 +287,21 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   }, [selectedZoneId, standingZones]);
   const activeDisplayZone = activeZoneGroup?.zone || activeStandingZone;
 
-  // Search input change handler
+  // Search result is derived from the catalog so every display mode reacts to it.
+  const seatSearch = useMemo(
+    () => resolveSeatSearch(catalog?.seats, searchQuery),
+    [catalog?.seats, searchQuery],
+  );
+
+  // Search input change handler: a matching seat opens its zone in any display mode.
   const handleSearchChange = useCallback(
     (query: string) => {
       setSearchQuery(query);
-      if (query.trim() && catalog?.seats) {
-        const matchingZoneId = findZoneForSeatQuery(catalog.seats, query);
-        if (matchingZoneId != null) {
-          setSelectedZoneId(matchingZoneId);
-        }
+      const result = resolveSeatSearch(catalog?.seats, query);
+      if (result.status === 'found' && result.zoneId != null) {
+        setViewMode('interactive');
+        setFilter(String(result.zoneId));
+        setSelectedZoneId(result.zoneId);
       }
     },
     [catalog]
@@ -535,13 +540,6 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     }
   }, [activeHold, isReleasePending]);
 
-  // Search filtered seats
-  const isSearchEmpty = useMemo(() => {
-    if (!searchQuery.trim() || !catalog?.seats) return false;
-    const matches = filterSeatsByQuery(catalog.seats, searchQuery);
-    return matches.length === 0;
-  }, [catalog?.seats, searchQuery]);
-
   return (
     <section
       id="seating-section"
@@ -643,6 +641,20 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               </span>
             </div>
 
+            {seatSearch.status === 'not-found' && (
+              <div className="et-seat-search-notice" role="status" data-od-id="seat-search-empty">
+                <div>
+                  <strong>Không tìm thấy ghế</strong>
+                  <span>
+                    Không có ghế nào khớp với mã "{seatSearch.query}". Thử mã như A-01 hoặc xóa tìm kiếm.
+                  </span>
+                </div>
+                <button type="button" className="et-secondary-btn" onClick={() => setSearchQuery('')}>
+                  Xóa tìm kiếm
+                </button>
+              </div>
+            )}
+
             {/* Map Viewport / State Panel */}
             <div className="et-map-viewport" id="map" data-od-id="interactive-map">
               {viewMode === 'official' && event?.seatingMapUrl ? (
@@ -677,18 +689,6 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                   <h3>Chưa có ghế mở bán</h3>
                   <p>Sơ đồ hiện chưa có ghế khả dụng. Vui lòng quay lại khi Ban tổ chức mở bán.</p>
                 </div>
-              ) : isSearchEmpty ? (
-                <div className="et-state-panel" role="status">
-                  <h3>Không tìm thấy ghế</h3>
-                  <p>Không có ghế nào khớp với mã "{searchQuery}". Thử mã như A-01 hoặc xóa tìm kiếm.</p>
-                  <button
-                    type="button"
-                    className="et-secondary-btn"
-                    onClick={() => setSearchQuery('')}
-                  >
-                    Xóa tìm kiếm
-                  </button>
-                </div>
               ) : activeStandingZone ? (
                 <div className="et-standing-zone-detail" data-sector-code={activeStandingZone.MaKhuVuc}>
                   <button
@@ -714,6 +714,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                   rows={activeZoneGroup.rows}
                   selectedSeats={selectedSeats}
                   searchQuery={searchQuery}
+                  focusSeatCode={seatSearch.status === 'found' ? seatSearch.seatCode : null}
                   saleOpen={saleOpen}
                   isPending={isPending}
                   hasActiveHold={Boolean(activeHold)}

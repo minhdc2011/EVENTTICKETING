@@ -14,6 +14,8 @@ export interface ZoneSeatGridProps {
   rows: ZoneRowGroup[];
   selectedSeats: SeatRecord[];
   searchQuery: string;
+  /** Exact seat code from a seat search: highlighted and scrolled into view. */
+  focusSeatCode?: string | null;
   saleOpen: boolean;
   isPending: boolean;
   hasActiveHold: boolean;
@@ -47,6 +49,7 @@ export function ZoneSeatGrid({
   rows,
   selectedSeats,
   searchQuery,
+  focusSeatCode = null,
   saleOpen,
   isPending,
   hasActiveHold,
@@ -63,6 +66,16 @@ export function ZoneSeatGrid({
   useEffect(() => {
     backButtonRef.current?.focus();
   }, [zone.KhuVucID]);
+
+  // Bring the searched seat into view (declared after the focus effect so it wins)
+  useEffect(() => {
+    if (!focusSeatCode) return;
+    const target = Array.from(
+      document.querySelectorAll<HTMLElement>('.et-seat-rows [data-code]'),
+    ).find((el) => el.dataset.code === focusSeatCode);
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    target?.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'center', inline: 'center'});
+  }, [focusSeatCode, zone.KhuVucID]);
 
   const zoneName = zone.TenKhuVuc || zone.MaKhuVuc;
   const geometry = getSectorGeometry(zone.MaKhuVuc);
@@ -136,6 +149,7 @@ export function ZoneSeatGrid({
                     isSelected={isSelected}
                     isSelectable={isSelectable}
                     isSearchMatch={isSearchMatch}
+                    isSearchHit={focusSeatCode != null && seat.MaGheDayDu === focusSeatCode}
                     onInspect={onInspectSeat}
                     onToggle={onToggleSeat}
                   />

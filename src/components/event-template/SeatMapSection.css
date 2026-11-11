@@ -1231,3 +1231,37 @@
     transition: none !important;
   }
 }
+
+/* Seat search: highlighted hit (outline + glyph size, not colour only) and empty notice */
+.et-seat[data-search-hit='true'] {
+  outline: 3px solid var(--et-focus, #0353c2);
+  outline-offset: 3px;
+  position: relative;
+  z-index: 1;
+  animation: et-seat-hit 1.2s ease-in-out 2;
+}
+
+@keyframes et-seat-hit {
+  50% { transform: scale(1.25); }
+}
+
+.et-seat-search-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #b45309;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #1f262d;
+  font-size: 14px;
+}
+
+.et-seat-search-notice > div { display: grid; gap: 2px; min-width: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .et-seat[data-search-hit='true'] { animation: none; }
+}
