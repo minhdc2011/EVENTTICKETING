@@ -1,6 +1,6 @@
 import type {KeyboardEvent} from 'react';
 import type {ZoneRecord, SeatRecord} from '../../types/ticketing';
-import {computeZoneLayouts, formatMoneyVND} from '../../domain/seatMap.js';
+import {computeZoneLayouts, formatMoneyVND, summarizeZoneAvailability} from '../../domain/seatMap.js';
 
 export interface StadiumOverviewProps {
   zones: ZoneRecord[];
@@ -16,10 +16,6 @@ export function StadiumOverview({
   onSelectZone,
 }: StadiumOverviewProps) {
   const layouts = computeZoneLayouts(zones, 380, 65);
-
-  const getAvailableCount = (zoneId: number) => {
-    return seats.filter((s) => s.KhuVucID === zoneId && s.TrangThai === 'TRONG').length;
-  };
 
   const handleZoneKeyDown = (e: KeyboardEvent<SVGGElement>, zoneId: number) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -101,7 +97,7 @@ export function StadiumOverview({
       {/* Dynamic Zone Sectors derived from zone catalog */}
       {layouts.map(({zone, svgPath, center}) => {
         const zoneId = zone.KhuVucID;
-        const available = getAvailableCount(zoneId);
+        const {available, soldOut} = summarizeZoneAvailability(zone, seats);
         const isDimmed = activeFilter !== 'all' && activeFilter !== String(zoneId);
         const zoneName = zone.TenKhuVuc || zone.MaKhuVuc;
         const priceLabel = formatMoneyVND(zone.GiaVeNiemYet);
@@ -109,12 +105,17 @@ export function StadiumOverview({
         return (
           <g
             key={zoneId}
-            className={`et-zone-item ${isDimmed ? 'dimmed' : ''}`}
+            className={`et-zone-item${isDimmed ? ' dimmed' : ''}${soldOut ? ' is-sold-out' : ''}`}
+            data-sold-out={soldOut ? 'true' : undefined}
             role="button"
             tabIndex={isDimmed ? -1 : 0}
             data-zone={String(zoneId)}
             data-od-id={`zone-${zone.MaKhuVuc ? zone.MaKhuVuc.toLowerCase() : zoneId}`}
-            aria-label={`Khu ${zoneName}, ${available} ghế trống, ${priceLabel} một vé`}
+            aria-label={
+              soldOut
+                ? `Khu ${zoneName}, hết vé, ${priceLabel} một vé. Bấm để xem phân khu.`
+                : `Khu ${zoneName}, ${available} ghế trống, ${priceLabel} một vé`
+            }
             onClick={() => onSelectZone(zoneId)}
             onKeyDown={(e) => handleZoneKeyDown(e, zoneId)}
           >
@@ -146,6 +147,14 @@ export function StadiumOverview({
             >
               {priceLabel}
             </text>
+            {soldOut && (
+              <g className="et-zone-soldout-tag" pointerEvents="none" aria-hidden="true">
+                <rect x={center[0] - 29} y={center[1] + 21} width="58" height="17" rx="8.5" />
+                <text x={center[0]} y={center[1] + 33} textAnchor="middle" fontSize="10" fontWeight="800">
+                  × HẾT VÉ
+                </text>
+              </g>
+            )}
           </g>
         );
       })}

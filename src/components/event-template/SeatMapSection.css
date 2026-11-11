@@ -1298,3 +1298,27 @@
   .et-pz__content { transition: transform 120ms ease-out; }
   .et-pz[data-dragging='true'] .et-pz__content { transition: none; }
 }
+
+/* Sold-out zones on the overview: dimmed + hatched outline + "× HẾT VÉ" tag (not colour alone) */
+.et-stadium-svg .et-zone-item.is-sold-out .et-zone-shape {
+  fill-opacity: 0.35;
+  stroke-dasharray: 5 4;
+}
+
+.et-stadium-svg .et-zone-item.is-sold-out > text {
+  opacity: 0.55;
+}
+
+.et-stadium-svg .et-zone-item.is-sold-out .et-zone-shape,
+.et-stadium-svg .et-zone-item.is-sold-out:hover .et-zone-shape {
+  filter: grayscale(1);
+}
+
+.et-stadium-svg .et-zone-soldout-tag rect {
+  fill: var(--seat-fg);
+}
+
+.et-stadium-svg .et-zone-soldout-tag text {
+  fill: var(--seat-bg);
+  letter-spacing: 0.04em;
+}
