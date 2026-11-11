@@ -7,13 +7,13 @@
 | Mã UC | FR | Sprint | Bảng ERD tham gia | Lớp Entity / Service (thiết kế) | Lớp phân tích (đặc tả) | Sequence |
 |---|---|:---:|---|---|---|:---:|
 | **UC-T1-01** | FR-T1-01 | 1 | `SU_KIEN`, `SUAT_DIEN`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `SuatDien`, `NgheSi`, `SuKienNgheSi` • `EventService`, `ScheduleService`, `ArtistService` | `EventDetailPage`, `EventController`, `Event` | SD-01 |
-| **UC-T1-02** | FR-T1-02 | 1 | `SUAT_DIEN`, `KHU_VUC`, `GHE`, `PHIEN_BAN_SO_DO` | `KhuVuc`, `Ghe`, `PhienBanSoDo` • `TicketDataService` | `SeatMapView`, `SeatMapController`, `SeatMap`, `Zone`, `Seat` | SD-02 |
+| **UC-T1-02** | FR-T1-02 | 1 | `SUAT_DIEN`, `KHU_VUC`, `GHE`, `CAU_HINH_SU_KIEN` | `KhuVuc`, `Ghe`, `CauHinhSuKien` • `TicketDataService`, `EventService` | `SeatMapView`, `SeatMapController`, `SeatMap`, `Zone`, `Seat` | SD-02 |
 | **UC-T1-03** | FR-T1-04 | 1 | (dữ liệu đã tải) | — (xử lý giao diện) | `SeatMapView` | — |
 | **UC-T1-04** | FR-T1-04 | 1 | `KHU_VUC`, `GHE` | `KhuVuc`, `Ghe` | `SeatMapView`, `TicketClass` | — |
 | **UC-T1-05** | FR-T1-02 | 1 | `GHE` | `Ghe` • `SeatRealtimeService` | `RealtimeSeatController`, `Seat` | SD-02 |
 | **UC-BTC-01** | FR-T1-03.1 | 1 | `HO_SO_NGUOI_DUNG` *(và `auth.users`)* | `HoSoNguoiDung` • `OrganizerService` | — | SD-03 |
 | **UC-BTC-02** | FR-T1-03.2 | 1 | `TO_CHUC`, `THANH_VIEN_TO_CHUC` | `ToChuc`, `ThanhVienToChuc` • `OrganizerService` | — | SD-03 |
-| **UC-BTC-03** | FR-T1-03.3 | 1 | `SU_KIEN`, `CAU_HINH_SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `CauHinhSuKien`, `SuatDien`, `KhuVuc`, `NgheSi`, `SuKienNgheSi` • `OrganizerService` | `EventEditorPage`, `EventAdminController` | SD-04 |
+| **UC-BTC-03** | FR-T1-03.3 | 1 | `SU_KIEN`, `CAU_HINH_SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `GHE`, `GIU_CHO`, `CHI_TIET_GIU_CHO`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `CauHinhSuKien`, `SuatDien`, `KhuVuc`, `Ghe`, `GiuCho`, `ChiTietGiuCho`, `NgheSi`, `SuKienNgheSi` • `OrganizerService` | `EventEditorPage`, `EventAdminController` | SD-04 |
 | **UC-BTC-04** | FR-T1-03.4 | 1 | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc` • `OrganizerService`, `EventService` | `EventEditorPage`, `EventAdminController` | SD-04 |
 | **UC-BTC-05** | FR-T1-03.5 | 1 | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc` • `OrganizerService` | `EventAdminController` | SD-04 |
 | **UC-T2-01** | FR-T2-01 | 2 | `CAU_HINH_SU_KIEN` (cột `YeuCauXacMinhOTP`), `HO_SO_NGUOI_DUNG` | `CauHinhSuKien`, `HoSoNguoiDung` | — (hoàn thiện cuối kỳ) | SD OTP (Sprint 2) |
