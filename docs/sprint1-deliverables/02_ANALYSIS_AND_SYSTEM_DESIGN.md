@@ -790,12 +790,12 @@ classDiagram
 | `HO_SO_NGUOI_DUNG` | `HoSoNguoiDung` | `BuyerAuthService`, `OrganizerService` | `src/services/buyerAuthService.ts` | Hồ sơ người dùng, phân loại tài khoản `USER` / `ORGANIZER`. |
 | `THANH_VIEN_TO_CHUC` | `ThanhVienToChuc` | `OrganizerService` | `src/services/organizerService.ts` | Phân quyền RBAC đa cấp độ cho thành viên tổ chức. |
 | `SU_KIEN` | `SuKien` | `EventService`, `OrganizerService` | `src/services/eventService.ts` | Quản lý sự kiện, bóc tách timeline qua `parseTimelineFromDescription`. |
-| `CAU_HINH_SU_KIEN` | `CauHinhSuKien` | `OrganizerService` | `src/services/organizerService.ts` | Cấu hình 1–1 (thời gian giữ chỗ, tối đa 4 vé, tùy chọn mở rộng). |
+| `CAU_HINH_SU_KIEN` | `CauHinhSuKien` | `OrganizerService`, `EventService` | `src/services/organizerService.ts`, `src/services/eventService.ts` | Cấu hình 1–1 (thời gian giữ chỗ, tối đa 4 vé, tùy chọn mở rộng). |
 | `DIA_DIEM` | `DiaDiem` | `EventService`, `OrganizerService` | `src/services/eventService.ts` | Danh mục địa điểm, địa chỉ và sức chứa. |
-| `PHIEN_BAN_SO_DO` | `PhienBanSoDo` | `TicketDataService` | `src/services/ticketDataService.ts` | Phiên bản sơ đồ ghế ngồi của địa điểm. |
+| `PHIEN_BAN_SO_DO` | `PhienBanSoDo` | — (V1 chưa có service đọc/ghi) | — | Phiên bản sơ đồ ghế ngồi của địa điểm; bảng có trong CSDL nhưng V1 chưa dùng. |
 | `SUAT_DIEN` | `SuatDien` | `EventService`, `OrganizerService` | `src/domain/eventStatus.js` | Suất diễn, tính toán trạng thái mở bán `deriveSaleStatus`. |
 | `KHU_VUC` | `KhuVuc` | `TicketDataService`, `OrganizerService` | `src/domain/seatMap.js` | Phân khu vé, tính giá tiền, bóc tách quyền lợi `parseTierBenefits`. |
-| `GHE` | `Ghe` | `TicketDataService`, `SeatRealtimeService` | `src/domain/seatMap.js` | Ghế ngồi vật lý, kiểm tra hợp lệ chọn ghế `evaluateSeatSelection`. |
+| `GHE` | `Ghe` | `TicketDataService`, `SeatRealtimeService`, `OrganizerService` | `src/domain/seatMap.js`, `src/domain/seatGeneration.js` | Ghế ngồi vật lý, kiểm tra hợp lệ chọn ghế `evaluateSeatSelection`; `OrganizerService` sinh ghế còn thiếu cho khu ghế ngồi khi lưu bản nháp (`ensureSeatsForSeatedTiers`). |
 | `GIU_CHO` | `GiuCho` | `BookingService` | `src/services/bookingService.ts` | Header giữ chỗ 5 phút, đếm ngược `calculateRemainingSeconds`. |
 | `CHI_TIET_GIU_CHO` | `ChiTietGiuCho` | `BookingService` | `src/services/bookingService.ts` | Dòng giữ chỗ chi tiết (phân biệt khu đứng và ghế ngồi). |
 | `NGHE_SI` | `NgheSi` | `ArtistService`, `OrganizerService` | `src/domain/artistLineup.js` | Danh mục nghệ sĩ, chuẩn hóa dữ liệu `normalizeArtistRow`. |
@@ -938,10 +938,12 @@ sequenceDiagram
   RPC_SAVE->>DB: Kiểm tra quyền co_quyen_bien_tap_to_chuc(orgId)
   RPC_SAVE->>DB: INSERT / UPDATE SU_KIEN (lưu MoTaChiTiet gộp timeline)
   RPC_SAVE->>DB: INSERT / UPDATE CAU_HINH_SU_KIEN (quan hệ 1-1 SuKienID, TuyChonMoRong)
-  RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC/hạng vé (kèm trigger kiểm tra SuKienID, chưa sinh GHE)
+  RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC/hạng vé (kèm trigger kiểm tra SuKienID)
   RPC_SAVE->>DB: Đồng bộ SU_KIEN_NGHE_SI và master catalog NGHE_SI
   DB-->>RPC_SAVE: Thành công
   RPC_SAVE-->>OS: Trả về eventId, slug, status: 'BAN_NHAP'
+  OS->>DB: ensureSeatsForSeatedTiers: tạo ghế còn thiếu cho khu GHE_NGOI (10 ghế mỗi hàng, trạng thái TRONG)
+  DB-->>OS: Đã tạo ghế (nếu lỗi: bản nháp vẫn được lưu, chỉ trả cảnh báo)
   OS-->>UI: Lưu bản nháp thành công
 
   O->>UI: Nhấn nút "Xem trước (Preview)"
@@ -953,6 +955,7 @@ sequenceDiagram
   UI->>OS: publishEvent(eventId)
   OS->>RPC_PUB: cong_bo_su_kien(eventId)
   RPC_PUB->>DB: Kiểm tra điều kiện (có >=1 suất diễn, >=1 phân khu vé)
+  RPC_PUB->>DB: UPDATE SUAT_DIEN SET TrangThai = 'SAP_MO_BAN' (các suất đang BAN_NHAP)
   RPC_PUB->>DB: UPDATE SU_KIEN SET TrangThaiCongBo = 'CONG_KHAI'
   DB-->>RPC_PUB: Cập nhật thành công
   RPC_PUB-->>OS: Sự kiện đã công bố

@@ -7,13 +7,13 @@
 | Mã UC | FR | Sprint | Bảng ERD tham gia | Lớp Entity / Service (thiết kế) | Lớp phân tích (đặc tả) | Sequence |
 |---|---|:---:|---|---|---|:---:|
 | **UC-T1-01** | FR-T1-01 | 1 | `SU_KIEN`, `SUAT_DIEN`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `SuatDien`, `NgheSi`, `SuKienNgheSi` • `EventService`, `ScheduleService`, `ArtistService` | `EventDetailPage`, `EventController`, `Event` | SD-01 |
-| **UC-T1-02** | FR-T1-02 | 1 | `SUAT_DIEN`, `KHU_VUC`, `GHE`, `PHIEN_BAN_SO_DO` | `KhuVuc`, `Ghe`, `PhienBanSoDo` • `TicketDataService` | `SeatMapView`, `SeatMapController`, `SeatMap`, `Zone`, `Seat` | SD-02 |
+| **UC-T1-02** | FR-T1-02 | 1 | `SUAT_DIEN`, `KHU_VUC`, `GHE`, `CAU_HINH_SU_KIEN` | `KhuVuc`, `Ghe`, `CauHinhSuKien` • `TicketDataService`, `EventService` | `SeatMapView`, `SeatMapController`, `SeatMap`, `Zone`, `Seat` | SD-02 |
 | **UC-T1-03** | FR-T1-04 | 1 | (dữ liệu đã tải) | — (xử lý giao diện) | `SeatMapView` | — |
 | **UC-T1-04** | FR-T1-04 | 1 | `KHU_VUC`, `GHE` | `KhuVuc`, `Ghe` | `SeatMapView`, `TicketClass` | — |
 | **UC-T1-05** | FR-T1-02 | 1 | `GHE` | `Ghe` • `SeatRealtimeService` | `RealtimeSeatController`, `Seat` | SD-02 |
 | **UC-BTC-01** | FR-T1-03.1 | 1 | `HO_SO_NGUOI_DUNG` *(và `auth.users`)* | `HoSoNguoiDung` • `OrganizerService` | — | SD-03 |
 | **UC-BTC-02** | FR-T1-03.2 | 1 | `TO_CHUC`, `THANH_VIEN_TO_CHUC` | `ToChuc`, `ThanhVienToChuc` • `OrganizerService` | — | SD-03 |
-| **UC-BTC-03** | FR-T1-03.3 | 1 | `SU_KIEN`, `CAU_HINH_SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `CauHinhSuKien`, `SuatDien`, `KhuVuc`, `NgheSi`, `SuKienNgheSi` • `OrganizerService` | `EventEditorPage`, `EventAdminController` | SD-04 |
+| **UC-BTC-03** | FR-T1-03.3 | 1 | `SU_KIEN`, `CAU_HINH_SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `GHE`, `GIU_CHO`, `CHI_TIET_GIU_CHO`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `CauHinhSuKien`, `SuatDien`, `KhuVuc`, `Ghe`, `GiuCho`, `ChiTietGiuCho`, `NgheSi`, `SuKienNgheSi` • `OrganizerService` | `EventEditorPage`, `EventAdminController` | SD-04 |
 | **UC-BTC-04** | FR-T1-03.4 | 1 | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc` • `OrganizerService`, `EventService` | `EventEditorPage`, `EventAdminController` | SD-04 |
 | **UC-BTC-05** | FR-T1-03.5 | 1 | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc` • `OrganizerService` | `EventAdminController` | SD-04 |
 | **UC-T2-01** | FR-T2-01 | 2 | `CAU_HINH_SU_KIEN` (cột `YeuCauXacMinhOTP`), `HO_SO_NGUOI_DUNG` | `CauHinhSuKien`, `HoSoNguoiDung` | — (hoàn thiện cuối kỳ) | SD OTP (Sprint 2) |
@@ -39,7 +39,7 @@ Bảng `DIA_DIEM` chưa được UC nào ghi trực tiếp trong V1 (địa đi�
 | **FR-T1-01** | Route event/show; `SU_KIEN 1:N SUAT_DIEN` | `App.tsx`, `publicRoute`, `EventCatalog` | `tests/product-foundation.test.mjs` | **Pass** |
 | **FR-T1-02** (hạng vé, giá) | `KHU_VUC` theo suất diễn (Cha chính `SuatDienID`) | `eventService`, `TicketTiersSection` | `tests/event-template.test.mjs` | **Pass** |
 | **FR-T1-02** (realtime, UC-T1-05) | `GHE`, Realtime WebSocket subscription | `seatRealtimeService`, `seatRealtime` domain | `tests/seat-realtime.test.mjs` | **Pass** |
-| **FR-T1-04** | Zoom/pan, lọc khu, tìm ghế, tooltip trên dữ liệu `KHU_VUC`, `GHE` đã tải | `SeatMapSection`, `ZoneSeatGrid`, `SeatButton`, `filterSeatsByQuery` | `tests/seat-map.test.mjs` + `tests/event-template.test.mjs` | **Pass** |
+| **FR-T1-04** | Zoom/pan, lọc khu, tìm ghế, tooltip trên dữ liệu `KHU_VUC`, `GHE` đã tải | `SeatMapSection`, `ZoneSeatGrid`, `SeatButton`, `filterSeatsByQuery` | `tests/seat-map.test.mjs` + `tests/event-template.test.mjs` | **Một phần**: test tự động đạt; chạy tay 10/11/2026: tooltip, lọc khu đạt; TC-T1-12 đạt một phần (chưa cuộn chuột/kéo); TC-T1-15 không đạt (xem WBS Sprint 2: 6.7, 6.8) |
 | **FR-T3-01** *(Sprint 3, lát cắt kỹ thuật)* | `GIU_CHO`, `CHI_TIET_GIU_CHO`, RPC transaction 5 phút | `bookingService`, `tao_giu_cho_theo_suat` | `tests/database-relationships.test.mjs` | **Pass** |
 | **FR-T1-01** (timeline) | Lịch trình sự kiện gộp trong `SU_KIEN.MoTaChiTiet` | `SU_KIEN.MoTaChiTiet`, `parseTimelineFromDescription`, `ScheduleDialog` | `tests/database-relationships.test.mjs` + `tests/public-schedule.test.mjs` | **Pass** |
 | **FR-T1-03.1** | Ranh giới tài khoản `USER` và `ORGANIZER` | `BuyerAuth`, `OrganizerAuthView`, `HO_SO_NGUOI_DUNG` | `tests/account-boundary.test.mjs` | **Pass** |

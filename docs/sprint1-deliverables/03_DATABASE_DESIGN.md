@@ -211,7 +211,7 @@ erDiagram
 
 ---
 
-> **Phạm vi Sprint.** `GIU_CHO` và `CHI_TIET_GIU_CHO` là nền tảng cho FR-T3-01 (UC-T3-02, Sprint 3) đã được dựng sớm; chúng có trong CSDL nên được vẽ đủ, nhưng không tính vào nghiệm thu Sprint 1. Bảng `GHE` hiện chỉ có dữ liệu mẫu (48 ghế của Super Concert); cổng BTC chưa sinh ghế chi tiết cho sự kiện mới.
+> **Phạm vi Sprint.** `GIU_CHO` và `CHI_TIET_GIU_CHO` là nền tảng cho FR-T3-01 (UC-T3-02, Sprint 3) đã được dựng sớm; chúng có trong CSDL nên được vẽ đủ, nhưng không tính vào nghiệm thu Sprint 1. Bảng `GHE` có dữ liệu mẫu (48 ghế của Super Concert) và các ghế do cổng BTC tự sinh khi lưu bản nháp (hàm `ensureSeatsForSeatedTiers`: mỗi khu `GHE_NGOI` được bổ sung đủ `TongSoGhe` ghế, 10 ghế mỗi hàng, trạng thái `TRONG`; khu `DUNG_STAND` không có bản ghi ghế).
 
 ## 2. Phân loại và chứng minh 3 loại mối quan hệ trong CSDL
 

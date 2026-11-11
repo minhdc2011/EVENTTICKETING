@@ -3,15 +3,15 @@
 Tài liệu này hướng dẫn chi tiết quy trình chạy UAT (User Acceptance Testing) luồng xác thực và quản lý sự kiện của Ban tổ chức trên môi trường Supabase Staging (`qxkgkbayxxaakkwtepss`).
 
 > [!NOTE]
-> **Trạng thái thực thi nghiệm thu (06/10/2026)**:
-> - **Tổng thể**: `CORE ORGANIZER FLOW VERIFIED` (Kịch bản 1: **PASS**; Kịch bản 2: **TẠO BẢN NHÁP PASS / CÁCH LY ẨN DANH TRÌNH DUYỆT PENDING / NOT EXECUTED**; Kịch bản 3: **PASS**; Kịch bản 4: **PENDING CONFIRMATION**).
+> **Trạng thái thực thi nghiệm thu (cập nhật 10/11/2026)**:
+> - **Tổng thể**: `CORE ORGANIZER FLOW VERIFIED` (Kịch bản 1: **PASS**; Kịch bản 2: **PASS 10/11/2026**; Kịch bản 3: **PASS**; Kịch bản 4: **BLOCKED 10/11/2026 — chưa có tài khoản Beta đã xác nhận và được gán đa tổ chức**).
 > - **Phạm vi đã nghiệm thu (PASS)**:
 >   - Kịch bản 1: Đăng ký tài khoản Alpha Owner qua email thật, xác nhận email, đăng nhập Studio, Onboarding tạo tổ chức `UAT Alpha Media` (`uat-alpha-media`) thành công qua RPC `tao_to_chuc_cua_toi`.
 >   - Kịch bản 2 (Tạo bản nháp): Tạo bản nháp `UAT Acoustic Night 2026` (`uat-acoustic-night-2026`) thành công kèm 1 suất diễn và hạng vé tiêu chuẩn (sức chứa 500, giá 250.000 ₫), thẻ sự kiện chuyển sang trạng thái Bản nháp trong Studio.
+>   - Kịch bản 2 (Cách ly ẩn danh, 10/11/2026): Tạo bản nháp mới `UAT Draft Isolation 20261110` (`uat-draft-isolation-20261110`), xác nhận tìm kiếm trên Marketplace trả `0 sự kiện` và truy cập URL trực tiếp hiển thị `404 · Không tìm thấy sự kiện` khi không có phiên đăng nhập.
 >   - Kịch bản 3: Công bố sự kiện thành công; thẻ Studio hiển thị liên kết chính xác `/?route=/events/uat-acoustic-night-2026` (đã khắc phục triệt để lỗi nhân đôi slug); điều hướng SPA sang Generic Event Page hiển thị đầy đủ thông tin, địa điểm, 1 suất diễn, sức chứa 500/500 và hạng vé 250.000 ₫; Marketplace hiển thị cả 2 sự kiện với đường dẫn chuẩn; Super Concert tương thích ngược hoàn toàn.
 > - **Phạm vi đang chờ / Chưa ghi nhận trực tiếp (PENDING / NOT EXECUTED / NOT CAPTURED)**:
->   - Kịch bản 2 (Kiểm tra ẩn danh trên trình duyệt - Bước 4): **PENDING / NOT EXECUTED** — chưa mở cửa sổ ẩn danh để kiểm tra URL bản nháp trước khi bấm công bố (không suy diễn PASS từ kết quả công bố sau đó; cách ly bản nháp ở tầng cơ sở dữ liệu / RLS được ghi nhận riêng qua test pgTAP `product_foundation.sql`).
->   - Kịch bản 4: Danh tính Tài khoản 2 (Beta) đã được tạo trong GoTrue nhưng chưa hoàn tất xác nhận email trong hộp thư thực tế. Do đó, việc kiểm thử trực quan trên trình duyệt cho luồng chuyển đổi tổ chức đa vai trò và vô hiệu hóa nút ghi đối với vai trò `SOAT_VE` đang tạm hoãn chờ xác nhận email. (Lưu ý: kiểm thử bảo mật RLS và multi-tenant tầng cơ sở dữ liệu đã đạt 23/23 test pgTAP trong `supabase/tests/marketplace_organizer_mvp.sql`).
+>   - Kịch bản 4: **BLOCKED 10/11/2026** — tài khoản BTC được cung cấp chỉ có một tổ chức (`UAT Team 20261007`, vai trò Chủ sở hữu); tài khoản còn lại là Người mua vé, không phải Beta Organizer. Chưa có tài khoản Beta đã xác nhận email và chưa có quyền gán người dùng này vào Alpha/Beta với hai vai trò khác nhau, nên không thể kiểm thử trực quan chuyển tổ chức và trạng thái vô hiệu hóa của `SOAT_VE`. (Tầng DB RLS và multi-tenant vẫn đã đạt 23/23 test pgTAP trong `supabase/tests/marketplace_organizer_mvp.sql`.)
 >   - Bằng chứng 7 (F12 Network tab RPC 200/204): **NOT CAPTURED / PENDING** — chưa ghi lại ảnh chụp trực tiếp tab Network trong DevTools; các chuyển đổi trạng thái giao diện thành công và dữ liệu công bố hiển thị trên Marketplace đóng vai trò bằng chứng gián tiếp.
 
 ---
@@ -108,7 +108,7 @@ Tài liệu này hướng dẫn chi tiết quy trình chạy UAT (User Acceptanc
 
 ---
 
-### Kịch bản 2: Tạo bản nháp sự kiện & Xác minh ẩn danh không đọc được (Draft Isolation) — [TẠO BẢN NHÁP PASS; CÁCH LY ẨN DANH TRÌNH DUYỆT PENDING / NOT EXECUTED]
+### Kịch bản 2: Tạo bản nháp sự kiện & Xác minh ẩn danh không đọc được (Draft Isolation) — [PASS 10/11/2026]
 
 1. Tại Dashboard của `UAT Alpha Media`, bấm nút **+ Tạo sự kiện**.
 2. Modal **TẠO NHANH MVP** xuất hiện:
@@ -126,12 +126,11 @@ Tài liệu này hướng dẫn chi tiết quy trình chạy UAT (User Acceptanc
    - Thẻ sự kiện xuất hiện với huy hiệu `Bản nháp`, số suất diễn: `1`.
    - Thống kê cập nhật: `1` Sự kiện, `1` Bản nháp, `0` Đã công bố.
    - Nút **Công bố** hiển thị khả dụng.
-4. **Xác minh ẩn danh (Incognito Window) [PENDING / NOT EXECUTED TRÊN TRÌNH DUYỆT]**:
-   - *(Ghi chú kiểm thử thực tế đợt 06/10/2026: Chưa thực hiện mở cửa sổ ẩn danh để kiểm tra URL bản nháp trước khi bấm công bố; không đánh giá PASS bước này chỉ dựa trên kết quả công bố sau đó. Tính năng cách ly bản nháp ở tầng cơ sở dữ liệu / RLS đã được xác minh độc lập qua kiểm thử pgTAP `supabase/tests/product_foundation.sql`).*
-   - Quy trình kiểm thử khi chạy bổ sung:
-     - Mở một cửa sổ ẩn danh mới (không có phiên đăng nhập).
-     - Truy cập Marketplace: `/?route=/events` -> Kỳ vọng: Sự kiện `UAT Acoustic Night 2026` **hoàn toàn KHÔNG xuất hiện** trên danh sách.
-     - Truy cập trực tiếp URL sự kiện: `/?route=/events/uat-acoustic-night-2026` -> Kỳ vọng: Giao diện hiển thị lỗi không tìm thấy sự kiện (`PublicEventNotFoundError`).
+4. **Xác minh ẩn danh (Incognito Window) [PASS 10/11/2026]**:
+   - Tạo bản nháp riêng cho lần chạy này: `UAT Draft Isolation 20261110` (`uat-draft-isolation-20261110`), không bấm **Công bố**.
+   - Đăng xuất để xóa phiên BTC, truy cập Marketplace `/?route=/events`, tìm chính xác tên bản nháp: kết quả hiển thị `0 sự kiện` và `Không tìm thấy sự kiện phù hợp`.
+   - Truy cập trực tiếp `/?route=/events/uat-draft-isolation-20261110`: giao diện hiển thị `404 · Không tìm thấy sự kiện` và thông báo sự kiện chưa được công bố.
+   - Kết luận: bản nháp không lộ trên danh sách công khai và không thể đọc bằng URL trực tiếp.
 
 ---
 
@@ -161,7 +160,7 @@ Tài liệu này hướng dẫn chi tiết quy trình chạy UAT (User Acceptanc
 
 ---
 
-### Kịch bản 4: Phân quyền & Cách ly Multi-tenant / Chuyển đổi tổ chức (Multi-org Role Switching) — [PENDING CONFIRMATION]
+### Kịch bản 4: Phân quyền & Cách ly Multi-tenant / Chuyển đổi tổ chức (Multi-org Role Switching) — [BLOCKED 10/11/2026]
 
 1. **Đăng xuất và đăng nhập tài khoản thứ 2**:
    - Trong Studio, bấm nút **Đăng xuất** ở thanh bên: phiên đăng nhập được dọn dẹp sạch sẽ, chuyển về `/?route=/organizer/login`.
@@ -226,7 +225,7 @@ COMMIT;
 > [!NOTE]
 > **Thứ tự dọn dẹp và ràng buộc toàn vẹn cơ sở dữ liệu**:
 > - Khóa ngoại `public."SU_KIEN"."ToChucID"` được thiết lập `ON DELETE RESTRICT`. Do đó, **bắt buộc phải xóa sự kiện UAT trước khi xóa tổ chức**.
-> - Lệnh xóa `SU_KIEN` tự động cascade xóa `SUAT_DIEN` (`ON DELETE CASCADE`) và `KHU_VUC` (`ON DELETE CASCADE`). Luồng MVP không tạo bản ghi `GHE` vật lý nên không có rác tồn đọng.
+> - Lệnh xóa `SU_KIEN` tự động cascade xóa `SUAT_DIEN` (`ON DELETE CASCADE`) và `KHU_VUC` (`ON DELETE CASCADE`). Khóa ngoại `GHE.KhuVucID` cũng là `ON DELETE CASCADE` nên các ghế do cổng BTC sinh khi lưu bản nháp bị xóa theo, không để lại rác tồn đọng.
 > - Lệnh xóa `TO_CHUC` tự động cascade xóa `THANH_VIEN_TO_CHUC` (`ON DELETE CASCADE`).
 > - **Dọn dẹp tài khoản Auth**: Để xóa sạch các tài khoản kiểm thử khỏi Supabase Auth (`auth.users`), quản trị viên thực hiện:
 >   - Cách 1: Vào **Supabase Dashboard > Authentication > Users**, tìm kiếm tiền tố email thử nghiệm (ví dụ `tester+alpha-owner`, `tester+beta-scanner`) và nhấn **Delete user**.
@@ -240,12 +239,12 @@ COMMIT;
 
 ## 6. Danh mục bằng chứng cần thu thập (Evidence Checklist)
 
-Ghi nhận kết quả thực tế đợt UAT ngày 06/10/2026:
+Ghi nhận kết quả thực tế, cập nhật ngày 10/11/2026:
 
 - [x] **Bằng chứng 1**: Ảnh chụp màn hình Onboarding "Tạo tổ chức đầu tiên" và Dashboard ngay sau khi tạo tổ chức thành công (thể hiện vai trò Chủ sở hữu `UAT Alpha Media`) — **PASS (06/10/2026)**.
 - [x] **Bằng chứng 2**: Ảnh chụp màn hình modal tạo bản nháp sự kiện và thẻ bản nháp `UAT Acoustic Night 2026` xuất hiện trong Studio — **PASS (06/10/2026)**.
-- [ ] **Bằng chứng 3**: Ảnh chụp màn hình cửa sổ ẩn danh truy cập Marketplace và URL trực tiếp của bản nháp (thể hiện lỗi 404 / Không tìm thấy sự kiện trước khi công bố) — **NOT EXECUTED / PENDING** (chưa mở cửa sổ ẩn danh kiểm tra trước khi công bố; DB RLS draft isolation đã PASS riêng trong bài test pgTAP `product_foundation.sql`).
+- [x] **Bằng chứng 3**: Ảnh chụp phiên không đăng nhập tìm `UAT Draft Isolation 20261110` trên Marketplace (0 sự kiện) và truy cập URL trực tiếp nhận `404 · Không tìm thấy sự kiện` — **PASS (10/11/2026)**. Ảnh minh chứng lưu trong hồ sơ nộp bài (thư mục `10_Testing_UserTesting/anh_minh_chung/uat/`).
 - [x] **Bằng chứng 4**: Ảnh chụp màn hình Studio sau khi bấm Công bố (thể hiện nhãn Đã công bố và liên kết công khai chính xác `/?route=/events/uat-acoustic-night-2026`, đã triệt tiêu lỗi nhân đôi slug) — **PASS (06/10/2026)**.
 - [x] **Bằng chứng 5**: Ảnh chụp màn hình Marketplace hiển thị cả hai sự kiện (`Super Concert 2026` & `UAT Acoustic Night 2026`) và trang Generic Event Page với bảng giá vé (500/500 vé, 250.000 ₫) — **PASS (06/10/2026)**.
-- [ ] **Bằng chứng 6**: Ảnh chụp màn hình tài khoản thuộc tổ chức Beta (chứng minh cách ly multi-tenant) và giao diện nút bị vô hiệu hóa của vai trò Soát vé — **PENDING CONFIRMATION** (Tài khoản Beta đã tạo trong GoTrue, đang chờ xác nhận email trong hộp thư thực tế; tầng DB RLS đã PASS 23/23 test).
+- [ ] **Bằng chứng 6**: Ảnh chụp màn hình tài khoản thuộc tổ chức Beta (chứng minh cách ly multi-tenant) và giao diện nút bị vô hiệu hóa của vai trò Soát vé — **BLOCKED 10/11/2026** (chưa có tài khoản Beta Organizer đã xác nhận và chưa có quyền gán đa tổ chức; tầng DB RLS đã PASS 23/23 test).
 - [ ] **Bằng chứng 7**: Network tab (F12) ghi nhận các lệnh gọi RPC `tao_to_chuc_cua_toi`, `tao_ban_nhap_su_kien`, `cong_bo_su_kien` trả về mã HTTP `200`/`204` thành công — **NOT CAPTURED / PENDING** (chưa chụp log DevTools Network trực tiếp; sự thay đổi trạng thái giao diện thành công và dữ liệu công bố hiển thị trên Marketplace đóng vai trò bằng chứng gián tiếp).

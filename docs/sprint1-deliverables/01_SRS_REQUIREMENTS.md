@@ -29,11 +29,11 @@ Vấn đề hiện hữu là Super Concert từng được tinh chỉnh như s�
 | FR-T1-02 | Xem sơ đồ phân khu/ghế, hạng vé, giá, quyền lợi và trạng thái ghế; cập nhật trạng thái ghế realtime theo suất diễn | Must | 1 | Đã triển khai |
 | FR-T1-03.1 | BTC đăng nhập; hệ thống phân biệt tài khoản người mua (USER) và BTC (ORGANIZER) | Must | 1 | Đã triển khai |
 | FR-T1-03.2 | Tạo tổ chức, quản lý dữ liệu theo vai trò thành viên | Must | 1 | Nền tảng/RLS đã triển khai |
-| FR-T1-03.3 | Tạo/sửa bản nháp sự kiện, nhiều suất diễn, hạng vé, timeline, nghệ sĩ | Must | 1 | Đã triển khai (chưa sinh ghế chi tiết `GHE` cho sự kiện do BTC tạo) |
+| FR-T1-03.3 | Tạo/sửa bản nháp sự kiện, nhiều suất diễn, hạng vé, timeline, nghệ sĩ | Must | 1 | Đã triển khai (sinh ghế chi tiết `GHE` cho khu ghế ngồi ngay khi lưu bản nháp; khu vé đứng không có bản ghi ghế) |
 | FR-T1-03.4 | Xem trước bản nháp bằng template công khai | Must | 1 | Đã triển khai |
 | FR-T1-03.5 | Kiểm tra điều kiện tối thiểu và công bố | Must | 1 | Đã triển khai |
 | FR-T1-03.6 | Mọi sự kiện dùng một template chuẩn; phần đặc thù là extension | Must | 1 | Đã triển khai |
-| FR-T1-04 | Sơ đồ hỗ trợ zoom/pan, lọc khu, tìm ghế, tooltip | Must | 1 | Đã triển khai |
+| FR-T1-04 | Sơ đồ hỗ trợ zoom/pan, lọc khu, tìm ghế, tooltip | Must | 1 | Triển khai một phần (chưa cuộn chuột/kéo; tìm ghế chưa báo "không tìm thấy" ở sơ đồ tổng quan; sửa ở Sprint 2) |
 | FR-T3-01 | Chọn ghế và giữ 1–4 vé trong 5 phút, chống hai phiên giữ cùng ghế | Must | 3 | Lát cắt kỹ thuật backend đã có; không tính nghiệm thu Sprint 1 |
 | FR-T3-02, FR-T3-03 | Thanh toán đa kênh, hoàn tiền, phát hành vé/QR | Must | 3 | Backlog |
 | FR-T4-01 | Hàng chờ ảo, hiển thị vị trí/ETA | Must | 4 | Backlog |
