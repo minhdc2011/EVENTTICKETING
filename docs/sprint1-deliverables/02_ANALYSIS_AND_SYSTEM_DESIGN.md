@@ -938,10 +938,12 @@ sequenceDiagram
   RPC_SAVE->>DB: Kiểm tra quyền co_quyen_bien_tap_to_chuc(orgId)
   RPC_SAVE->>DB: INSERT / UPDATE SU_KIEN (lưu MoTaChiTiet gộp timeline)
   RPC_SAVE->>DB: INSERT / UPDATE CAU_HINH_SU_KIEN (quan hệ 1-1 SuKienID, TuyChonMoRong)
-  RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC/hạng vé (kèm trigger kiểm tra SuKienID, chưa sinh GHE)
+  RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC/hạng vé (kèm trigger kiểm tra SuKienID)
   RPC_SAVE->>DB: Đồng bộ SU_KIEN_NGHE_SI và master catalog NGHE_SI
   DB-->>RPC_SAVE: Thành công
   RPC_SAVE-->>OS: Trả về eventId, slug, status: 'BAN_NHAP'
+  OS->>DB: ensureSeatsForSeatedTiers: tạo ghế còn thiếu cho khu GHE_NGOI (10 ghế mỗi hàng, trạng thái TRONG)
+  DB-->>OS: Đã tạo ghế (nếu lỗi: bản nháp vẫn được lưu, chỉ trả cảnh báo)
   OS-->>UI: Lưu bản nháp thành công
 
   O->>UI: Nhấn nút "Xem trước (Preview)"

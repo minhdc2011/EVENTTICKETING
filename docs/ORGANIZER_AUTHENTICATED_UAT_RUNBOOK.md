@@ -225,7 +225,7 @@ COMMIT;
 > [!NOTE]
 > **Thứ tự dọn dẹp và ràng buộc toàn vẹn cơ sở dữ liệu**:
 > - Khóa ngoại `public."SU_KIEN"."ToChucID"` được thiết lập `ON DELETE RESTRICT`. Do đó, **bắt buộc phải xóa sự kiện UAT trước khi xóa tổ chức**.
-> - Lệnh xóa `SU_KIEN` tự động cascade xóa `SUAT_DIEN` (`ON DELETE CASCADE`) và `KHU_VUC` (`ON DELETE CASCADE`). Luồng MVP không tạo bản ghi `GHE` vật lý nên không có rác tồn đọng.
+> - Lệnh xóa `SU_KIEN` tự động cascade xóa `SUAT_DIEN` (`ON DELETE CASCADE`) và `KHU_VUC` (`ON DELETE CASCADE`). Khóa ngoại `GHE.KhuVucID` cũng là `ON DELETE CASCADE` nên các ghế do cổng BTC sinh khi lưu bản nháp bị xóa theo, không để lại rác tồn đọng.
 > - Lệnh xóa `TO_CHUC` tự động cascade xóa `THANH_VIEN_TO_CHUC` (`ON DELETE CASCADE`).
 > - **Dọn dẹp tài khoản Auth**: Để xóa sạch các tài khoản kiểm thử khỏi Supabase Auth (`auth.users`), quản trị viên thực hiện:
 >   - Cách 1: Vào **Supabase Dashboard > Authentication > Users**, tìm kiếm tiền tố email thử nghiệm (ví dụ `tester+alpha-owner`, `tester+beta-scanner`) và nhấn **Delete user**.

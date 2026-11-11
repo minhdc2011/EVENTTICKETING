@@ -29,7 +29,7 @@ Vấn đề hiện hữu là Super Concert từng được tinh chỉnh như s�
 | FR-T1-02 | Xem sơ đồ phân khu/ghế, hạng vé, giá, quyền lợi và trạng thái ghế; cập nhật trạng thái ghế realtime theo suất diễn | Must | 1 | Đã triển khai |
 | FR-T1-03.1 | BTC đăng nhập; hệ thống phân biệt tài khoản người mua (USER) và BTC (ORGANIZER) | Must | 1 | Đã triển khai |
 | FR-T1-03.2 | Tạo tổ chức, quản lý dữ liệu theo vai trò thành viên | Must | 1 | Nền tảng/RLS đã triển khai |
-| FR-T1-03.3 | Tạo/sửa bản nháp sự kiện, nhiều suất diễn, hạng vé, timeline, nghệ sĩ | Must | 1 | Đã triển khai (chưa sinh ghế chi tiết `GHE` cho sự kiện do BTC tạo) |
+| FR-T1-03.3 | Tạo/sửa bản nháp sự kiện, nhiều suất diễn, hạng vé, timeline, nghệ sĩ | Must | 1 | Đã triển khai (sinh ghế chi tiết `GHE` cho khu ghế ngồi ngay khi lưu bản nháp; khu vé đứng không có bản ghi ghế) |
 | FR-T1-03.4 | Xem trước bản nháp bằng template công khai | Must | 1 | Đã triển khai |
 | FR-T1-03.5 | Kiểm tra điều kiện tối thiểu và công bố | Must | 1 | Đã triển khai |
 | FR-T1-03.6 | Mọi sự kiện dùng một template chuẩn; phần đặc thù là extension | Must | 1 | Đã triển khai |
