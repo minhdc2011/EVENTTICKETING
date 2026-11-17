@@ -795,7 +795,7 @@ classDiagram
 | `PHIEN_BAN_SO_DO` | `PhienBanSoDo` | — (V1 chưa có service đọc/ghi) | — | Phiên bản sơ đồ ghế ngồi của địa điểm; bảng có trong CSDL nhưng V1 chưa dùng. |
 | `SUAT_DIEN` | `SuatDien` | `EventService`, `OrganizerService` | `src/domain/eventStatus.js` | Suất diễn, tính toán trạng thái mở bán `deriveSaleStatus`. |
 | `KHU_VUC` | `KhuVuc` | `TicketDataService`, `OrganizerService` | `src/domain/seatMap.js` | Phân khu vé, tính giá tiền, bóc tách quyền lợi `parseTierBenefits`. |
-| `GHE` | `Ghe` | `TicketDataService`, `SeatRealtimeService`, `OrganizerService` | `src/domain/seatMap.js`, `src/domain/seatGeneration.js` | Ghế ngồi vật lý, kiểm tra hợp lệ chọn ghế `evaluateSeatSelection`; `OrganizerService` sinh ghế còn thiếu cho khu ghế ngồi khi lưu bản nháp (`ensureSeatsForSeatedTiers`). |
+| `GHE` | `Ghe` | `TicketDataService`, `SeatRealtimeService`, `OrganizerService` | `src/domain/seatMap.js`, `src/domain/seatGeneration.js` | Ghế ngồi vật lý, kiểm tra hợp lệ chọn ghế `evaluateSeatSelection`; Ghế do **máy chủ** sinh: RPC `dong_bo_ghe_su_kien` chạy ngay sau thân `luu_su_kien_toan_dien_core` trong cùng một giao dịch (migration `20261111090000`); `src/domain/seatGeneration.js` giữ vai trò đặc tả tham chiếu của quy tắc đặt mã (SQL `nhan_hang_ghe` phản chiếu). `OrganizerService` không còn ghi trực tiếp vào `GHE`. |
 | `GIU_CHO` | `GiuCho` | `BookingService` | `src/services/bookingService.ts` | Header giữ chỗ 5 phút, đếm ngược `calculateRemainingSeconds`. |
 | `CHI_TIET_GIU_CHO` | `ChiTietGiuCho` | `BookingService` | `src/services/bookingService.ts` | Dòng giữ chỗ chi tiết (phân biệt khu đứng và ghế ngồi). |
 | `NGHE_SI` | `NgheSi` | `ArtistService`, `OrganizerService` | `src/domain/artistLineup.js` | Danh mục nghệ sĩ, chuẩn hóa dữ liệu `normalizeArtistRow`. |
@@ -940,10 +940,9 @@ sequenceDiagram
   RPC_SAVE->>DB: INSERT / UPDATE CAU_HINH_SU_KIEN (quan hệ 1-1 SuKienID, TuyChonMoRong)
   RPC_SAVE->>DB: Đồng bộ SUAT_DIEN và KHU_VUC/hạng vé (kèm trigger kiểm tra SuKienID)
   RPC_SAVE->>DB: Đồng bộ SU_KIEN_NGHE_SI và master catalog NGHE_SI
-  DB-->>RPC_SAVE: Thành công
-  RPC_SAVE-->>OS: Trả về eventId, slug, status: 'BAN_NHAP'
-  OS->>DB: ensureSeatsForSeatedTiers: tạo ghế còn thiếu cho khu GHE_NGOI (10 ghế mỗi hàng, trạng thái TRONG)
-  DB-->>OS: Đã tạo ghế (nếu lỗi: bản nháp vẫn được lưu, chỉ trả cảnh báo)
+  RPC_SAVE->>DB: dong_bo_ghe_su_kien(eventId): tạo ghế còn thiếu cho khu GHE_NGOI (10 ghế mỗi hàng, TRONG; tối đa 50.000 ghế/sự kiện); khi giảm sức chứa chỉ xóa ghế TRONG không thuộc giữ chỗ
+  DB-->>RPC_SAVE: Thành công (nếu sinh ghế lỗi: toàn bộ lần lưu bị hủy, không có bản nháp thiếu ghế)
+  RPC_SAVE-->>OS: Trả về eventId, slug, status: 'BAN_NHAP', seats
   OS-->>UI: Lưu bản nháp thành công
 
   O->>UI: Nhấn nút "Xem trước (Preview)"

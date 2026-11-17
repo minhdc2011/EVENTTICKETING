@@ -13,7 +13,7 @@ Bộ hồ sơ này chứng minh chuỗi **yêu cầu khách hàng → phân tíc
 
 ## Trạng thái hiện tại (10/11/2026)
 
-- Sprint 1 (SRS phiên bản 1.2): hoàn thành, `npm run check` pass (TypeScript, **263/263 tests**, build 174 modules).
+- Sprint 1 (SRS phiên bản 1.2): hoàn thành, `npm run check` pass (TypeScript, **293/293 tests**, build 179 modules; chạy 11/11/2026 trên nhánh `docs/sprint1-closure-update`, chưa merge vào `main`).
 - Sprint 2 đang triển khai: xác minh OTP và giới hạn 4 vé mỗi đơn (`FR-T2-01`, `FR-T2-02`), Dynamic Pricing (`FR-T4-02`, `FR-T4-04`). Phần đã có sẵn trong repo (hạ tầng đăng nhập người mua, cột cấu hình `SoVeToiDaMoiDon`) được trình bày là phần dựng trước; chỉ trình bày những gì repo đã thực hiện.
 - Tài khoản demo (Ban tổ chức, người mua) và kịch bản reset dữ liệu do nhóm chuẩn bị riêng; không ghi mật khẩu trong tài liệu nộp.
 
