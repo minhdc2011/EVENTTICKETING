@@ -128,7 +128,7 @@ test('organizer event creation slice migration defines luu_su_kien_toan_dien wit
 
 test('organizer event creation slice pgTAP test file is plain SQL and asserts tenant boundaries and commercial locks', async () => {
   const sql = await readFile(new URL('../supabase/tests/organizer_event_creation_slice.sql', import.meta.url), 'utf8');
-  assert.match(sql, /SELECT plan\(19\);/);
+  assert.match(sql, /SELECT plan\(18\);/);
   assert.doesNotMatch(sql, /\\gset/, 'Must not contain psql meta-commands like \\gset');
   assert.match(sql, /Anonymous users cannot call luu_su_kien_toan_dien/);
   assert.match(sql, /Scanner role cannot create event draft via luu_su_kien_toan_dien/);
