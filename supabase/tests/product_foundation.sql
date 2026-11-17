@@ -134,5 +134,7 @@ SELECT pg_temp.assert_true(
 
 RESET ROLE;
 
+SELECT plan(1);
+SELECT pass('PRODUCT FOUNDATION ACCEPTANCE TESTS PASSED (every assertion above completed without raising)');
+SELECT * FROM finish();
 ROLLBACK;
-SELECT 'PRODUCT FOUNDATION ACCEPTANCE TESTS PASSED' AS result;
