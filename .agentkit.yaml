@@ -102,6 +102,12 @@ exclude:
 protect:
   - docs
 
+# agentkit team (used for the Sprint 2 waves, see Sprint 2/agentkit): total token budget per run. Team refuses to start
+# (exit 2) if its estimate does not fit; raise the value or pass --budget N.
+team:
+  budget: 10000000
+  plan_rounds: 3   # astra and fable review the plan at most 3 rounds (global default is unlimited)
+
 # agentkit solve: every change must pass these before review (lint + node tests + vite build).
 solve:
   gate: [npm run check]
