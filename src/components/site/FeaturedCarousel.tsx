@@ -4,13 +4,14 @@ import {buildPublicPath, navigatePublicRoute} from '../../domain/publicRoute';
 import {getCategoryTheme} from '../../domain/categoryThemes.js';
 import {formatEventDateTime} from '../event-template/eventTemplateLogic.js';
 import {CategoryIcon} from '../common/Icons';
+import {accessibleBadgeColors} from '../../domain/colorContrast.js';
 import './FeaturedCarousel.css';
 
 const SLIDE_MS = 5000;
 const RESUME_AFTER_MANUAL_MS = 3000;
 const MAX_SLIDES = 6;
 
-export function FeaturedCarousel({events}: {events: PublicEventSummary[]}) {
+export function FeaturedCarousel({events, loading = false}: {events: PublicEventSummary[]; loading?: boolean}) {
   // Prefer events that actually have a banner; fall back to the first events otherwise.
   const withImage = events.filter((e) => e.bannerUrl || e.posterUrl);
   const slides = (withImage.length > 0 ? withImage : events).slice(0, MAX_SLIDES);
@@ -45,11 +46,19 @@ export function FeaturedCarousel({events}: {events: PublicEventSummary[]}) {
     resumeTimer.current = window.setTimeout(() => setManualPause(false), RESUME_AFTER_MANUAL_MS);
   };
 
-  if (count === 0) return null;
+  // Reserve the banner's space while the catalog loads so the page does not jump (CLS).
+  if (count === 0) {
+    return loading ? (
+      <section className="et-carousel" aria-hidden="true">
+        <div className="et-carousel__stage et-carousel__skeleton" />
+      </section>
+    ) : null;
+  }
 
   const paused = hovering || manualPause || reduceMotion || count < 2;
   const event = slides[index] ?? slides[0];
   const theme = getCategoryTheme(event.category);
+  const badge = accessibleBadgeColors(theme.primary);
   const image = event.bannerUrl || event.posterUrl;
   const target = `events/${event.slug}`;
 
@@ -77,7 +86,6 @@ export function FeaturedCarousel({events}: {events: PublicEventSummary[]}) {
           className="et-carousel__slide"
           href={buildPublicPath(window.location.pathname, target)}
           onClick={onOpen}
-          aria-label={`Xem sự kiện ${event.name}`}
           aria-live={paused ? 'polite' : 'off'}
         >
           {image ? (
@@ -88,7 +96,7 @@ export function FeaturedCarousel({events}: {events: PublicEventSummary[]}) {
             </div>
           )}
           <div className="et-carousel__caption">
-            <span className="et-carousel__badge">
+            <span className="et-carousel__badge" style={{background: badge.background, color: badge.color}}>
               <CategoryIcon category={event.category} size={13} />
               <span>{theme.label}</span>
             </span>

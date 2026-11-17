@@ -133,7 +133,7 @@ export function EventCatalog() {
       />
 
       {/* Featured / Hero Area */}
-      <FeaturedCarousel events={events} />
+      <FeaturedCarousel events={events} loading={state === 'loading'} />
 
       {/* Trust & Reassurance Strip */}
       <section className="marketplace-trust-strip" aria-label="Cam kết dịch vụ">
@@ -179,6 +179,7 @@ export function EventCatalog() {
 
       {/* Main Catalog Discovery */}
       <main id="events" className="marketplace-main">
+        {state === 'loading' && <div className="et-artist-filter-skeleton" aria-hidden="true" />}
         <ArtistFilter artists={artistOptions} value={selectedArtistKey} onChange={handleArtistChange} />
 
         <div id="catalog-heading" className="marketplace-heading">

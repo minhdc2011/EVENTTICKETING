@@ -1,3 +1,4 @@
+import {MAX_ZOOM, MIN_ZOOM} from '../../domain/panZoom.js';
 import {useRef, type KeyboardEvent} from 'react';
 import type {ZoneRecord} from '../../types/ticketing';
 import type {RealtimeConnectionStatus} from '../../services/seatRealtimeService';
@@ -143,7 +144,7 @@ export function MapToolbar({
           id="zoom-out"
           aria-label="Thu nhỏ sơ đồ"
           data-od-id="zoom-out"
-          disabled={zoom <= 0.8}
+          disabled={zoom <= MIN_ZOOM + 0.001}
           onClick={onZoomOut}
         >
           −
@@ -153,7 +154,7 @@ export function MapToolbar({
           id="zoom-in"
           aria-label="Phóng to sơ đồ"
           data-od-id="zoom-in"
-          disabled={zoom >= 1.4}
+          disabled={zoom >= MAX_ZOOM - 0.001}
           onClick={onZoomIn}
         >
           +

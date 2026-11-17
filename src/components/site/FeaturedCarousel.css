@@ -177,3 +177,12 @@
   .et-carousel__slide { animation: none; }
   .et-carousel__bar.is-active .et-carousel__fill { animation: none; width: 100%; }
 }
+
+.et-carousel__skeleton {
+  aspect-ratio: 21 / 9;
+  background: linear-gradient(100deg, #e2e8f0 30%, #eef2f6 50%, #e2e8f0 70%);
+}
+
+@media (max-width: 720px) {
+  .et-carousel__skeleton { aspect-ratio: 16 / 9; }
+}

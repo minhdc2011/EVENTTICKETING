@@ -3475,7 +3475,7 @@
 
 .marketplace-footer-slogan {
   margin: 14px 0 0;
-  color: #64748b;
+  color: #526071;
   font-size: 13px;
   line-height: 1.6;
 }
@@ -3527,7 +3527,7 @@
 
 .marketplace-footer-address {
   margin-top: 14px !important;
-  color: #64748b !important;
+  color: #526071 !important;
   font-size: 12px !important;
 }
 
@@ -3541,7 +3541,7 @@
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
-  color: #64748b;
+  color: #526071;
   font-size: 12px;
 }
 

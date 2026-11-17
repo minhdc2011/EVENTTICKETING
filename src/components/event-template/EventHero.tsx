@@ -131,7 +131,6 @@ export function EventHero({
             <a
               href={heroCta.href}
               className="et-hero-primary-cta"
-              aria-label={heroCta.ariaLabel}
             >
               <span>{heroCta.label}</span>
               <span aria-hidden="true">↓</span>

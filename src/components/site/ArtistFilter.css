@@ -238,3 +238,10 @@
   .et-artist-card__media,
   .et-artist-card__media img { transition: none; }
 }
+
+/* Placeholder while the catalog loads: keeps the page from shifting when artists appear */
+.et-artist-filter-skeleton {
+  width: 100%;
+  min-height: 21rem;
+  margin: clamp(2rem, 4vw, 3.5rem) 0;
+}

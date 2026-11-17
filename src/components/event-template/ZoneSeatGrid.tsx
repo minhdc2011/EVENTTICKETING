@@ -14,10 +14,13 @@ export interface ZoneSeatGridProps {
   rows: ZoneRowGroup[];
   selectedSeats: SeatRecord[];
   searchQuery: string;
+  /** Exact seat code from a seat search: highlighted and scrolled into view. */
+  focusSeatCode?: string | null;
   saleOpen: boolean;
   isPending: boolean;
   hasActiveHold: boolean;
-  zoom: number;
+  /** Pans the map so the searched seat is visible (pan/zoom camera). */
+  onRevealSeat?: (el: Element | null) => void;
   inspectedSeat: SeatRecord | null;
   onInspectSeat: (seat: SeatRecord) => void;
   onToggleSeat: (seat: SeatRecord) => void;
@@ -47,10 +50,11 @@ export function ZoneSeatGrid({
   rows,
   selectedSeats,
   searchQuery,
+  focusSeatCode = null,
   saleOpen,
   isPending,
   hasActiveHold,
-  zoom,
+  onRevealSeat,
   inspectedSeat,
   onInspectSeat,
   onToggleSeat,
@@ -63,6 +67,18 @@ export function ZoneSeatGrid({
   useEffect(() => {
     backButtonRef.current?.focus();
   }, [zone.KhuVucID]);
+
+  // Bring the searched seat into view (declared after the focus effect so it wins)
+  useEffect(() => {
+    if (!focusSeatCode) return;
+    const target = Array.from(
+      document.querySelectorAll<HTMLElement>('.et-seat-rows [data-code]'),
+    ).find((el) => el.dataset.code === focusSeatCode);
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    target?.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'center', inline: 'center'});
+    // scrollIntoView moves the page; the pan/zoom camera is moved separately.
+    window.requestAnimationFrame(() => onRevealSeat?.(target ?? null));
+  }, [focusSeatCode, zone.KhuVucID, onRevealSeat]);
 
   const zoneName = zone.TenKhuVuc || zone.MaKhuVuc;
   const geometry = getSectorGeometry(zone.MaKhuVuc);
@@ -108,7 +124,6 @@ export function ZoneSeatGrid({
           className="et-seat-rows"
           role="group"
           aria-label={`Ghế khu ${zoneName}`}
-          style={{zoom}}
         >
         {rows.map(({rowLabel, seats}) => (
           <div key={rowLabel} className="et-seat-row">
@@ -136,6 +151,7 @@ export function ZoneSeatGrid({
                     isSelected={isSelected}
                     isSelectable={isSelectable}
                     isSearchMatch={isSearchMatch}
+                    isSearchHit={focusSeatCode != null && seat.MaGheDayDu === focusSeatCode}
                     onInspect={onInspectSeat}
                     onToggle={onToggleSeat}
                   />

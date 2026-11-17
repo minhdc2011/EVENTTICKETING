@@ -133,3 +133,8 @@ export function computeZoneLayouts(
   cx?: number,
   cy?: number
 ): ZoneLayoutGeometry[];
+
+export function summarizeZoneAvailability(
+  zone: { KhuVucID: number } | null | undefined,
+  seats: ReadonlyArray<{ KhuVucID: number; TrangThai: string }> | null | undefined
+): { available: number; total: number; soldOut: boolean };

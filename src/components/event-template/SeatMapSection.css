@@ -1231,3 +1231,94 @@
     transition: none !important;
   }
 }
+
+/* Seat search: highlighted hit (outline + glyph size, not colour only) and empty notice */
+.et-seat[data-search-hit='true'] {
+  outline: 3px solid var(--et-focus, #0353c2);
+  outline-offset: 3px;
+  position: relative;
+  z-index: 1;
+  animation: et-seat-hit 1.2s ease-in-out 2;
+}
+
+@keyframes et-seat-hit {
+  50% { transform: scale(1.25); }
+}
+
+.et-seat-search-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #b45309;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #1f262d;
+  font-size: 14px;
+}
+
+.et-seat-search-notice > div { display: grid; gap: 2px; min-width: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .et-seat[data-search-hit='true'] { animation: none; }
+}
+
+/* Pan / zoom surface: Ctrl+wheel, drag, pinch, keyboard. Layout size never changes with zoom. */
+.et-pz {
+  position: relative;
+  width: 100%;
+  min-height: 408px;
+  overflow: clip;
+  touch-action: pan-y;
+  cursor: default;
+  border-radius: 8px;
+}
+
+.et-pz[data-zoomed='true'] { touch-action: none; cursor: grab; }
+.et-pz[data-dragging='true'] { cursor: grabbing; user-select: none; }
+.et-pz[data-dragging='true'] * { pointer-events: none; }
+
+.et-pz:focus-visible { outline: 3px solid var(--et-focus, #0353c2); outline-offset: 2px; }
+
+.et-pz__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 100%;
+  min-height: 408px;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .et-pz__content { transition: transform 120ms ease-out; }
+  .et-pz[data-dragging='true'] .et-pz__content { transition: none; }
+}
+
+/* Sold-out zones on the overview: dimmed + hatched outline + "× HẾT VÉ" tag (not colour alone) */
+.et-stadium-svg .et-zone-item.is-sold-out .et-zone-shape {
+  fill-opacity: 0.35;
+  stroke-dasharray: 5 4;
+}
+
+.et-stadium-svg .et-zone-item.is-sold-out > text {
+  opacity: 0.55;
+}
+
+.et-stadium-svg .et-zone-item.is-sold-out .et-zone-shape,
+.et-stadium-svg .et-zone-item.is-sold-out:hover .et-zone-shape {
+  filter: grayscale(1);
+}
+
+.et-stadium-svg .et-zone-soldout-tag rect {
+  fill: var(--seat-fg);
+}
+
+.et-stadium-svg .et-zone-soldout-tag text {
+  fill: var(--seat-bg);
+  letter-spacing: 0.04em;
+}

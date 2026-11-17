@@ -22,7 +22,7 @@ export function OrganizerTopBar({userEmail, onSignOut}: OrganizerTopBarProps) {
           className="org-topbar-logo marketplace-logo"
           href={buildPublicPath(window.location.pathname, 'events')}
           onClick={handleGoToMarketplace}
-          aria-label="Về trang chủ EventTicketing"
+          aria-label="EVENT – Về trang chủ EventTicketing"
         >
           EV<span>ENT</span>
         </a>

@@ -12,6 +12,7 @@ export interface SeatButtonProps {
   isSelected: boolean;
   isSelectable: boolean;
   isSearchMatch?: boolean;
+  isSearchHit?: boolean;
   onInspect: (seat: SeatRecord) => void;
   onToggle: (seat: SeatRecord) => void;
 }
@@ -21,6 +22,7 @@ export function SeatButton({
   isSelected,
   isSelectable,
   isSearchMatch = true,
+  isSearchHit = false,
   onInspect,
   onToggle,
 }: SeatButtonProps) {
@@ -35,6 +37,7 @@ export function SeatButton({
       className="et-seat"
       data-status={uiStatus}
       data-code={seat.MaGheDayDu}
+      data-search-hit={isSearchHit ? 'true' : undefined}
       data-od-id={`seat-${seat.MaGheDayDu.toLowerCase()}`}
       aria-label={`${seat.MaGheDayDu}, ${statusLabel}, ${priceFormatted}`}
       aria-pressed={isSelected}

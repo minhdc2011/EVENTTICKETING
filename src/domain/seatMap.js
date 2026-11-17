@@ -581,3 +581,23 @@ export function computeZoneLayouts(zones, cx = 380, cy = 60) {
 
   return results;
 }
+
+/**
+ * Availability of one zone, derived from the seat catalog (AC-02.4).
+ * A zone is "sold out" only when it has seats and none are free; zones without
+ * seat rows (standing zones) are never reported sold out from seat data.
+ * @param {{ KhuVucID: number }} zone
+ * @param {Array<{ KhuVucID: number, TrangThai: string }>} seats
+ * @returns {{ available: number, total: number, soldOut: boolean }}
+ */
+export function summarizeZoneAvailability(zone, seats) {
+  if (!zone || !Array.isArray(seats)) return {available: 0, total: 0, soldOut: false};
+  let total = 0;
+  let available = 0;
+  for (const seat of seats) {
+    if (seat.KhuVucID !== zone.KhuVucID) continue;
+    total += 1;
+    if (seat.TrangThai === 'TRONG') available += 1;
+  }
+  return {available, total, soldOut: total > 0 && available === 0};
+}
