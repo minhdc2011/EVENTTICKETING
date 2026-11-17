@@ -1,7 +1,7 @@
 -- pgTAP acceptance test for Organizer Event Creation Slice:
 -- Multi-show, multi-tier aggregate RPC, permissive draft, strict publish, RLS boundaries, and commercial locks.
 BEGIN;
-SELECT plan(19);
+SELECT plan(18);
 
 -- Fixture setup
 INSERT INTO public."TO_CHUC" ("ToChucID", "TenToChuc", "Slug")
