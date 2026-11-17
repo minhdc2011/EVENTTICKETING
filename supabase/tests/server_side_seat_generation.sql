@@ -180,7 +180,7 @@ RESET ROLE;
 
 -- 21-23. Reducing capacity never removes sold or held seats
 -- (commercial fixtures are set directly as the table owner, as the hold RPCs would)
-UPDATE public."GHE" SET "TrangThai" = 'DA_BAN' WHERE "MaGheDayDu" = 'SEAT-E-01';
+UPDATE public."GHE" SET "TrangThai" = 'DA_BAN' WHERE "MaGheDayDu" = 'SEAT-D-01';
 UPDATE public."GHE" SET "TrangThai" = 'DANG_GIU' WHERE "MaGheDayDu" = 'SEAT-A-02';
 UPDATE public."KHU_VUC" SET "TongSoGhe" = 5
 WHERE "SuKienID" = current_setting('app.seat_event_id')::int AND "MaKhuVuc" = 'SEAT';
@@ -192,7 +192,7 @@ SELECT lives_ok(
 );
 RESET ROLE;
 SELECT is(
-  (SELECT "TrangThai" FROM public."GHE" WHERE "MaGheDayDu" = 'SEAT-E-01'),
+  (SELECT "TrangThai" FROM public."GHE" WHERE "MaGheDayDu" = 'SEAT-D-01'),
   'DA_BAN',
   'a sold seat survives a capacity reduction untouched'
 );
