@@ -449,9 +449,11 @@ test('additive migration 20261027130000_organizer_schedule_lineup_slice.sql enfo
   assert.equal((sql.match(/CREATE POLICY "Members read artists"/g) || []).length, 1, 'Exactly one idempotent policy definition for master artists');
 });
 
-test('pgTAP acceptance test artifact organizer_schedule_lineup_slice.sql is valid plain SQL', async () => {
+// This suite is archived in supabase/tests-stale/ (it targets the dropped LICH_TRINH table); the check only keeps the file intact
+// until it is rewritten for the current timeline design.
+test('archived pgTAP artifact organizer_schedule_lineup_slice.sql is valid plain SQL', async () => {
   const sql = await readFile(
-    new URL('../supabase/tests/organizer_schedule_lineup_slice.sql', import.meta.url),
+    new URL('../supabase/tests-stale/organizer_schedule_lineup_slice.sql', import.meta.url),
     'utf8'
   );
 
