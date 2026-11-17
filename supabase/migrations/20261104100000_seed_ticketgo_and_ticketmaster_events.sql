@@ -3,6 +3,11 @@
 
 BEGIN;
 
+-- The seed rows below are inserted as already published. The publication guard trigger rejects that when no signed-in
+-- organizer exists (a fresh local database has none), so migrations could not be replayed from scratch. Disable it for this
+-- seed only; it is re-enabled before COMMIT, and a failure rolls the whole transaction back (trigger stays enabled).
+ALTER TABLE public."SU_KIEN" DISABLE TRIGGER "trg_kiem_tra_cong_bo_su_kien";
+
 -- 1. Cập nhật sơ đồ nhà hát tham khảo cho Creative Tech Summit
 UPDATE public."SU_KIEN"
 SET "SoDoTongQuanURL" = '/maps/ticketmaster-theater-proscenium.svg'
@@ -189,6 +194,8 @@ SELECT
 FROM public."TO_CHUC" t
 WHERE t."Slug" = 'ticketgo-partners'
 ON CONFLICT ("Slug") DO NOTHING;
+
+ALTER TABLE public."SU_KIEN" ENABLE TRIGGER "trg_kiem_tra_cong_bo_su_kien";
 
 COMMIT;
 
