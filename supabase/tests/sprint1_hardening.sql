@@ -248,6 +248,7 @@ SELECT pg_temp.assert_true(
   'expiry cron job is not registered'
 );
 
+SELECT plan(1);
+SELECT pass('SPRINT 1 DATABASE ACCEPTANCE TESTS PASSED (every assertion above completed without raising)');
+SELECT * FROM finish();
 ROLLBACK;
-
-SELECT 'SPRINT 1 DATABASE ACCEPTANCE TESTS PASSED' AS result;

@@ -155,9 +155,9 @@ INSERT INTO public."SUAT_DIEN" (
 );
 
 INSERT INTO public."KHU_VUC" (
-  "SuKienID", "SuatDienID", "MaKhuVuc", "TenKhuVuc", "LoaiKhuVuc", "GiaVeNiemYet", "TongSoGhe"
+  "SuKienID", "SuatDienID", "MaKhuVuc", "TenKhuVuc", "LoaiKhuVuc", "GiaVeNiemYet", "TongSoGhe", "MauSacHex"
 ) VALUES (
-  999992, 999992, 'WEBINAR_PASS', 'Vé Tham Dự Online', 'DUNG_STAND', 0, 100
+  999992, 999992, 'WEBINAR_PASS', 'Vé Tham Dự Online', 'DUNG_STAND', 0, 100, '#84CC16'
 );
 
 SET LOCAL ROLE authenticated;

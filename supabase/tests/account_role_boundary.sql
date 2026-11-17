@@ -16,12 +16,12 @@ SELECT has_trigger('public', 'HO_SO_NGUOI_DUNG', 'trg_kiem_tra_khong_tu_nang_cap
 
 -- 9-10. Catalog regression checks: UUID variants MUST NOT have default arguments (prevents overload ambiguity)
 SELECT is(
-  (SELECT pronargdefaults FROM pg_proc WHERE oid = 'public.lay_loai_tai_khoan(uuid)'::regprocedure),
+  (SELECT pronargdefaults::int FROM pg_proc WHERE oid = 'public.lay_loai_tai_khoan(uuid)'::regprocedure),
   0,
   'lay_loai_tai_khoan(uuid) defines 0 argument defaults (no overload ambiguity)'
 );
 SELECT is(
-  (SELECT pronargdefaults FROM pg_proc WHERE oid = 'public.la_ban_to_chuc(uuid)'::regprocedure),
+  (SELECT pronargdefaults::int FROM pg_proc WHERE oid = 'public.la_ban_to_chuc(uuid)'::regprocedure),
   0,
   'la_ban_to_chuc(uuid) defines 0 argument defaults (no overload ambiguity)'
 );
