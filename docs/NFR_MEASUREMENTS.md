@@ -10,7 +10,7 @@ Tài liệu này chỉ ghi **số liệu đã đo thật**. Phép đo nào chưa
 | NFR-03 Tải sơ đồ | **Đã đo một phần** | Sơ đồ sẵn sàng P50 **5,68 s**, P95 **6,33 s** trên 4G giả lập, CPU chậm 4 lần (dữ liệu mock). **Realtime: chưa đo** |
 | NFR-02 Không bán trùng ghế | **Chưa đo** | Script có sẵn, chưa chạy (cần Supabase staging/local) |
 | NFR-01 Chịu tải | **Chưa đo** | Không có môi trường staging/local an toàn; không chạy trên production |
-| NFR-09 Bảo mật (quyền ghi `GHE`) | **Viết xong, chưa chạy** | Migration `20261111090000` + pgTAP 27 kiểm tra, chưa chạy vì không có Supabase local |
+| NFR-09 Bảo mật (quyền ghi `GHE`) | **Đã chạy trên Postgres giả lập (PGlite): 29/29**; pgTAP và live **chưa chạy** | Migration `20261111090000` đã thực thi thật trên Postgres trong tiến trình (schema thay thế tối thiểu); pgTAP 27 kiểm tra chưa chạy vì không có Supabase |
 
 ---
 
@@ -106,8 +106,11 @@ Lý do: cần một dự án Supabase staging/local có bật Realtime để đ�
 - Vấn đề: chính sách `"Editors manage show seats"` là `FOR ALL`, biên tập viên ghi trực tiếp được `TrangThai` (kể cả `DA_BAN`, `DANG_GIU`) và bỏ qua RPC giữ chỗ.
 - Thay đổi (migration `20261111090000_server_side_seat_generation.sql`): gỡ chính sách, thu hồi INSERT/UPDATE/DELETE/TRUNCATE trên `GHE` của `authenticated`, `anon`; sinh ghế chuyển vào RPC `dong_bo_ghe_su_kien` chạy trong cùng giao dịch với `luu_su_kien_toan_dien`.
 - **Quyết định thiết kế:** lỗi sinh ghế (ví dụ vượt 50.000 ghế mỗi sự kiện, BR-02.7) **hủy cả lần lưu** (nguyên tử), khác hành vi cũ chỉ cảnh báo. Lý do: không để sự kiện có hạng vé ghế ngồi nhưng thiếu ghế.
-- Kiểm thử: `supabase/tests/server_side_seat_generation.sql` (27 kiểm tra pgTAP: nhãn hàng, sinh đủ ghế, lưu lặp không trùng, tăng/giảm sức chứa, biên tập viên không UPDATE/INSERT/DELETE được, người ngoài tổ chức/thành viên không có quyền biên tập/`anon` không gọi được, ghế đã bán/đang giữ không bị xoá khi giảm sức chứa, vượt 50.000 ghế bị từ chối và không để lại sự kiện). **Chưa chạy** vì không có Supabase local; cần chạy `supabase test db` trước khi áp dụng lên staging/live.
-- Khoảng trống đã biết: test chưa có ca ghế bị tham chiếu bởi `CHI_TIET_GIU_CHO` khi giảm sức chứa (điều kiện `NOT EXISTS` có trong hàm nhưng chưa được test).
+- Kiểm thử: `supabase/tests/server_side_seat_generation.sql` (27 kiểm tra pgTAP, **chưa chạy**: nhãn hàng, sinh đủ ghế, lưu lặp không trùng, tăng/giảm sức chứa, biên tập viên không UPDATE/INSERT/DELETE được, người ngoài tổ chức/thành viên không có quyền biên tập/`anon` không gọi được, ghế đã bán/đang giữ không bị xoá khi giảm sức chứa, vượt 50.000 ghế bị từ chối và không để lại sự kiện). **Chưa chạy** vì không có Supabase local; cần chạy `supabase test db` trước khi áp dụng lên staging/live.
+- **Đã thực thi migration trên Postgres thật (PGlite, trong tiến trình)** bằng `scripts/db/verify-seat-generation-pglite.mjs`: 29/29 kiểm tra đạt — migration áp dụng được hai lần (idempotent); nhãn hàng `nhan_hang_ghe` trùng `rowLabel` của JS cho chỉ số 0..1500; lưu sinh đúng số ghế, lưu lặp không thêm, tăng sức chứa chỉ thêm phần thiếu, ghế bị xóa được sinh lại (lấp chỗ trống); giảm sức chứa chỉ xóa ghế `TRONG` không thuộc giữ chỗ (ghế đã bán, đang giữ, hoặc có `CHI_TIET_GIU_CHO` đều còn nguyên; khi mọi ghế đã bán thì không xóa gì); 60.000 ghế bị từ chối `22023` và **không để lại sự kiện/khu/ghế**, đúng 50.000 ghế được chấp nhận; thành viên không có quyền biên tập và người chưa đăng nhập bị `42501`; `authenticated` không INSERT/UPDATE/DELETE được `GHE` nhưng vẫn SELECT; hàm `_core` không gọi trực tiếp được; `anon` không gọi được RPC lưu.
+- **Lần chạy đó tìm ra lỗi trong chính test pgTAP đã viết** (dùng ghế `SEAT-E-01` không tồn tại với sức chứa 31); đã sửa thành `SEAT-D-01`. Điều này cho thấy test pgTAP chưa chạy vẫn có thể còn lỗi nhỏ.
+- Giới hạn của lần chạy PGlite: dùng **schema thay thế tối thiểu** và **hàm lưu thay thế** (không phải thân `luu_su_kien_toan_dien` thật), không có RLS của các bảng khác, không có `pg_cron`. Vì vậy vẫn cần chạy pgTAP trên staging trước khi áp dụng lên live.
+- Khoảng trống còn lại của pgTAP: chưa có ca ghế bị tham chiếu bởi `CHI_TIET_GIU_CHO` (bảng thật yêu cầu bản ghi `GIU_CHO` cha); ca này mới được kiểm trong lần chạy PGlite, với bảng thay thế không có khóa ngoại tới `GIU_CHO`.
 - Hành vi cần xác nhận trên staging: `luu_su_kien_toan_dien` được đổi tên phần thân thành `luu_su_kien_toan_dien_core` và bọc lại; chữ ký và quyền gọi giữ nguyên.
 
 ---
