@@ -1,0 +1,27 @@
+-- Phần bổ sung vào RPC tao_giu_cho_theo_suat hiện có (đặt sau khi xác định suất diễn, trước khi khóa ghế)
+-- Chữ ký giữ nguyên: (p_suat_dien_id BIGINT, p_phien_id UUID, p_items JSONB)
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_su_kien_id INT;
+    v_gioi_han INT;
+    v_ve_dang_giu INT;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'Can dang nhap va xac thuc OTP de giu cho' USING ERRCODE = '28000';
+    END IF;
+    SELECT sd."SuKienID" INTO v_su_kien_id FROM public."SUAT_DIEN" sd WHERE sd."SuatDienID" = p_suat_dien_id;
+    SELECT COALESCE(ch."SoVeToiDaMoiDon", 4) INTO v_gioi_han
+    FROM public."CAU_HINH_SU_KIEN" ch WHERE ch."SuKienID" = v_su_kien_id;
+    -- Khóa tư vấn theo (tài khoản, sự kiện): các yêu cầu giữ chỗ của cùng tài khoản xếp hàng tuần tự
+    PERFORM pg_advisory_xact_lock(hashtext(v_user_id::text || ':' || v_su_kien_id::text));
+    -- Sprint 2: đếm vé đang giữ còn hiệu lực (vé đã mua cộng thêm từ Sprint 3)
+    SELECT COALESCE(SUM(ct."SoLuong"), 0) INTO v_ve_dang_giu
+    FROM public."GIU_CHO" gc
+    JOIN public."CHI_TIET_GIU_CHO" ct ON ct."GiuChoID" = gc."GiuChoID"
+    WHERE gc."NguoiDungID" = v_user_id AND gc."SuKienID" = v_su_kien_id
+      AND gc."TrangThai" = 'ACTIVE' AND gc."HetHanLuc" > now();
+    IF v_ve_dang_giu + v_total_quantity > v_gioi_han THEN
+        RAISE EXCEPTION 'VUOT_GIOI_HAN_VE' USING ERRCODE = '22023';  -- API trả 422
+    END IF;
+    -- ... phần còn lại của hàm giữ nguyên; khi INSERT CHI_TIET_GIU_CHO ghi thêm "DonGiaChot" = giá niêm yết hiện hành,
+    -- và INSERT GIU_CHO ghi thêm "NguoiDungID" = v_user_id.

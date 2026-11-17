@@ -94,13 +94,12 @@ exclude:
   - bun.lock
   - supabase/.temp
 
-# Database and schema are frozen. Agents may READ them (specs, analysis), but the solve/fix guard rejects any
-# diff that touches them, and CLI agents are told never to modify them.
+# Docs are frozen: the solve/fix guard rejects any diff that touches docs/, and CLI agents are told never to modify it.
+# supabase/ and *.sql were UNLOCKED on 2026-11-17 for Sprint 2 (new migrations + pgTAP tests). Rule kept in the Sprint 2
+# briefs instead: only ADD migration files (timestamp greater than the latest one), never edit an existing migration.
 # The client data layer (src/services, src/types, src/domain/seatRealtime.js) was unlocked on 2026-11-03 by the
 # user for the SPEC.md rebuild; changes there must keep the database contract (tables, columns, RPC signatures).
 protect:
-  - supabase
-  - "*.sql"
   - docs
 
 # agentkit solve: every change must pass these before review (lint + node tests + vite build).
