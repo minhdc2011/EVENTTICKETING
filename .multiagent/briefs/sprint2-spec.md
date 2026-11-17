@@ -1,6 +1,6 @@
 # Đặc tả Sprint 2: OTP, giới hạn 4 vé, Dynamic Pricing (dùng chung cho mọi đợt)
 
-Đây là nguồn sự thật cho agent. Mọi file nhiệm vụ `sprint2-W*.md` chỉ trỏ về đây. Nếu code hiện tại mâu thuẫn với đặc tả này, **dừng và báo trong báo cáo**, không tự đoán.
+Đây là nguồn sự thật cho agent. Mỗi file nhiệm vụ `sprint2-W1…W6-*.md` là một lần chạy `agentkit team` và chỉ trỏ về đây. Nếu code hiện tại mâu thuẫn với đặc tả này, **không tự đoán**: làm phần chắc chắn, ghi điểm mâu thuẫn vào ghi chú cuối đợt (mục 7) và nêu rõ trong tiêu chí còn thiếu.
 
 ## 0. Phạm vi và ràng buộc chung
 
@@ -14,8 +14,8 @@
 - **pgTAP:** đọc `docs/LOCAL_DEV_DATABASE.md` mục "Viết file pgTAP mới" và làm đúng như đó. Tóm tắt: file mới trong `supabase/tests/` tự tạo toàn bộ fixture trong giao dịch (`auth.users`, `HO_SO_NGUOI_DUNG` với `LoaiTaiKhoan` = `ORGANIZER` cho người sửa sự kiện, `TO_CHUC`, `THANH_VIEN_TO_CHUC`), có `plan(N)` đúng số khẳng định, kết thúc `finish()` rồi `ROLLBACK`; khi giả lập người dùng đặt cả `SET LOCAL ROLE authenticated`, `request.jwt.claim.sub` và `request.jwt.claim.role = 'authenticated'`. Không dựa vào `supabase/seed.sql`, không dùng `supabase/tests-stale/`. Mọi file trong `supabase/tests/` tự được `npm run db:test` chạy (không cần đăng ký ở đâu). Nền hiện có **6 file, 101 khẳng định đều đạt**; người kiểm chứng chạy `npm run db:reset` rồi `npm run db:test`.
 - Không commit khóa, mật khẩu, `.env*` có giá trị thật. Script cần `service_role` chỉ đọc từ biến môi trường, không đưa vào mã giao diện.
 - Test mới là **test hành vi thật** (không thêm `assert.match` trên mã nguồn dạng văn bản). Mọi test cũ vẫn phải đạt.
-- Không sửa `docs/` và `*.docx`. Ghi trong báo cáo cuối từng đợt những tài liệu cần cập nhật.
-- Không bịa số liệu kiểm thử hay đánh dấu "đạt" khi chưa chạy. Việc không chạy được (cần Supabase, Docker, mạng): viết sẵn và ghi rõ **chưa chạy**.
+- Không sửa `docs/` và `*.docx`. Task cuối mỗi đợt tạo `.multiagent/notes/sprint2-Wn-ghi-chu.md` (mục 7) liệt kê tài liệu cần cập nhật.
+- Không bịa số liệu kiểm thử hay đánh dấu "đạt" khi chưa chạy. Việc không chạy được (cần Supabase, Docker, mạng): viết sẵn và ghi rõ **chưa chạy** trong ghi chú cuối đợt.
 - Hai tệp tham khảo (bản nháp chưa chạy trên Postgres, **phải rà soát và sửa**, không chép nguyên): `.multiagent/briefs/dp_schema_draft.sql.txt` (3 bảng, trigger bất biến, RPC `duyet_de_xuat_gia`), `.multiagent/briefs/limit4_draft.sql.txt` (phần bổ sung đếm vé cho `tao_giu_cho_theo_suat`).
 
 ## 1. Dữ liệu mới
@@ -97,6 +97,20 @@ RPC dự kiến (tên có thể tinh chỉnh nhưng phải nêu trong báo cáo)
 - Giới hạn vé: AC-T2-02.1 (chọn tối đa 4); .2 (server từ chối kể cả gọi API trực tiếp); .3 (thông báo nêu giới hạn và số vé còn lại); .4 (hai phiên đồng thời không vượt); .5 (hết hạn giữ chỗ giải phóng số đếm); .6 (BTC đổi `SoVeToiDaMoiDon`, chỉ vai trò được phép, có audit); .7 (không áp dụng chéo giữa các sự kiện).
 - Dynamic Pricing: AC-T4-01.1 (lưu khi sàn ≤ gốc ≤ trần, lỗi theo từng trường); AC-T4-02.1 (khớp 4 ví dụ); .2 (deadband, một `PENDING` mỗi khu); .3 (chạm trần/sàn có cảnh báo); .4 (Demand Simulator đổi kịch bản thì đề xuất đổi hướng, demo); AC-T4-03.1 (duyệt → giá đổi, có `NHAT_KY_GIA`, khán giả thấy ≤ 5 giây không tải lại); .2 (từ chối giữ giá); .3 (hai BTC duyệt cùng lúc: một thành công, một nhận 409); .4 (vai trò không đủ quyền → 403); AC-T4-04.1 (ghế đang giữ giữ `DonGiaChot`); AC-T4-05.1 (đề xuất vượt khung từ bất kỳ nguồn nào bị chặn, giá giữ nguyên, có audit).
 
-## 7. Điều cần báo cáo trung thực ở cuối mỗi đợt
+## 7. Ghi chú cuối đợt (task cuối của mỗi đợt)
 
-Bảng AC / bằng chứng / đã chạy chưa; thay đổi CSDL (tên migration, bảng, cột, hàm); những gì **chưa kiểm chứng** (đặc biệt mọi thứ cần Supabase thật); rủi ro đã biết; danh sách tài liệu `.docx` và tài liệu repo cần cập nhật theo thay đổi.
+Task cuối của mỗi đợt tạo `.multiagent/notes/sprint2-Wn-ghi-chu.md` (Wn là mã đợt) gồm:
+
+1. **Bảng tiêu chí chấp nhận:** mã AC (mục 6) / bằng chứng (đường dẫn file và dòng, hoặc tên test) / trạng thái: `gate` (test node trong `npm run check` đã đạt), `cần db:test` (có pgTAP viết sẵn, người kiểm chứng chạy `npm run db:reset` và `npm run db:test`), hoặc `chưa kiểm chứng` kèm lý do. Không ghi "đạt" cho thứ chưa chạy.
+2. **Thay đổi CSDL:** tên migration, bảng, cột, trigger, hàm (chữ ký đầy đủ), chính sách RLS.
+3. **Tài liệu cần cập nhật** theo thay đổi (ERD 17 bảng, đặc tả Use Case, sơ đồ tuần tự, ma trận truy vết, Test Log).
+4. **Rủi ro và điểm mâu thuẫn** với đặc tả; việc dở dang.
+
+## 8. Cách làm việc với `agentkit team` (agent đọc kỹ)
+
+- **Cổng kiểm tra tự động là `npm run check`** (kiểm tra kiểu, test node, build). Nó **không** chạy SQL hay pgTAP. Vì vậy với migration và pgTAP, Astra và trưởng ban chấm bằng **đọc code**: viết SQL thật cẩn thận, đúng cú pháp PostgreSQL, và đối chiếu từng ràng buộc với đặc tả. Người kiểm chứng sẽ chạy `npm run db:reset` và `npm run db:test` sau khi merge.
+- **Tiêu chí kiểm được bằng cách đọc code** (ví dụ "hàm dùng `co_quyen_dinh_gia`", "plan bằng số khẳng định") hoặc bằng gate (ví dụ "test engine đạt"). Mỗi task trong brief đã có tiêu chí như vậy; Astra có thể chia nhỏ hơn nhưng không bỏ tiêu chí nào.
+- **Ban A** (trưởng ban architect): migration, RPC, pgTAP, engine, service, script, ghi chú. **Ban B** (trưởng ban visual): màn hình và tương tác giao diện. Task giao diện phụ thuộc task dữ liệu phải ghi `after` rõ ràng. **Không** để hai task cùng sửa một file (đặc biệt `database.types.ts`, một migration, `SeatMapSection.tsx`).
+- **`solo` cho việc nhỏ và rõ** (một file, ghi chú, config); **`pair` chỉ cho việc khó** (SQL nhiều ràng buộc, công thức, cổng OTP, màn hình có luồng). Một task `pair` tốn khoảng 1,0–1,6 triệu token.
+- **Commit và nhánh:** agentkit tự tạo nhánh và commit cho từng task; không tự `git push`, không đổi nhánh, không sửa `.agentkit.yaml`, không đụng `docs/`.
+- **Tên migration:** một migration cho mỗi task SQL, mốc thời gian tăng dần theo brief (đợt sau lớn hơn đợt trước); không dùng lại mốc thời gian.
