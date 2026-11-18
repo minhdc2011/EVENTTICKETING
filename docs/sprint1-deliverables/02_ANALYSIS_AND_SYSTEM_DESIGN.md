@@ -190,7 +190,17 @@ Sơ đồ lớp được trích xuất trực tiếp từ cấu trúc mã nguồ
 
 ---
 
-### 5.1. Sơ đồ lớp tổng thể toàn hệ thống (Gom cụm B-C-E tương ứng)
+### Sơ đồ lớp B-C-E phân cột trực quan (Sprint 1 + Mở rộng Sprint 2)
+
+Hình dưới đây biểu diễn toàn cảnh 32 lớp phân cột theo đúng kiến trúc **Boundary (Teal) → Control (Dark Slate) → Entity (Sage Green)**, đồng bộ 27 lớp Sprint 1/S3 của repository kèm các thành phần mở rộng Sprint 2 (Dynamic Pricing, xác minh OTP 6 số và giới hạn 4 vé lũy kế — đánh dấu viền cam và nhãn `[Sprint 2 NEW]` / `[S2]`):
+
+![Sơ đồ lớp kiến trúc B-C-E toàn hệ thống (Sprint 1 + Mở rộng Sprint 2)](images/class_diagram_bce_overview.png)
+
+> *Phiên bản vector độ phân giải vô hạn:* [`images/class_diagram_bce_overview.svg`](images/class_diagram_bce_overview.svg).
+
+---
+
+### 5.1. Sơ đồ lớp tổng thể toàn hệ thống (Mermaid — Gom cụm B-C-E tương ứng)
 
 ```mermaid
 classDiagram
