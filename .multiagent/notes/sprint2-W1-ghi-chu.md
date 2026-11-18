@@ -1,10 +1,10 @@
 # Ghi chú bàn giao Sprint 2 – Đợt W1 (nền dữ liệu và phân quyền)
 
-Phạm vi W1: chỉ **nền dữ liệu** (3 migration, 2 file pgTAP, đồng bộ kiểu dữ liệu). W1 **không** thêm RPC nghiệp vụ, engine, script hay giao diện, và **không** thêm test Node nào.
+Phạm vi W1: chỉ **nền dữ liệu** (3 migration, 2 file pgTAP, đồng bộ kiểu dữ liệu). W1 **không** thêm RPC nghiệp vụ, engine, script hay giao diện, và **không** thêm giao diện. Có một test Node: `tests/sprint2-pricing-security.test.mjs` (T5), chỉ đọc nội dung migration bảo mật dưới dạng văn bản (dạng kiểm tra tĩnh, giòn); kiểm chứng thật là pgTAP.
 
 Trạng thái xác minh của đợt này:
 - `npm run check` chỉ chạy TypeScript, test Node và build. Nó **không** chạy SQL, không replay migration, không chạy pgTAP.
-- Replay migration và pgTAP **chưa được xác minh** trong đợt này. Hai file pgTAP mới chỉ được viết sẵn và chấm bằng đọc code.
+- Replay migration và pgTAP **chưa được agent xác minh**. **Đã xác minh sau khi merge (18/11/2026):** `npm run db:reset` áp dụng đủ 3 migration từ đầu không lỗi và `npm run db:test` đạt 8 file, 288 khẳng định (101 cũ + 187 mới).
 - Đây là đợt đầu. Ghi chú này không dựa vào kết quả nào của nhánh `sprint2/integration`.
 - Phiên viết ghi chú này không có công cụ chạy lệnh nên không chạy được `git diff` / `git log`. Mục 6 vì vậy đối chiếu bằng cách đọc trực tiếp các file; xem giới hạn ở đó.
 
