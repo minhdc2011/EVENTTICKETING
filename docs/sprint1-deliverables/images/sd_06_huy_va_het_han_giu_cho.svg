@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2016" height="943" viewBox="0 0 2016 943" font-family="Arial, Liberation Sans, sans-serif">
+<defs>
+  <marker id="sd-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#2A3342"/>
+  </marker>
+  <marker id="sd-ret" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="sd-arrow-s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#D97706"/>
+  </marker>
+  <marker id="sd-ret-s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#B45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <filter id="pbox-shadow" x="-5%" y="-5%" width="110%" height="115%">
+    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="2016" height="943" fill="#F7F8FA"/>
+<rect x="0" y="0" width="2016" height="84.0" fill="#2A3342"/>
+<text x="36" y="38" font-size="21" font-weight="700" fill="#FFFFFF">SD-06: Hủy giữ chỗ chủ động &amp; Hết hạn tự động qua pg_cron</text>
+<text x="36" y="57" font-size="12" fill="#94A3B8">UC-T3-02 Luồng A2/A3 — Giải phóng ghế về trạng thái TRONG tức thì</text>
+<text x="1844.5" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
+<rect x="1860.5" y="20" width="119.5" height="24" rx="12" fill="#64748B"/>
+<text x="1920.25" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#FFFFFF">Sprint 3 base</text>
+<rect x="28.0" y="173.0" width="1960.6" height="692.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="28.0" y="173.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="51.0" y="188.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
+<rect x="157.0" y="175.0" width="286.8" height="20" rx="4" fill="#334155"/>
+<text x="166.0" y="188.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Trường hợp 1: Người mua chủ động bấm Hủy]</text>
+<line x1="28.0" y1="587.0" x2="1988.6" y2="587.0" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,3"/>
+<rect x="34.0" y="591.0" width="46.0" height="20" rx="4" fill="#475569"/>
+<text x="57.0" y="604.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">else</text>
+<rect x="157.0" y="591.0" width="318.8" height="20" rx="4" fill="#475569"/>
+<text x="166.0" y="604.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Trường hợp 2: Quét hết hạn 5 phút qua pg_cron]</text>
+<line x1="135.0" y1="114.0" x2="135.0" y2="915.0" stroke="#EC1C69" stroke-width="2.6"/>
+<line x1="513.8" y1="114.0" x2="513.8" y2="915.0" stroke="#5050CC" stroke-width="2.6"/>
+<line x1="774.1999999999999" y1="114.0" x2="774.1999999999999" y2="915.0" stroke="#4B9CE2" stroke-width="2.6"/>
+<line x1="1019.1999999999999" y1="114.0" x2="1019.1999999999999" y2="915.0" stroke="#3B82F6" stroke-width="2.6"/>
+<line x1="1320.3999999999999" y1="114.0" x2="1320.3999999999999" y2="915.0" stroke="#2E8BC0" stroke-width="2.6"/>
+<line x1="1601.1999999999998" y1="114.0" x2="1601.1999999999998" y2="915.0" stroke="#2BB5B0" stroke-width="2.6"/>
+<line x1="1861.6" y1="114.0" x2="1861.6" y2="915.0" stroke="#4B9CE2" stroke-width="2.6"/>
+<rect x="124.0" y="213.0" width="22" height="328.0" rx="3" fill="#EC1C69"/>
+<rect x="502.79999999999995" y="213.0" width="22" height="328.0" rx="3" fill="#5050CC"/>
+<rect x="763.1999999999999" y="257.0" width="22" height="284.0" rx="3" fill="#4B9CE2"/>
+<rect x="1008.1999999999999" y="623.0" width="22" height="196.0" rx="3" fill="#3B82F6"/>
+<rect x="1309.3999999999999" y="301.0" width="22" height="196.0" rx="3" fill="#2E8BC0"/>
+<rect x="1309.3999999999999" y="623.0" width="22" height="196.0" rx="3" fill="#2E8BC0"/>
+<rect x="1590.1999999999998" y="345.0" width="22" height="108.0" rx="3" fill="#2BB5B0"/>
+<rect x="1590.1999999999998" y="667.0" width="22" height="152.0" rx="3" fill="#2BB5B0"/>
+<rect x="1850.6" y="433.0" width="22" height="24.0" rx="3" fill="#4B9CE2"/>
+<rect x="1850.6" y="799.0" width="22" height="24.0" rx="3" fill="#4B9CE2"/>
+<rect x="47.5" y="60.0" width="175" height="54.0" rx="10" fill="#EC1C69" filter="url(#pbox-shadow)"/>
+<text x="135.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Actor»</text>
+<text x="135.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">Người mua</text>
+<rect x="426.29999999999995" y="60.0" width="175" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
+<text x="513.8" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
+<text x="513.8" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:SeatMapView</text>
+<rect x="686.6999999999999" y="60.0" width="175" height="54.0" rx="10" fill="#4B9CE2" filter="url(#pbox-shadow)"/>
+<text x="774.1999999999999" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="774.1999999999999" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:BookingService</text>
+<rect x="931.6999999999999" y="60.0" width="175" height="54.0" rx="10" fill="#3B82F6" filter="url(#pbox-shadow)"/>
+<text x="1019.1999999999999" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1019.1999999999999" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:pg_cron (10s)</text>
+<rect x="1232.8999999999999" y="60.0" width="175" height="54.0" rx="10" fill="#2E8BC0" filter="url(#pbox-shadow)"/>
+<text x="1320.3999999999999" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1320.3999999999999" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:RPCHuy/Expire</text>
+<rect x="1513.6999999999998" y="60.0" width="175" height="54.0" rx="10" fill="#2BB5B0" filter="url(#pbox-shadow)"/>
+<text x="1601.1999999999998" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Entity»</text>
+<text x="1601.1999999999998" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PostgreSQL</text>
+<rect x="1774.1" y="60.0" width="175" height="54.0" rx="10" fill="#4B9CE2" filter="url(#pbox-shadow)"/>
+<text x="1861.6" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1861.6" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:RealtimePub</text>
+<line x1="146.0" y1="221.0" x2="501.79999999999995" y2="221.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="240.89999999999998" y="208.0" width="166.0" height="26" rx="13" fill="#2A3342"/>
+<text x="323.9" y="225.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Nhấn nút Hủy giữ chỗ</text>
+<line x1="524.8" y1="265.0" x2="762.1999999999999" y2="265.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="550.3" y="252.0" width="186.4" height="26" rx="13" fill="#2A3342"/>
+<text x="643.5" y="269.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">releaseSeatHold(holdId)</text>
+<line x1="785.1999999999999" y1="309.0" x2="1308.3999999999999" y2="309.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="936.5999999999999" y="296.0" width="220.4" height="26" rx="13" fill="#2A3342"/>
+<text x="1046.8" y="313.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">huy_giu_cho(holdId, phienId)</text>
+<line x1="1331.3999999999999" y1="353.0" x2="1589.1999999999998" y2="353.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="1360.2999999999997" y="340.0" width="200.0" height="26" rx="13" fill="#2A3342"/>
+<text x="1460.2999999999997" y="357.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPDATE GIU_CHO = RELEASED</text>
+<line x1="1331.3999999999999" y1="397.0" x2="1589.1999999999998" y2="397.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="1384.0999999999997" y="384.0" width="152.39999999999998" height="26" rx="13" fill="#2A3342"/>
+<text x="1460.2999999999997" y="401.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPDATE GHE = TRONG</text>
+<line x1="1612.1999999999998" y1="441.0" x2="1849.6" y2="441.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="1637.6999999999998" y="428.0" width="186.4" height="26" rx="13" fill="#3E4C5E"/>
+<text x="1730.8999999999999" y="445.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Phát Realtime ghế TRONG</text>
+<line x1="1309.3999999999999" y1="485.0" x2="786.1999999999999" y2="485.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="985.1999999999999" y="472.0" width="125.2" height="26" rx="13" fill="#3E4C5E"/>
+<text x="1047.8" y="489.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Hủy thành công</text>
+<line x1="763.1999999999999" y1="529.0" x2="525.8" y2="529.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="554.7" y="516.0" width="179.6" height="26" rx="13" fill="#3E4C5E"/>
+<text x="644.5" y="533.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Đóng modal &amp; reset ghế</text>
+<line x1="1030.1999999999998" y1="631.0" x2="1308.3999999999999" y2="631.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="1055.6999999999998" y="618.0" width="227.2" height="26" rx="13" fill="#2A3342"/>
+<text x="1169.2999999999997" y="635.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">expire_seat_holds() (mỗi 10s)</text>
+<line x1="1331.3999999999999" y1="675.0" x2="1589.1999999999998" y2="675.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="1356.8999999999996" y="662.0" width="206.79999999999998" height="26" rx="13" fill="#2A3342"/>
+<text x="1460.2999999999997" y="679.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Tìm GIU_CHO ACTIVE quá hạn</text>
+<line x1="1331.3999999999999" y1="719.0" x2="1589.1999999999998" y2="719.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="1363.6999999999998" y="706.0" width="193.2" height="26" rx="13" fill="#2A3342"/>
+<text x="1460.2999999999997" y="723.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPDATE GIU_CHO = EXPIRED</text>
+<line x1="1331.3999999999999" y1="763.0" x2="1589.1999999999998" y2="763.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="1384.0999999999997" y="750.0" width="152.39999999999998" height="26" rx="13" fill="#2A3342"/>
+<text x="1460.2999999999997" y="767.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPDATE GHE = TRONG</text>
+<line x1="1612.1999999999998" y1="807.0" x2="1849.6" y2="807.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="1637.6999999999998" y="794.0" width="186.4" height="26" rx="13" fill="#3E4C5E"/>
+<text x="1730.8999999999999" y="811.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Phát Realtime ghế TRONG</text>
+</svg>
