@@ -102,10 +102,10 @@ exclude:
 protect:
   - docs
 
-# agentkit team (used for the Sprint 2 waves, see Sprint 2/agentkit): total token budget per run. Team refuses to start
-# (exit 2) if its estimate does not fit; raise the value or pass --budget N.
+# agentkit team (used for the Sprint 2 waves, see Sprint 2/agentkit): total token budget per run, 0 = unlimited
+# (changed from 16000000 on 2026-11-20 because W2 needed more; pass --budget N to cap a single run).
 team:
-  budget: 16000000
+  budget: 0
   plan_reviewer: null   # Astra writes the plan alone: no second model reviews it
 
 # agentkit solve: every change must pass these before review (lint + node tests + vite build).
