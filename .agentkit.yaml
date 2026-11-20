@@ -106,7 +106,7 @@ protect:
 # (exit 2) if its estimate does not fit; raise the value or pass --budget N.
 team:
   budget: 16000000
-  plan_rounds: 3   # astra and fable review the plan at most 3 rounds (global default is unlimited)
+  plan_reviewer: null   # Astra writes the plan alone: no second model reviews it
 
 # agentkit solve: every change must pass these before review (lint + node tests + vite build).
 solve:
