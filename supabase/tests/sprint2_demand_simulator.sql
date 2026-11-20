@@ -344,7 +344,7 @@ SET LOCAL "request.jwt.claim.sub" = '44444444-4444-4444-4444-444444444401';
 SELECT is(
   (SELECT ROW(r->>'ketQua', r->>'nhan', (r->>'moPhong')::boolean, r->>'kichBan')
      FROM (SELECT public.mo_phong_nhu_cau(995101, 'ban_nhanh') AS r) s),
-  ROW('DA_MO_PHONG', 'MO_PHONG', TRUE, 'ban_nhanh'),
+  ROW('DA_MO_PHONG'::text, 'MO_PHONG'::text, TRUE, 'ban_nhanh'::text),
   'ban_nhanh succeeds with DA_MO_PHONG and MO_PHONG label');
 
 -- Open shows include both DANG_MO_BAN (995101) and SAP_MO_BAN (995102); closed show (995103) is skipped
@@ -500,7 +500,7 @@ SELECT is(
         WHERE (s->>'suatDienId')::bigint = 995103)
     )
     FROM (SELECT public.mo_phong_nhu_cau(995101, 'ban_cham') AS r) t),
-  ROW(TRUE, 1, 0, 'KHONG_MO_BAN'),
+  ROW(TRUE, 1, 0, 'KHONG_MO_BAN'::text),
   'JSON response marks standing zone khongCoGhe=true, boQuaDangGiu=1, biKepVaoCuaSo6h=0 (>7h open), and closed show KHONG_MO_BAN');
 RESET ROLE;
 
