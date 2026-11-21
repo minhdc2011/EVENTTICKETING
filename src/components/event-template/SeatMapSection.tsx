@@ -7,6 +7,22 @@ import {
   subscribeToSeatUpdates,
   type RealtimeConnectionStatus,
 } from '../../services/seatRealtimeService';
+import {
+  subscribeToPriceUpdates,
+  type PriceConnectionStatus,
+} from '../../services/priceRealtimeService';
+import {
+  applyPriceSnapshotToCatalog,
+  applyPriceSnapshotToInspectedSeat,
+  applyPriceSnapshotToSelection,
+  applyPriceUpdateToCatalog,
+  applyPriceUpdateToInspectedSeat,
+  applyPriceUpdateToSelection,
+  buildHeldPriceSnapshot,
+  describePriceConnectionStatus,
+  type HeldPriceSnapshot,
+} from '../../domain/pricePresentation.js';
+import {isValidPrice, khopMaPhamViNghiemNgat} from '../../domain/priceRealtime.js';
 import {getActiveEventContext, runtimeConfig} from '../../config/runtime';
 import {loadEventPurchaseConfig} from '../../services/eventService';
 import {resolvePurchaseLimits, DEFAULT_HOLD_MINUTES} from '../../domain/purchaseLimits.js';
@@ -63,6 +79,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const zoom = panZoom.view.zoom;
   const [selectedSeats, setSelectedSeats] = useState<SeatRecord[]>([]);
   const [heldSeatsSnapshot, setHeldSeatsSnapshot] = useState<SeatRecord[]>([]);
+  const [heldPriceSnapshot, setHeldPriceSnapshot] = useState<HeldPriceSnapshot | null>(null);
   const [inspectedSeat, setInspectedSeat] = useState<SeatRecord | null>(null);
   const [activeHold, setActiveHold] = useState<{
     holdId: string;
@@ -74,6 +91,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const [isPending, setIsPending] = useState<boolean>(false);
   const [isReleasePending, setIsReleasePending] = useState<boolean>(false);
   const [connectionStatus, setConnectionStatus] = useState<RealtimeConnectionStatus>('CONNECTING');
+  const [priceConnectionStatus, setPriceConnectionStatus] = useState<PriceConnectionStatus>('CONNECTING');
+  const [hasPriceConnectedBefore, setHasPriceConnectedBefore] = useState<boolean>(false);
   const [realtimeBanner, setRealtimeBanner] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState<string>('');
   const [standing, setStanding] = useState<Record<string, number>>({});
@@ -82,12 +101,30 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 
   const holdButtonRef = useRef<HTMLButtonElement>(null);
   const pendingHoldSeatCodesRef = useRef<Set<string> | null>(null);
+  const latestPriceSnapshotRef = useRef<ReadonlyMap<number, number> | null>(null);
 
   // Active event/show scope identity for race safety and boundary resets
   const currentScopeKey = `${event?.id ?? 0}_${event?.selectedShow?.id ?? 0}`;
   const activeScopeRef = useRef(currentScopeKey);
   const activeHoldRef = useRef(activeHold);
   activeHoldRef.current = activeHold;
+  const catalogRef = useRef(catalog);
+  catalogRef.current = catalog;
+  const selectedSeatsRef = useRef(selectedSeats);
+  selectedSeatsRef.current = selectedSeats;
+  const standingRef = useRef(standing);
+  standingRef.current = standing;
+  const holdOpIdRef = useRef(0);
+  const releaseOpIdRef = useRef(0);
+  const isMountedRef = useRef(true);
+  const catalogReqIdRef = useRef(0);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      catalogReqIdRef.current += 1;
+    };
+  }, []);
 
   // Derive sale status
   const saleStatus = useMemo(() => {
@@ -136,10 +173,16 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         });
       }
       activeScopeRef.current = currentScopeKey;
+      // Invalidate any in-flight catalog load and hold/release RPC from the previous scope
+      catalogReqIdRef.current += 1;
+      holdOpIdRef.current += 1;
+      releaseOpIdRef.current += 1;
 
       setSelectedSeats([]);
       setStanding({});
       setHeldSeatsSnapshot([]);
+      setHeldPriceSnapshot(null);
+      latestPriceSnapshotRef.current = null;
       setInspectedSeat(null);
       setActiveHold(null);
       setIsHoldDialogOpen(false);
@@ -159,22 +202,27 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   // Load catalog (race-safe against stale async scope changes)
   const fetchCatalog = useCallback(async (): Promise<TicketingCatalog | null> => {
     const requestScope = currentScopeKey;
+    const reqId = ++catalogReqIdRef.current;
+    const isStale = () =>
+      !isMountedRef.current || activeScopeRef.current !== requestScope || catalogReqIdRef.current !== reqId;
     setCatalogState('loading');
     try {
       const data = await loadTicketingCatalog();
-      if (activeScopeRef.current !== requestScope) {
+      if (isStale()) {
         return null;
       }
-      if (!data.zones || data.zones.length === 0 || !data.seats || data.seats.length === 0) {
-        setCatalog(data);
+      const snapshot = latestPriceSnapshotRef.current;
+      const pricedData = snapshot ? applyPriceSnapshotToCatalog(data, snapshot) || data : data;
+      if (!pricedData.zones || pricedData.zones.length === 0 || !pricedData.seats || pricedData.seats.length === 0) {
+        setCatalog(pricedData);
         setCatalogState('empty');
       } else {
-        setCatalog(data);
+        setCatalog(pricedData);
         setCatalogState('ready');
       }
-      return data;
+      return pricedData;
     } catch (err) {
-      if (activeScopeRef.current !== requestScope) {
+      if (isStale()) {
         return null;
       }
       console.error('Không thể tải dữ liệu sơ đồ ghế:', err);
@@ -227,6 +275,64 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     };
   }, [currentScopeKey]);
 
+  // Realtime price subscription (updates catalog, unheld selection, and inspected seat without touching TrangThai or pan/zoom)
+  useEffect(() => {
+    let active = true;
+    const effectScopeKey = currentScopeKey;
+    const activeContext = getActiveEventContext();
+    const scope = {
+      suKienId: event?.id ?? activeContext.eventDatabaseId,
+      suatDienId: event?.selectedShow?.id ?? activeContext.showId,
+    };
+
+    latestPriceSnapshotRef.current = null;
+    setPriceConnectionStatus('CONNECTING');
+    setHasPriceConnectedBefore(false);
+
+    const unsubscribe = subscribeToPriceUpdates(
+      (priceEvent) => {
+        if (!active || activeScopeRef.current !== effectScopeKey) return;
+        if (
+          priceEvent?.type === 'ZONE_PRICE_CHANGED' &&
+          isValidPrice(priceEvent.gia) &&
+          khopMaPhamViNghiemNgat(priceEvent.suKienId, scope.suKienId) &&
+          khopMaPhamViNghiemNgat(priceEvent.suatDienId, scope.suatDienId)
+        ) {
+          const nextMap = new Map(latestPriceSnapshotRef.current ?? undefined);
+          nextMap.set(Number(priceEvent.khuVucId), priceEvent.gia);
+          latestPriceSnapshotRef.current = nextMap;
+        }
+        const hasHold = Boolean(activeHoldRef.current);
+        setCatalog((prev) => applyPriceUpdateToCatalog(prev, priceEvent, scope));
+        setSelectedSeats((prev) => applyPriceUpdateToSelection(prev, priceEvent, scope, {hasActiveHold: hasHold}));
+        setInspectedSeat((prev) => applyPriceUpdateToInspectedSeat(prev, priceEvent, scope));
+      },
+      (status) => {
+        if (!active || activeScopeRef.current !== effectScopeKey) return;
+        setPriceConnectionStatus(status);
+        if (status === 'CONNECTED' || status === 'LOCAL_ONLY') {
+          setHasPriceConnectedBefore(true);
+        }
+      },
+      {
+        scope,
+        onSnapshot: (priceMap) => {
+          if (!active || activeScopeRef.current !== effectScopeKey) return;
+          latestPriceSnapshotRef.current = new Map(priceMap);
+          const hasHold = Boolean(activeHoldRef.current);
+          setCatalog((prev) => applyPriceSnapshotToCatalog(prev, priceMap));
+          setSelectedSeats((prev) => applyPriceSnapshotToSelection(prev, priceMap, {hasActiveHold: hasHold}));
+          setInspectedSeat((prev) => applyPriceSnapshotToInspectedSeat(prev, priceMap));
+        },
+      },
+    );
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [currentScopeKey, event?.id, event?.selectedShow?.id]);
+
   // Hold countdown interval timer
   useEffect(() => {
     if (!activeHold) return;
@@ -240,6 +346,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         setSelectedSeats([]);
         setStanding({});
         setHeldSeatsSnapshot([]);
+        setHeldPriceSnapshot(null);
         setIsHoldDialogOpen(false);
         setIsReleasePending(false);
         const expiredNotice = 'Thời gian giữ ghế đã hết. Vui lòng chọn lại ghế để tiếp tục.';
@@ -444,6 +551,17 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     const standingItems = buildStandingHoldItems(standing, catalog?.zones || []);
     const pendingSeatCodes = selectedSeats.map((seat) => seat.MaGheDayDu);
     pendingHoldSeatCodesRef.current = new Set(pendingSeatCodes);
+
+    // Race guard: scope + operation id captured before the await
+    const requestScope = activeScopeRef.current;
+    const opId = ++holdOpIdRef.current;
+    const isCurrent = () =>
+      isMountedRef.current && activeScopeRef.current === requestScope && holdOpIdRef.current === opId;
+    const requestedSeats = [...selectedSeats];
+    const requestedStanding = {...standing};
+    const requestedZones = catalog?.zones || [];
+    const requestedStandingCount = standingCount;
+
     setIsPending(true);
     try {
       const holdResult = await createSeatHold({
@@ -451,19 +569,48 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         items: [...holdItemsResult.items, ...standingItems],
       });
 
+      if (!isCurrent()) {
+        // Result belongs to a previous show/operation or an unmounted view: free the orphaned server hold.
+        void releaseSeatHold(holdResult.holdId).catch((releaseErr) => {
+          console.warn('Lỗi giải phóng giữ chỗ mồ côi sau khi rời suất diễn:', releaseErr);
+        });
+        return;
+      }
+
+      // Price snapshot uses the latest displayed prices at success time (not the closure before the await)
+      const latestSelectedByCode = new Map(selectedSeatsRef.current.map((seat) => [seat.MaGheDayDu, seat]));
+      const heldSeats = requestedSeats.map((seat) => latestSelectedByCode.get(seat.MaGheDayDu) ?? seat);
+      const latestPriceMap = latestPriceSnapshotRef.current;
+      const pricedHeldSeats = latestPriceMap
+        ? applyPriceSnapshotToSelection(heldSeats, latestPriceMap)
+        : heldSeats;
+      const latestZones = catalogRef.current?.zones?.length ? catalogRef.current.zones : requestedZones;
+      const priceSnapshot = buildHeldPriceSnapshot({
+        selectedSeats: pricedHeldSeats,
+        standing: requestedStanding,
+        zones: latestZones,
+        holdRecord: holdResult,
+        latestPriceMap,
+      });
+
       setActiveHold({
         holdId: holdResult.holdId,
         expiresAt: holdResult.expiresAt,
         seatCodes: pendingSeatCodes,
       });
-      setHeldSeatsSnapshot([...selectedSeats]);
+      setHeldSeatsSnapshot([...pricedHeldSeats]);
+      setHeldPriceSnapshot(priceSnapshot);
+      if (latestPriceMap) {
+        setSelectedSeats((prev) => applyPriceSnapshotToSelection(prev, latestPriceMap));
+      }
 
       const secs = calculateRemainingSeconds(holdResult.expiresAt);
       setRemainingSeconds(secs);
       setIsHoldDialogOpen(true);
       setRealtimeBanner(`Đã giữ chỗ tạm trong ${holdLabel} · Chưa phát sinh thanh toán`);
-      setAnnouncement(`Đã giữ ${selectedSeats.length + standingCount} vé thành công.`);
+      setAnnouncement(`Đã giữ ${requestedSeats.length + requestedStandingCount} vé thành công.`);
     } catch (err: any) {
+      if (!isCurrent()) return;
       console.error('Lỗi yêu cầu giữ chỗ:', err);
       const isConflict =
         err?.status === 409 ||
@@ -473,6 +620,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 
       // Reconcile from fresh catalog on any hold error/conflict so foreign holds cannot remain falsely selected
       const freshCatalog = await fetchCatalog();
+      if (!isCurrent()) return;
       if (freshCatalog) {
         setSelectedSeats((currentSelection) => {
           const {validSelection, removedSeats, message} = reconcileSelectionWithCatalog(
@@ -504,8 +652,10 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         dispatchToast({message: errorText, type: 'error'});
       }
     } finally {
-      pendingHoldSeatCodesRef.current = null;
-      setIsPending(false);
+      if (isCurrent()) {
+        pendingHoldSeatCodesRef.current = null;
+        setIsPending(false);
+      }
     }
   }, [activeHold, catalog?.zones, event?.slug, fetchCatalog, holdLabel, isConnectionTrusted, isPending, saleOpen, selectedSeats, standing, standingCount]);
 
@@ -513,11 +663,34 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const handleReleaseHold = useCallback(async () => {
     if (!activeHold || isReleasePending) return;
 
+    const requestScope = activeScopeRef.current;
+    const releasingHoldId = activeHold.holdId;
+    const opId = ++releaseOpIdRef.current;
+    const isCurrent = () =>
+      isMountedRef.current &&
+      activeScopeRef.current === requestScope &&
+      releaseOpIdRef.current === opId &&
+      activeHoldRef.current?.holdId === releasingHoldId;
+
     setIsReleasePending(true);
     try {
-      await releaseSeatHold(activeHold.holdId);
+      await releaseSeatHold(releasingHoldId);
+      if (!isCurrent()) return;
       setActiveHold(null);
       setHeldSeatsSnapshot([]);
+      setHeldPriceSnapshot(null);
+      const livePriceMap = new Map<number, number>();
+      for (const zone of catalogRef.current?.zones || []) {
+        if (isValidPrice(zone.GiaVeNiemYet)) livePriceMap.set(zone.KhuVucID, zone.GiaVeNiemYet);
+      }
+      if (latestPriceSnapshotRef.current) {
+        latestPriceSnapshotRef.current.forEach((gia, id) => {
+          if (isValidPrice(gia)) livePriceMap.set(id, gia);
+        });
+      }
+      if (livePriceMap.size > 0) {
+        setSelectedSeats((prev) => applyPriceSnapshotToSelection(prev, livePriceMap, {hasActiveHold: false}));
+      }
       setIsHoldDialogOpen(false);
       setRealtimeBanner(null);
       const msg = 'Đã hủy giữ ghế. Bạn có thể tiếp tục thay đổi lựa chọn.';
@@ -525,13 +698,30 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       dispatchToast({message: msg, type: 'info'});
     } catch (err) {
       console.error('Lỗi khi hủy giữ chỗ:', err);
+      if (!isCurrent()) return;
       const errMsg = 'Chưa thể hủy giữ chỗ do lỗi kết nối. Phiên giữ ghế vẫn đang tiếp tục.';
       setRealtimeBanner(errMsg);
       dispatchToast({message: errMsg, type: 'error'});
     } finally {
-      setIsReleasePending(false);
+      if (isCurrent()) setIsReleasePending(false);
     }
   }, [activeHold, isReleasePending]);
+
+  const priceConnectionDesc = useMemo(
+    () => describePriceConnectionStatus(priceConnectionStatus, {hasConnectedBefore: hasPriceConnectedBefore}),
+    [priceConnectionStatus, hasPriceConnectedBefore],
+  );
+
+  const standingLines = useMemo(
+    () =>
+      (Object.entries(standing) as Array<[string, number]>)
+        .filter(([, quantity]) => quantity > 0)
+        .map(([zoneCode, quantity]) => {
+          const zone = (catalog?.zones || []).find((z) => z.MaKhuVuc === zoneCode);
+          return {zoneCode, name: zone?.TenKhuVuc || zoneCode, quantity, price: Number(zone?.GiaVeNiemYet || 0)};
+        }),
+    [catalog?.zones, standing],
+  );
 
   return (
     <section
@@ -602,6 +792,17 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               isMock={isMock}
               saleOpen={saleOpen}
             />
+
+            {priceConnectionDesc.visible && (
+              <div
+                className={`et-price-status-bar et-price-status-bar--${priceConnectionDesc.tone}`}
+                role="status"
+                aria-live="polite"
+                data-od-id="price-connection-status"
+              >
+                <span>{priceConnectionDesc.text}</span>
+              </div>
+            )}
 
             {/* Map Header */}
             <div className="et-map-card-head">
@@ -788,11 +989,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
           {/* Selection & Hold Summary Panel */}
           <SelectionSummary
             selectedSeats={selectedSeats}
-            standingLines={(Object.entries(standing) as Array<[string, number]>).map(([zoneCode, quantity]) => {
-              const zone = (catalog?.zones || []).find((z) => z.MaKhuVuc === zoneCode);
-              return {zoneCode, name: zone?.TenKhuVuc || zoneCode, quantity, price: Number(zone?.GiaVeNiemYet || 0)};
-            })}
+            standingLines={standingLines}
             standingTotal={calculateStandingTotal(standing, catalog?.zones || [])}
+            heldPriceSnapshot={heldPriceSnapshot}
             maxCap={limits.maxPerOrder}
             holdLabel={holdLabel}
             onChangeStanding={handleStandingChange}
@@ -819,6 +1018,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
           onRelease={handleReleaseHold}
           holdId={activeHold?.holdId}
           selectedSeats={heldSeatsSnapshot.length > 0 ? heldSeatsSnapshot : selectedSeats}
+          standingLines={standingLines}
+          heldPriceSnapshot={heldPriceSnapshot}
           remainingSeconds={remainingSeconds}
           openerRef={holdButtonRef}
           isReleasing={isReleasePending}

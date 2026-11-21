@@ -1,18 +1,28 @@
 import type {CSSProperties} from 'react';
 import type {PublicTicketTier} from '../../services/eventService';
+import type {PriceConnectionStatus} from '../../services/priceRealtimeService';
+import {describePriceConnectionStatus} from '../../domain/pricePresentation.js';
 import {formatMoney, parseTierBenefits} from './eventTemplateLogic.js';
 
 type TicketTiersSectionProps = {
   tiers: PublicTicketTier[];
   tierState: 'loading' | 'ready' | 'error';
   onRetry?: () => void;
+  priceConnectionStatus?: PriceConnectionStatus;
+  hasPriceConnectedBefore?: boolean;
 };
 
 export function TicketTiersSection({
   tiers,
   tierState,
   onRetry,
+  priceConnectionStatus,
+  hasPriceConnectedBefore = false,
 }: TicketTiersSectionProps) {
+  const priceNotice = priceConnectionStatus
+    ? describePriceConnectionStatus(priceConnectionStatus, {hasConnectedBefore: hasPriceConnectedBefore})
+    : null;
+
   return (
     <section id="tickets" className="et-content-section" aria-labelledby="tickets-heading">
       <div className="et-section-header">
@@ -23,6 +33,16 @@ export function TicketTiersSection({
         <p className="et-section-desc">
           Lựa chọn phân khu phù hợp với trải nghiệm của bạn. Giá niêm yết đã bao gồm quyền vào cửa theo suất diễn đã chọn.
         </p>
+        {priceNotice?.visible && (
+          <p
+            className={`et-price-sync-status et-price-sync-status--${priceNotice.tone}`}
+            role="status"
+            aria-live="polite"
+            data-od-id="price-connection-status"
+          >
+            {priceNotice.text}
+          </p>
+        )}
       </div>
 
       {tierState === 'loading' && (

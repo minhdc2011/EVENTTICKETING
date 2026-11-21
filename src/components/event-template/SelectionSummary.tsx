@@ -1,6 +1,7 @@
 import type {RefObject} from 'react';
 import type {SeatRecord} from '../../types/ticketing';
 import {formatMoneyVND, calculateSelectionTotal} from '../../domain/seatMap.js';
+import {HELD_PRICE_NOTE_CLIENT, type HeldPriceSnapshot} from '../../domain/pricePresentation.js';
 
 export interface StandingLine {
   zoneCode: string;
@@ -13,6 +14,7 @@ export interface SelectionSummaryProps {
   selectedSeats: SeatRecord[];
   standingLines?: StandingLine[];
   standingTotal?: number;
+  heldPriceSnapshot?: HeldPriceSnapshot | null;
   maxCap?: number;
   holdLabel?: string;
   onChangeStanding?: (zoneCode: string, quantity: number) => void;
@@ -30,6 +32,7 @@ export function SelectionSummary({
   selectedSeats,
   standingLines = [],
   standingTotal = 0,
+  heldPriceSnapshot = null,
   maxCap = 4,
   holdLabel = '5 phút',
   onChangeStanding,
@@ -42,7 +45,14 @@ export function SelectionSummary({
   onClearAll,
   onProceedHold,
 }: SelectionSummaryProps) {
-  const totalAmount = calculateSelectionTotal(selectedSeats) + standingTotal;
+  const activeHeldSnapshot = hasActiveHold ? heldPriceSnapshot : null;
+  const heldSeatByCode = new Map((activeHeldSnapshot?.seats || []).map((line) => [line.MaGheDayDu, line]));
+  const heldSeatById = new Map((activeHeldSnapshot?.seats || []).map((line) => [line.GheID, line]));
+  const heldStandingByZone = new Map((activeHeldSnapshot?.standingLines || []).map((line) => [line.zoneCode, line]));
+
+  const totalAmount = activeHeldSnapshot
+    ? activeHeldSnapshot.total
+    : calculateSelectionTotal(selectedSeats) + standingTotal;
   const totalFormatted = formatMoneyVND(totalAmount);
   const count = selectedSeats.length + standingLines.reduce((sum, line) => sum + line.quantity, 0);
 
@@ -65,7 +75,7 @@ export function SelectionSummary({
           <h2 id="summary-title" data-od-id="summary-title">
             Ghế đã chọn
           </h2>
-          <span id="count" className="et-summary-counter">
+          <span id="count" className="et-summary-counter et-num">
             {count} / {maxCap} vé
           </span>
         </div>
@@ -84,53 +94,65 @@ export function SelectionSummary({
             </div>
           ) : (
             <>
-              {standingLines.map((line) => (
-                <article key={line.zoneCode} className="et-ticket-row" data-od-id={`standing-${line.zoneCode.toLowerCase()}`}>
-                  <div>
-                    <strong>{line.name}</strong>
-                    <p>Vé đứng · {line.quantity} vé</p>
-                  </div>
-                  <div className="et-ticket-right">
-                    <span>{formatMoneyVND(line.price * line.quantity)}</span>
-                    <button
-                      type="button"
-                      className="et-remove-btn"
-                      aria-label={`Bỏ vé đứng ${line.name}`}
-                      disabled={isPending || hasActiveHold}
-                      onClick={() => onChangeStanding?.(line.zoneCode, 0)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </article>
-              ))}
-              {selectedSeats.map((seat) => (
-                <article
-                  key={seat.GheID}
-                  className="et-ticket-row"
-                  data-od-id={`ticket-${seat.MaGheDayDu.toLowerCase()}`}
-                >
-                  <div>
-                    <strong>{seat.MaGheDayDu}</strong>
-                    <p>
-                      Khu {seat.TenKhuVuc || 'Khán đài'} · Hàng {seat.SoHang} · Ghế {seat.SoGhe}
-                    </p>
-                  </div>
-                  <div className="et-ticket-right">
-                    <span>{formatMoneyVND(seat.GiaVeNiemYet)}</span>
-                    <button
-                      type="button"
-                      className="et-remove-btn"
-                      data-remove={seat.MaGheDayDu}
-                      aria-label={`Bỏ ghế ${seat.MaGheDayDu}`}
-                      disabled={isPending || hasActiveHold}
-                      onClick={() => onRemoveSeat(seat)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </article>
-              ))}
+              {standingLines.map((line) => {
+                const heldLine = heldStandingByZone.get(line.zoneCode);
+                const subtotal = heldLine ? heldLine.subtotal : line.price * line.quantity;
+                return (
+                  <article key={line.zoneCode} className="et-ticket-row" data-od-id={`standing-${line.zoneCode.toLowerCase()}`}>
+                    <div>
+                      <strong>{line.name}</strong>
+                      <p>
+                        Vé đứng · {line.quantity} vé
+                        {heldLine?.serverLocked && <span className="et-price-lock-tag">Đã chốt</span>}
+                      </p>
+                    </div>
+                    <div className="et-ticket-right">
+                      <span className="et-num">{formatMoneyVND(subtotal)}</span>
+                      <button
+                        type="button"
+                        className="et-remove-btn"
+                        aria-label={`Bỏ vé đứng ${line.name}`}
+                        disabled={isPending || hasActiveHold}
+                        onClick={() => onChangeStanding?.(line.zoneCode, 0)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+              {selectedSeats.map((seat) => {
+                const heldLine = heldSeatByCode.get(seat.MaGheDayDu) || heldSeatById.get(seat.GheID);
+                const displayPrice = heldLine ? heldLine.unitPrice : seat.GiaVeNiemYet;
+                return (
+                  <article
+                    key={seat.GheID}
+                    className="et-ticket-row"
+                    data-od-id={`ticket-${seat.MaGheDayDu.toLowerCase()}`}
+                  >
+                    <div>
+                      <strong>{seat.MaGheDayDu}</strong>
+                      <p>
+                        Khu {seat.TenKhuVuc || 'Khán đài'} · Hàng {seat.SoHang} · Ghế {seat.SoGhe}
+                        {heldLine?.serverLocked && <span className="et-price-lock-tag">Đã chốt</span>}
+                      </p>
+                    </div>
+                    <div className="et-ticket-right">
+                      <span className="et-num">{formatMoneyVND(displayPrice)}</span>
+                      <button
+                        type="button"
+                        className="et-remove-btn"
+                        data-remove={seat.MaGheDayDu}
+                        aria-label={`Bỏ ghế ${seat.MaGheDayDu}`}
+                        disabled={isPending || hasActiveHold}
+                        onClick={() => onRemoveSeat(seat)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
 
               <button
                 type="button"
@@ -150,12 +172,16 @@ export function SelectionSummary({
         <div className="et-payment-section">
           <div className="et-total-row">
             <span>Tổng cộng</span>
-            <strong id="total" data-od-id="total-amount">
+            <strong id="total" className="et-num" data-od-id="total-amount">
               {totalFormatted}
             </strong>
           </div>
-          <p className="et-fee-notice">
-            Tổng tạm tính từ giá vé hiện tại; hệ thống xác nhận lại khi giữ ghế.
+          <p className="et-fee-notice" data-od-id="selection-price-note">
+            {activeHeldSnapshot
+              ? activeHeldSnapshot.note
+              : hasActiveHold
+              ? HELD_PRICE_NOTE_CLIENT
+              : 'Tổng tạm tính từ giá vé hiện tại; hệ thống xác nhận lại khi giữ ghế.'}
           </p>
 
           <button

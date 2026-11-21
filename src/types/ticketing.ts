@@ -35,6 +35,10 @@ export interface HoldItem {
   ticketCode: string;
   zoneCode: string;
   quantity?: number;
+  /** Đơn giá chốt do máy chủ trả về (nếu có). Chỉ đọc; RPC giữ chỗ hiện chưa bảo đảm trả trường này. */
+  DonGiaChot?: number | null;
+  /** Đơn giá hiển thị kèm mục (nếu có); không phải bằng chứng giá chốt. */
+  price?: number | null;
 }
 
 export interface CreateHoldRequest {
@@ -48,6 +52,8 @@ export interface HoldRecord {
   status: 'ACTIVE' | 'EXPIRED' | 'RELEASED' | 'CONVERTED';
   expiresAt: string;
   items: HoldItem[];
+  /** Đơn giá chốt ở cấp bản ghi (nếu máy chủ trả về; chỉ dùng khi bản ghi chỉ có một dòng vé). */
+  DonGiaChot?: number | null;
 }
 
 export interface SeatStatusEvent {
