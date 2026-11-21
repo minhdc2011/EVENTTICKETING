@@ -1,11 +1,13 @@
 import {useCallback, useEffect, useMemo, useState, type FormEvent} from 'react';
 import type * as React from 'react';
+import {runtimeConfig} from '../config/runtime';
 import {navigatePublicRoute} from '../domain/publicRoute';
 import {
   canManageOrganizationEvents,
   createOrganization,
   filterEventsByOrganization,
   isOrganizerAccount,
+  khoiTaoDuLieuDemoDinhGia,
   loadOrganizerWorkspace,
   loadSavedActiveOrganizationId,
   publishEvent,
@@ -185,6 +187,7 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   const [messageType, setMessageType] = useState<'error' | 'status'>('status');
   const [publishingId, setPublishingId] = useState<number | null>(null);
   const [busyOrg, setBusyOrg] = useState(false);
+  const [busyDemo, setBusyDemo] = useState(false);
   const [wizardAggregate, setWizardAggregate] = useState<FullEventAggregateInput | null>(null);
 
   const defaultDates = useMemo(() => getDefaultDraftDates(), []);
@@ -205,6 +208,26 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  async function handleInitDemoPricing() {
+    if (!runtimeConfig.useMockData || busyDemo) return;
+    setBusyDemo(true);
+    setMessage('');
+    try {
+      const meta = await khoiTaoDuLieuDemoDinhGia();
+      await refresh();
+      const warning = meta?.luuTru?.canhBao ? ` (${meta.luuTru.canhBao})` : '';
+      setMessage(
+        `[MÔ PHỎNG] Đã khởi tạo / khôi phục dữ liệu demo định giá dùng chung. Đây là dữ liệu mô phỏng, không phải dữ liệu thật.${warning}`,
+      );
+      setMessageType('status');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không thể khởi tạo dữ liệu demo định giá.');
+      setMessageType('error');
+    } finally {
+      setBusyDemo(false);
+    }
+  }
 
   useEffect(() => {
     if (memberships.length > 0) {
@@ -343,22 +366,36 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
               </h1>
             </div>
 
-            <button
-              type="button"
-              className="org-btn org-btn-primary organizer-primary"
-              onClick={handleStartCreate}
-              disabled={!memberships.length || !canEdit || !activeOrg}
-              title={
-                !memberships.length
-                  ? 'Vui lòng tạo tổ chức trước'
-                  : !canEdit
-                  ? 'Chỉ chủ sở hữu, quản trị viên hoặc biên tập viên mới có thể tạo sự kiện'
-                  : undefined
-              }
-            >
-              <IconPlus size={16} />
-              <span>Tạo sự kiện</span>
-            </button>
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center'}}>
+              {runtimeConfig.useMockData && (
+                <button
+                  type="button"
+                  className="org-btn org-btn-secondary"
+                  onClick={handleInitDemoPricing}
+                  disabled={busyDemo}
+                  title="Khởi tạo hoặc khôi phục bộ dữ liệu mô phỏng định giá dùng chung (không xóa sự kiện khác)"
+                >
+                  {busyDemo ? 'Đang khởi tạo…' : '[MÔ PHỎNG] Khởi tạo / khôi phục dữ liệu demo định giá'}
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="org-btn org-btn-primary organizer-primary"
+                onClick={handleStartCreate}
+                disabled={!memberships.length || !canEdit || !activeOrg}
+                title={
+                  !memberships.length
+                    ? 'Vui lòng tạo tổ chức trước'
+                    : !canEdit
+                    ? 'Chỉ chủ sở hữu, quản trị viên hoặc biên tập viên mới có thể tạo sự kiện'
+                    : undefined
+                }
+              >
+                <IconPlus size={16} />
+                <span>Tạo sự kiện</span>
+              </button>
+            </div>
           </header>
 
           {message && (
