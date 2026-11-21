@@ -66,8 +66,9 @@ import type {
   MockPricingState,
   MoPhongNhuCauResult,
 } from '../domain/mockPricing';
+import {DEMO_NGUOI_DUNG, khoiTaoDemoPricing} from '../domain/pricingMockDemo.js';
 
-export {PricingServiceError};
+export {PricingServiceError, DEMO_NGUOI_DUNG};
 export type {PricingServiceErrorOptions};
 
 // ---------------------------------------------------------------------------
@@ -744,6 +745,36 @@ const khoMock = taoKhoPhienMock<MockPricingState, MockNow, MockPricingSeed>({
 /** Xóa trạng thái bộ nhớ tạm và cờ ưu tiên bộ nhớ (sau lỗi ghi localStorage). Dùng cho kiểm thử. */
 export function datLaiBoNhoMoPhong(): void {
   khoMock.datLai();
+}
+
+/** Khởi tạo hoặc khôi phục bộ dữ liệu demo định giá trong kho mô phỏng (chỉ nhánh mock). */
+export async function khoiTaoDemoDinhGia(
+  opts: PricingServiceOptions = {},
+): Promise<DichVuMeta> {
+  if (!dungMock(opts)) {
+    throw new PricingServiceError(
+      'Khởi tạo dữ liệu demo định giá chỉ hỗ trợ ở chế độ mô phỏng.',
+      'KHONG_HO_TRO_NHANH_THAT',
+    );
+  }
+  const phien = moPhien(opts);
+  const nextState = khoiTaoDemoPricing(phien.state, phien.now);
+  luuPhien(phien, nextState);
+  return datMeta(phien.meta);
+}
+
+/** Đọc trạng thái mô phỏng hiện tại từ kho pricing mà không ghi (chỉ nhánh mock). */
+export async function docTrangThaiMoPhong(
+  opts: PricingServiceOptions = {},
+): Promise<DichVuMeta & {state: MockPricingState}> {
+  if (!dungMock(opts)) {
+    throw new PricingServiceError(
+      'Đọc trạng thái mô phỏng chỉ hỗ trợ ở chế độ mô phỏng.',
+      'KHONG_HO_TRO_NHANH_THAT',
+    );
+  }
+  const phien = moPhien(opts);
+  return {...datMeta(phien.meta), state: phien.state};
 }
 
 function layKhoMacDinh(): KhoLuuTru | null {
