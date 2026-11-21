@@ -1,11 +1,13 @@
-import {useCallback, useEffect, useMemo, useState, type FormEvent} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState, type FormEvent} from 'react';
 import type * as React from 'react';
+import {runtimeConfig} from '../config/runtime';
 import {navigatePublicRoute} from '../domain/publicRoute';
 import {
   canManageOrganizationEvents,
   createOrganization,
   filterEventsByOrganization,
   isOrganizerAccount,
+  khoiTaoDuLieuDemoDinhGia,
   loadOrganizerWorkspace,
   loadSavedActiveOrganizationId,
   publishEvent,
@@ -28,12 +30,14 @@ import {
   OrganizerEventCard,
   OrganizerEventWizard,
   OrganizerOnboarding,
+  OrganizerPricingPanel,
   OrganizerSidebar,
   OrganizerStatsCards,
   OrganizerTopBar,
   getDefaultDraftDates,
   IconPlus,
 } from './organizer-ui';
+import {canManagePricing} from './organizer-ui/pricingFormLogic.js';
 import './organizer-ui/organizer-ui.css';
 import './organizer-ui/organizer-skin.css';
 
@@ -161,15 +165,26 @@ function OrganizerFrame({
   children,
   userEmail,
   onSignOut,
+  backgroundInert = false,
+  overlay,
 }: {
   children: React.ReactNode;
   userEmail?: string;
   onSignOut?: () => Promise<void> | void;
+  backgroundInert?: boolean;
+  overlay?: React.ReactNode;
 }) {
   return (
     <div className="organizer-shell org-portal">
-      <OrganizerTopBar userEmail={userEmail} onSignOut={onSignOut} />
-      {children}
+      <div
+        className="org-portal-background"
+        inert={backgroundInert || undefined}
+        aria-hidden={backgroundInert ? true : undefined}
+      >
+        <OrganizerTopBar userEmail={userEmail} onSignOut={onSignOut} />
+        {children}
+      </div>
+      {overlay}
     </div>
   );
 }
@@ -185,7 +200,11 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   const [messageType, setMessageType] = useState<'error' | 'status'>('status');
   const [publishingId, setPublishingId] = useState<number | null>(null);
   const [busyOrg, setBusyOrg] = useState(false);
+  const [busyDemo, setBusyDemo] = useState(false);
   const [wizardAggregate, setWizardAggregate] = useState<FullEventAggregateInput | null>(null);
+  const [pricingEvent, setPricingEvent] = useState<OrganizerEvent | null>(null);
+  const pricingOpenerRef = useRef<HTMLElement | null>(null);
+  const wasPricingOpenRef = useRef(false);
 
   const defaultDates = useMemo(() => getDefaultDraftDates(), []);
 
@@ -205,6 +224,26 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  async function handleInitDemoPricing() {
+    if (!runtimeConfig.useMockData || busyDemo) return;
+    setBusyDemo(true);
+    setMessage('');
+    try {
+      const meta = await khoiTaoDuLieuDemoDinhGia();
+      await refresh();
+      const warning = meta?.luuTru?.canhBao ? ` (${meta.luuTru.canhBao})` : '';
+      setMessage(
+        `[MÔ PHỎNG] Đã khởi tạo / khôi phục dữ liệu demo định giá dùng chung. Đây là dữ liệu mô phỏng, không phải dữ liệu thật.${warning}`,
+      );
+      setMessageType('status');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không thể khởi tạo dữ liệu demo định giá.');
+      setMessageType('error');
+    } finally {
+      setBusyDemo(false);
+    }
+  }
 
   useEffect(() => {
     if (memberships.length > 0) {
@@ -250,10 +289,44 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     [memberships, selectedOrgId],
   );
   const canEdit = canManageOrganizationEvents(activeOrg);
+  const canPricing = canManagePricing(activeOrg, activeOrg?.organizationId);
+  const isPricingOpen = Boolean(pricingEvent && canPricing);
   const orgEvents = useMemo(
     () => filterEventsByOrganization(events, activeOrg?.organizationId),
     [events, activeOrg?.organizationId],
   );
+
+  // Khôi phục focus về nút mở panel sau khi nền thoát trạng thái inert.
+  useEffect(() => {
+    if (wasPricingOpenRef.current && !isPricingOpen) {
+      const opener = pricingOpenerRef.current;
+      pricingOpenerRef.current = null;
+      if (opener && opener.isConnected) {
+        opener.focus();
+      }
+    }
+    wasPricingOpenRef.current = isPricingOpen;
+  }, [isPricingOpen]);
+
+  // Đổi tổ chức: đóng ngay màn hình cấu hình giá của tổ chức trước.
+  useEffect(() => {
+    setPricingEvent(null);
+  }, [activeOrg?.organizationId]);
+
+  // Nếu mất quyền hoặc sự kiện không còn thuộc tổ chức đang chọn, đóng/đặt lại panel.
+  useEffect(() => {
+    if (!pricingEvent) return;
+    if (!canPricing) {
+      setPricingEvent(null);
+      return;
+    }
+    const matched = orgEvents.find((e) => e.id === pricingEvent.id) ?? null;
+    if (!matched) {
+      setPricingEvent(null);
+    } else if (matched !== pricingEvent) {
+      setPricingEvent(matched);
+    }
+  }, [pricingEvent, canPricing, orgEvents]);
 
   async function addOrg(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -324,7 +397,20 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   }
 
   return (
-    <OrganizerFrame userEmail={session.email} onSignOut={logout}>
+    <OrganizerFrame
+      userEmail={session.email}
+      onSignOut={logout}
+      backgroundInert={isPricingOpen}
+      overlay={
+        isPricingOpen && pricingEvent ? (
+          <OrganizerPricingPanel
+            event={pricingEvent}
+            activeOrg={activeOrg}
+            onClose={() => setPricingEvent(null)}
+          />
+        ) : null
+      }
+    >
       <div className="org-layout organizer-layout">
         <OrganizerSidebar
           memberships={memberships}
@@ -343,22 +429,36 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
               </h1>
             </div>
 
-            <button
-              type="button"
-              className="org-btn org-btn-primary organizer-primary"
-              onClick={handleStartCreate}
-              disabled={!memberships.length || !canEdit || !activeOrg}
-              title={
-                !memberships.length
-                  ? 'Vui lòng tạo tổ chức trước'
-                  : !canEdit
-                  ? 'Chỉ chủ sở hữu, quản trị viên hoặc biên tập viên mới có thể tạo sự kiện'
-                  : undefined
-              }
-            >
-              <IconPlus size={16} />
-              <span>Tạo sự kiện</span>
-            </button>
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center'}}>
+              {runtimeConfig.useMockData && (
+                <button
+                  type="button"
+                  className="org-btn org-btn-secondary"
+                  onClick={handleInitDemoPricing}
+                  disabled={busyDemo}
+                  title="Khởi tạo hoặc khôi phục bộ dữ liệu mô phỏng định giá dùng chung (không xóa sự kiện khác)"
+                >
+                  {busyDemo ? 'Đang khởi tạo…' : '[MÔ PHỎNG] Khởi tạo / khôi phục dữ liệu demo định giá'}
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="org-btn org-btn-primary organizer-primary"
+                onClick={handleStartCreate}
+                disabled={!memberships.length || !canEdit || !activeOrg}
+                title={
+                  !memberships.length
+                    ? 'Vui lòng tạo tổ chức trước'
+                    : !canEdit
+                    ? 'Chỉ chủ sở hữu, quản trị viên hoặc biên tập viên mới có thể tạo sự kiện'
+                    : undefined
+                }
+              >
+                <IconPlus size={16} />
+                <span>Tạo sự kiện</span>
+              </button>
+            </div>
           </header>
 
           {message && (
@@ -417,6 +517,14 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
                         isPublishing={publishingId === item.id}
                         onEdit={handleStartEdit}
                         onPublish={publish}
+                        canManagePricing={canManagePricing(activeOrg, item.organizationId)}
+                        onOpenPricing={(target) => {
+                          if (canManagePricing(activeOrg, target.organizationId)) {
+                            pricingOpenerRef.current =
+                              document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                            setPricingEvent(target);
+                          }
+                        }}
                       />
                     ))}
                   </div>

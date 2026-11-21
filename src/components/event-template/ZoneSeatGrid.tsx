@@ -186,7 +186,7 @@ export function ZoneSeatGrid({
                 {STATUS_NAMES[inspectedUiStatus!]}
               </small>
             </div>
-            <strong>{formatMoneyVND(inspectedSeat.GiaVeNiemYet)}</strong>
+            <strong className="et-num">{formatMoneyVND(inspectedSeat.GiaVeNiemYet)}</strong>
           </>
         ) : (
           <>

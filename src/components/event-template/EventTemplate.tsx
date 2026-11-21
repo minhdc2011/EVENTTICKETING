@@ -3,6 +3,7 @@ import {deriveSaleStatus} from '../../domain/eventStatus';
 import {loadPublicSchedule, type PublicScheduleItem} from '../../services/scheduleService';
 import {type PublicArtistRecord} from '../../services/artistService';
 import type {PublicEventRecord, PublicTicketTier} from '../../services/eventService';
+import type {PriceConnectionStatus} from '../../services/priceRealtimeService';
 import {ShowSwitcher} from './ShowSwitcher';
 import {ArtistLineupSection} from './ArtistLineupSection';
 import {EventContactSection} from './EventContactSection';
@@ -34,6 +35,8 @@ export type EventTemplateProps = {
   tiers: PublicTicketTier[];
   tierState: 'loading' | 'ready' | 'error';
   onRetryTiers?: () => void;
+  priceConnectionStatus?: PriceConnectionStatus;
+  hasPriceConnectedBefore?: boolean;
   slots?: EventTemplateSlots;
   schedule?: PublicScheduleItem[];
   artists?: PublicArtistRecord[];
@@ -50,6 +53,8 @@ export function EventTemplate({
   tiers,
   tierState,
   onRetryTiers,
+  priceConnectionStatus,
+  hasPriceConnectedBefore,
   slots,
   schedule: propSchedule,
   artists: propArtists,
@@ -275,6 +280,8 @@ export function EventTemplate({
               tiers={tiers}
               tierState={tierState}
               onRetry={onRetryTiers}
+              priceConnectionStatus={priceConnectionStatus}
+              hasPriceConnectedBefore={hasPriceConnectedBefore}
             />
 
             {/* Specialization slot: Interactive Seating Map (defaults to data-driven SeatMapSection) */}

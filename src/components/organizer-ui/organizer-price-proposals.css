@@ -1,0 +1,402 @@
+/* ==========================================================================
+   ORGANIZER PRICE PROPOSALS (T8)
+   Uses --org-* tokens defined in organizer-ui.css and organizer-skin.css.
+   ========================================================================== */
+
+.org-proposals {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.org-proposals :is(button, input, select, textarea, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--org-lime, #0353c2);
+  outline-offset: 2px;
+}
+
+.org-proposals-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.org-proposals-heading-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.org-proposals-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: var(--org-radius-sm, 4px);
+  background-color: var(--org-status-info-bg, #eef4fd);
+  border: 1px solid var(--org-status-info-border, #c3d6f5);
+  color: var(--org-status-info, #0b4f9e);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.org-proposals-source-chip {
+  background-color: var(--org-surface-sunken, #f4f6f8);
+  border: 1px solid var(--org-border-default, #c7d0db);
+  color: var(--org-text-secondary, #3d4756);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.org-proposals-reload-btn {
+  min-height: 44px;
+}
+
+.org-proposals-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.org-proposals-feedback-actions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.org-proposals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.org-proposal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  background-color: var(--org-surface-sunken, #f4f6f8);
+  border: 1px solid var(--org-border-default, #c7d0db);
+  border-radius: var(--org-radius-md, 8px);
+}
+
+.org-proposal-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.org-proposal-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.org-proposal-zone {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--org-text-primary, #1f262d);
+}
+
+.org-proposal-show-meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--org-text-secondary, #3d4756);
+}
+
+.org-proposal-warnings {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.org-proposal-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: var(--org-radius-sm, 4px);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.org-proposal-tag-info {
+  background-color: var(--org-status-info-bg, #eef4fd);
+  border: 1px solid var(--org-status-info-border, #c3d6f5);
+  color: var(--org-status-info, #0b4f9e);
+}
+
+.org-proposal-tag-warn {
+  background-color: var(--org-status-warning-bg, #fff4dc);
+  border: 1px solid var(--org-status-warning-border, #f2d58f);
+  color: var(--org-status-warning, #7a4a00);
+}
+
+.org-proposal-price-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.org-proposal-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.org-proposal-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background-color: var(--org-surface, #ffffff);
+  border: 1px solid var(--org-border-subtle, #e2e8f0);
+  border-radius: var(--org-radius-sm, 4px);
+  min-width: 0;
+}
+
+.org-proposal-stat-highlight {
+  border-color: var(--org-border-lime, rgba(3, 83, 194, 0.45));
+  background-color: var(--org-status-info-bg, #eef4fd);
+}
+
+.org-proposal-stat-warn {
+  border-color: var(--org-status-warning-border, #f2d58f);
+  background-color: var(--org-status-warning-bg, #fff4dc);
+}
+
+.org-proposal-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--org-text-secondary, #3d4756);
+}
+
+.org-proposal-stat-value {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--org-text-primary, #1f262d);
+  word-break: break-word;
+}
+
+.org-proposal-num {
+  font-family: var(--org-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.org-proposal-reason {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--org-text-secondary, #3d4756);
+}
+
+.org-proposal-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.org-proposal-actions .org-btn {
+  min-height: 44px;
+}
+
+/* ---- Action Modal Dialog ---- */
+.org-proposal-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.org-proposal-dialog {
+  width: min(560px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--org-surface, #ffffff);
+  color: var(--org-text-primary, #1f262d);
+  border: 1px solid var(--org-border-default, #c7d0db);
+  border-radius: var(--org-radius-lg, 12px);
+  box-shadow: var(--org-shadow-modal);
+  overflow: hidden;
+}
+
+.org-proposal-dialog:focus-visible,
+.org-proposal-dialog :is(button, input, select, textarea, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--org-lime, #0353c2);
+  outline-offset: 2px;
+}
+
+.org-proposal-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  background-color: var(--org-surface-sunken, #f4f6f8);
+  border-bottom: 1px solid var(--org-border-subtle, #e2e8f0);
+}
+
+.org-proposal-dialog-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--org-text-primary, #1f262d);
+}
+
+.org-proposal-dialog-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.org-proposal-dialog-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background-color: var(--org-surface-sunken, #f4f6f8);
+  border: 1px solid var(--org-border-subtle, #e2e8f0);
+  border-radius: var(--org-radius-sm, 4px);
+  font-size: 13px;
+  color: var(--org-text-secondary, #3d4756);
+}
+
+.org-proposal-dialog-summary p {
+  margin: 0;
+}
+
+.org-proposal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.org-proposal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.org-proposal-dialog .org-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--org-text-primary, #1f262d);
+}
+
+.org-proposal-dialog .org-input,
+.org-proposal-dialog .org-textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  background-color: var(--org-surface, #ffffff);
+  color: var(--org-text-primary, #1f262d);
+  border: 1px solid var(--org-border-default, #c7d0db);
+  border-radius: var(--org-radius-sm, 4px);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.org-proposal-dialog .org-textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.org-proposal-dialog .org-input[aria-invalid='true'],
+.org-proposal-dialog .org-textarea[aria-invalid='true'] {
+  border-color: var(--org-status-danger, #a3162a);
+}
+
+.org-proposal-field-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--org-text-secondary, #3d4756);
+}
+
+.org-proposal-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.org-proposal-dialog-footer .org-btn {
+  min-height: 44px;
+}
+
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .org-proposal-price-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .org-proposal-metrics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .org-proposal-card {
+    padding: 14px;
+  }
+
+  .org-proposal-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .org-proposal-dialog-overlay {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .org-proposal-price-grid,
+  .org-proposal-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .org-proposals-header .org-btn,
+  .org-proposal-actions .org-btn,
+  .org-proposal-dialog-footer .org-btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .org-proposals *,
+  .org-proposal-dialog-overlay,
+  .org-proposal-dialog,
+  .org-proposal-dialog * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

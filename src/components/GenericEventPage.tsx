@@ -1,5 +1,8 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {loadPublicTicketTiers, type PublicEventRecord, type PublicTicketTier} from '../services/eventService';
+import {subscribeToPriceUpdates, type PriceConnectionStatus} from '../services/priceRealtimeService';
+import {applyPriceSnapshotToTiers, applyPriceUpdateToTiers} from '../domain/pricePresentation.js';
+import {isValidPrice, khopMaPhamViNghiemNgat} from '../domain/priceRealtime.js';
 import {ArtistLineup, ConcertRuntimeOverlays, SeatingSection} from './ConcertSections';
 import {EventTemplate, type EventTemplateSlots} from './event-template';
 
@@ -28,24 +31,103 @@ export function resolveEventTemplateSlots(event: PublicEventRecord): EventTempla
 export function GenericEventPage({event}: {event: PublicEventRecord}) {
   const [tiers, setTiers] = useState<PublicTicketTier[]>([]);
   const [tierState, setTierState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [priceConnectionStatus, setPriceConnectionStatus] = useState<PriceConnectionStatus>('CONNECTING');
+  const [hasPriceConnectedBefore, setHasPriceConnectedBefore] = useState<boolean>(false);
+
+  const scopeKey = `${event.id}_${event.selectedShow?.id ?? 0}`;
+  const activeScopeKeyRef = useRef(scopeKey);
+  activeScopeKeyRef.current = scopeKey;
+  const latestPriceSnapshotRef = useRef<ReadonlyMap<number, number> | null>(null);
+
+  const tierReqIdRef = useRef(0);
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      tierReqIdRef.current += 1;
+    };
+  }, []);
 
   const fetchTiers = useCallback(() => {
+    const requestScopeKey = scopeKey;
+    const reqId = ++tierReqIdRef.current;
+    const isCurrent = () =>
+      isMountedRef.current && activeScopeKeyRef.current === requestScopeKey && tierReqIdRef.current === reqId;
     setTierState('loading');
     loadPublicTicketTiers(event)
       .then((rows) => {
-        setTiers(rows);
+        if (!isCurrent()) return;
+        const snapshot = latestPriceSnapshotRef.current;
+        setTiers(snapshot ? applyPriceSnapshotToTiers(rows, snapshot) : rows);
         setTierState('ready');
       })
       .catch((error) => {
+        if (!isCurrent()) return;
         console.error('Không thể tải danh sách hạng vé sự kiện:', error);
         setTierState('error');
       });
-  }, [event]);
+  }, [event, scopeKey]);
 
   useEffect(() => {
     document.title = `${event.name} | EventTicketing`;
+    latestPriceSnapshotRef.current = null;
     fetchTiers();
+    return () => {
+      // Scope/event change or unmount: invalidate any in-flight tier request
+      tierReqIdRef.current += 1;
+    };
   }, [event, fetchTiers]);
+
+  useEffect(() => {
+    let active = true;
+    const effectScopeKey = `${event.id}_${event.selectedShow?.id ?? 0}`;
+    const scope = {
+      suKienId: event.id,
+      suatDienId: event.selectedShow?.id,
+    };
+
+    latestPriceSnapshotRef.current = null;
+    setPriceConnectionStatus('CONNECTING');
+    setHasPriceConnectedBefore(false);
+
+    const unsubscribe = subscribeToPriceUpdates(
+      (priceEvent) => {
+        if (!active || activeScopeKeyRef.current !== effectScopeKey) return;
+        if (
+          priceEvent?.type === 'ZONE_PRICE_CHANGED' &&
+          isValidPrice(priceEvent.gia) &&
+          khopMaPhamViNghiemNgat(priceEvent.suKienId, scope.suKienId) &&
+          khopMaPhamViNghiemNgat(priceEvent.suatDienId, scope.suatDienId)
+        ) {
+          const nextMap = new Map(latestPriceSnapshotRef.current ?? undefined);
+          nextMap.set(Number(priceEvent.khuVucId), priceEvent.gia);
+          latestPriceSnapshotRef.current = nextMap;
+        }
+        setTiers((prev) => applyPriceUpdateToTiers(prev, priceEvent, scope));
+      },
+      (status) => {
+        if (!active || activeScopeKeyRef.current !== effectScopeKey) return;
+        setPriceConnectionStatus(status);
+        if (status === 'CONNECTED' || status === 'LOCAL_ONLY') {
+          setHasPriceConnectedBefore(true);
+        }
+      },
+      {
+        scope,
+        onSnapshot: (priceMap) => {
+          if (!active || activeScopeKeyRef.current !== effectScopeKey) return;
+          latestPriceSnapshotRef.current = new Map(priceMap);
+          setTiers((prev) => applyPriceSnapshotToTiers(prev, priceMap));
+        },
+      },
+    );
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [event.id, event.selectedShow?.id]);
 
   const slots = useMemo(() => resolveEventTemplateSlots(event), [event]);
 
@@ -55,6 +137,8 @@ export function GenericEventPage({event}: {event: PublicEventRecord}) {
       tiers={tiers}
       tierState={tierState}
       onRetryTiers={fetchTiers}
+      priceConnectionStatus={priceConnectionStatus}
+      hasPriceConnectedBefore={hasPriceConnectedBefore}
       slots={slots}
     />
   );

@@ -28,7 +28,7 @@ export function StandingTicketPicker({zones, quantities, roomLeft, disabled, onC
             >
               <div className="et-standing-info">
                 <span className="et-standing-name">{label}</span>
-                <span className="et-standing-price">{formatMoneyVND(zone.GiaVeNiemYet)} / vé</span>
+                <span className="et-standing-price et-num">{formatMoneyVND(zone.GiaVeNiemYet)} / vé</span>
               </div>
               <div className="et-standing-stepper" role="group" aria-label={`Số lượng vé ${label}`}>
                 <button

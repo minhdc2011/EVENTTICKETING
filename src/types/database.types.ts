@@ -954,6 +954,10 @@ export type Database = {
         Args: { p_su_kien_id: number }
         Returns: boolean
       }
+      duyet_de_xuat_gia: {
+        Args: { p_de_xuat_id: number; p_ghi_chu: string; p_gia_dieu_chinh?: number }
+        Returns: Json
+      }
       expire_seat_holds: {
         Args: { p_su_kien_id?: number }
         Returns: number
@@ -1057,6 +1061,10 @@ export type Database = {
       }
       tao_to_chuc_cua_toi: {
         Args: { p_slug: string; p_ten_to_chuc: string }
+        Returns: Json
+      }
+      tu_choi_de_xuat_gia: {
+        Args: { p_de_xuat_id: number; p_ly_do: string }
         Returns: Json
       }
     }

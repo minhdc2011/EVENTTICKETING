@@ -1,6 +1,8 @@
 import {useEffect, useRef, type MouseEvent, type RefObject} from 'react';
 import type {SeatRecord} from '../../types/ticketing';
 import {formatCountdown, formatMoneyVND, calculateSelectionTotal} from '../../domain/seatMap.js';
+import {HELD_PRICE_NOTE_CLIENT, type HeldPriceSnapshot} from '../../domain/pricePresentation.js';
+import type {StandingLine} from './SelectionSummary';
 
 export interface HoldConfirmationDialogProps {
   isOpen: boolean;
@@ -9,6 +11,8 @@ export interface HoldConfirmationDialogProps {
   isReleasing?: boolean;
   holdId?: string;
   selectedSeats: SeatRecord[];
+  standingLines?: StandingLine[];
+  heldPriceSnapshot?: HeldPriceSnapshot | null;
   remainingSeconds: number;
   openerRef?: RefObject<HTMLElement | null>;
 }
@@ -20,6 +24,8 @@ export function HoldConfirmationDialog({
   isReleasing = false,
   holdId,
   selectedSeats,
+  standingLines = [],
+  heldPriceSnapshot = null,
   remainingSeconds,
   openerRef,
 }: HoldConfirmationDialogProps) {
@@ -28,8 +34,41 @@ export function HoldConfirmationDialog({
   const releaseButtonRef = useRef<HTMLButtonElement>(null);
   const savedOpenerRef = useRef<HTMLElement | null>(null);
 
-  const seatCodes = selectedSeats.map((s) => s.MaGheDayDu).join(', ');
-  const totalFormatted = formatMoneyVND(calculateSelectionTotal(selectedSeats));
+  const standingNameByCode = new Map(standingLines.map((line) => [line.zoneCode, line.name]));
+  const seatLines = heldPriceSnapshot
+    ? heldPriceSnapshot.seats
+    : selectedSeats.map((seat) => ({
+        GheID: seat.GheID,
+        MaGheDayDu: seat.MaGheDayDu,
+        KhuVucID: seat.KhuVucID,
+        zoneCode: '',
+        unitPrice: Number(seat.GiaVeNiemYet) || 0,
+        serverLocked: false,
+      }));
+  const resolvedStandingLines = heldPriceSnapshot
+    ? heldPriceSnapshot.standingLines.map((line) => ({
+        ...line,
+        name: standingNameByCode.get(line.zoneCode) || line.zoneCode,
+      }))
+    : standingLines
+        .filter((line) => line.quantity > 0)
+        .map((line) => ({
+          zoneCode: line.zoneCode,
+          name: line.name,
+          quantity: line.quantity,
+          unitPrice: line.price,
+          subtotal: line.price * line.quantity,
+          serverLocked: false,
+        }));
+
+  const seatCodes = seatLines.map((s) => s.MaGheDayDu).join(', ');
+  const standingCount = resolvedStandingLines.reduce((sum, line) => sum + line.quantity, 0);
+  const totalAmount = heldPriceSnapshot
+    ? heldPriceSnapshot.total
+    : calculateSelectionTotal(selectedSeats) +
+      resolvedStandingLines.reduce((sum, line) => sum + line.subtotal, 0);
+  const totalFormatted = formatMoneyVND(totalAmount);
+  const priceNote = heldPriceSnapshot ? heldPriceSnapshot.note : HELD_PRICE_NOTE_CLIENT;
   const countdownText = formatCountdown(remainingSeconds);
 
   useEffect(() => {
@@ -128,12 +167,54 @@ export function HoldConfirmationDialog({
         </div>
 
         <p id="hold-result" style={{margin: '8px 0', fontSize: '13px', color: 'var(--seat-muted)', overflowWrap: 'anywhere'}}>
-          Đã giữ {selectedSeats.length} ghế: <strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>. Tổng {totalFormatted}.
+          {seatLines.length > 0 && standingCount > 0 ? (
+            <>
+              Đã giữ {seatLines.length} ghế (<strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>) và{' '}
+              {standingCount} vé đứng. Tổng <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
+            </>
+          ) : seatLines.length > 0 ? (
+            <>
+              Đã giữ {seatLines.length} ghế: <strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>. Tổng{' '}
+              <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
+            </>
+          ) : (
+            <>
+              Đã giữ {standingCount} vé đứng. Tổng{' '}
+              <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
+            </>
+          )}
+        </p>
+
+        {(seatLines.length > 0 || resolvedStandingLines.length > 0) && (
+          <ul className="et-dialog-price-list" aria-label="Chi tiết giá vé đang giữ">
+            {seatLines.map((seat) => (
+              <li key={String(seat.GheID ?? seat.MaGheDayDu)} className="et-dialog-price-row">
+                <span>
+                  Ghế <strong>{seat.MaGheDayDu}</strong>
+                  {seat.serverLocked && <span className="et-price-lock-tag">Đã chốt</span>}
+                </span>
+                <span className="et-num">{formatMoneyVND(seat.unitPrice)}</span>
+              </li>
+            ))}
+            {resolvedStandingLines.map((line) => (
+              <li key={line.zoneCode} className="et-dialog-price-row">
+                <span>
+                  {line.name} × {line.quantity}
+                  {line.serverLocked && <span className="et-price-lock-tag">Đã chốt</span>}
+                </span>
+                <span className="et-num">{formatMoneyVND(line.subtotal)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <p className="et-dialog-price-note" data-od-id="hold-dialog-price-note">
+          {priceNote}
         </p>
 
         <div
           id="countdown"
-          className="et-countdown-display"
+          className="et-countdown-display et-num"
           aria-label="Thời gian giữ còn lại"
         >
           {countdownText}

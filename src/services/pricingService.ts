@@ -1,14 +1,15 @@
 /**
- * Dịch vụ client cho các RPC định giá W2 (luu_quy_tac_gia, lay_so_lieu_dinh_gia,
- * luu_de_xuat_gia, het_han_de_xuat_gia, mo_phong_nhu_cau).
+ * Dịch vụ client cho các RPC định giá W2 + T1 duyệt/từ chối giá (luu_quy_tac_gia,
+ * lay_so_lieu_dinh_gia, luu_de_xuat_gia, het_han_de_xuat_gia, mo_phong_nhu_cau,
+ * duyet_de_xuat_gia, tu_choi_de_xuat_gia).
  *
  * - Nhánh thật: chỉ gọi RPC bằng phiên Supabase hiện có (requireSupabaseClient, khóa anon).
- *   Không ghi trực tiếp bảng nào; chỉ ĐỌC QUY_TAC_GIA.NgayCapNhat để PriceGuard so khớp.
+ *   Không ghi trực tiếp bảng nào; chỉ ĐỌC QUY_TAC_GIA.NgayCapNhat (PriceGuard) và
+ *   DE_XUAT_GIA (danh sách đề xuất theo khu vực thuộc sự kiện).
  *   Lỗi mạng/quyền/thiếu cấu hình được ném ra, không bao giờ chuyển sang mock.
  * - Nhánh mock: chỉ khi runtimeConfig.useMockData bật; dùng src/domain/mockPricing.js (T6)
  *   và lưu trạng thái vào localStorage dưới khóa riêng.
  * - Cờ mở bán lấy từ dang_mo_ban do T2 trả về; không suy ra từ TrangThai/TrangThaiMoBan.
- * - Không có API duyệt/từ chối (thuộc W3).
  */
 import type {SupabaseClient} from '@supabase/supabase-js';
 import {runtimeConfig} from '../config/runtime';
@@ -25,27 +26,51 @@ import {
   NHAN_MO_PHONG,
   createMockState,
   deXuatTuDong,
+  duyetDeXuatGia as duyetDeXuatMock,
   hetHanDeXuatGia,
+  layDeXuatGia as layDeXuatMock,
   laySoLieuDinhGia as laySoLieuMock,
   luuQuyTacGia as luuQuyTacMock,
   moPhongNhuCau as moPhongNhuCauMock,
   toIso,
+  tuChoiDeXuatGia as tuChoiDeXuatMock,
 } from '../domain/mockPricing.js';
 import {
   LY_DO_QUY_TAC_THAY_DOI,
+  PricingServiceError,
   chayDinhGiaNgayLogic,
+  docDanhSachDeXuatThat,
+  duyetDeXuatGiaThat,
+  ghepDanhSachDeXuat,
+  nangCapTrangThaiV1,
+  phanHoiKhongHopLe,
   taoKhoPhienMock,
+  tuChoiDeXuatGiaThat,
 } from '../domain/pricingServiceCore.js';
-import type {PhienMockCore} from '../domain/pricingServiceCore';
+import type {
+  KetQuaDaDuyetCore,
+  KetQuaDaTuChoiCore,
+  KetQuaHetHanCore,
+  PhienMockCore,
+  PricingServiceErrorOptions,
+  RpcClientLike,
+} from '../domain/pricingServiceCore';
 import type {
   CanhBaoNgoaiKhung,
   KichBanMoPhong,
+  MockLoiDuyet,
   MockMaChan,
+  MockNguoiDung,
   MockNow,
   MockPricingSeed,
   MockPricingState,
   MoPhongNhuCauResult,
 } from '../domain/mockPricing';
+import {DEMO_NGUOI_DUNG, khoiTaoDemoPricing} from '../domain/pricingMockDemo.js';
+import {phatThongBaoGiaMock} from '../domain/priceRealtime.js';
+
+export {PricingServiceError, DEMO_NGUOI_DUNG};
+export type {PricingServiceErrorOptions};
 
 // ---------------------------------------------------------------------------
 // Kiểu công khai
@@ -84,17 +109,73 @@ export interface PricingServiceOptions {
   seed?: MockPricingSeed;
   /** Nhánh mock: thời điểm giả lập; mặc định Date.now(). */
   now?: MockNow;
+  /** Nhánh mock: thông tin người dùng hiện tại để kiểm quyền đọc/duyệt/từ chối đề xuất. */
+  nguoiDung?: MockNguoiDung | null;
 }
 
-export class PricingServiceError extends Error {
-  readonly code: string | null;
-
-  constructor(message: string, code: string | null = null) {
-    super(message);
-    this.name = 'PricingServiceError';
-    this.code = code;
-  }
+export interface QuyTacHienHanh {
+  quyTacGiaId: number;
+  kichHoat: boolean;
+  giaGoc: number | null;
+  giaSan: number | null;
+  giaTran: number | null;
+  buocNhayGia: number | null;
+  bienDoToiDa: number | null;
+  nguongLapDayThap: number | null;
+  nguongLapDayCao: number | null;
+  trongSoLapDay: number | null;
+  trongSoTocDoBan: number | null;
+  trongSoThoiGian: number | null;
 }
+
+export interface DeXuatGiaItem {
+  deXuatId: number;
+  trangThai: string;
+  giaHienTai: number | null;
+  giaDeXuat: number;
+  giaTinhToanTho: number | null;
+  tyLeLapDay: number | null;
+  tocDoThucTe: number | null;
+  tocDoKyVong: number | null;
+  soGioConLai: number | null;
+  loaiCanhBao: string | null;
+  coCanhBaoVuotKhung: boolean;
+  lyDo: string | null;
+  thoiGianDeXuat: string;
+  hetHanLuc: string | null;
+  conHieuLuc: boolean;
+}
+
+export interface KhuVucDeXuatItem {
+  khuVucId: number;
+  suatDienId: number;
+  maKhuVuc: string | null;
+  tenKhuVuc: string | null;
+  giaHienHanh: number | null;
+  dangMoBan: boolean;
+  quyTac: QuyTacHienHanh | null;
+  r: number | null;
+  u: number | null;
+  tRem: number | null;
+  deXuat: DeXuatGiaItem[];
+}
+
+export type LayDanhSachDeXuatResult = DichVuMeta & {
+  suKienId: number;
+  khuVuc: KhuVucDeXuatItem[];
+};
+
+export interface DuyetDeXuatParams {
+  ghiChu?: string | null;
+  giaDieuChinh?: number | null;
+}
+
+export interface TuChoiDeXuatParams {
+  lyDo?: string | null;
+}
+
+export type DuyetDeXuatGiaResult = DichVuMeta & (KetQuaDaDuyetCore | KetQuaHetHanCore);
+export type TuChoiDeXuatGiaResult = DichVuMeta & (KetQuaDaTuChoiCore | KetQuaHetHanCore);
 
 export interface LuuCauHinhGiaParams {
   giaGoc: number;
@@ -291,10 +372,6 @@ function laCanhBaoNgoaiKhung(v: unknown): v is CanhBaoNgoaiKhung {
   );
 }
 
-function phanHoiKhongHopLe(rpc: string): PricingServiceError {
-  return new PricingServiceError(`Phản hồi RPC ${rpc} không đúng hợp đồng.`, 'PHAN_HOI_KHONG_HOP_LE');
-}
-
 function docLuuQuyTacGia(v: unknown): LuuQuyTacGiaThat | null {
   if (!laBanGhi(v)) return null;
   const {canhBao} = v;
@@ -464,6 +541,21 @@ function kiemTraKhuVucId(khuVucId: number): void {
   }
 }
 
+function kiemTraDeXuatId(deXuatId: number): void {
+  if (!Number.isInteger(deXuatId) || deXuatId <= 0) {
+    throw new PricingServiceError('deXuatId không hợp lệ.', 'THAM_SO_KHONG_HOP_LE');
+  }
+}
+
+function loiMockSangError(loi: MockLoiDuyet): PricingServiceError {
+  const code = loi.status === 403 ? '42501' : loi.status === 409 ? '40001' : '22023';
+  return new PricingServiceError(loi.ma, code, {
+    status: loi.status,
+    ma: loi.ma,
+    chiTiet: loi.chiTiet,
+  });
+}
+
 /** Chỉ cấu hình runtime quyết định nhánh mock; không có tùy chọn nào của caller được ghi đè. */
 function dungMock(_opts: PricingServiceOptions): boolean {
   return runtimeConfig.useMockData;
@@ -472,6 +564,44 @@ function dungMock(_opts: PricingServiceOptions): boolean {
 function layClient(opts: PricingServiceOptions): SupabaseClient<Database> {
   // Ném lỗi khi thiếu cấu hình; tuyệt đối không chuyển sang mock.
   return opts.client ?? requireSupabaseClient();
+}
+
+function taoRpcClient(client: SupabaseClient<Database>): RpcClientLike {
+  function rpc(fn: 'lay_so_lieu_dinh_gia', args: {p_su_kien_id: number}): PromiseLike<{data: unknown; error: unknown}>;
+  function rpc(
+    fn: 'duyet_de_xuat_gia',
+    args: {p_de_xuat_id: number; p_ghi_chu: string; p_gia_dieu_chinh?: number},
+  ): PromiseLike<{data: unknown; error: unknown}>;
+  function rpc(
+    fn: 'tu_choi_de_xuat_gia',
+    args: {p_de_xuat_id: number; p_ly_do: string},
+  ): PromiseLike<{data: unknown; error: unknown}>;
+  function rpc(fn: string, args: Record<string, unknown>): PromiseLike<{data: unknown; error: unknown}> {
+    if (fn === 'lay_so_lieu_dinh_gia') {
+      return client.rpc('lay_so_lieu_dinh_gia', args as Database['public']['Functions']['lay_so_lieu_dinh_gia']['Args']);
+    }
+    if (fn === 'duyet_de_xuat_gia') {
+      return client.rpc('duyet_de_xuat_gia', args as Database['public']['Functions']['duyet_de_xuat_gia']['Args']);
+    }
+    return client.rpc('tu_choi_de_xuat_gia', args as Database['public']['Functions']['tu_choi_de_xuat_gia']['Args']);
+  }
+
+  return {
+    rpc,
+    from: (table) => ({
+      select: (_columns) => ({
+        in: async (column, values) => {
+          const {data, error} = await client
+            .from(table)
+            .select(
+              'DeXuatID,KhuVucID,QuyTacGiaID,TrangThaiDuyet,GiaHienTai,GiaDeXuat,GiaTinhToanTho,TyLeLapDay,TocDoBanThucTe,TocDoBanKyVong,SoGioConLai,LoaiCanhBao,CoCanhBaoVuotKhung,LyDoDeXuat,ThoiGianDeXuat,GhiChuDuyet,NguoiDuyetID,ThoiGianDuyet',
+            )
+            .in(column, [...values]);
+          return {data, error};
+        },
+      }),
+    }),
+  };
 }
 
 function datMeta(luuTru: ThongTinLuuTru | null): DichVuMeta {
@@ -610,11 +740,43 @@ const khoMock = taoKhoPhienMock<MockPricingState, MockNow, MockPricingSeed>({
   khoa: KHOA_LUU_TRU_MO_PHONG,
   taoState: (seed) => createMockState(seed),
   layKhoMacDinh: () => layKhoMacDinh(),
+  chuanHoa: nangCapTrangThaiV1,
 });
 
 /** Xóa trạng thái bộ nhớ tạm và cờ ưu tiên bộ nhớ (sau lỗi ghi localStorage). Dùng cho kiểm thử. */
 export function datLaiBoNhoMoPhong(): void {
   khoMock.datLai();
+}
+
+/** Khởi tạo hoặc khôi phục bộ dữ liệu demo định giá trong kho mô phỏng (chỉ nhánh mock). */
+export async function khoiTaoDemoDinhGia(
+  opts: PricingServiceOptions = {},
+): Promise<DichVuMeta> {
+  if (!dungMock(opts)) {
+    throw new PricingServiceError(
+      'Khởi tạo dữ liệu demo định giá chỉ hỗ trợ ở chế độ mô phỏng.',
+      'KHONG_HO_TRO_NHANH_THAT',
+    );
+  }
+  const phien = moPhien(opts);
+  const nextState = khoiTaoDemoPricing(phien.state, phien.now);
+  luuPhien(phien, nextState);
+  phatThongBaoGiaMockAnToan({khoiTaoDemo: true});
+  return datMeta(phien.meta);
+}
+
+/** Đọc trạng thái mô phỏng hiện tại từ kho pricing mà không ghi (chỉ nhánh mock). */
+export async function docTrangThaiMoPhong(
+  opts: PricingServiceOptions = {},
+): Promise<DichVuMeta & {state: MockPricingState}> {
+  if (!dungMock(opts)) {
+    throw new PricingServiceError(
+      'Đọc trạng thái mô phỏng chỉ hỗ trợ ở chế độ mô phỏng.',
+      'KHONG_HO_TRO_NHANH_THAT',
+    );
+  }
+  const phien = moPhien(opts);
+  return {...datMeta(phien.meta), state: phien.state};
 }
 
 function layKhoMacDinh(): KhoLuuTru | null {
@@ -627,6 +789,22 @@ function layKhoMacDinh(): KhoLuuTru | null {
 }
 
 type PhienMock = PhienMockCore<MockPricingState, MockNow>;
+
+function layEventTarget(): EventTarget | null {
+  if (typeof globalThis === 'undefined') return null;
+  const candidate = globalThis as {dispatchEvent?: unknown};
+  return typeof candidate.dispatchEvent === 'function'
+    ? (globalThis as unknown as EventTarget)
+    : null;
+}
+
+function phatThongBaoGiaMockAnToan(detail: unknown): void {
+  try {
+    phatThongBaoGiaMock(layEventTarget(), detail);
+  } catch {
+    // Lỗi phát thông báo thay đổi giá mock không làm hỏng lệnh đã lưu.
+  }
+}
 
 function moPhien(opts: PricingServiceOptions): PhienMock {
   return khoMock.moPhien({storage: opts.storage, seed: opts.seed, now: opts.now ?? Date.now()});
@@ -819,4 +997,92 @@ export async function moPhongNhuCau(
   const parsed = docMoPhongNhuCau(data);
   if (!parsed) throw phanHoiKhongHopLe('mo_phong_nhu_cau');
   return {...parsed, ...datMeta(null)};
+}
+
+export async function layDanhSachDeXuat(
+  suKienId: number,
+  opts: PricingServiceOptions = {},
+): Promise<LayDanhSachDeXuatResult> {
+  kiemTraSuKienId(suKienId);
+
+  if (dungMock(opts)) {
+    const phien = moPhien(opts);
+    const {result} = layDeXuatMock(phien.state, suKienId, opts.nguoiDung, phien.now);
+    if ('loi' in result) throw loiMockSangError(result.loi);
+    const khuVuc = ghepDanhSachDeXuat(result.soLieu, result.deXuat, phien.now);
+    return {...datMeta(phien.meta), suKienId: result.suKienId, khuVuc};
+  }
+
+  const data = await docDanhSachDeXuatThat(taoRpcClient(layClient(opts)), suKienId, opts.now);
+  return {...datMeta(null), ...data};
+}
+
+export async function duyetDeXuatGia(
+  deXuatId: number,
+  params: DuyetDeXuatParams = {},
+  opts: PricingServiceOptions = {},
+): Promise<DuyetDeXuatGiaResult> {
+  kiemTraDeXuatId(deXuatId);
+
+  if (dungMock(opts)) {
+    const phien = moPhien(opts);
+    const {state, result} = duyetDeXuatMock(
+      phien.state,
+      {
+        deXuatId,
+        ghiChu: params.ghiChu ?? null,
+        giaDieuChinh: params.giaDieuChinh,
+        nguoiDung: opts.nguoiDung,
+      },
+      phien.now,
+    );
+    if (state !== phien.state) luuPhien(phien, state);
+    if ('loi' in result) throw loiMockSangError(result.loi);
+    const meta = datMeta(phien.meta);
+    if (result.ketQua === 'HET_HAN') {
+      const {nhan: _nhan, ...hetHan} = result;
+      return {...meta, ...hetHan};
+    }
+    if (result.ketQua === 'DA_DUYET') {
+      phatThongBaoGiaMockAnToan({khuVucId: result.khuVucId, giaMoi: result.giaMoi});
+    }
+    const {nhan: _nhan, ...daDuyet} = result;
+    return {...meta, ...daDuyet};
+  }
+
+  const res = await duyetDeXuatGiaThat(taoRpcClient(layClient(opts)), deXuatId, params);
+  return {...datMeta(null), ...res};
+}
+
+export async function tuChoiDeXuatGia(
+  deXuatId: number,
+  params: TuChoiDeXuatParams = {},
+  opts: PricingServiceOptions = {},
+): Promise<TuChoiDeXuatGiaResult> {
+  kiemTraDeXuatId(deXuatId);
+
+  if (dungMock(opts)) {
+    const phien = moPhien(opts);
+    const {state, result} = tuChoiDeXuatMock(
+      phien.state,
+      {
+        deXuatId,
+        lyDo: params.lyDo ?? null,
+        nguoiDung: opts.nguoiDung,
+      },
+      phien.now,
+    );
+    if (state !== phien.state) luuPhien(phien, state);
+    if ('loi' in result) throw loiMockSangError(result.loi);
+    const meta = datMeta(phien.meta);
+    if (result.ketQua === 'HET_HAN') {
+      const {nhan: _nhan, ...hetHan} = result;
+      return {...meta, ...hetHan};
+    }
+    const {nhan: _nhan, ...daTuChoi} = result;
+    return {...meta, ...daTuChoi};
+  }
+
+  const res = await tuChoiDeXuatGiaThat(taoRpcClient(layClient(opts)), deXuatId, params);
+  return {...datMeta(null), ...res};
 }
