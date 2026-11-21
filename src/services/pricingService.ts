@@ -67,6 +67,7 @@ import type {
   MoPhongNhuCauResult,
 } from '../domain/mockPricing';
 import {DEMO_NGUOI_DUNG, khoiTaoDemoPricing} from '../domain/pricingMockDemo.js';
+import {phatThongBaoGiaMock} from '../domain/priceRealtime.js';
 
 export {PricingServiceError, DEMO_NGUOI_DUNG};
 export type {PricingServiceErrorOptions};
@@ -760,6 +761,7 @@ export async function khoiTaoDemoDinhGia(
   const phien = moPhien(opts);
   const nextState = khoiTaoDemoPricing(phien.state, phien.now);
   luuPhien(phien, nextState);
+  phatThongBaoGiaMockAnToan({khoiTaoDemo: true});
   return datMeta(phien.meta);
 }
 
@@ -787,6 +789,22 @@ function layKhoMacDinh(): KhoLuuTru | null {
 }
 
 type PhienMock = PhienMockCore<MockPricingState, MockNow>;
+
+function layEventTarget(): EventTarget | null {
+  if (typeof globalThis === 'undefined') return null;
+  const candidate = globalThis as {dispatchEvent?: unknown};
+  return typeof candidate.dispatchEvent === 'function'
+    ? (globalThis as unknown as EventTarget)
+    : null;
+}
+
+function phatThongBaoGiaMockAnToan(detail: unknown): void {
+  try {
+    phatThongBaoGiaMock(layEventTarget(), detail);
+  } catch {
+    // Lỗi phát thông báo thay đổi giá mock không làm hỏng lệnh đã lưu.
+  }
+}
 
 function moPhien(opts: PricingServiceOptions): PhienMock {
   return khoMock.moPhien({storage: opts.storage, seed: opts.seed, now: opts.now ?? Date.now()});
@@ -1024,6 +1042,9 @@ export async function duyetDeXuatGia(
     if (result.ketQua === 'HET_HAN') {
       const {nhan: _nhan, ...hetHan} = result;
       return {...meta, ...hetHan};
+    }
+    if (result.ketQua === 'DA_DUYET') {
+      phatThongBaoGiaMockAnToan({khuVucId: result.khuVucId, giaMoi: result.giaMoi});
     }
     const {nhan: _nhan, ...daDuyet} = result;
     return {...meta, ...daDuyet};
