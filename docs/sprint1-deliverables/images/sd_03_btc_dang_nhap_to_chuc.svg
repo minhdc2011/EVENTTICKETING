@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1418" height="1119" viewBox="0 0 1418 1119" font-family="Arial, Liberation Sans, sans-serif">
+<defs>
+  <marker id="sd-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#2A3342"/>
+  </marker>
+  <marker id="sd-ret" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="sd-arrow-s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#D97706"/>
+  </marker>
+  <marker id="sd-ret-s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#B45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <filter id="pbox-shadow" x="-5%" y="-5%" width="110%" height="115%">
+    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="1418" height="1119" fill="#F7F8FA"/>
+<rect x="0" y="0" width="1418" height="84.0" fill="#2A3342"/>
+<text x="36" y="38" font-size="21" font-weight="700" fill="#FFFFFF">SD-03: Đăng nhập BTC, phân loại tài khoản &amp; tạo tổ chức</text>
+<text x="36" y="57" font-size="12" fill="#94A3B8">UC-BTC-01, UC-BTC-02 (FR-T1-03.1, FR-T1-03.2) — RBAC &amp; Tổ chức</text>
+<text x="1278" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
+<rect x="1294" y="20" width="88" height="24" rx="12" fill="#0EA5E9"/>
+<text x="1338.0" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#FFFFFF">Sprint 1</text>
+<rect x="28.0" y="525.0" width="1362.2" height="516.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="28.0" y="525.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="51.0" y="540.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
+<rect x="157.0" y="527.0" width="184.4" height="20" rx="4" fill="#334155"/>
+<text x="166.0" y="540.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[accountKind != ORGANIZER]</text>
+<line x1="28.0" y1="631.0" x2="1390.2" y2="631.0" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,3"/>
+<rect x="34.0" y="635.0" width="46.0" height="20" rx="4" fill="#475569"/>
+<text x="57.0" y="648.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">else</text>
+<rect x="157.0" y="635.0" width="197.20000000000002" height="20" rx="4" fill="#475569"/>
+<text x="166.0" y="648.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Tài khoản ORGANIZER hợp lệ]</text>
+<line x1="135.0" y1="114.0" x2="135.0" y2="1091.0" stroke="#EC1C69" stroke-width="2.6"/>
+<line x1="436.2" y1="114.0" x2="436.2" y2="1091.0" stroke="#5050CC" stroke-width="2.6"/>
+<line x1="744.2" y1="114.0" x2="744.2" y2="1091.0" stroke="#4B9CE2" stroke-width="2.6"/>
+<line x1="1018.2" y1="114.0" x2="1018.2" y2="1091.0" stroke="#3B82F6" stroke-width="2.6"/>
+<line x1="1263.2" y1="114.0" x2="1263.2" y2="1091.0" stroke="#2BB5B0" stroke-width="2.6"/>
+<rect x="124.0" y="147.0" width="22" height="848.0" rx="3" fill="#EC1C69"/>
+<rect x="425.2" y="147.0" width="22" height="848.0" rx="3" fill="#5050CC"/>
+<rect x="733.2" y="191.0" width="22" height="284.0" rx="3" fill="#4B9CE2"/>
+<rect x="733.2" y="667.0" width="22" height="328.0" rx="3" fill="#4B9CE2"/>
+<rect x="1007.2" y="235.0" width="22" height="64.0" rx="3" fill="#3B82F6"/>
+<rect x="1252.2" y="367.0" width="22" height="64.0" rx="3" fill="#2BB5B0"/>
+<rect x="1252.2" y="711.0" width="22" height="240.0" rx="3" fill="#2BB5B0"/>
+<rect x="47.5" y="60.0" width="175" height="54.0" rx="10" fill="#EC1C69" filter="url(#pbox-shadow)"/>
+<text x="135.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Actor»</text>
+<text x="135.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">Ban tổ chức</text>
+<rect x="348.7" y="60.0" width="175" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
+<text x="436.2" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
+<text x="436.2" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:OrganizerPortalView</text>
+<rect x="656.7" y="60.0" width="175" height="54.0" rx="10" fill="#4B9CE2" filter="url(#pbox-shadow)"/>
+<text x="744.2" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="744.2" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:OrganizerService</text>
+<rect x="930.7" y="60.0" width="175" height="54.0" rx="10" fill="#3B82F6" filter="url(#pbox-shadow)"/>
+<text x="1018.2" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1018.2" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:SupabaseAuth</text>
+<rect x="1175.7" y="60.0" width="175" height="54.0" rx="10" fill="#2BB5B0" filter="url(#pbox-shadow)"/>
+<text x="1263.2" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Entity»</text>
+<text x="1263.2" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PostgreSQL</text>
+<line x1="146.0" y1="155.0" x2="424.2" y2="155.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="198.70000000000005" y="142.0" width="172.79999999999998" height="26" rx="13" fill="#2A3342"/>
+<text x="285.1" y="159.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Nhập email &amp; mật khẩu</text>
+<line x1="447.2" y1="199.0" x2="732.2" y2="199.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="479.50000000000006" y="186.0" width="220.4" height="26" rx="13" fill="#2A3342"/>
+<text x="589.7" y="203.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">signInOrganizer(email, pass)</text>
+<line x1="755.2" y1="243.0" x2="1006.2" y2="243.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="780.7" y="230.0" width="200.0" height="26" rx="13" fill="#2A3342"/>
+<text x="880.7" y="247.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">auth.signInWithPassword()</text>
+<line x1="1007.2" y1="287.0" x2="756.2" y2="287.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="805.5" y="274.0" width="152.39999999999998" height="26" rx="13" fill="#3E4C5E"/>
+<text x="881.7" y="291.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Session (auth.uid)</text>
+<line x1="447.2" y1="331.0" x2="732.2" y2="331.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="503.30000000000007" y="318.0" width="172.79999999999998" height="26" rx="13" fill="#2A3342"/>
+<text x="589.7" y="335.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">getOrganizerSession()</text>
+<line x1="755.2" y1="375.0" x2="1251.2" y2="375.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="923.6" y="362.0" width="159.2" height="26" rx="13" fill="#2A3342"/>
+<text x="1003.2" y="379.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">SELECT LoaiTaiKhoan</text>
+<line x1="1252.2" y1="419.0" x2="756.2" y2="419.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="949.2" y="406.0" width="110.0" height="26" rx="13" fill="#3E4C5E"/>
+<text x="1004.2" y="423.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">accountKind</text>
+<line x1="733.2" y1="463.0" x2="448.2" y2="463.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="511.1" y="450.0" width="159.2" height="26" rx="13" fill="#3E4C5E"/>
+<text x="590.7" y="467.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">session.accountKind</text>
+<line x1="425.2" y1="573.0" x2="147.0" y2="573.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="186.10000000000002" y="560.0" width="200.0" height="26" rx="13" fill="#3E4C5E"/>
+<text x="286.1" y="577.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Từ chối truy cập cổng BTC</text>
+<line x1="447.2" y1="675.0" x2="732.2" y2="675.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="493.1" y="662.0" width="193.2" height="26" rx="13" fill="#2A3342"/>
+<text x="589.7" y="679.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">loadOrganizerWorkspace()</text>
+<line x1="755.2" y1="719.0" x2="1251.2" y2="719.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="889.6" y="706.0" width="227.2" height="26" rx="13" fill="#2A3342"/>
+<text x="1003.2" y="723.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">SELECT TO_CHUC, SU_KIEN (RLS)</text>
+<line x1="1252.2" y1="763.0" x2="756.2" y2="763.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="897.4000000000001" y="750.0" width="213.6" height="26" rx="13" fill="#3E4C5E"/>
+<text x="1004.2" y="767.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Danh sách tổ chức &amp; sự kiện</text>
+<line x1="146.0" y1="807.0" x2="424.2" y2="807.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="171.50000000000003" y="794.0" width="227.2" height="26" rx="13" fill="#2A3342"/>
+<text x="285.1" y="811.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">[Opt] Nhập tên &amp; slug tổ chức</text>
+<line x1="447.2" y1="851.0" x2="732.2" y2="851.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="472.70000000000005" y="838.0" width="234.0" height="26" rx="13" fill="#2A3342"/>
+<text x="589.7" y="855.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">createOrganization(name, slug)</text>
+<line x1="755.2" y1="895.0" x2="1251.2" y2="895.0" stroke="#2A3342" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow)"/>
+<rect x="903.2" y="882.0" width="200.0" height="26" rx="13" fill="#2A3342"/>
+<text x="1003.2" y="899.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC tao_to_chuc_cua_toi()</text>
+<line x1="1252.2" y1="939.0" x2="756.2" y2="939.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="917.8000000000001" y="926.0" width="172.79999999999998" height="26" rx="13" fill="#3E4C5E"/>
+<text x="1004.2" y="943.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">ToChucID (CHU_SO_HUU)</text>
+<line x1="733.2" y1="983.0" x2="448.2" y2="983.0" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret)"/>
+<rect x="477.1" y="970.0" width="227.2" height="26" rx="13" fill="#3E4C5E"/>
+<text x="590.7" y="987.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Hiển thị Workspace phân quyền</text>
+</svg>

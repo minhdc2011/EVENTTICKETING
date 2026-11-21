@@ -190,7 +190,17 @@ Sơ đồ lớp được trích xuất trực tiếp từ cấu trúc mã nguồ
 
 ---
 
-### 5.1. Sơ đồ lớp tổng thể toàn hệ thống (Gom cụm B-C-E tương ứng)
+### Sơ đồ lớp B-C-E phân cột trực quan (Sprint 1 + Mở rộng Sprint 2)
+
+Hình dưới đây biểu diễn toàn cảnh 32 lớp phân cột theo đúng kiến trúc **Boundary (Teal) → Control (Dark Slate) → Entity (Sage Green)**, đồng bộ 27 lớp Sprint 1/S3 của repository kèm các thành phần mở rộng Sprint 2 (Dynamic Pricing, xác minh OTP 6 số và giới hạn 4 vé lũy kế — đánh dấu viền cam và nhãn `[Sprint 2 NEW]` / `[S2]`):
+
+![Sơ đồ lớp kiến trúc B-C-E toàn hệ thống (Sprint 1 + Mở rộng Sprint 2)](images/class_diagram_bce_overview.png)
+
+> *Phiên bản vector độ phân giải vô hạn:* [`images/class_diagram_bce_overview.svg`](images/class_diagram_bce_overview.svg).
+
+---
+
+### 5.1. Sơ đồ lớp tổng thể toàn hệ thống (Mermaid — Gom cụm B-C-E tương ứng)
 
 ```mermaid
 classDiagram
@@ -803,15 +813,19 @@ classDiagram
 
 ---
 
-## 6. Sequence Diagrams (`SD-01` .. `SD-06`)
+## 6. Sequence Diagrams (`SD-01` .. `SD-06` & Mở rộng Sprint 2)
 
-Sprint 1: SD-01 đến SD-04. Sprint 3 (nền tảng đã dựng sớm): SD-05, SD-06. Bản phân tích mức nghiệp vụ (lớp Boundary/Control/Entity) nằm ở Hình 5.3–5.8 của tài liệu đặc tả; các sơ đồ dưới đây là mức thiết kế, dùng đúng tên hàm và RPC trong mã nguồn.
+Sprint 1: `SD-01` đến `SD-04`. Sprint 3 (nền tảng đã dựng sớm): `SD-05`, `SD-06`. Sprint 2 (mở rộng OTP/4 vé & Dynamic Pricing): `SD-S2-01`, `SD-S2-02`. Mỗi sơ đồ đều có phiên bản ảnh trực quan phân màu B-C-E (`images/sd_*.png`, SVG vector kèm theo) bên cạnh khối Mermaid gốc.
 
 > **Quy ước biểu diễn đối tượng UML & Phân định B-C-E (Stereotyped Object Lifelines)**:
 > 1. **Đối tượng thực thi (Objects/Instances)**: Theo chuẩn phân tích thiết kế hướng đối tượng (OOAD/UML), tác nhân (Actor) tương tác ở runtime với các thực thể đối tượng cụ thể chứ không tương tác với Lớp tĩnh (Class). Do đó, tên đối tượng được ký hiệu chuẩn theo cú pháp vô danh `:TênLớp`.
 > 2. **Ký hiệu phân loại B-C-E**: Mỗi đối tượng tham gia tương tác (Lifeline) được gắn ký hiệu phân loại chuẩn mực: **`«Boundary»`** (Giao diện người dùng), **`«Control»`** (Dịch vụ điều phối nghiệp vụ & Stored Procedures), và **`«Entity»`** (Tầng dữ liệu / CSDL lưu trữ).
 
 ### SD-01: Người mua xem danh mục, chi tiết sự kiện, suất diễn, lineup và timeline (UC-T1-01, Sprint 1)
+
+![SD-01: Xem chi tiết sự kiện, suất diễn, lineup và timeline](images/sd_01_xem_su_kien.png)
+
+> *Vector SVG:* [`images/sd_01_xem_su_kien.svg`](images/sd_01_xem_su_kien.svg)
 
 
 ```mermaid
@@ -849,6 +863,10 @@ sequenceDiagram
 
 Luồng Sprint 1 chỉ đọc: tải danh mục khu vực/ghế của suất diễn, vẽ sơ đồ, rồi nhận thay đổi trạng thái ghế qua Supabase Realtime (US-T1-01 Scenario 2, ví dụ ghế chuyển sang Đã bán). Sơ đồ chỉ hiển thị thay đổi; trong repo hiện tại, thay đổi trên `GHE` phát sinh từ lát cắt giữ chỗ UC-T3-02 (Sprint 3).
 
+![SD-02: Xem sơ đồ ghế và cập nhật trạng thái realtime](images/sd_02_so_do_ghe_realtime.png)
+
+> *Vector SVG:* [`images/sd_02_so_do_ghe_realtime.svg`](images/sd_02_so_do_ghe_realtime.svg)
+
 ```mermaid
 sequenceDiagram
   actor U as Người mua A
@@ -884,6 +902,10 @@ sequenceDiagram
 ---
 
 ### SD-03: Đăng nhập BTC, phân loại tài khoản, tạo tổ chức và phân quyền (UC-BTC-01, UC-BTC-02, Sprint 1)
+
+![SD-03: Đăng nhập BTC, phân loại tài khoản và tạo tổ chức](images/sd_03_btc_dang_nhap_to_chuc.png)
+
+> *Vector SVG:* [`images/sd_03_btc_dang_nhap_to_chuc.svg`](images/sd_03_btc_dang_nhap_to_chuc.svg)
 
 ```mermaid
 sequenceDiagram
@@ -921,6 +943,10 @@ sequenceDiagram
 ---
 
 ### SD-04: BTC tạo/lưu sự kiện, xem trước và công bố (UC-BTC-03, UC-BTC-04, UC-BTC-05, Sprint 1)
+
+![SD-04: BTC tạo/lưu sự kiện, sinh ghế, xem trước và công bố](images/sd_04_btc_tao_cong_bo_su_kien.png)
+
+> *Vector SVG:* [`images/sd_04_btc_tao_cong_bo_su_kien.svg`](images/sd_04_btc_tao_cong_bo_su_kien.svg)
 
 
 ```mermaid
@@ -965,8 +991,11 @@ sequenceDiagram
 
 ### SD-05: Giữ chỗ 5 phút chống bán trùng (UC-T3-02, Sprint 3)
 
-
 Sprint 3 (FR-T3-01) – lát cắt kỹ thuật đã dựng sớm, không tính nghiệm thu Sprint 1. Biểu diễn luồng chọn vé với hai trường hợp: **khu ghế ngồi** (`GheID` cụ thể) và **khu vé đứng** (`GheID = NULL`), đồng thời thể hiện cơ chế kiểm tra trigger giữa `SuatDienID` và `SuKienID`:
+
+![SD-05: Giữ chỗ 5 phút chống bán trùng](images/sd_05_giu_cho_5_phut.png)
+
+> *Vector SVG:* [`images/sd_05_giu_cho_5_phut.svg`](images/sd_05_giu_cho_5_phut.svg)
 
 ```mermaid
 sequenceDiagram
@@ -1011,6 +1040,10 @@ sequenceDiagram
 
 ### SD-06: Hủy giữ chỗ chủ động và hết hạn tự động qua pg_cron (UC-T3-02 luồng A2/A3, Sprint 3)
 
+![SD-06: Hủy giữ chỗ chủ động và hết hạn tự động qua pg_cron](images/sd_06_huy_va_het_han_giu_cho.png)
+
+> *Vector SVG:* [`images/sd_06_huy_va_het_han_giu_cho.svg`](images/sd_06_huy_va_het_han_giu_cho.svg)
+
 
 ```mermaid
 sequenceDiagram
@@ -1040,6 +1073,26 @@ sequenceDiagram
     DB-->>WS: Phát Realtime trả ghế về màu TRONG cho toàn bộ client
   end
 ```
+
+---
+
+### SD-S2-01: Xác minh OTP 6 số & Kiểm soát hạn mức 4 vé lũy kế (UC-T2-01, UC-T2-02, Sprint 2)
+
+Phạm vi Sprint 2 (`FR-T2-01`, `FR-T2-02`, `FR-T2-04`, `NFR-04`): xác thực danh tính bằng OTP 6 chữ số qua Supabase Auth (TTL 120s, cooldown 60s, khóa 15 phút khi sai 5 lần) và kiểm tra hạn mức tối đa 4 vé lũy kế trên mỗi tài khoản/sự kiện bằng PostgreSQL `pg_advisory_xact_lock`.
+
+![SD-S2-01: Xác minh OTP 6 số và Kiểm soát hạn mức 4 vé lũy kế](images/sd_s2_01_otp_va_gioi_han_4_ve.png)
+
+> *Vector SVG:* [`images/sd_s2_01_otp_va_gioi_han_4_ve.svg`](images/sd_s2_01_otp_va_gioi_han_4_ve.svg)
+
+---
+
+### SD-S2-02: Dynamic Pricing — Tính đề xuất giá, BTC Phê duyệt & Realtime Giá (UC-T4-01..05, Sprint 2)
+
+Phạm vi Sprint 2 (`FR-T4-02`, `FR-T4-03`, `FR-T4-04`, `NFR-08`): thiết lập khung giá trần/sàn (`QUY_TAC_GIA`), quét chu kỳ tính toán giá đề xuất (`DE_XUAT_GIA`), quy trình BTC phê duyệt/từ chối (*Human-in-the-Loop*), ghi nhận lịch sử bất biến (`NHAT_KY_GIA`) và phát Realtime cập nhật giá vé.
+
+![SD-S2-02: Dynamic Pricing — Tính đề xuất, BTC Duyệt và Realtime giá](images/sd_s2_02_dynamic_pricing_duyet_gia.png)
+
+> *Vector SVG:* [`images/sd_s2_02_dynamic_pricing_duyet_gia.svg`](images/sd_s2_02_dynamic_pricing_duyet_gia.svg)
 
 ---
 
