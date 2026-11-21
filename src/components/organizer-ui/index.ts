@@ -8,5 +8,8 @@ export * from './OrganizerOnboarding';
 export * from './OrganizerAuthView';
 export * from './OrganizerAccessDeniedView';
 export * from './OrganizerEventWizard';
+export * from './OrganizerPricingConfig';
+export * from './OrganizerPricingPanel';
 import './organizer-ui.css';
 import './organizer-skin.css';
+import './organizer-pricing.css';
