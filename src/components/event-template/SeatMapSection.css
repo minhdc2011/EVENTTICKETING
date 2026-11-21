@@ -252,6 +252,93 @@
   white-space: nowrap;
 }
 
+.et-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.et-price-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-bottom: 1px solid var(--seat-border);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.et-price-status-bar--warning {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fde68a;
+}
+
+.et-price-status-bar--error {
+  background: rgba(239, 68, 68, 0.16);
+  color: #fecaca;
+}
+
+.et-price-status-bar--info {
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+.et-price-lock-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: rgba(16, 185, 129, 0.16);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  vertical-align: middle;
+}
+
+.et-dialog-price-list {
+  list-style: none;
+  margin: 10px 0 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--seat-border);
+  border-radius: 8px;
+  background: var(--seat-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.et-dialog-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--seat-fg);
+}
+
+.et-dialog-price-row > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.et-dialog-price-row > span:last-child {
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.et-dialog-price-note {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--seat-muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .et-live-dot {
   width: 7px;
   height: 7px;

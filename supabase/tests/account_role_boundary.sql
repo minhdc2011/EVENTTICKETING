@@ -34,12 +34,14 @@ SELECT throws_ok(
   'Anonymous users cannot create organizations'
 );
 
+SET LOCAL ROLE anon;
 SELECT throws_ok(
   $$ SELECT public.gan_loai_tai_khoan('someone@example.com', 'ORGANIZER') $$,
   '42501',
   'permission denied for function gan_loai_tai_khoan',
   'Anonymous users cannot execute administrative role assignment function'
 );
+RESET ROLE;
 
 -- Setup isolated multi-tenant fixtures
 INSERT INTO auth.users (id, aud, role, email)
@@ -98,6 +100,7 @@ SELECT is(
 -- 10. AC2: Buyer account (USER) is denied from creating an organization
 SET LOCAL ROLE authenticated;
 SET LOCAL "request.jwt.claim.sub" = '44444444-dddd-dddd-dddd-dddddddddddd';
+SET LOCAL "request.jwt.claim.role" = 'authenticated';
 
 -- 11-12. Zero-argument helpers execute unambiguously under authenticated buyer session
 SELECT is(
@@ -195,6 +198,7 @@ SELECT is(
 -- AC3: Organizer account (ORGANIZER) with valid session can create an organization
 SET LOCAL ROLE authenticated;
 SET LOCAL "request.jwt.claim.sub" = '55555555-eeee-eeee-eeee-eeeeeeeeeeee';
+SET LOCAL "request.jwt.claim.role" = 'authenticated';
 
 -- Zero-argument helpers execute unambiguously under authenticated organizer session
 SELECT is(
@@ -255,6 +259,7 @@ SELECT is(
 
 -- 22. Service role can administer account kinds via gan_loai_tai_khoan
 SET LOCAL ROLE service_role;
+SET LOCAL "request.jwt.claim.role" = 'service_role';
 SELECT is(
   (public.gan_loai_tai_khoan('buyer-test@example.com', 'ORGANIZER')->>'accountKind'),
   'ORGANIZER',

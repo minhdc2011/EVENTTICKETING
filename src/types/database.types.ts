@@ -8,7 +8,8 @@ export type Json =
 
 /**
  * Shape of the public schema, regenerated from supabase/migrations (LICH_TRINH is gone, SUAT_DIEN, TO_CHUC,
- * THANH_VIEN_TO_CHUC, HO_SO_NGUOI_DUNG, DIA_DIEM, PHIEN_BAN_SO_DO and the later columns/RPCs are included).
+ * THANH_VIEN_TO_CHUC, HO_SO_NGUOI_DUNG, DIA_DIEM, PHIEN_BAN_SO_DO, the pricing tables QUY_TAC_GIA / DE_XUAT_GIA /
+ * NHAT_KY_GIA and the later columns/RPCs are included).
  * Replace with `supabase gen types typescript` output when a project is linked.
  */
 export type Database = {
@@ -54,6 +55,7 @@ export type Database = {
           ThoiGianGiuChoPhut: number
           TuyChonMoRong: Json
           YeuCauCCCD: boolean
+          YeuCauXacMinhOTP: boolean
         }
         Insert: {
           ChoPhepChonCho?: boolean
@@ -64,6 +66,7 @@ export type Database = {
           ThoiGianGiuChoPhut?: number
           TuyChonMoRong?: Json
           YeuCauCCCD?: boolean
+          YeuCauXacMinhOTP?: boolean
         }
         Update: {
           ChoPhepChonCho?: boolean
@@ -74,6 +77,7 @@ export type Database = {
           ThoiGianGiuChoPhut?: number
           TuyChonMoRong?: Json
           YeuCauCCCD?: boolean
+          YeuCauXacMinhOTP?: boolean
         }
         Relationships: [
           {
@@ -87,6 +91,7 @@ export type Database = {
       }
       CHI_TIET_GIU_CHO: {
         Row: {
+          DonGiaChot: number | null
           GheID: number | null
           GiuChoID: string
           ID: number
@@ -95,6 +100,7 @@ export type Database = {
           SoLuong: number
         }
         Insert: {
+          DonGiaChot?: number | null
           GheID?: number | null
           GiuChoID: string
           ID?: number
@@ -103,6 +109,7 @@ export type Database = {
           SoLuong?: number
         }
         Update: {
+          DonGiaChot?: number | null
           GheID?: number | null
           GiuChoID?: string
           ID?: number
@@ -131,6 +138,91 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "KHU_VUC"
             referencedColumns: ["KhuVucID"]
+          },
+        ]
+      }
+      DE_XUAT_GIA: {
+        Row: {
+          CoCanhBaoVuotKhung: boolean
+          DeXuatID: number
+          GhiChuDuyet: string | null
+          GiaDeXuat: number
+          GiaHienTai: number
+          GiaTinhToanTho: number
+          KhuVucID: number
+          LoaiCanhBao: string
+          LyDoDeXuat: string | null
+          NguoiDuyetID: string | null
+          QuyTacGiaID: number
+          SoGioConLai: number
+          ThoiGianDeXuat: string
+          ThoiGianDuyet: string | null
+          TocDoBanKyVong: number
+          TocDoBanThucTe: number
+          TrangThaiDuyet: string
+          TyLeLapDay: number
+        }
+        Insert: {
+          CoCanhBaoVuotKhung?: boolean
+          DeXuatID?: number
+          GhiChuDuyet?: string | null
+          GiaDeXuat: number
+          GiaHienTai: number
+          GiaTinhToanTho: number
+          KhuVucID: number
+          LoaiCanhBao?: string
+          LyDoDeXuat?: string | null
+          NguoiDuyetID?: string | null
+          QuyTacGiaID: number
+          SoGioConLai: number
+          ThoiGianDeXuat?: string
+          ThoiGianDuyet?: string | null
+          TocDoBanKyVong: number
+          TocDoBanThucTe: number
+          TrangThaiDuyet?: string
+          TyLeLapDay: number
+        }
+        Update: {
+          CoCanhBaoVuotKhung?: boolean
+          DeXuatID?: number
+          GhiChuDuyet?: string | null
+          GiaDeXuat?: number
+          GiaHienTai?: number
+          GiaTinhToanTho?: number
+          KhuVucID?: number
+          LoaiCanhBao?: string
+          LyDoDeXuat?: string | null
+          NguoiDuyetID?: string | null
+          QuyTacGiaID?: number
+          SoGioConLai?: number
+          ThoiGianDeXuat?: string
+          ThoiGianDuyet?: string | null
+          TocDoBanKyVong?: number
+          TocDoBanThucTe?: number
+          TrangThaiDuyet?: string
+          TyLeLapDay?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "DE_XUAT_GIA_KhuVucID_fkey"
+            columns: ["KhuVucID"]
+            isOneToOne: false
+            referencedRelation: "KHU_VUC"
+            referencedColumns: ["KhuVucID"]
+          },
+          {
+            foreignKeyName: "DE_XUAT_GIA_NguoiDuyetID_fkey"
+            columns: ["NguoiDuyetID"]
+            isOneToOne: false
+            referencedRelation: "HO_SO_NGUOI_DUNG"
+            referencedColumns: ["NguoiDungID"]
+          },
+          {
+            foreignKeyName: "DE_XUAT_GIA_QuyTacGiaID_fkey"
+            columns: ["QuyTacGiaID"]
+            isOneToOne: false
+            referencedRelation: "QUY_TAC_GIA"
+            referencedColumns: ["QuyTacGiaID"]
           },
         ]
       }
@@ -177,6 +269,7 @@ export type Database = {
           GheID: number
           KhuVucID: number
           MaGheDayDu: string
+          NgayCapNhatTrangThai: string | null
           SoGhe: string
           SoHang: string
           ToaDoX: number | null
@@ -187,6 +280,7 @@ export type Database = {
           GheID?: number
           KhuVucID: number
           MaGheDayDu: string
+          NgayCapNhatTrangThai?: string | null
           SoGhe: string
           SoHang: string
           ToaDoX?: number | null
@@ -197,6 +291,7 @@ export type Database = {
           GheID?: number
           KhuVucID?: number
           MaGheDayDu?: string
+          NgayCapNhatTrangThai?: string | null
           SoGhe?: string
           SoHang?: string
           ToaDoX?: number | null
@@ -219,6 +314,7 @@ export type Database = {
           HetHanLuc: string
           NgayCapNhat: string
           NgayTao: string
+          NguoiDungID: string | null
           PhienNguoiDung: string
           SuKienID: number
           SuatDienID: number
@@ -229,6 +325,7 @@ export type Database = {
           HetHanLuc?: string
           NgayCapNhat?: string
           NgayTao?: string
+          NguoiDungID?: string | null
           PhienNguoiDung: string
           SuKienID: number
           SuatDienID: number
@@ -239,6 +336,7 @@ export type Database = {
           HetHanLuc?: string
           NgayCapNhat?: string
           NgayTao?: string
+          NguoiDungID?: string | null
           PhienNguoiDung?: string
           SuKienID?: number
           SuatDienID?: number
@@ -378,6 +476,67 @@ export type Database = {
         }
         Relationships: []
       }
+      NHAT_KY_GIA: {
+        Row: {
+          DeXuatID: number | null
+          GiaCu: number
+          GiaMoi: number
+          KhuVucID: number
+          LoaiBienDong: string
+          LyDoThayDoi: string
+          NguoiThucHienID: string | null
+          NhatKyGiaID: number
+          ThoiGianApDung: string
+          TyLeThayDoiPhanTram: number
+        }
+        Insert: {
+          DeXuatID?: number | null
+          GiaCu: number
+          GiaMoi: number
+          KhuVucID: number
+          LoaiBienDong: string
+          LyDoThayDoi: string
+          NguoiThucHienID?: string | null
+          NhatKyGiaID?: number
+          ThoiGianApDung?: string
+          TyLeThayDoiPhanTram: number
+        }
+        Update: {
+          DeXuatID?: number | null
+          GiaCu?: number
+          GiaMoi?: number
+          KhuVucID?: number
+          LoaiBienDong?: string
+          LyDoThayDoi?: string
+          NguoiThucHienID?: string | null
+          NhatKyGiaID?: number
+          ThoiGianApDung?: string
+          TyLeThayDoiPhanTram?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "NHAT_KY_GIA_DeXuatID_fkey"
+            columns: ["DeXuatID"]
+            isOneToOne: true
+            referencedRelation: "DE_XUAT_GIA"
+            referencedColumns: ["DeXuatID"]
+          },
+          {
+            foreignKeyName: "NHAT_KY_GIA_KhuVucID_fkey"
+            columns: ["KhuVucID"]
+            isOneToOne: false
+            referencedRelation: "KHU_VUC"
+            referencedColumns: ["KhuVucID"]
+          },
+          {
+            foreignKeyName: "NHAT_KY_GIA_NguoiThucHienID_fkey"
+            columns: ["NguoiThucHienID"]
+            isOneToOne: false
+            referencedRelation: "HO_SO_NGUOI_DUNG"
+            referencedColumns: ["NguoiDungID"]
+          },
+        ]
+      }
       PHIEN_BAN_SO_DO: {
         Row: {
           DaKhoa: boolean
@@ -413,6 +572,78 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "DIA_DIEM"
             referencedColumns: ["DiaDiemID"]
+          },
+        ]
+      }
+      QUY_TAC_GIA: {
+        Row: {
+          BienDoToiDaMoiChuKy: number
+          BuocNhayGia: number
+          GiaGoc: number
+          GiaSan: number
+          GiaTran: number
+          KhuVucID: number
+          NgayCapNhat: string
+          NgayTao: string
+          NguoiCapNhatID: string | null
+          NguongLapDayCao: number
+          NguongLapDayThap: number
+          QuyTacGiaID: number
+          TrangThaiKichHoat: boolean
+          TrongSoLapDay: number
+          TrongSoThoiGian: number
+          TrongSoTocDoBan: number
+        }
+        Insert: {
+          BienDoToiDaMoiChuKy?: number
+          BuocNhayGia?: number
+          GiaGoc: number
+          GiaSan: number
+          GiaTran: number
+          KhuVucID: number
+          NgayCapNhat?: string
+          NgayTao?: string
+          NguoiCapNhatID?: string | null
+          NguongLapDayCao?: number
+          NguongLapDayThap?: number
+          QuyTacGiaID?: number
+          TrangThaiKichHoat?: boolean
+          TrongSoLapDay?: number
+          TrongSoThoiGian?: number
+          TrongSoTocDoBan?: number
+        }
+        Update: {
+          BienDoToiDaMoiChuKy?: number
+          BuocNhayGia?: number
+          GiaGoc?: number
+          GiaSan?: number
+          GiaTran?: number
+          KhuVucID?: number
+          NgayCapNhat?: string
+          NgayTao?: string
+          NguoiCapNhatID?: string | null
+          NguongLapDayCao?: number
+          NguongLapDayThap?: number
+          QuyTacGiaID?: number
+          TrangThaiKichHoat?: boolean
+          TrongSoLapDay?: number
+          TrongSoThoiGian?: number
+          TrongSoTocDoBan?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "QUY_TAC_GIA_KhuVucID_fkey"
+            columns: ["KhuVucID"]
+            isOneToOne: true
+            referencedRelation: "KHU_VUC"
+            referencedColumns: ["KhuVucID"]
+          },
+          {
+            foreignKeyName: "QUY_TAC_GIA_NguoiCapNhatID_fkey"
+            columns: ["NguoiCapNhatID"]
+            isOneToOne: false
+            referencedRelation: "HO_SO_NGUOI_DUNG"
+            referencedColumns: ["NguoiDungID"]
           },
         ]
       }
@@ -715,9 +946,17 @@ export type Database = {
         Args: { p_to_chuc_id: string }
         Returns: boolean
       }
+      co_quyen_dinh_gia: {
+        Args: { p_su_kien_id: number }
+        Returns: boolean
+      }
       cong_bo_su_kien: {
         Args: { p_su_kien_id: number }
         Returns: boolean
+      }
+      duyet_de_xuat_gia: {
+        Args: { p_de_xuat_id: number; p_ghi_chu: string; p_gia_dieu_chinh?: number }
+        Returns: Json
       }
       expire_seat_holds: {
         Args: { p_su_kien_id?: number }
@@ -725,6 +964,10 @@ export type Database = {
       }
       gan_loai_tai_khoan: {
         Args: { p_email: string; p_loai: string }
+        Returns: Json
+      }
+      het_han_de_xuat_gia: {
+        Args: { p_su_kien_id: number }
         Returns: Json
       }
       huy_giu_cho: {
@@ -743,9 +986,66 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      lay_so_lieu_dinh_gia: {
+        Args: { p_su_kien_id: number }
+        Returns: Array<{
+          khu_vuc_id: number | null
+          suat_dien_id: number | null
+          su_kien_id: number | null
+          ma_khu_vuc: string | null
+          ten_khu_vuc: string | null
+          trang_thai_suat: string | null
+          thoi_gian_mo_ban: string | null
+          thoi_gian_dong_ban: string | null
+          thoi_gian_bat_dau: string | null
+          dang_mo_ban: boolean | null
+          gia_hien_hanh: number | null
+          quy_tac_gia_id: number | null
+          co_quy_tac: boolean | null
+          kich_hoat: boolean | null
+          gia_goc: number | null
+          gia_san: number | null
+          gia_tran: number | null
+          buoc_nhay: number | null
+          bien_do: number | null
+          nguong_thap: number | null
+          nguong_cao: number | null
+          trong_so_lap_day: number | null
+          trong_so_toc_do: number | null
+          trong_so_thoi_gian: number | null
+          n_total: number | null
+          n_sold: number | null
+          n_hold: number | null
+          so_ban_6h: number | null
+          v_actual: number | null
+          t_rem_gio: number | null
+          tong_gio_mo_ban: number | null
+          v_target: number | null
+          de_xuat_pending_id: number | null
+          co_pending: boolean | null
+          mo_phong: boolean | null
+          thoi_diem_tinh: string | null
+        }>
+      }
+      luu_de_xuat_gia: {
+        Args: { p_khu_vuc_id: number; p_quy_tac_gia_id: number; p_quy_tac_ngay_cap_nhat: string; p_gia_de_xuat: number; p_gia_tinh_toan_tho: number; p_ly_do: string }
+        Returns: Json
+      }
+      luu_quy_tac_gia: {
+        Args: { p_khu_vuc_id: number; p_gia_goc: number; p_gia_san: number; p_gia_tran: number; p_buoc_nhay_gia: number; p_bien_do_toi_da: number; p_nguong_lap_day_thap: number; p_nguong_lap_day_cao: number; p_trong_so_lap_day: number; p_trong_so_toc_do_ban: number; p_trong_so_thoi_gian: number; p_trang_thai_kich_hoat: boolean }
+        Returns: Json
+      }
       luu_su_kien_toan_dien: {
         Args: { p_payload: Json }
         Returns: Json
+      }
+      mo_phong_nhu_cau: {
+        Args: { p_su_kien_id: number; p_kich_ban: string }
+        Returns: Json
+      }
+      suat_dien_dang_mo_ban: {
+        Args: { p_su_kien_id: number; p_suat_dien_id: number }
+        Returns: boolean
       }
       tao_ban_nhap_su_kien: {
         Args: { p_bat_dau: string; p_dia_chi: string; p_dong_ban: string; p_gia_ve: number; p_ket_thuc: string; p_mo_ban: string; p_mo_ta: string; p_slug: string; p_suc_chua: number; p_ten_dia_diem: string; p_ten_su_kien: string; p_the_loai: string; p_to_chuc_id: string }
@@ -761,6 +1061,10 @@ export type Database = {
       }
       tao_to_chuc_cua_toi: {
         Args: { p_slug: string; p_ten_to_chuc: string }
+        Returns: Json
+      }
+      tu_choi_de_xuat_gia: {
+        Args: { p_de_xuat_id: number; p_ly_do: string }
         Returns: Json
       }
     }

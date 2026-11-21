@@ -12,6 +12,8 @@ import {
 } from '../domain/catalogFilters.js';
 import {resolvePublicArtistsFallback} from '../domain/artistLineup.js';
 import {resolveMockCatalogExtraArtists} from '../domain/mockCatalogArtists.js';
+import {laSuKienDemo, taoTiersDemo} from '../domain/pricingMockDemo.js';
+import {docTrangThaiMoPhong} from './pricingService';
 
 export type {CatalogArtist};
 
@@ -463,17 +465,35 @@ export async function loadPublicEvent(
         const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
         const found = stored.find((e) => (e.slug === normalizedSlug || deduplicateSlug(e.slug) === normalizedSlug) && e.status === 'CONG_KHAI');
         if (found) {
-          const show: PublicShowRecord = {
-            id: Number(found.id) + 100,
-            slug: 'suat-1',
-            name: 'Suất diễn 1',
-            startsAt: found.startsAt,
-            endsAt: found.endsAt,
-            saleStartsAt: found.saleStartsAt,
-            saleEndsAt: found.saleEndsAt,
-            timezone: 'Asia/Ho_Chi_Minh',
-            databaseSaleStatus: 'SAP_MO_BAN',
-          };
+          const isDemo = laSuKienDemo(found.id) || laSuKienDemo(found.slug);
+          const saleStatus = isDemo ? 'DANG_MO_BAN' : 'SAP_MO_BAN';
+          const shows: PublicShowRecord[] =
+            Array.isArray(found.shows) && found.shows.length > 0
+              ? found.shows.map((s: any, idx: number) => ({
+                  id: Number(s.showId ?? Number(found.id) + 100 + idx),
+                  slug: String(s.slug || `suat-${idx + 1}`),
+                  name: String(s.name || `Suất diễn ${idx + 1}`),
+                  startsAt: String(s.startsAt || found.startsAt),
+                  endsAt: String(s.endsAt || found.endsAt),
+                  saleStartsAt: String(s.saleStartsAt || found.saleStartsAt),
+                  saleEndsAt: s.saleEndsAt ? String(s.saleEndsAt) : found.saleEndsAt,
+                  timezone: 'Asia/Ho_Chi_Minh',
+                  databaseSaleStatus: saleStatus,
+                }))
+              : [
+                  {
+                    id: Number(found.id) + 100,
+                    slug: 'suat-1',
+                    name: 'Suất diễn 1',
+                    startsAt: found.startsAt,
+                    endsAt: found.endsAt,
+                    saleStartsAt: found.saleStartsAt,
+                    saleEndsAt: found.saleEndsAt,
+                    timezone: 'Asia/Ho_Chi_Minh',
+                    databaseSaleStatus: saleStatus,
+                  },
+                ];
+          const show = shows[0];
           mockEvent = {
             id: Number(found.id),
             code: String(found.slug).toUpperCase().replaceAll('-', '_'),
@@ -482,17 +502,17 @@ export async function loadPublicEvent(
             description: found.description || undefined,
             templateKey: 'DEFAULT',
             category: String(found.category || 'KHAC'),
-            startsAt: found.startsAt,
-            endsAt: found.endsAt,
-            saleStartsAt: found.saleStartsAt,
-            saleEndsAt: found.saleEndsAt,
+            startsAt: show.startsAt,
+            endsAt: show.endsAt,
+            saleStartsAt: show.saleStartsAt,
+            saleEndsAt: show.saleEndsAt,
             venueName: String(found.venueName || 'Địa điểm tổ chức'),
             address: String(found.address || ''),
             capacity: Number(found.capacity || 100),
-            databaseSaleStatus: 'SAP_MO_BAN',
+            databaseSaleStatus: saleStatus,
             publicationStatus: 'CONG_KHAI',
             selectedShow: show,
-            shows: [show],
+            shows,
           };
         }
       } catch {
@@ -684,6 +704,10 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
     if (event.templateKey === 'SUPER_CONCERT_2026') return SUPER_CONCERT_TIERS;
     const matched = specificTiers;
     if (matched) return matched;
+    if (laSuKienDemo(event.id) || laSuKienDemo(event.slug)) {
+      const {state} = await docTrangThaiMoPhong();
+      return taoTiersDemo(state);
+    }
     try {
       const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
       const found = stored.find((e) => e.slug === event.slug || deduplicateSlug(e.slug) === event.slug);

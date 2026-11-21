@@ -1,6 +1,6 @@
 # Đặc tả Sprint 2: OTP, giới hạn 4 vé, Dynamic Pricing (dùng chung cho mọi đợt)
 
-Đây là nguồn sự thật cho agent. Mọi file nhiệm vụ `sprint2-W*.md` chỉ trỏ về đây. Nếu code hiện tại mâu thuẫn với đặc tả này, **dừng và báo trong báo cáo**, không tự đoán.
+Đây là nguồn sự thật cho agent. Mỗi file nhiệm vụ `sprint2-W1…W6-*.md` là một lần chạy `agentkit team` và chỉ trỏ về đây. Nếu code hiện tại mâu thuẫn với đặc tả này, **không tự đoán**: làm phần chắc chắn, ghi điểm mâu thuẫn vào ghi chú cuối đợt (mục 7) và nêu rõ trong tiêu chí còn thiếu.
 
 ## 0. Phạm vi và ràng buộc chung
 
@@ -11,10 +11,11 @@
 - Vai trò trong `THANH_VIEN_TO_CHUC`: `CHU_SO_HUU`, `QUAN_TRI`, `BIEN_TAP`, `VAN_HANH`, `SOAT_VE`. Cấu hình giá và duyệt giá: **chỉ** `CHU_SO_HUU`, `QUAN_TRI` của tổ chức sở hữu sự kiện. `VAN_HANH`, `SOAT_VE`, khán giả, người ẩn danh: không được.
 - Chế độ mock: ứng dụng có `runtimeConfig.useMockData`. Mọi màn hình mới phải chạy được ở chế độ mock (ảnh chụp tự động và demo dùng mock). Dữ liệu mock mô phỏng phải gắn nhãn **mô phỏng**.
 - **Bảng `GHE` đã bị khóa ghi trực tiếp** (migration `20261111090000`: thu hồi `INSERT/UPDATE/DELETE` của `authenticated`, ghế do hàm `SECURITY DEFINER` sinh ra). Mọi thao tác ghi `GHE` của Sprint 2 (Demand Simulator đánh dấu `DA_BAN`, trigger `NgayCapNhatTrangThai`) phải đi qua hàm `SECURITY DEFINER` hoặc trigger, **không** mở lại quyền ghi trực tiếp. Tham khảo cách làm và test trong migration đó và `supabase/tests/server_side_seat_generation.sql`.
+- **pgTAP:** đọc `docs/LOCAL_DEV_DATABASE.md` mục "Viết file pgTAP mới" và làm đúng như đó. Tóm tắt: file mới trong `supabase/tests/` tự tạo toàn bộ fixture trong giao dịch (`auth.users`, `HO_SO_NGUOI_DUNG` với `LoaiTaiKhoan` = `ORGANIZER` cho người sửa sự kiện, `TO_CHUC`, `THANH_VIEN_TO_CHUC`), có `plan(N)` đúng số khẳng định, kết thúc `finish()` rồi `ROLLBACK`; khi giả lập người dùng đặt cả `SET LOCAL ROLE authenticated`, `request.jwt.claim.sub` và `request.jwt.claim.role = 'authenticated'`. Không dựa vào `supabase/seed.sql`, không dùng `supabase/tests-stale/`. Mọi file trong `supabase/tests/` tự được `npm run db:test` chạy (không cần đăng ký ở đâu). Nền hiện có **6 file, 101 khẳng định đều đạt**; người kiểm chứng chạy `npm run db:reset` rồi `npm run db:test`.
 - Không commit khóa, mật khẩu, `.env*` có giá trị thật. Script cần `service_role` chỉ đọc từ biến môi trường, không đưa vào mã giao diện.
 - Test mới là **test hành vi thật** (không thêm `assert.match` trên mã nguồn dạng văn bản). Mọi test cũ vẫn phải đạt.
-- Không sửa `docs/` và `*.docx`. Ghi trong báo cáo cuối từng đợt những tài liệu cần cập nhật.
-- Không bịa số liệu kiểm thử hay đánh dấu "đạt" khi chưa chạy. Việc không chạy được (cần Supabase, Docker, mạng): viết sẵn và ghi rõ **chưa chạy**.
+- Không sửa `docs/` và `*.docx`. Task cuối mỗi đợt tạo `.multiagent/notes/sprint2-Wn-ghi-chu.md` (mục 7) liệt kê tài liệu cần cập nhật.
+- Không bịa số liệu kiểm thử hay đánh dấu "đạt" khi chưa chạy. Việc không chạy được (cần Supabase, Docker, mạng): viết sẵn và ghi rõ **chưa chạy** trong ghi chú cuối đợt.
 - Hai tệp tham khảo (bản nháp chưa chạy trên Postgres, **phải rà soát và sửa**, không chép nguyên): `.multiagent/briefs/dp_schema_draft.sql.txt` (3 bảng, trigger bất biến, RPC `duyet_de_xuat_gia`), `.multiagent/briefs/limit4_draft.sql.txt` (phần bổ sung đếm vé cho `tao_giu_cho_theo_suat`).
 
 ## 1. Dữ liệu mới
@@ -54,8 +55,9 @@ Tham số mặc định (cột của `QUY_TAC_GIA`): `Δ_max` 20%, `S` 10.000đ,
 
 Kiến trúc triển khai (quyết định, đừng đổi nếu không báo cáo):
 - **Engine thuần** `src/domain/pricingEngine.js` (kèm `.d.ts`): hàm tính 5 bước, không I/O, có test hành vi cho 4 ví dụ và các biên (r=0, r=1, `N_total=0`, `v_target=0`, giá sàn=giá trần).
+- **Quyền gọi RPC giá:** dùng một hàm chung `co_quyen_dinh_gia(p_su_kien_id)` trả TRUE khi `auth.role() = 'service_role'` hoặc người gọi là `CHU_SO_HUU`/`QUAN_TRI` của tổ chức sở hữu sự kiện; mọi RPC giá (`luu_quy_tac_gia`, `lay_so_lieu_dinh_gia`, `luu_de_xuat_gia`, `het_han_de_xuat_gia`) dùng hàm này, không viết lại điều kiện quyền ở từng nơi. Duyệt và từ chối (`duyet_de_xuat_gia`, `tu_choi_de_xuat_gia`) **chỉ** cho người dùng thật (không cho `service_role`), vì cần `auth.uid()` để ghi người duyệt.
 - **PriceGuard phía máy chủ** (RPC): mọi đề xuất, **từ bất kỳ nguồn nào** (engine, client, mô-đun khác), phải qua kiểm tra: thuộc [sàn, trần]; biên độ ≤ `Δ_max`; chênh ≥ `S`; không có `PENDING` khác; vai trò hợp lệ. Vi phạm: không áp dụng, ghi audit, trả mã lỗi rõ (AC-T4-05.1).
-- **Chu kỳ tính giá:** `scripts/run-pricing-cycle.mjs` (Node, supabase-js, đọc đúng hai biến môi trường `SUPABASE_URL` và `SUPABASE_SERVICE_ROLE_KEY`; thiếu biến thì dừng với thông báo rõ, không có giá trị mặc định), có tham số `--su-kien <id>` và `--nhanh` (bỏ chờ chu kỳ để demo). Không dùng `pg_cron` trong Sprint 2 (không chạy được trong môi trường kiểm thử của nhóm).
+- **Một engine, hai cách gọi** (cùng module `pricingEngine.js`, cùng RPC): (1) nút **Chạy ngay** ở màn hình BTC chạy engine trong trình duyệt bằng phiên của BTC; (2) **chu kỳ tính giá** `scripts/run-pricing-cycle.mjs` (Node, supabase-js, đọc đúng hai biến môi trường `SUPABASE_URL` và `SUPABASE_SERVICE_ROLE_KEY`; thiếu biến thì dừng với thông báo rõ, không có giá trị mặc định), có tham số `--su-kien <id>` và `--nhanh` (bỏ chờ chu kỳ để demo). Không dùng `pg_cron` trong Sprint 2 (không chạy được trong môi trường kiểm thử của nhóm).
 - **Demand Simulator:** chỉ chạy trên sự kiện có `CAU_HINH_SU_KIEN.TuyChonMoRong->>'moPhong' = 'true'`; kịch bản `ban_nhanh`, `ban_cham`, `ban_deu`; ghi ghế `DA_BAN` kèm `NgayCapNhatTrangThai` giả lập; `LyDoDeXuat` của đề xuất sinh từ dữ liệu mô phỏng phải bắt đầu bằng `[MÔ PHỎNG]` (BR-T4-02.9). Có bản chạy trong chế độ mock.
 - **Áp dụng giá:** một giao dịch duy nhất cập nhật `KHU_VUC.GiaVeNiemYet`, đổi `DE_XUAT_GIA` sang `APPROVED`, ghi `NHAT_KY_GIA` (khóa lạc quan: giá hiện hành phải còn bằng `GiaHienTai` của đề xuất, nếu không lỗi 40001 → giao diện hiện 409). Tham khảo `duyet_de_xuat_gia` trong bản nháp: `auth.uid()`, kiểm vai trò, TTL, khung sàn/trần.
 - **Giá chốt khi giữ chỗ:** `tao_giu_cho_theo_suat` ghi `CHI_TIET_GIU_CHO.DonGiaChot` = giá niêm yết hiện hành; giá mới chỉ áp dụng cho lần chọn sau thời điểm áp dụng (BR-T4-02.5).
@@ -66,16 +68,17 @@ RPC dự kiến (tên có thể tinh chỉnh nhưng phải nêu trong báo cáo)
 ## 3. Xác minh OTP (FR-T2-01)
 
 - OTP do **Supabase Auth** sinh và quản lý (`signInWithOtp({email, options: {shouldCreateUser: false}})` rồi `verifyOtp({email, token, type: 'email'})`). Ứng dụng **không lưu, không ghi log** mã OTP (AC-T2-01.6).
-- Tham số mục tiêu (thực hiện ở mức Supabase Auth cho phép; nơi Auth không hỗ trợ thì ghi rõ trong báo cáo, không giả vờ): hiệu lực mã 5 phút; sai tối đa 5 lần/mã, quá thì hủy mã và khóa xác minh 15 phút; gửi lại cách nhau ≥ 60 giây, tối đa 3 lần/giờ/tài khoản; hiệu lực xác minh 24 giờ.
+- Tham số mục tiêu (thực hiện ở mức Supabase Auth cho phép; nơi Auth không hỗ trợ thì ghi rõ trong báo cáo, không giả vờ): hiệu lực mã 5 phút; sai tối đa 5 lần/mã, quá thì hủy mã và khóa xác minh 15 phút; gửi lại cách nhau ≥ 60 giây, tối đa 3 lần/giờ/tài khoản; hiệu lực xác minh 24 giờ. **Đã chốt (21/11/2026):** Supabase Auth chỉ cưỡng chế khoảng cách gửi lại (60 giây, `max_frequency`) và hiệu lực mã (300 giây); "3 lần/giờ/tài khoản" và "khóa 15 phút" chỉ là bộ đếm hiển thị phía giao diện, không tạo Edge Function hay bảng riêng để cưỡng chế, và báo cáo phải ghi rõ giới hạn này.
 - BTC bật/tắt theo sự kiện bằng `CAU_HINH_SU_KIEN.YeuCauXacMinhOTP` (mặc định FALSE).
-- **Cổng chặn phía máy chủ:** `tao_giu_cho_theo_suat` trả 403 (lỗi `42501`) khi sự kiện yêu cầu OTP mà phiên chưa xác minh. Cách nhận biết xác minh trong 24 giờ: claim `amr` của JWT có phương thức `otp` với `timestamp` trong 24 giờ gần nhất (`auth.jwt() -> 'amr'`). Nếu thử thực tế cho thấy claim không có đủ thông tin, **dừng và báo**; phương án dự phòng là thêm cột trạng thái xác minh (cần quyết định của nhóm).
+- **Đã kiểm chứng trên Supabase cục bộ (không phải giả định):** (a) email phải chứa mã 6 số, nên `supabase/config.toml` đã khai báo mẫu `supabase/templates/magic_link.html` với `{{ .Token }}`, `otp_expiry = 300`, `max_frequency = "60s"` (đã có sẵn, đừng sửa trừ khi báo cáo lý do); dự án thật phải đặt mẫu email tương tự ở Dashboard; (b) token sau khi xác minh OTP có claim `amr = [{"method":"otp","timestamp":<giây>}]` và giữ nguyên `timestamp` sau khi làm mới phiên; (c) Supabase Auth **không** có khóa 15 phút sau 5 lần sai, chỉ có giới hạn tốc độ xác minh chung. Vì vậy "sai 5 lần thì khóa" chỉ là giới hạn hiển thị ở giao diện; nói rõ điều này trong báo cáo, đừng khẳng định máy chủ khóa.
+- **Cổng chặn phía máy chủ:** `tao_giu_cho_theo_suat` trả 403 (lỗi `42501`) khi sự kiện yêu cầu OTP mà `auth.jwt() -> 'amr'` không có phần tử `method = 'otp'` với `timestamp` trong 24 giờ gần nhất. Viết thành một hàm nhỏ `da_xac_minh_otp()` (tách riêng để pgTAP kiểm thử được bằng cách đặt `request.jwt.claims` giả lập).
 - Giao diện OTP: đếm ngược hiệu lực và thời gian gửi lại, thông báo lỗi nêu số lần còn lại, bàn phím dùng được, thông báo không chỉ dựa vào màu (AC-T2-01.9, NFR-07). Chế độ mock dùng mã cố định `123456` và **chỉ** khi `useMockData`.
 - Tiêu chí: AC-T2-01.1 đến AC-T2-01.9 (xem mục 6).
 
 ## 4. Giới hạn tối đa 4 vé (FR-T2-02)
 
 - Tính theo **tài khoản và theo sự kiện** (cộng mọi suất diễn). Số vé đang tính = tổng `CHI_TIET_GIU_CHO.SoLuong` của các `GIU_CHO` còn `ACTIVE` và chưa hết hạn của tài khoản đó (Sprint 3 sẽ cộng vé đã mua). Hết hạn giữ chỗ thì số đếm giảm.
-- Giới hạn mặc định 4, BTC (`CHU_SO_HUU`, `QUAN_TRI`) đặt theo sự kiện qua cột `SoVeToiDaMoiDon` (validation theo CHECK hiện có; thay đổi có audit; chỉ áp dụng cho lần chọn sau).
+- Giới hạn mặc định 4, BTC (`CHU_SO_HUU`, `QUAN_TRI`) đặt theo sự kiện qua cột `SoVeToiDaMoiDon` (validation theo CHECK hiện có; thay đổi có audit; chỉ áp dụng cho lần chọn sau). **Đã chốt:** audit ghi vào bảng mới `NHAT_KY_CAU_HINH_MUA_VE` (append-only, ghi trong cùng giao dịch của `luu_cau_hinh_mua_ve` khi giá trị đổi), vì `CAU_HINH_SU_KIEN` không có cột người cập nhật và hai bảng nhật ký giá không phù hợp.
 - Kiểm tra **trong `tao_giu_cho_theo_suat`**, an toàn khi nhiều phiên cùng lúc: `pg_advisory_xact_lock(hashtext(user || ':' || su_kien))`, rồi đếm và so sánh (xem `limit4_draft.sql.txt`). Vượt giới hạn: lỗi `VUOT_GIOI_HAN_VE` (mã `22023`), giao diện hiện 422 kèm số vé còn được chọn.
 - **Không dùng đoạn nháp như bản vá rời:** tìm định nghĩa hiện tại của `tao_giu_cho_theo_suat(p_suat_dien_id BIGINT, p_phien_id UUID, p_items JSONB)` (migration `20261005090000` và các migration sau nếu có), tạo `CREATE OR REPLACE` **toàn bộ hàm** với phần bổ sung, giữ nguyên chữ ký và hành vi cũ, rồi chạy lại mọi test cũ.
 - Giao diện: bộ đếm `đã chọn x/4`, thông báo khi vượt giới hạn (nêu giới hạn và số vé còn lại), thông báo hiển thị đủ lâu (≥ 5 giây). Giữ giới hạn 4 ghế mỗi lần chọn đã có từ Sprint 1.
@@ -94,6 +97,21 @@ RPC dự kiến (tên có thể tinh chỉnh nhưng phải nêu trong báo cáo)
 - Giới hạn vé: AC-T2-02.1 (chọn tối đa 4); .2 (server từ chối kể cả gọi API trực tiếp); .3 (thông báo nêu giới hạn và số vé còn lại); .4 (hai phiên đồng thời không vượt); .5 (hết hạn giữ chỗ giải phóng số đếm); .6 (BTC đổi `SoVeToiDaMoiDon`, chỉ vai trò được phép, có audit); .7 (không áp dụng chéo giữa các sự kiện).
 - Dynamic Pricing: AC-T4-01.1 (lưu khi sàn ≤ gốc ≤ trần, lỗi theo từng trường); AC-T4-02.1 (khớp 4 ví dụ); .2 (deadband, một `PENDING` mỗi khu); .3 (chạm trần/sàn có cảnh báo); .4 (Demand Simulator đổi kịch bản thì đề xuất đổi hướng, demo); AC-T4-03.1 (duyệt → giá đổi, có `NHAT_KY_GIA`, khán giả thấy ≤ 5 giây không tải lại); .2 (từ chối giữ giá); .3 (hai BTC duyệt cùng lúc: một thành công, một nhận 409); .4 (vai trò không đủ quyền → 403); AC-T4-04.1 (ghế đang giữ giữ `DonGiaChot`); AC-T4-05.1 (đề xuất vượt khung từ bất kỳ nguồn nào bị chặn, giá giữ nguyên, có audit).
 
-## 7. Điều cần báo cáo trung thực ở cuối mỗi đợt
+## 7. Ghi chú cuối đợt (task cuối của mỗi đợt)
 
-Bảng AC / bằng chứng / đã chạy chưa; thay đổi CSDL (tên migration, bảng, cột, hàm); những gì **chưa kiểm chứng** (đặc biệt mọi thứ cần Supabase thật); rủi ro đã biết; danh sách tài liệu `.docx` và tài liệu repo cần cập nhật theo thay đổi.
+Task cuối của mỗi đợt tạo `.multiagent/notes/sprint2-Wn-ghi-chu.md` (Wn là mã đợt) gồm:
+
+1. **Bảng tiêu chí chấp nhận:** mã AC (mục 6) / bằng chứng (đường dẫn file và dòng, hoặc tên test) / trạng thái: `gate` (test node trong `npm run check` đã đạt), `cần db:test` (có pgTAP viết sẵn, người kiểm chứng chạy `npm run db:reset` và `npm run db:test`), hoặc `chưa kiểm chứng` kèm lý do. Không ghi "đạt" cho thứ chưa chạy.
+2. **Thay đổi CSDL:** tên migration, bảng, cột, trigger, hàm (chữ ký đầy đủ), chính sách RLS.
+3. **Tài liệu cần cập nhật** theo thay đổi (ERD 17 bảng, đặc tả Use Case, sơ đồ tuần tự, ma trận truy vết, Test Log).
+4. **Rủi ro và điểm mâu thuẫn** với đặc tả; việc dở dang.
+
+## 8. Cách làm việc với `agentkit team` (agent đọc kỹ)
+
+- **Cổng kiểm tra tự động là `npm run check`** (kiểm tra kiểu, test node, build). Nó **không** chạy SQL hay pgTAP. Vì vậy với migration và pgTAP, Astra và trưởng ban chấm bằng **đọc code**: viết SQL thật cẩn thận, đúng cú pháp PostgreSQL, và đối chiếu từng ràng buộc với đặc tả. Người kiểm chứng sẽ chạy `npm run db:reset` và `npm run db:test` sau khi merge.
+- **Tiêu chí kiểm được bằng cách đọc code** (ví dụ "hàm dùng `co_quyen_dinh_gia`", "plan bằng số khẳng định") hoặc bằng gate (ví dụ "test engine đạt"). Mỗi task trong brief đã có tiêu chí như vậy; Astra có thể chia nhỏ hơn nhưng không bỏ tiêu chí nào.
+- **Ban A** (trưởng ban architect): migration, RPC, pgTAP, engine, service, script, ghi chú. **Ban B** (trưởng ban visual): màn hình và tương tác giao diện. Task giao diện phụ thuộc task dữ liệu phải ghi `after` rõ ràng. **Không** để hai task cùng sửa một file (đặc biệt `database.types.ts`, một migration, `SeatMapSection.tsx`).
+- **`solo` cho việc nhỏ và rõ** (một file, ghi chú, config); **`pair` chỉ cho việc khó** (SQL nhiều ràng buộc, công thức, cổng OTP, màn hình có luồng). Một task `pair` tốn khoảng 1,0–1,6 triệu token.
+- **Không thêm test Node đọc file `.sql` rồi `assert.match`** (kiểm tra tĩnh, giòn; đợt W1 đã vi phạm ở `tests/sprint2-pricing-security.test.mjs`). Kiểm chứng SQL bằng pgTAP; test Node chỉ cho mã JavaScript và TypeScript. Astra phải từ chối task có kiểu test này.
+- **Commit và nhánh:** agentkit tự tạo nhánh và commit cho từng task; không tự `git push`, không đổi nhánh, không sửa `.agentkit.yaml`, không đụng `docs/`.
+- **Tên migration:** một migration cho mỗi task SQL, mốc thời gian tăng dần theo brief (đợt sau lớn hơn đợt trước); không dùng lại mốc thời gian.

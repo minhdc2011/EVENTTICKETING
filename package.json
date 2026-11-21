@@ -21,7 +21,6 @@
     "db:start": "npx --yes supabase@3.2.0 start",
     "db:reset": "npx --yes supabase@3.2.0 db reset",
     "db:test": "npx --yes supabase@3.2.0 test db",
-    "db:test:ci": "npx --yes supabase@3.2.0 test db supabase/tests/marketplace_organizer_mvp.sql supabase/tests/product_foundation.sql supabase/tests/server_side_seat_generation.sql supabase/tests/sprint1_hardening.sql",
     "db:status": "npx --yes supabase@3.2.0 status",
     "db:stop": "npx --yes supabase@3.2.0 stop"
   },

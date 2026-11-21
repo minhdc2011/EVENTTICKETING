@@ -902,6 +902,37 @@
   font-size: 24px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  transition: color 0.15s ease;
+}
+
+.et-price-sync-status {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.et-price-sync-status--warning {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.et-price-sync-status--error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.et-price-sync-status--info {
+  background: #e2e8f0;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
 }
 
 .et-tier-price-sub {

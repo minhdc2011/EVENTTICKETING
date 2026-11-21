@@ -1,5 +1,7 @@
 import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../config/runtime';
+import {laSuKienDemo, taoCatalogDemo} from '../domain/pricingMockDemo.js';
 import {getFallbackCatalog, hasFallbackCatalog} from './eventService';
+import {docTrangThaiMoPhong} from './pricingService';
 import type {ApiEnvelope, SeatRecord, TicketingCatalog, ZoneRecord} from '../types/ticketing';
 import {apiRequest} from './apiClient';
 import {requireSupabaseClient} from './supabaseClient';
@@ -87,6 +89,11 @@ export async function loadTicketingCatalog(): Promise<TicketingCatalog> {
       apiRequest<ApiEnvelope<SeatRecord[]>>(`${eventPath}/seats`),
     ]);
     return {zones: zonesResult.data, seats: seatsResult.data};
+  }
+
+  if (laSuKienDemo(active.eventId) || laSuKienDemo(active.eventDatabaseId)) {
+    const {state} = await docTrangThaiMoPhong();
+    return taoCatalogDemo(state);
   }
 
   if (hasFallbackCatalog(active.eventId) && active.eventId !== 'super-concert-2026') {
