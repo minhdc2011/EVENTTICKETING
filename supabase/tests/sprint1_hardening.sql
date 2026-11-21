@@ -18,6 +18,23 @@ END;
 $$;
 
 -- Isolate tests from active demo holds without persisting the change.
+INSERT INTO auth.users (id, aud, role, email)
+VALUES
+  ('a1000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated', 's1-buyer-1@example.com'),
+  ('a1000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 's1-buyer-2@example.com'),
+  ('a1000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated', 's1-buyer-3@example.com'),
+  ('a1000000-0000-4000-8000-000000000004', 'authenticated', 'authenticated', 's1-buyer-4@example.com')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public."HO_SO_NGUOI_DUNG" ("NguoiDungID", "HoTen", "LoaiTaiKhoan")
+VALUES
+  ('a1000000-0000-4000-8000-000000000001', 'Sprint 1 Buyer 1', 'USER'),
+  ('a1000000-0000-4000-8000-000000000002', 'Sprint 1 Buyer 2', 'USER'),
+  ('a1000000-0000-4000-8000-000000000003', 'Sprint 1 Buyer 3', 'USER'),
+  ('a1000000-0000-4000-8000-000000000004', 'Sprint 1 Buyer 4', 'USER')
+ON CONFLICT ("NguoiDungID") DO UPDATE
+SET "LoaiTaiKhoan" = EXCLUDED."LoaiTaiKhoan";
+
 UPDATE public."GIU_CHO"
 SET "TrangThai" = 'RELEASED', "NgayCapNhat" = NOW()
 WHERE "SuKienID" = 1 AND "TrangThai" = 'ACTIVE';
@@ -34,11 +51,57 @@ SET
   "TrangThaiCongBo" = 'CONG_KHAI',
   "TrangThaiMoBan" = 'DANG_MO_BAN',
   "ThoiGianMoBanVe" = NOW() - INTERVAL '1 minute',
-  "ThoiGianDongBanVe" = NOW() + INTERVAL '1 hour'
+  "ThoiGianDongBanVe" = NOW() + INTERVAL '1 hour',
+  "ThoiGianBatDau" = NOW() + INTERVAL '2 hours',
+  "ThoiGianKetThuc" = NOW() + INTERVAL '5 hours'
 WHERE "SuKienID" = 1;
 
--- An anon browser session can hold one available seat while the sale is open.
+UPDATE public."SUAT_DIEN"
+SET
+  "TrangThai" = 'DANG_MO_BAN',
+  "ThoiGianMoBanVe" = NOW() - INTERVAL '1 minute',
+  "ThoiGianDongBanVe" = NOW() + INTERVAL '1 hour',
+  "ThoiGianBatDau" = NOW() + INTERVAL '2 hours',
+  "ThoiGianKetThuc" = NOW() + INTERVAL '5 hours'
+WHERE "SuKienID" = 1;
+
+INSERT INTO public."CAU_HINH_SU_KIEN" ("SuKienID", "SoVeToiDaMoiDon", "YeuCauXacMinhOTP")
+VALUES (1, 4, FALSE)
+ON CONFLICT ("SuKienID") DO UPDATE
+SET "SoVeToiDaMoiDon" = 4,
+    "YeuCauXacMinhOTP" = FALSE;
+
+-- An anon session must be rejected by the account-required hold RPC (42501).
 SET LOCAL ROLE anon;
+SELECT set_config('request.jwt.claim.role', 'anon', true),
+       set_config('request.jwt.claim.sub', '', true),
+       set_config('request.jwt.claims', '{"role":"anon"}', true);
+DO $$
+DECLARE
+  v_rejected BOOLEAN := FALSE;
+BEGIN
+  BEGIN
+    PERFORM public.tao_giu_cho(
+      1,
+      '10000000-0000-0000-0000-000000000000'::UUID,
+      '[{"ticketCode":"VVIP-A-03","zoneCode":"VVIP_DIAMOND"}]'::JSONB
+    );
+  EXCEPTION WHEN SQLSTATE '42501' THEN
+    v_rejected := TRUE;
+  END;
+
+  IF NOT v_rejected THEN
+    RAISE EXCEPTION 'ASSERTION FAILED: anon hold call was not rejected';
+  END IF;
+END;
+$$;
+RESET ROLE;
+
+-- An authenticated buyer session can hold one available seat while the sale is open.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.role', 'authenticated', true),
+       set_config('request.jwt.claim.sub', 'a1000000-0000-4000-8000-000000000001', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"a1000000-0000-4000-8000-000000000001"}', true);
 DO $$
 DECLARE
   v_result JSONB;
@@ -60,11 +123,15 @@ SELECT pg_temp.assert_true(
   'seat must be DANG_GIU after a successful hold'
 );
 
--- A second browser session cannot obtain the same seat.
-SET LOCAL ROLE anon;
+-- A second buyer account cannot obtain the same seat.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.role', 'authenticated', true),
+       set_config('request.jwt.claim.sub', 'a1000000-0000-4000-8000-000000000002', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"a1000000-0000-4000-8000-000000000002"}', true);
 DO $$
 DECLARE
-  v_rejected BOOLEAN := FALSE;
+  v_state TEXT;
+  v_msg TEXT;
 BEGIN
   BEGIN
     PERFORM public.tao_giu_cho(
@@ -72,12 +139,13 @@ BEGIN
       '20000000-0000-0000-0000-000000000002'::UUID,
       '[{"ticketCode":"VVIP-A-03","zoneCode":"VVIP_DIAMOND"}]'::JSONB
     );
-  EXCEPTION WHEN SQLSTATE 'P0001' THEN
-    v_rejected := TRUE;
+  EXCEPTION WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_msg = MESSAGE_TEXT;
   END;
 
-  IF NOT v_rejected THEN
-    RAISE EXCEPTION 'ASSERTION FAILED: competing hold was not rejected';
+  IF v_state IS DISTINCT FROM 'P0001' OR v_msg IS DISTINCT FROM 'Ghe khong con trong' THEN
+    RAISE EXCEPTION 'ASSERTION FAILED: competing hold expected P0001/Ghe khong con trong, got %/%',
+      COALESCE(v_state, '<none>'), COALESCE(v_msg, '<none>');
   END IF;
 END;
 $$;
@@ -109,16 +177,23 @@ UPDATE public."KHU_VUC"
 SET "TongSoGhe" = 4
 WHERE "SuKienID" = 1 AND "MaKhuVuc" = 'GA_STAND_1';
 
-SET LOCAL ROLE anon;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.role', 'authenticated', true),
+       set_config('request.jwt.claim.sub', 'a1000000-0000-4000-8000-000000000003', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"a1000000-0000-4000-8000-000000000003"}', true);
 SELECT public.tao_giu_cho(
   1,
   '30000000-0000-0000-0000-000000000003'::UUID,
   '[{"ticketCode":"GA-TEST-01","zoneCode":"GA_STAND_1","quantity":4}]'::JSONB
 );
 
+-- Use a different account so this tests standing capacity rather than per-account limit.
+SELECT set_config('request.jwt.claim.sub', 'a1000000-0000-4000-8000-000000000004', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"a1000000-0000-4000-8000-000000000004"}', true);
 DO $$
 DECLARE
-  v_rejected BOOLEAN := FALSE;
+  v_state TEXT;
+  v_msg TEXT;
 BEGIN
   BEGIN
     PERFORM public.tao_giu_cho(
@@ -126,16 +201,30 @@ BEGIN
       '40000000-0000-0000-0000-000000000004'::UUID,
       '[{"ticketCode":"GA-TEST-02","zoneCode":"GA_STAND_1","quantity":1}]'::JSONB
     );
-  EXCEPTION WHEN SQLSTATE 'P0001' THEN
-    v_rejected := TRUE;
+  EXCEPTION WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_msg = MESSAGE_TEXT;
   END;
 
-  IF NOT v_rejected THEN
-    RAISE EXCEPTION 'ASSERTION FAILED: standing capacity overflow was accepted';
+  IF v_state IS DISTINCT FROM 'P0001' OR v_msg IS DISTINCT FROM 'Phan khu khong con du so luong' THEN
+    RAISE EXCEPTION 'ASSERTION FAILED: standing capacity overflow expected P0001/Phan khu khong con du so luong, got %/%',
+      COALESCE(v_state, '<none>'), COALESCE(v_msg, '<none>');
   END IF;
 END;
 $$;
 RESET ROLE;
+
+-- Release the GA-TEST-01 hold so GA_STAND_1 capacity is freed before sale-state checks.
+UPDATE public."GIU_CHO"
+SET "TrangThai" = 'RELEASED', "NgayCapNhat" = NOW()
+WHERE "SuKienID" = 1 AND "TrangThai" = 'ACTIVE';
+
+SELECT pg_temp.assert_true(
+  NOT EXISTS (
+    SELECT 1 FROM public."GIU_CHO"
+    WHERE "SuKienID" = 1 AND "TrangThai" = 'ACTIVE'
+  ),
+  'GA_STAND_1 capacity must be released before sale-state cases'
+);
 
 -- Future, closed, sold-out and unpublished events must be rejected by the RPC,
 -- even when a caller bypasses the frontend.
@@ -145,18 +234,29 @@ SET "ThoiGianMoBanVe" = NOW() + INTERVAL '1 hour',
     "TrangThaiMoBan" = 'SAP_MO_BAN'
 WHERE "SuKienID" = 1;
 
-SET LOCAL ROLE anon;
+UPDATE public."SUAT_DIEN"
+SET "ThoiGianMoBanVe" = NOW() + INTERVAL '1 hour',
+    "ThoiGianDongBanVe" = NOW() + INTERVAL '2 hours',
+    "TrangThai" = 'SAP_MO_BAN'
+WHERE "SuKienID" = 1;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.role', 'authenticated', true),
+       set_config('request.jwt.claim.sub', 'a1000000-0000-4000-8000-000000000004', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"a1000000-0000-4000-8000-000000000004"}', true);
 DO $$
 DECLARE
-  v_rejected BOOLEAN := FALSE;
+  v_state TEXT;
+  v_msg TEXT;
 BEGIN
   BEGIN
     PERFORM public.tao_giu_cho(1, gen_random_uuid(), '[{"ticketCode":"GA-FUTURE","zoneCode":"GA_STAND_1"}]');
-  EXCEPTION WHEN SQLSTATE 'P0001' THEN
-    v_rejected := TRUE;
+  EXCEPTION WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_msg = MESSAGE_TEXT;
   END;
-  IF NOT v_rejected THEN
-    RAISE EXCEPTION 'ASSERTION FAILED: future sale accepted a hold';
+  IF v_state IS DISTINCT FROM 'P0001' OR v_msg IS DISTINCT FROM 'Ngoai thoi gian mo ban' THEN
+    RAISE EXCEPTION 'ASSERTION FAILED: future sale expected P0001/Ngoai thoi gian mo ban, got %/%',
+      COALESCE(v_state, '<none>'), COALESCE(v_msg, '<none>');
   END IF;
 END;
 $$;
@@ -168,18 +268,29 @@ SET "ThoiGianMoBanVe" = NOW() - INTERVAL '2 hours',
     "TrangThaiMoBan" = 'DONG_BAN'
 WHERE "SuKienID" = 1;
 
-SET LOCAL ROLE anon;
+UPDATE public."SUAT_DIEN"
+SET "ThoiGianMoBanVe" = NOW() - INTERVAL '2 hours',
+    "ThoiGianDongBanVe" = NOW() - INTERVAL '1 hour',
+    "TrangThai" = 'DONG_BAN'
+WHERE "SuKienID" = 1;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.role', 'authenticated', true),
+       set_config('request.jwt.claim.sub', 'a1000000-0000-4000-8000-000000000004', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"a1000000-0000-4000-8000-000000000004"}', true);
 DO $$
 DECLARE
-  v_rejected BOOLEAN := FALSE;
+  v_state TEXT;
+  v_msg TEXT;
 BEGIN
   BEGIN
     PERFORM public.tao_giu_cho(1, gen_random_uuid(), '[{"ticketCode":"GA-CLOSED","zoneCode":"GA_STAND_1"}]');
-  EXCEPTION WHEN SQLSTATE 'P0001' THEN
-    v_rejected := TRUE;
+  EXCEPTION WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_msg = MESSAGE_TEXT;
   END;
-  IF NOT v_rejected THEN
-    RAISE EXCEPTION 'ASSERTION FAILED: closed sale accepted a hold';
+  IF v_state IS DISTINCT FROM 'P0001' OR v_msg IS DISTINCT FROM 'Suat dien khong mo ban' THEN
+    RAISE EXCEPTION 'ASSERTION FAILED: closed sale expected P0001/Suat dien khong mo ban, got %/%',
+      COALESCE(v_state, '<none>'), COALESCE(v_msg, '<none>');
   END IF;
 END;
 $$;
@@ -191,18 +302,29 @@ SET "ThoiGianMoBanVe" = NOW() - INTERVAL '1 hour',
     "TrangThaiMoBan" = 'HET_VE'
 WHERE "SuKienID" = 1;
 
-SET LOCAL ROLE anon;
+UPDATE public."SUAT_DIEN"
+SET "ThoiGianMoBanVe" = NOW() - INTERVAL '1 hour',
+    "ThoiGianDongBanVe" = NOW() + INTERVAL '1 hour',
+    "TrangThai" = 'HET_VE'
+WHERE "SuKienID" = 1;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.role', 'authenticated', true),
+       set_config('request.jwt.claim.sub', 'a1000000-0000-4000-8000-000000000004', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"a1000000-0000-4000-8000-000000000004"}', true);
 DO $$
 DECLARE
-  v_rejected BOOLEAN := FALSE;
+  v_state TEXT;
+  v_msg TEXT;
 BEGIN
   BEGIN
     PERFORM public.tao_giu_cho(1, gen_random_uuid(), '[{"ticketCode":"GA-SOLD","zoneCode":"GA_STAND_1"}]');
-  EXCEPTION WHEN SQLSTATE 'P0001' THEN
-    v_rejected := TRUE;
+  EXCEPTION WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_msg = MESSAGE_TEXT;
   END;
-  IF NOT v_rejected THEN
-    RAISE EXCEPTION 'ASSERTION FAILED: sold-out event accepted a hold';
+  IF v_state IS DISTINCT FROM 'P0001' OR v_msg IS DISTINCT FROM 'Suat dien da het ve' THEN
+    RAISE EXCEPTION 'ASSERTION FAILED: sold-out event expected P0001/Suat dien da het ve, got %/%',
+      COALESCE(v_state, '<none>'), COALESCE(v_msg, '<none>');
   END IF;
 END;
 $$;
@@ -213,11 +335,17 @@ SET "TrangThaiCongBo" = 'BAN_NHAP',
     "TrangThaiMoBan" = 'DANG_MO_BAN'
 WHERE "SuKienID" = 1;
 
+UPDATE public."SUAT_DIEN"
+SET "TrangThai" = 'DANG_MO_BAN'
+WHERE "SuKienID" = 1;
+
 SET LOCAL ROLE anon;
+SELECT set_config('request.jwt.claim.role', 'anon', true),
+       set_config('request.jwt.claim.sub', '', true),
+       set_config('request.jwt.claims', '{"role":"anon"}', true);
 DO $$
 DECLARE
   v_visible_count INT;
-  v_rejected BOOLEAN := FALSE;
 BEGIN
   SELECT COUNT(*) INTO v_visible_count
   FROM public."SU_KIEN"
@@ -226,18 +354,39 @@ BEGIN
   IF v_visible_count <> 0 THEN
     RAISE EXCEPTION 'ASSERTION FAILED: anon can read an unpublished event';
   END IF;
+END;
+$$;
+RESET ROLE;
 
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.role', 'authenticated', true),
+       set_config('request.jwt.claim.sub', 'a1000000-0000-4000-8000-000000000004', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"a1000000-0000-4000-8000-000000000004"}', true);
+DO $$
+DECLARE
+  v_state TEXT;
+  v_msg TEXT;
+BEGIN
   BEGIN
     PERFORM public.tao_giu_cho(1, gen_random_uuid(), '[{"ticketCode":"GA-DRAFT","zoneCode":"GA_STAND_1"}]');
-  EXCEPTION WHEN SQLSTATE 'P0001' THEN
-    v_rejected := TRUE;
+  EXCEPTION WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_msg = MESSAGE_TEXT;
   END;
-  IF NOT v_rejected THEN
-    RAISE EXCEPTION 'ASSERTION FAILED: unpublished event accepted a hold';
+  IF v_state IS DISTINCT FROM 'P0001' OR v_msg IS DISTINCT FROM 'Suat dien khong mo ban' THEN
+    RAISE EXCEPTION 'ASSERTION FAILED: unpublished event expected P0001/Suat dien khong mo ban, got %/%',
+      COALESCE(v_state, '<none>'), COALESCE(v_msg, '<none>');
   END IF;
 END;
 $$;
 RESET ROLE;
+
+SELECT pg_temp.assert_true(
+  NOT EXISTS (
+    SELECT 1 FROM public."GIU_CHO"
+    WHERE "NguoiDungID" = 'a1000000-0000-4000-8000-000000000004'
+  ),
+  'rejected sale-state calls must not leave holds'
+);
 
 -- The scheduler must be registered by the migration.
 SELECT pg_temp.assert_true(
