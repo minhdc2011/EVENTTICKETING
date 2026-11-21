@@ -1,4 +1,5 @@
-import type {KetQuaKhu} from '../services/pricingService';
+import type {KetQuaKhu, QuyTacHienHanh, KhuVucDeXuatItem} from '../services/pricingService';
+import type {MockDeXuatGiaRow, MockNow, MockPricingMetricsRow} from './mockPricing';
 
 export const NHAN_MO_PHONG_CORE: 'MO_PHONG';
 export const LY_DO_QUY_TAC_THAY_DOI: 'QUY_TAC_THAY_DOI_TRONG_LUC_TINH';
@@ -30,10 +31,18 @@ export interface KhoPhienMock<S, N, Seed> {
   datLai(): void;
 }
 
+export const CANH_BAO_NANG_CAP_V1: string;
+export const CANH_BAO_KHOI_PHUC_SEQ: string;
+
+/** Nâng cấp trạng thái v1 đã qua kiểm tra và bảo đảm 4 bộ đếm seq >= ID lớn nhất. */
+export function nangCapTrangThaiV1<S>(v: S): {state: S; daNangCap: boolean; canhBao?: string};
+
 export function taoKhoPhienMock<S, N, Seed>(cfg: {
   khoa: string;
   taoState: (seed: Seed | undefined) => S;
   layKhoMacDinh: () => KhoLuuTruCore | null;
+  /** Mặc định nangCapTrangThaiV1. Chạy trên dữ liệu đã lưu hợp lệ; daNangCap=true → meta.canhBao. */
+  chuanHoa?: (parsed: S) => {state: S; daNangCap: boolean; canhBao?: string};
 }): KhoPhienMock<S, N, Seed>;
 
 export interface QuyTacNgayCapNhat {
@@ -77,3 +86,156 @@ export function chayDinhGiaNgayLogic<R extends DongSoLieuCore, E extends EngineC
   hetHan: {deXuatHetHan: number[]; soLuong: number};
   theoKhu: KetQuaKhu[];
 }>;
+
+export interface PricingServiceErrorOptions {
+  status?: number | null;
+  ma?: string | null;
+  chiTiet?: Record<string, unknown> | null;
+}
+
+export class PricingServiceError extends Error {
+  readonly code: string | null;
+  readonly status: number | null;
+  readonly ma: string | null;
+  readonly chiTiet: Record<string, unknown> | null;
+
+  constructor(message: string, code?: string | null, opts?: PricingServiceErrorOptions);
+}
+
+export function phanHoiKhongHopLe(rpc: string): PricingServiceError;
+
+export function chuanHoaLoiRpc(error: unknown): PricingServiceError;
+
+export interface KetQuaHetHanCore {
+  ok: false;
+  ketQua: 'HET_HAN';
+  ma: 'DE_XUAT_HET_HAN';
+  deXuatId: number;
+  khuVucId: number;
+  suKienId: number;
+  thoiGianDeXuat: string;
+  hetHanLuc: string;
+}
+
+export interface KetQuaDaDuyetCore {
+  ok: true;
+  ketQua: 'DA_DUYET';
+  deXuatId: number;
+  khuVucId: number;
+  suKienId: number;
+  giaCu: number;
+  giaMoi: number;
+  tyLeThayDoiPhanTram: number;
+  loaiBienDong: 'DUYET_DE_XUAT_AI' | 'DIEU_CHINH_THU_CONG';
+  nhatKyGiaId: number;
+  nguoiDuyetId: string;
+  thoiGianDuyet: string;
+}
+
+export interface KetQuaDaTuChoiCore {
+  ok: true;
+  ketQua: 'DA_TU_CHOI';
+  deXuatId: number;
+  khuVucId: number;
+  suKienId: number;
+  giaHienHanh: number | null;
+  nguoiDuyetId: string;
+  thoiGianDuyet: string;
+  lyDo: string | null;
+}
+
+export type KetQuaDuyetCore = KetQuaDaDuyetCore | KetQuaHetHanCore;
+export type KetQuaTuChoiCore = KetQuaDaTuChoiCore | KetQuaHetHanCore;
+
+export function docKetQuaDuyet(v: unknown): KetQuaDuyetCore | null;
+export function docKetQuaTuChoi(v: unknown): KetQuaTuChoiCore | null;
+
+export interface SoLieuDeXuatInput {
+  khu_vuc_id: number;
+  suat_dien_id: number;
+  su_kien_id: number;
+  ma_khu_vuc: string | null;
+  ten_khu_vuc: string | null;
+  gia_hien_hanh: number | null;
+  dang_mo_ban: boolean | null;
+  co_quy_tac: boolean | null;
+  quy_tac_gia_id: number | null;
+  kich_hoat: boolean | null;
+  gia_goc: number | null;
+  gia_san: number | null;
+  gia_tran: number | null;
+  buoc_nhay: number | null;
+  bien_do: number | null;
+  nguong_thap: number | null;
+  nguong_cao: number | null;
+  trong_so_lap_day: number | null;
+  trong_so_toc_do: number | null;
+  trong_so_thoi_gian: number | null;
+  n_total: number | null;
+  n_sold: number | null;
+  n_hold: number | null;
+  v_actual: number | null;
+  v_target: number | null;
+  t_rem_gio: number | null;
+  thoi_diem_tinh?: string | null;
+}
+
+export interface DeXuatGiaRowInput {
+  DeXuatID: number;
+  KhuVucID: number;
+  TrangThaiDuyet: string;
+  GiaHienTai?: number | null;
+  GiaDeXuat: number;
+  GiaTinhToanTho?: number | null;
+  TyLeLapDay?: number | null;
+  TocDoBanThucTe?: number | null;
+  TocDoBanKyVong?: number | null;
+  SoGioConLai?: number | null;
+  LoaiCanhBao?: string | null;
+  CoCanhBaoVuotKhung?: boolean | null;
+  LyDoDeXuat?: string | null;
+  ThoiGianDeXuat: string;
+}
+
+export function ghepDanhSachDeXuat(
+  rowsSoLieu: Array<SoLieuDeXuatInput | (MockPricingMetricsRow & {ten_khu_vuc: string | null; ma_khu_vuc: string | null})>,
+  rowsDeXuat: Array<DeXuatGiaRowInput | MockDeXuatGiaRow>,
+  now?: MockNow,
+): KhuVucDeXuatItem[];
+
+export interface RpcClientLike {
+  rpc(fn: 'lay_so_lieu_dinh_gia', args: {p_su_kien_id: number}): PromiseLike<{data: unknown; error: unknown}>;
+  rpc(
+    fn: 'duyet_de_xuat_gia',
+    args: {p_de_xuat_id: number; p_ghi_chu: string; p_gia_dieu_chinh?: number},
+  ): PromiseLike<{data: unknown; error: unknown}>;
+  rpc(
+    fn: 'tu_choi_de_xuat_gia',
+    args: {p_de_xuat_id: number; p_ly_do: string},
+  ): PromiseLike<{data: unknown; error: unknown}>;
+  from(table: 'DE_XUAT_GIA'): {
+    select(columns: string): {
+      in(column: 'KhuVucID', values: readonly number[]): PromiseLike<{data: unknown; error: unknown}>;
+    };
+  };
+}
+
+export function docDanhSachDeXuatThat(
+  client: RpcClientLike,
+  suKienId: number,
+  now?: MockNow,
+): Promise<{suKienId: number; khuVuc: KhuVucDeXuatItem[]}>;
+
+export function duyetDeXuatGiaThat(
+  client: RpcClientLike,
+  deXuatId: number,
+  params?: {ghiChu?: string | null; giaDieuChinh?: number | null},
+): Promise<KetQuaDuyetCore>;
+
+export function tuChoiDeXuatGiaThat(
+  client: RpcClientLike,
+  deXuatId: number,
+  params?: {lyDo?: string | null},
+): Promise<KetQuaTuChoiCore>;
+
+export type {QuyTacHienHanh};

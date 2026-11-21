@@ -2,24 +2,28 @@
  * Mô hình mock định giá (Sprint 2, T6): mô hình thuần, trong bộ nhớ, của các hợp đồng RPC
  *   - T2 (20261113090000): điều kiện mở bán §4, số liệu §5, thu hẹp khung §7, luu_quy_tac_gia
  *   - T3 (20261113093000): PriceGuard, một PENDING, TTL 120 phút, luu_de_xuat_gia, het_han_de_xuat_gia
- *   - T4 (20261113100000): demand simulator (do hydrogen bổ sung bên dưới).
+ *   - T4 (20261113100000): demand simulator (do hydrogen bổ sung bên dưới)
+ *   - T1 sprint 2 (20261114090000): duyet_de_xuat_gia / tu_choi_de_xuat_gia (duyệt/từ chối), cùng điều kiện
+ *     quyền, trạng thái, TTL, khung giá và xung đột như SQL.
  *
  * Quy ước:
  *   - Mọi hàm nhận (state, input, now) và trả { state: trạngTháiMới, result }. Không sửa state đầu vào;
  *     khi không có thay đổi thì trả lại CHÍNH đối tượng state đã nhận.
  *   - Không localStorage, mạng hay đồng hồ ngầm: `now` là epoch ms, chuỗi ISO hoặc Date do người gọi truyền.
  *   - Tên cột giữ nguyên như DB để test đọc giống SQL. Thời điểm trong state là chuỗi ISO.
- *   - Mọi trạng thái và kết quả đều là MÔ PHỎNG (nhan = 'MO_PHONG'), không bao giờ đổi GiaVeNiemYet và
- *     không bao giờ sinh APPROVED.
+ *   - Mọi trạng thái và kết quả đều là MÔ PHỎNG (nhan = 'MO_PHONG'). Chỉ duyetDeXuatGia (đề xuất hợp lệ, đủ
+ *     quyền) mới đổi GiaVeNiemYet, sinh APPROVED và một dòng nhatKyGia; mọi hàm khác (kể cả simulator,
+ *     tuChoiDeXuatGia) không bao giờ đổi giá niêm yết.
  *
  * Hình dạng state:
- *   suKien   {[id]: {TrangThaiCongBo, moPhong: boolean}}
+ *   suKien   {[id]: {TrangThaiCongBo, moPhong: boolean, ToChucID?}}
+ *   thanhVienToChuc [{ToChucID, NguoiDungID, VaiTro}], nhatKyGia [dòng NHAT_KY_GIA, do duyệt sinh ra]
  *   suatDien {[id]: {SuKienID, TrangThai, ThoiGianMoBanVe, ThoiGianDongBanVe, ThoiGianBatDau}}
  *   khuVuc   {[id]: {SuKienID, SuatDienID, GiaVeNiemYet, TongSoGhe}}
  *   ghe      [{GheID, KhuVucID, TrangThai, NgayCapNhatTrangThai}]
  *   giuCho   [{GiuChoID, SuKienID, SuatDienID, TrangThai, HetHanLuc, chiTiet: [{KhuVucID, GheID|null, SoLuong}]}]
  *   quyTacGia {[khuVucId]: dòng QUY_TAC_GIA}, deXuatGia [dòng DE_XUAT_GIA], nhatKyDinhGia [dòng NHAT_KY_DINH_GIA]
- *   moPhongGhe [sổ ghi simulator], seq {quyTacGia, deXuatGia, nhatKyDinhGia}
+ *   moPhongGhe [sổ ghi simulator], seq {quyTacGia, deXuatGia, nhatKyDinhGia, nhatKyGia}
  */
 import { computePriceProposal, fillRate, ruleFromQuyTacGia } from './pricingEngine.js';
 
@@ -85,8 +89,11 @@ export function createMockState(seed = {}) {
     deXuatGia: s.deXuatGia ?? [],
     nhatKyDinhGia: s.nhatKyDinhGia ?? [],
     moPhongGhe: s.moPhongGhe ?? [],
+    nhatKyGia: s.nhatKyGia ?? [],
+    thanhVienToChuc: s.thanhVienToChuc ?? [],
     seq: s.seq ?? {},
   };
+  state.seq.nhatKyGia = Math.max(state.seq.nhatKyGia ?? 0, maxId(state.nhatKyGia, 'NhatKyGiaID'));
   state.seq.quyTacGia = Math.max(state.seq.quyTacGia ?? 0, maxId(Object.values(state.quyTacGia), 'QuyTacGiaID'));
   state.seq.deXuatGia = Math.max(state.seq.deXuatGia ?? 0, maxId(state.deXuatGia, 'DeXuatID'));
   state.seq.nhatKyDinhGia = Math.max(state.seq.nhatKyDinhGia ?? 0, maxId(state.nhatKyDinhGia, 'NhatKyDinhGiaID'));
@@ -657,6 +664,196 @@ export function luuDeXuatGia(state, input, now) {
       deXuatHetHan,
     },
   };
+}
+
+// ---------------------------------------------------------------- duyệt / từ chối đề xuất (T1 sprint 2)
+
+const VAI_TRO_DUOC_DUYET = Object.freeze(['CHU_SO_HUU', 'QUAN_TRI']);
+const LOAI_TAI_KHOAN_DUOC_DUYET = Object.freeze(['ORGANIZER', 'ADMIN']);
+
+/** Hạn hiệu lực của đề xuất = ThoiGianDeXuat + TTL (ISO); thời điểm không hợp lệ → null. */
+export function hetHanLuc(thoiGianDeXuat) {
+  const at = tsMs(thoiGianDeXuat);
+  return Number.isFinite(at) ? new Date(at + TTL_PHUT * MS_PHUT).toISOString() : null;
+}
+
+/** Quyền như SQL: thành viên CHU_SO_HUU/QUAN_TRI của tổ chức sở hữu sự kiện và LoaiTaiKhoan ORGANIZER/ADMIN. */
+function coQuyenDuyet(state, suKienId, nguoiDung) {
+  if (!nguoiDung || isMissing(nguoiDung.id) || nguoiDung.id === '') return false;
+  if (!LOAI_TAI_KHOAN_DUOC_DUYET.includes(nguoiDung.loaiTaiKhoan)) return false;
+  const toChucId = state.suKien?.[suKienId]?.ToChucID;
+  if (isMissing(toChucId)) return false;
+  return (state.thanhVienToChuc ?? []).some(
+    (m) => m?.ToChucID === toChucId && m.NguoiDungID === nguoiDung.id && VAI_TRO_DUOC_DUYET.includes(m.VaiTro),
+  );
+}
+
+const loiDuyet = (state, status, ma, chiTiet = null) => ({
+  state,
+  result: { ok: false, loi: { status, ma, chiTiet }, nhan: NHAN_MO_PHONG },
+});
+const khongCoQuyen = (state) => loiDuyet(state, 403, 'KHONG_CO_QUYEN');
+
+/**
+ * Tương đương duyet_de_xuat_gia / tu_choi_de_xuat_gia. Thứ tự kiểm tra như SQL: quyền (đề xuất/khu không tồn tại
+ * cũng là 403) → giá điều chỉnh hữu hạn → liên kết quy tắc → trạng thái khác PENDING → TTL → giá đã đổi →
+ * giá hiện hành → thiếu lý do điều chỉnh → ngoài khung → giá không đổi → tỷ lệ. Lỗi trả CHÍNH state đầu vào.
+ */
+function xuLyDeXuat(state, loai, input, now) {
+  const nowMs = toMs(now);
+  const inp = input ?? {};
+  const duyet = loai === 'DUYET';
+  const dx = (state.deXuatGia ?? []).find((d) => d.DeXuatID === Number(inp.deXuatId));
+  const lk = dx ? lienKet(state, dx.KhuVucID) : null;
+  if (!dx || !lk || !coQuyenDuyet(state, lk.kv.SuKienID, inp.nguoiDung)) return khongCoQuyen(state);
+
+  const ghiChu = typeof (duyet ? inp.ghiChu : inp.lyDo) === 'string' ? (duyet ? inp.ghiChu : inp.lyDo).trim() : '';
+  let giaDieuChinh = null;
+  if (duyet && !isMissing(inp.giaDieuChinh)) {
+    const raw = soHuuHan(inp.giaDieuChinh);
+    if (!Number.isFinite(raw)) return loiDuyet(state, 422, 'GIA_DUYET_KHONG_HOP_LE');
+    giaDieuChinh = roundScale(raw, 2);
+  }
+
+  const { kvId, kv, sk } = lk;
+  const qt = state.quyTacGia?.[kvId] ?? null;
+  if (!qt || dx.QuyTacGiaID !== qt.QuyTacGiaID) return khongCoQuyen(state);
+  if (dx.TrangThaiDuyet !== 'PENDING') {
+    return loiDuyet(state, 409, 'DE_XUAT_DA_XU_LY', { trangThai: dx.TrangThaiDuyet });
+  }
+
+  const han = hetHanLuc(dx.ThoiGianDeXuat);
+  if (han !== null && Date.parse(han) < nowMs) {
+    const next = clone(state);
+    const row = next.deXuatGia.find((d) => d.DeXuatID === dx.DeXuatID);
+    row.TrangThaiDuyet = 'EXPIRED';
+    row.GhiChuDuyet = MA_HET_HAN_TTL;
+    return {
+      state: next,
+      result: {
+        ok: false,
+        ketQua: 'HET_HAN',
+        ma: 'DE_XUAT_HET_HAN',
+        deXuatId: dx.DeXuatID,
+        khuVucId: kvId,
+        suKienId: kv.SuKienID,
+        thoiGianDeXuat: dx.ThoiGianDeXuat,
+        hetHanLuc: han,
+        nhan: NHAN_MO_PHONG,
+      },
+    };
+  }
+
+  const thoiGianDuyet = new Date(nowMs).toISOString();
+  const nguoiDuyetId = inp.nguoiDung.id;
+
+  if (!duyet) {
+    const next = clone(state);
+    const row = next.deXuatGia.find((d) => d.DeXuatID === dx.DeXuatID);
+    row.TrangThaiDuyet = 'REJECTED';
+    row.NguoiDuyetID = nguoiDuyetId;
+    row.ThoiGianDuyet = thoiGianDuyet;
+    row.GhiChuDuyet = ghiChu === '' ? null : ghiChu;
+    return {
+      state: next,
+      result: {
+        ok: true,
+        ketQua: 'DA_TU_CHOI',
+        deXuatId: dx.DeXuatID,
+        khuVucId: kvId,
+        suKienId: kv.SuKienID,
+        giaHienHanh: kv.GiaVeNiemYet ?? null,
+        nguoiDuyetId,
+        thoiGianDuyet,
+        lyDo: ghiChu === '' ? null : ghiChu,
+        nhan: NHAN_MO_PHONG,
+      },
+    };
+  }
+
+  if (!(kv.GiaVeNiemYet === dx.GiaHienTai)) return loiDuyet(state, 409, 'GIA_DA_THAY_DOI');
+  const giaCu = kv.GiaVeNiemYet;
+  if (!(typeof giaCu === 'number' && giaCu > 0 && giaCu < MAX_GIA)) {
+    return loiDuyet(state, 422, 'GIA_HIEN_HANH_KHONG_HOP_LE');
+  }
+  const giaMoi = giaDieuChinh ?? dx.GiaDeXuat;
+  if (giaDieuChinh !== null && ghiChu === '') return loiDuyet(state, 422, 'THIEU_LY_DO_DIEU_CHINH');
+  if (giaMoi < qt.GiaSan || giaMoi > qt.GiaTran) {
+    return loiDuyet(state, 422, 'NGOAI_KHUNG_GIA', { giaSan: qt.GiaSan, giaTran: qt.GiaTran });
+  }
+  if (giaMoi === giaCu) return loiDuyet(state, 422, 'GIA_KHONG_THAY_DOI');
+  const tyLe = roundScale(((giaMoi - giaCu) / giaCu) * 100, 2);
+  if (Math.abs(tyLe) >= 10000) return loiDuyet(state, 422, 'TY_LE_THAY_DOI_VUOT_GIOI_HAN');
+
+  const loaiBienDong = giaDieuChinh !== null ? 'DIEU_CHINH_THU_CONG' : 'DUYET_DE_XUAT_AI';
+  const next = clone(state);
+  const row = next.deXuatGia.find((d) => d.DeXuatID === dx.DeXuatID);
+  next.khuVuc[kvId].GiaVeNiemYet = giaMoi;
+  row.TrangThaiDuyet = 'APPROVED';
+  row.NguoiDuyetID = nguoiDuyetId;
+  row.ThoiGianDuyet = thoiGianDuyet;
+  row.GhiChuDuyet = ghiChu === '' ? null : ghiChu;
+  next.nhatKyGia.push({
+    NhatKyGiaID: nextId(next, 'nhatKyGia'),
+    KhuVucID: kvId,
+    DeXuatID: dx.DeXuatID,
+    LoaiBienDong: loaiBienDong,
+    GiaCu: giaCu,
+    GiaMoi: giaMoi,
+    TyLeThayDoiPhanTram: tyLe,
+    LyDoThayDoi: ghiChu === '' ? (dx.LyDoDeXuat ?? 'DUYET_DE_XUAT_GIA') : ghiChu,
+    NguoiThucHienID: nguoiDuyetId,
+    ThoiGianApDung: thoiGianDuyet,
+    nhan: NHAN_MO_PHONG,
+  });
+  return {
+    state: next,
+    result: {
+      ok: true,
+      ketQua: 'DA_DUYET',
+      deXuatId: dx.DeXuatID,
+      khuVucId: kvId,
+      suKienId: kv.SuKienID,
+      giaCu,
+      giaMoi,
+      tyLeThayDoiPhanTram: tyLe,
+      loaiBienDong,
+      nhatKyGiaId: next.seq.nhatKyGia,
+      nguoiDuyetId,
+      thoiGianDuyet,
+      nhan: NHAN_MO_PHONG,
+    },
+  };
+}
+
+/** input: { deXuatId, ghiChu, giaDieuChinh?, nguoiDung: {id, loaiTaiKhoan} }. */
+export function duyetDeXuatGia(state, input, now) {
+  return xuLyDeXuat(state, 'DUYET', input, now);
+}
+
+/** input: { deXuatId, lyDo, nguoiDung: {id, loaiTaiKhoan} }. Chỉ đổi trạng thái đề xuất. */
+export function tuChoiDeXuatGia(state, input, now) {
+  return xuLyDeXuat(state, 'TU_CHOI', input, now);
+}
+
+/**
+ * Đọc cho API danh sách (không đổi state): trả { ok:true, suKienId, soLieu, deXuat } với soLieu là các dòng của
+ * laySoLieuDinhGia (kèm ten_khu_vuc/ma_khu_vuc như RPC) và deXuat là các dòng DE_XUAT_GIA của đúng sự kiện này.
+ * Không đủ quyền hoặc sự kiện không tồn tại → { ok:false, loi:{status:403, ma:'KHONG_CO_QUYEN'} }.
+ */
+export function layDeXuatGia(state, suKienId, nguoiDung, now) {
+  const nowMs = toMs(now);
+  if (!state.suKien?.[suKienId] || !coQuyenDuyet(state, suKienId, nguoiDung)) return khongCoQuyen(state);
+  const soLieu = laySoLieuDinhGia(state, suKienId, nowMs).map((r) => ({
+    ...r,
+    ten_khu_vuc: state.khuVuc[r.khu_vuc_id].TenKhuVuc ?? null,
+    ma_khu_vuc: state.khuVuc[r.khu_vuc_id].MaKhuVuc ?? null,
+  }));
+  const ids = new Set(soLieu.map((r) => r.khu_vuc_id));
+  const deXuat = clone((state.deXuatGia ?? []).filter((d) => ids.has(d.KhuVucID))).sort(
+    (a, b) => a.DeXuatID - b.DeXuatID,
+  );
+  return { state, result: { ok: true, suKienId, soLieu, deXuat, nhan: NHAN_MO_PHONG } };
 }
 
 // ---------------------------------------------------------------- đề xuất tự động & simulator (T4)

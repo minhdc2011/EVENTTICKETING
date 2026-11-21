@@ -21,6 +21,7 @@ export type KichBanMoPhong = 'ban_nhanh' | 'ban_cham' | 'ban_deu';
 export interface MockSuKien {
   TrangThaiCongBo?: string | null;
   moPhong?: boolean;
+  ToChucID?: number | string | null;
   TrangThaiMoBan?: string | null;
 }
 
@@ -37,6 +38,28 @@ export interface MockKhuVuc {
   SuatDienID: number;
   GiaVeNiemYet: number | null;
   TongSoGhe: number | null;
+  TenKhuVuc?: string | null;
+  MaKhuVuc?: string | null;
+}
+
+export interface MockThanhVienToChuc {
+  ToChucID: number | string;
+  NguoiDungID: string;
+  VaiTro: string;
+}
+
+export interface MockNhatKyGiaRow {
+  NhatKyGiaID: number;
+  KhuVucID: number;
+  DeXuatID: number | null;
+  LoaiBienDong: 'DUYET_DE_XUAT_AI' | 'DIEU_CHINH_THU_CONG';
+  GiaCu: number;
+  GiaMoi: number;
+  TyLeThayDoiPhanTram: number;
+  LyDoThayDoi: string;
+  NguoiThucHienID: string;
+  ThoiGianApDung: string;
+  nhan: typeof NHAN_MO_PHONG;
 }
 
 export interface MockGhe {
@@ -144,6 +167,7 @@ export interface MockSeq {
   quyTacGia: number;
   deXuatGia: number;
   nhatKyDinhGia: number;
+  nhatKyGia: number;
 }
 
 export interface MockPricingState {
@@ -157,6 +181,8 @@ export interface MockPricingState {
   deXuatGia: MockDeXuatGiaRow[];
   nhatKyDinhGia: MockNhatKyDinhGiaRow[];
   moPhongGhe: MockMoPhongGheRow[];
+  nhatKyGia: MockNhatKyGiaRow[];
+  thanhVienToChuc: MockThanhVienToChuc[];
   seq: MockSeq;
 }
 
@@ -170,6 +196,8 @@ export interface MockPricingSeed {
   deXuatGia?: MockDeXuatGiaRow[];
   nhatKyDinhGia?: MockNhatKyDinhGiaRow[];
   moPhongGhe?: MockMoPhongGheRow[];
+  nhatKyGia?: MockNhatKyGiaRow[];
+  thanhVienToChuc?: MockThanhVienToChuc[];
   seq?: Partial<MockSeq>;
 }
 
@@ -381,7 +409,94 @@ export type MoPhongNhuCauResult =
       moPhong: false;
     };
 
+export interface MockNguoiDung {
+  id: string;
+  loaiTaiKhoan: string;
+}
+
+export interface MockLoiDuyet {
+  status: 403 | 409 | 422;
+  ma: string;
+  chiTiet: Record<string, unknown> | null;
+}
+
+export type MockLoiResult = { ok: false; loi: MockLoiDuyet; nhan: typeof NHAN_MO_PHONG };
+
+export interface MockHetHanResult {
+  ok: false;
+  ketQua: 'HET_HAN';
+  ma: 'DE_XUAT_HET_HAN';
+  deXuatId: number;
+  khuVucId: number;
+  suKienId: number;
+  thoiGianDeXuat: string;
+  hetHanLuc: string;
+  nhan: typeof NHAN_MO_PHONG;
+}
+
+export interface MockDaDuyetResult {
+  ok: true;
+  ketQua: 'DA_DUYET';
+  deXuatId: number;
+  khuVucId: number;
+  suKienId: number;
+  giaCu: number;
+  giaMoi: number;
+  tyLeThayDoiPhanTram: number;
+  loaiBienDong: 'DUYET_DE_XUAT_AI' | 'DIEU_CHINH_THU_CONG';
+  nhatKyGiaId: number;
+  nguoiDuyetId: string;
+  thoiGianDuyet: string;
+  nhan: typeof NHAN_MO_PHONG;
+}
+
+export interface MockDaTuChoiResult {
+  ok: true;
+  ketQua: 'DA_TU_CHOI';
+  deXuatId: number;
+  khuVucId: number;
+  suKienId: number;
+  giaHienHanh: number | null;
+  nguoiDuyetId: string;
+  thoiGianDuyet: string;
+  lyDo: string | null;
+  nhan: typeof NHAN_MO_PHONG;
+}
+
+export type DuyetDeXuatMockResult = MockDaDuyetResult | MockHetHanResult | MockLoiResult;
+export type TuChoiDeXuatMockResult = MockDaTuChoiResult | MockHetHanResult | MockLoiResult;
+
+export interface DuyetDeXuatMockInput {
+  deXuatId: number;
+  ghiChu?: string | null;
+  giaDieuChinh?: unknown;
+  nguoiDung?: MockNguoiDung | null;
+}
+
+export interface TuChoiDeXuatMockInput {
+  deXuatId: number;
+  lyDo?: string | null;
+  nguoiDung?: MockNguoiDung | null;
+}
+
+export type MockDongSoLieuDeXuat = MockPricingMetricsRow & {
+  ten_khu_vuc: string | null;
+  ma_khu_vuc: string | null;
+};
+
+export type LayDeXuatGiaMockResult =
+  | {
+      ok: true;
+      suKienId: number;
+      soLieu: MockDongSoLieuDeXuat[];
+      deXuat: MockDeXuatGiaRow[];
+      nhan: typeof NHAN_MO_PHONG;
+    }
+  | MockLoiResult;
+
 export function toMs(now: MockNow): number;
+/** ThoiGianDeXuat + TTL_PHUT (ISO); thời điểm không hợp lệ → null. Quá mốc này (nghiêm ngặt) là hết hạn. */
+export function hetHanLuc(thoiGianDeXuat: MockNow | null | undefined): string | null;
 export function toIso(now: MockNow): string;
 export function createMockState(seed?: MockPricingSeed): MockPricingState;
 export function dangMoBan(
@@ -410,6 +525,22 @@ export function luuDeXuatGia(
   input: LuuDeXuatGiaInput,
   now: MockNow,
 ): MockTransitionResult<LuuDeXuatGiaResult>;
+export function duyetDeXuatGia(
+  state: MockPricingState,
+  input: DuyetDeXuatMockInput,
+  now: MockNow,
+): MockTransitionResult<DuyetDeXuatMockResult>;
+export function tuChoiDeXuatGia(
+  state: MockPricingState,
+  input: TuChoiDeXuatMockInput,
+  now: MockNow,
+): MockTransitionResult<TuChoiDeXuatMockResult>;
+export function layDeXuatGia(
+  state: MockPricingState,
+  suKienId: number,
+  nguoiDung: MockNguoiDung | null | undefined,
+  now: MockNow,
+): MockTransitionResult<LayDeXuatGiaMockResult>;
 export function deXuatTuDong(
   state: MockPricingState,
   khuVucId: number,
