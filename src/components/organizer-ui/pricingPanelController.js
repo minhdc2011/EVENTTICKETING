@@ -189,7 +189,7 @@ function collectBackgroundBranches(overlay, ownerDocument) {
  * Phạm vi focus cho modal: ghi nhớ opener, đặt inert + aria-hidden cho nền, focus vào điều khiển đầu tiên,
  * kéo focus về lại nếu thoát ra ngoài; cleanup() khôi phục trạng thái nền và focus về opener.
  */
-export function createDialogFocusScope({dialog, overlay, ownerDocument, backgroundElements} = {}) {
+export function createDialogFocusScope({dialog, overlay, ownerDocument, backgroundElements, fallbackFocus} = {}) {
   const doc = ownerDocument ?? (dialog && dialog.ownerDocument);
   const root = overlay ?? dialog;
   const opener = doc ? doc.activeElement : null;
@@ -230,7 +230,19 @@ export function createDialogFocusScope({dialog, overlay, ownerDocument, backgrou
       active = false;
       if (doc && typeof doc.removeEventListener === 'function') doc.removeEventListener('focusin', onFocusIn);
       for (const s of saved) restoreAttrs(s);
-      if (opener && typeof opener.focus === 'function' && opener.isConnected !== false) opener.focus();
+      if (opener && typeof opener.focus === 'function' && opener.isConnected !== false) {
+        opener.focus();
+        if (!doc || doc.activeElement === opener) return;
+      }
+      // Opener đã bị gỡ khỏi DOM (vd. card biến mất sau khi tải lại): chuyển focus sang đích dự phòng còn kết nối.
+      let candidates = typeof fallbackFocus === 'function' ? fallbackFocus() : fallbackFocus;
+      if (!Array.isArray(candidates)) candidates = [candidates];
+      for (const el of candidates) {
+        if (el && typeof el.focus === 'function' && el.isConnected !== false) {
+          el.focus();
+          if (!doc || doc.activeElement === el) return;
+        }
+      }
     },
   };
 }

@@ -65,6 +65,7 @@ export function createDialogFocusScope(options: {
   overlay?: HTMLElement;
   ownerDocument?: Document;
   backgroundElements?: HTMLElement[];
+  fallbackFocus?: (() => HTMLElement | null | undefined | Array<HTMLElement | null | undefined>) | HTMLElement | null | Array<HTMLElement | null | undefined>;
 }): DialogFocusScope;
 
 export interface PricingServices {

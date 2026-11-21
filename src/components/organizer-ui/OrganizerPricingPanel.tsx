@@ -9,6 +9,7 @@ import type {
 } from '../../services/pricingService';
 import type {OrganizerEvent} from '../../services/organizerService';
 import {OrganizerPricingConfig} from './OrganizerPricingConfig';
+import {OrganizerPriceProposals} from './OrganizerPriceProposals';
 import {
   KICH_BAN_MO_PHONG,
   NHAN_MO_PHONG_UI,
@@ -627,7 +628,20 @@ export function OrganizerPricingPanel({
           )}
 
           {/* Điểm tích hợp riêng cho màn hình Đề xuất giá (T8). */}
-          <div data-pricing-proposals-slot>{loadState === 'ready' && renderProposals?.(proposalsCtx)}</div>
+          <div data-pricing-proposals-slot>
+            {loadState === 'ready' &&
+              (renderProposals ? (
+                renderProposals(proposalsCtx)
+              ) : (
+                <OrganizerPriceProposals
+                  event={event}
+                  activeOrg={activeOrg}
+                  rows={rows}
+                  refreshMetrics={refreshMetrics}
+                  refreshTrigger={runResult}
+                />
+              ))}
+          </div>
         </div>
       </div>
     </div>
