@@ -8,13 +8,24 @@ import {
   createMockState,
   dangMoBan,
   deXuatTuDong,
+  duyetDeXuatGia,
   hetHanDeXuatGia,
+  hetHanLuc,
+  layDeXuatGia,
   laySoLieuDinhGia,
   luuDeXuatGia,
   luuQuyTacGia,
   moPhongNhuCau,
   toMs,
+  tuChoiDeXuatGia,
 } from '../src/domain/mockPricing.js';
+import {
+  CANH_BAO_KHOI_PHUC_SEQ,
+  CANH_BAO_NANG_CAP_V1,
+  kiemTraTrangThaiMoPhong,
+  nangCapTrangThaiV1,
+  taoKhoPhienMock,
+} from '../src/domain/pricingServiceCore.js';
 
 // Mọi thời điểm là hằng số cố định; không dùng đồng hồ thật.
 const NOW = '2026-11-20T10:00:00.000Z';
@@ -1053,5 +1064,544 @@ describe('hoi quy vong 2: Date, giu cho ACTIVE het han va 90 ghe', () => {
     const deu = moPhongNhuCau(s90, 1, 'ban_deu', NOW);
     assert.equal(deu.result.khuVuc[0].ghiMoi, 31);
     assert.equal(deu.state.ghe.filter((g) => g.KhuVucID === 101 && g.TrangThai === 'DA_BAN').length, 31);
+  });
+});
+
+// ---------------------------------------------------------------- duyệt / từ chối (T4 sprint 2)
+
+const NGUOI = { id: 'u1', loaiTaiKhoan: 'ORGANIZER' };
+const NGUOI_KHAC_TO_CHUC = { id: 'u2', loaiTaiKhoan: 'ORGANIZER' };
+
+/** Sự kiện 1 thuộc tổ chức 7 (u1 CHU_SO_HUU), sự kiện 2 thuộc tổ chức 8 (u2); đề xuất 1 PENDING 1.5tr → 1.6tr. */
+function duyetState({ dx = {}, mutate } = {}) {
+  const base = build((s) => {
+    s.suKien[1].ToChucID = 7;
+    s.suKien[2].ToChucID = 8;
+    if (mutate) mutate(s);
+  });
+  const withMembers = { ...base, thanhVienToChuc: [
+    { ToChucID: 7, NguoiDungID: 'u1', VaiTro: 'CHU_SO_HUU' },
+    { ToChucID: 8, NguoiDungID: 'u2', VaiTro: 'CHU_SO_HUU' },
+    { ToChucID: 7, NguoiDungID: 'u3', VaiTro: 'NHAN_VIEN' },
+  ] };
+  return withDeXuat(withRule(withMembers), [
+    { DeXuatID: 1, GiaHienTai: 1500000, GiaDeXuat: 1600000, ThoiGianDeXuat: at(-5), ...dx },
+  ]);
+}
+
+const duyet = (state, over = {}, now = NOW) =>
+  duyetDeXuatGia(state, { deXuatId: 1, ghiChu: 'ok', nguoiDung: NGUOI, ...over }, now);
+const tuChoi = (state, over = {}, now = NOW) =>
+  tuChoiDeXuatGia(state, { deXuatId: 1, lyDo: 'không phù hợp', nguoiDung: NGUOI, ...over }, now);
+
+describe('duyetDeXuatGia (mock)', () => {
+  it('duyệt đổi giá niêm yết, sinh đúng một nhật ký giá và không sửa state đầu vào', () => {
+    const s0 = duyetState();
+    const truoc = snapshot(s0);
+    const { state, result } = duyet(s0);
+    assert.deepEqual(s0, truoc);
+    assert.equal(result.ok, true);
+    assert.equal(result.ketQua, 'DA_DUYET');
+    assert.equal(result.giaCu, 1500000);
+    assert.equal(result.giaMoi, 1600000);
+    assert.equal(result.tyLeThayDoiPhanTram, 6.67);
+    assert.equal(result.loaiBienDong, 'DUYET_DE_XUAT_AI');
+    assert.equal(result.nguoiDuyetId, 'u1');
+    assert.equal(result.thoiGianDuyet, NOW);
+    assert.equal(result.nhan, NHAN_MO_PHONG);
+    assert.equal(state.khuVuc[101].GiaVeNiemYet, 1600000);
+    assert.equal(state.deXuatGia[0].TrangThaiDuyet, 'APPROVED');
+    assert.equal(state.deXuatGia[0].NguoiDuyetID, 'u1');
+    assert.equal(state.nhatKyGia.length, 1);
+    assert.equal(state.nhatKyGia[0].NhatKyGiaID, result.nhatKyGiaId);
+    assert.equal(state.nhatKyGia[0].GiaCu, 1500000);
+    assert.equal(state.nhatKyGia[0].GiaMoi, 1600000);
+    assert.equal(state.nhatKyGia[0].DeXuatID, 1);
+    assert.equal(state.seq.nhatKyGia, 1);
+    assert.equal(state.khuVuc[201].GiaVeNiemYet, 1500000, 'khu vực khác không đổi');
+  });
+
+  it('điều chỉnh thủ công: DIEU_CHINH_THU_CONG, cần lý do, giá phải hữu hạn', () => {
+    const s0 = duyetState();
+    const { state, result } = duyet(s0, { giaDieuChinh: 1650000, ghiChu: 'tăng thêm' });
+    assert.equal(result.loaiBienDong, 'DIEU_CHINH_THU_CONG');
+    assert.equal(result.giaMoi, 1650000);
+    assert.equal(state.khuVuc[101].GiaVeNiemYet, 1650000);
+    assert.equal(state.nhatKyGia[0].LyDoThayDoi, 'tăng thêm');
+
+    const thieu = duyet(s0, { giaDieuChinh: 1650000, ghiChu: '   ' });
+    assert.equal(thieu.result.ok, false);
+    assert.equal(thieu.result.loi.status, 422);
+    assert.equal(thieu.result.loi.ma, 'THIEU_LY_DO_DIEU_CHINH');
+    assert.equal(thieu.state, s0);
+
+    for (const sai of [NaN, Infinity, 'abc', true]) {
+      const r = duyet(s0, { giaDieuChinh: sai });
+      assert.equal(r.result.loi.ma, 'GIA_DUYET_KHONG_HOP_LE', String(sai));
+      assert.equal(r.state, s0);
+    }
+  });
+
+  it('ngoài khung trả giaSan/giaTran; giá không đổi; state đầu vào giữ nguyên', () => {
+    const s0 = duyetState();
+    const truoc = snapshot(s0);
+    const r = duyet(s0, { giaDieuChinh: 2100000 });
+    assert.equal(r.result.loi.status, 422);
+    assert.equal(r.result.loi.ma, 'NGOAI_KHUNG_GIA');
+    assert.deepEqual(r.result.loi.chiTiet, { giaSan: 1200000, giaTran: 2000000 });
+    assert.equal(r.state, s0);
+    assert.equal(duyet(s0, { giaDieuChinh: 1100000 }).result.loi.ma, 'NGOAI_KHUNG_GIA');
+    assert.equal(duyet(s0, { giaDieuChinh: 1500000 }).result.loi.ma, 'GIA_KHONG_THAY_DOI');
+    assert.deepEqual(s0, truoc);
+  });
+
+  it('403 khi người ngoài tổ chức, vai trò/loại tài khoản sai, thiếu người dùng hoặc ID không tồn tại', () => {
+    const s0 = duyetState();
+    const ca = [
+      duyet(s0, { nguoiDung: NGUOI_KHAC_TO_CHUC }),
+      duyet(s0, { nguoiDung: { id: 'u3', loaiTaiKhoan: 'ORGANIZER' } }),
+      duyet(s0, { nguoiDung: { id: 'u1', loaiTaiKhoan: 'CUSTOMER' } }),
+      duyet(s0, { nguoiDung: undefined }),
+      duyet(s0, { nguoiDung: { id: '', loaiTaiKhoan: 'ORGANIZER' } }),
+      duyet(s0, { deXuatId: 999 }),
+      tuChoi(s0, { nguoiDung: NGUOI_KHAC_TO_CHUC }),
+      tuChoi(s0, { deXuatId: 999 }),
+    ];
+    for (const r of ca) {
+      assert.equal(r.result.ok, false);
+      assert.equal(r.result.loi.status, 403);
+      assert.equal(r.result.loi.ma, 'KHONG_CO_QUYEN');
+      assert.equal(r.state, s0);
+    }
+    // sự kiện thiếu ToChucID cũng không ai có quyền
+    const khongToChuc = duyetState({ mutate: (s) => delete s.suKien[1].ToChucID });
+    assert.equal(duyet(khongToChuc).result.loi.status, 403);
+  });
+
+  it('409: đã xử lý (kèm trạng thái), duyệt lần hai, giá đã đổi', () => {
+    const s0 = duyetState();
+    const da = duyet(s0);
+    const hai = duyet(da.state);
+    assert.equal(hai.result.loi.status, 409);
+    assert.equal(hai.result.loi.ma, 'DE_XUAT_DA_XU_LY');
+    assert.deepEqual(hai.result.loi.chiTiet, { trangThai: 'APPROVED' });
+    assert.equal(hai.state, da.state);
+    assert.equal(hai.state.nhatKyGia.length, 1, 'duyệt lần hai không sinh nhật ký');
+
+    const daTuChoi = tuChoi(s0);
+    assert.equal(duyet(daTuChoi.state).result.loi.ma, 'DE_XUAT_DA_XU_LY');
+    assert.deepEqual(duyet(daTuChoi.state).result.loi.chiTiet, { trangThai: 'REJECTED' });
+    assert.equal(tuChoi(daTuChoi.state).result.loi.status, 409);
+
+    const doiGia = structuredClone(s0);
+    doiGia.khuVuc[101].GiaVeNiemYet = 1550000;
+    const r = duyet(doiGia);
+    assert.equal(r.result.loi.status, 409);
+    assert.equal(r.result.loi.ma, 'GIA_DA_THAY_DOI');
+    assert.equal(r.state, doiGia);
+    // Từ chối vẫn được khi giá đã đổi (SQL chỉ kiểm giá ở duyệt).
+    assert.equal(tuChoi(doiGia).result.ketQua, 'DA_TU_CHOI');
+  });
+
+  it('TTL: đúng 120 phút vẫn duyệt được; quá 120 phút → HET_HAN, đề xuất EXPIRED, không đổi giá', () => {
+    const s0 = duyetState({ dx: { ThoiGianDeXuat: at(-120) } });
+    assert.equal(hetHanLuc(at(-120)), NOW);
+    assert.equal(duyet(s0, {}, NOW).result.ketQua, 'DA_DUYET');
+    assert.equal(tuChoi(s0, {}, NOW).result.ketQua, 'DA_TU_CHOI');
+
+    const muon = at(0.001);
+    for (const chay of [duyet, tuChoi]) {
+      const truoc = snapshot(s0);
+      const { state, result } = chay(s0, {}, muon);
+      assert.deepEqual(s0, truoc);
+      assert.equal(result.ok, false);
+      assert.equal(result.ketQua, 'HET_HAN');
+      assert.equal(result.ma, 'DE_XUAT_HET_HAN');
+      assert.equal(result.thoiGianDeXuat, at(-120));
+      assert.equal(result.hetHanLuc, NOW);
+      assert.equal(state.deXuatGia[0].TrangThaiDuyet, 'EXPIRED');
+      assert.equal(state.deXuatGia[0].GhiChuDuyet, 'HET_HAN_TTL_120_PHUT');
+      assert.equal(state.khuVuc[101].GiaVeNiemYet, 1500000);
+      assert.equal(state.nhatKyGia.length, 0);
+    }
+  });
+
+  it('thứ tự kiểm tra: quyền trước giá, trạng thái trước TTL, TTL trước giá đã đổi', () => {
+    const s0 = duyetState({ dx: { ThoiGianDeXuat: at(-500) } });
+    s0.khuVuc[101].GiaVeNiemYet = 1550000;
+    assert.equal(duyet(s0, { nguoiDung: NGUOI_KHAC_TO_CHUC, giaDieuChinh: NaN }).result.loi.status, 403);
+    assert.equal(duyet(s0, { giaDieuChinh: NaN }).result.loi.ma, 'GIA_DUYET_KHONG_HOP_LE');
+    assert.equal(duyet(s0).result.ketQua, 'HET_HAN');
+    const daXuLy = duyetState({ dx: { ThoiGianDeXuat: at(-500), TrangThaiDuyet: 'EXPIRED' } });
+    assert.equal(duyet(daXuLy).result.loi.ma, 'DE_XUAT_DA_XU_LY');
+  });
+
+  it('liên kết quy tắc sai → 403 như 42501', () => {
+    const s0 = duyetState({ dx: { QuyTacGiaID: 999 } });
+    assert.equal(duyet(s0).result.loi.status, 403);
+    const khongQuyTac = structuredClone(duyetState());
+    delete khongQuyTac.quyTacGia[101];
+    assert.equal(tuChoi(khongQuyTac).result.loi.status, 403);
+  });
+
+  it('tỷ lệ thay đổi quá lớn và giá hiện hành không hợp lệ', () => {
+    const lon = duyetState({ dx: { GiaHienTai: 1, GiaDeXuat: 1600000 }, mutate: (s) => (s.khuVuc[101].GiaVeNiemYet = 1) });
+    assert.equal(duyet(lon).result.loi.ma, 'TY_LE_THAY_DOI_VUOT_GIOI_HAN');
+    const khong = duyetState({ dx: { GiaHienTai: 0 }, mutate: (s) => (s.khuVuc[101].GiaVeNiemYet = 0) });
+    assert.equal(duyet(khong).result.loi.ma, 'GIA_HIEN_HANH_KHONG_HOP_LE');
+  });
+});
+
+describe('tuChoiDeXuatGia (mock)', () => {
+  it('chỉ đổi trạng thái đề xuất: không đổi giá, không sinh nhật ký giá', () => {
+    const s0 = duyetState();
+    const truoc = snapshot(s0);
+    const { state, result } = tuChoi(s0);
+    assert.deepEqual(s0, truoc);
+    assert.equal(result.ok, true);
+    assert.equal(result.ketQua, 'DA_TU_CHOI');
+    assert.equal(result.giaHienHanh, 1500000);
+    assert.equal(result.lyDo, 'không phù hợp');
+    assert.equal(result.nguoiDuyetId, 'u1');
+    assert.equal(state.deXuatGia[0].TrangThaiDuyet, 'REJECTED');
+    assert.equal(state.deXuatGia[0].GhiChuDuyet, 'không phù hợp');
+    assert.equal(state.khuVuc[101].GiaVeNiemYet, 1500000);
+    assert.equal(state.nhatKyGia.length, 0);
+    assert.equal(state.seq.nhatKyGia, 0);
+    assert.deepEqual(state.nhatKyDinhGia, s0.nhatKyDinhGia);
+  });
+
+  it('lý do trống được lưu là null', () => {
+    const { result, state } = tuChoi(duyetState(), { lyDo: '  ' });
+    assert.equal(result.lyDo, null);
+    assert.equal(state.deXuatGia[0].GhiChuDuyet, null);
+  });
+});
+
+describe('layDeXuatGia (mock)', () => {
+  it('chỉ trả khu và đề xuất của sự kiện được phép; 403 với tổ chức khác hoặc sự kiện không tồn tại', () => {
+    const s0 = withDeXuat(
+      duyetState({ mutate: (s) => { s.khuVuc[101].TenKhuVuc = 'VIP'; } }),
+      [],
+    );
+    const s1 = withDeXuat(withRule(s0, 201), [{ DeXuatID: 2, KhuVucID: 201, GiaHienTai: 1500000, GiaDeXuat: 1600000 }]);
+    const r = layDeXuatGia(s1, 1, NGUOI, NOW);
+    assert.equal(r.state, s1);
+    assert.equal(r.result.ok, true);
+    assert.deepEqual(r.result.soLieu.map((x) => x.khu_vuc_id), [101]);
+    assert.equal(r.result.soLieu[0].ten_khu_vuc, 'VIP');
+    assert.deepEqual(r.result.deXuat.map((d) => d.DeXuatID), [1]);
+
+    for (const [id, nguoi] of [[2, NGUOI], [1, NGUOI_KHAC_TO_CHUC], [99, NGUOI], [1, undefined]]) {
+      const lo = layDeXuatGia(s1, id, nguoi, NOW);
+      assert.equal(lo.result.ok, false);
+      assert.equal(lo.result.loi.status, 403);
+    }
+    // bản trả về là bản sao: sửa không ảnh hưởng state
+    r.result.deXuat[0].GiaDeXuat = 1;
+    assert.equal(s1.deXuatGia[0].GiaDeXuat, 1600000);
+  });
+});
+
+describe('hành vi W2 giữ nguyên sau khi thêm duyệt/từ chối', () => {
+  it('createMockState có bảng mới rỗng; simulator và luuDeXuatGia không đổi giá, không sinh nhật ký giá', () => {
+    const s0 = build();
+    assert.deepEqual(s0.nhatKyGia, []);
+    assert.deepEqual(s0.thanhVienToChuc, []);
+    assert.equal(s0.seq.nhatKyGia, 0);
+    const s1 = withRule(s0);
+    const luu = luuDeXuatGia(s1, proposalInput(s1), NOW);
+    assert.equal(luu.result.ketQua, 'DA_LUU');
+    assert.equal(luu.state.khuVuc[101].GiaVeNiemYet, 1500000);
+    assert.equal(luu.state.nhatKyGia.length, 0);
+    assert.equal(luu.state.deXuatGia[0].TrangThaiDuyet, 'PENDING');
+    assert.ok(luu.state.deXuatGia[0].LyDoDeXuat.startsWith(TIEN_TO_MO_PHONG));
+  });
+});
+
+// ---------------------------------------------------------------- lưu / đọc lại
+
+const KHOA = 'test.mock.pricing.approval';
+
+function khoGiaLap(initial = null, { setItemLoi = false } = {}) {
+  const data = new Map();
+  if (initial !== null) data.set(KHOA, initial);
+  return {
+    data,
+    getItem: (k) => (data.has(k) ? data.get(k) : null),
+    setItem(k, v) {
+      if (setItemLoi) throw new Error('QuotaExceededError');
+      data.set(k, v);
+    },
+  };
+}
+
+const taoKho = (macDinh = null) =>
+  taoKhoPhienMock({ khoa: KHOA, taoState: (s) => createMockState(s), layKhoMacDinh: () => macDinh });
+
+const seedKho = () => ({
+  suKien: { 1: { ...congKhai, ToChucID: 7 } },
+  suatDien: { 11: suat() },
+  khuVuc: { 101: { SuKienID: 1, SuatDienID: 11, GiaVeNiemYet: 1500000, TongSoGhe: 100 } },
+});
+
+const nhatKyGiaMau = (over = {}) => ({
+  NhatKyGiaID: 1,
+  KhuVucID: 101,
+  DeXuatID: 1,
+  LoaiBienDong: 'DUYET_DE_XUAT_AI',
+  GiaCu: 1500000,
+  GiaMoi: 1600000,
+  TyLeThayDoiPhanTram: 6.67,
+  LyDoThayDoi: '[MÔ PHỎNG] seed',
+  NguoiThucHienID: 'u1',
+  ThoiGianApDung: NOW,
+  nhan: NHAN_MO_PHONG,
+  ...over,
+});
+
+describe('lưu/đọc lại trạng thái duyệt giá', () => {
+  it('lưu sau khi duyệt rồi đọc lại giữ nguyên giá, nhật ký giá và không cảnh báo', () => {
+    const storage = khoGiaLap();
+    const kho = taoKho(storage);
+    const p1 = kho.moPhien({ storage, seed: seedKho(), now: NOW });
+    const s0 = withDeXuat(withRule({ ...p1.state, thanhVienToChuc: [{ ToChucID: 7, NguoiDungID: 'u1', VaiTro: 'QUAN_TRI' }] }), [
+      { DeXuatID: 1, GiaHienTai: 1500000, GiaDeXuat: 1600000 },
+    ]);
+    const { state } = duyet(s0);
+    kho.luuPhien(p1, state);
+
+    const p2 = taoKho(storage).moPhien({ storage, seed: seedKho(), now: NOW });
+    assert.equal(p2.meta.canhBao, null);
+    assert.equal(p2.meta.duLieuHong, false);
+    assert.equal(kiemTraTrangThaiMoPhong(p2.state), null);
+    assert.equal(p2.state.khuVuc[101].GiaVeNiemYet, 1600000);
+    assert.equal(p2.state.nhatKyGia.length, 1);
+    assert.equal(p2.state.seq.nhatKyGia, 1);
+    assert.equal(duyet(p2.state).result.loi.ma, 'DE_XUAT_DA_XU_LY');
+  });
+
+  it('dữ liệu v1 đã lưu (không có bảng mới) được nâng cấp kèm cảnh báo và dùng được', () => {
+    const v1 = createMockState(seedKho());
+    delete v1.nhatKyGia;
+    delete v1.thanhVienToChuc;
+    delete v1.seq.nhatKyGia;
+    assert.equal(kiemTraTrangThaiMoPhong(v1), null);
+    const storage = khoGiaLap(JSON.stringify(v1));
+    const p = taoKho(storage).moPhien({ storage, seed: seedKho(), now: NOW });
+    assert.equal(p.meta.duLieuHong, false);
+    assert.equal(p.meta.luuTru, 'LOCAL_STORAGE');
+    assert.equal(p.meta.canhBao, CANH_BAO_NANG_CAP_V1);
+    assert.match(p.meta.canhBao, /nâng cấp dữ liệu mô phỏng v1/);
+    assert.deepEqual(p.state.nhatKyGia, []);
+    assert.deepEqual(p.state.thanhVienToChuc, []);
+    assert.equal(p.state.seq.nhatKyGia, 0);
+    assert.equal(p.state.khuVuc[101].GiaVeNiemYet, 1500000);
+    assert.equal(kiemTraTrangThaiMoPhong(p.state), null);
+  });
+
+  it('v1 có nhatKyGia nhưng thiếu seq.nhatKyGia → seq = id lớn nhất', () => {
+    const v1 = createMockState(seedKho());
+    v1.nhatKyGia = [nhatKyGiaMau({ NhatKyGiaID: 4 })];
+    delete v1.seq.nhatKyGia;
+    const storage = khoGiaLap(JSON.stringify(v1));
+    const p = taoKho(storage).moPhien({ storage, seed: seedKho(), now: NOW });
+    assert.equal(p.state.seq.nhatKyGia, 4);
+    assert.equal(p.meta.canhBao, CANH_BAO_NANG_CAP_V1);
+  });
+
+  it('bảng mới sai dạng bị coi là hỏng, đặt lại kèm cảnh báo', () => {
+    const mau = [
+      ['nhatKyGia', 'x', 'nhatKyGia'],
+      ['nhatKyGia', [nhatKyGiaMau({ NhatKyGiaID: 'a' })], 'nhatKyGia[0].NhatKyGiaID'],
+      ['nhatKyGia', [nhatKyGiaMau({ ThoiGianApDung: {} })], 'nhatKyGia[0].ThoiGianApDung'],
+      ['thanhVienToChuc', {}, 'thanhVienToChuc'],
+      ['thanhVienToChuc', [{ ToChucID: 7, NguoiDungID: 5, VaiTro: 'CHU_SO_HUU' }], 'thanhVienToChuc[0].NguoiDungID'],
+      ['thanhVienToChuc', [{ NguoiDungID: 'u1', VaiTro: 'CHU_SO_HUU' }], 'thanhVienToChuc[0].ToChucID'],
+    ];
+    for (const [truong, giaTri, duKien] of mau) {
+      const hong = { ...createMockState(seedKho()), [truong]: giaTri };
+      assert.equal(kiemTraTrangThaiMoPhong(hong), duKien, duKien);
+      const storage = khoGiaLap(JSON.stringify(hong));
+      const p = taoKho(storage).moPhien({ storage, seed: seedKho(), now: NOW });
+      assert.equal(p.meta.duLieuHong, true, duKien);
+      assert.ok(p.meta.canhBao.includes(duKien), p.meta.canhBao);
+      assert.deepEqual(p.state.nhatKyGia, []);
+    }
+    const seqSai = createMockState(seedKho());
+    seqSai.seq.nhatKyGia = 'x';
+    assert.equal(kiemTraTrangThaiMoPhong(seqSai), 'seq.nhatKyGia');
+  });
+
+  it('JSON hỏng được đặt lại có cảnh báo; không ném lỗi', () => {
+    const storage = khoGiaLap('{not json');
+    const p = taoKho(storage).moPhien({ storage, seed: seedKho(), now: NOW });
+    assert.equal(p.meta.duLieuHong, true);
+    assert.match(p.meta.canhBao, /bị hỏng/);
+    assert.equal(p.state.khuVuc[101].GiaVeNiemYet, 1500000);
+  });
+
+  it('chỉ lưu được trong bộ nhớ: cảnh báo rõ, phiên sau vẫn thấy kết quả duyệt', () => {
+    const storage = khoGiaLap(null, { setItemLoi: true });
+    const kho = taoKho(storage);
+    const p1 = kho.moPhien({ storage, seed: seedKho(), now: NOW });
+    const s0 = withDeXuat(withRule({ ...p1.state, thanhVienToChuc: [{ ToChucID: 7, NguoiDungID: 'u1', VaiTro: 'CHU_SO_HUU' }] }), [
+      { DeXuatID: 1, GiaHienTai: 1500000, GiaDeXuat: 1600000 },
+    ]);
+    const { state } = duyet(s0);
+    kho.luuPhien(p1, state);
+    assert.equal(p1.meta.luuTru, 'BO_NHO');
+    assert.match(p1.meta.canhBao, /chỉ giữ trong bộ nhớ/);
+    assert.equal(storage.data.size, 0);
+
+    const p2 = kho.moPhien({ storage, seed: seedKho(), now: NOW });
+    assert.equal(p2.meta.luuTru, 'BO_NHO');
+    assert.ok(p2.meta.canhBao);
+    assert.equal(p2.state.khuVuc[101].GiaVeNiemYet, 1600000);
+    assert.equal(p2.state.nhatKyGia.length, 1);
+  });
+});
+
+describe('kiem tra nhatKyGia va seq (review 1)', () => {
+  it('phát hiện đủ mọi trường nhatKyGia sai/thiếu theo MockNhatKyGiaRow và phục hồi kèm cảnh báo', () => {
+    const thieuLyDo = nhatKyGiaMau();
+    delete thieuLyDo.LyDoThayDoi;
+    const thieuThoiGian = nhatKyGiaMau();
+    delete thieuThoiGian.ThoiGianApDung;
+
+    const cacMauSai = [
+      [thieuLyDo, 'nhatKyGia[0].LyDoThayDoi'],
+      [nhatKyGiaMau({ GiaCu: 'broken' }), 'nhatKyGia[0].GiaCu'],
+      [nhatKyGiaMau({ GiaMoi: null }), 'nhatKyGia[0].GiaMoi'],
+      [nhatKyGiaMau({ TyLeThayDoiPhanTram: '6.67' }), 'nhatKyGia[0].TyLeThayDoiPhanTram'],
+      [nhatKyGiaMau({ DeXuatID: '1' }), 'nhatKyGia[0].DeXuatID'],
+      [nhatKyGiaMau({ LoaiBienDong: 'TU_DONG' }), 'nhatKyGia[0].LoaiBienDong'],
+      [nhatKyGiaMau({ NguoiThucHienID: 99 }), 'nhatKyGia[0].NguoiThucHienID'],
+      [thieuThoiGian, 'nhatKyGia[0].ThoiGianApDung'],
+      [nhatKyGiaMau({ ThoiGianApDung: null }), 'nhatKyGia[0].ThoiGianApDung'],
+      [nhatKyGiaMau({ ThoiGianApDung: 'invalid' }), 'nhatKyGia[0].ThoiGianApDung'],
+      [nhatKyGiaMau({ nhan: 'KHAC' }), 'nhatKyGia[0].nhan'],
+    ];
+
+    for (const [dongSai, duongDan] of cacMauSai) {
+      const hong = { ...createMockState(seedKho()), nhatKyGia: [dongSai] };
+      assert.equal(kiemTraTrangThaiMoPhong(hong), duongDan, duongDan);
+      const storage = khoGiaLap(JSON.stringify(hong));
+      const p = taoKho(storage).moPhien({ storage, seed: seedKho(), now: NOW });
+      assert.equal(p.meta.duLieuHong, true, duongDan);
+      assert.ok(p.meta.canhBao.includes('nhatKyGia[0]'), p.meta.canhBao);
+      assert.ok(p.meta.canhBao.includes(duongDan.split('.').pop()), p.meta.canhBao);
+      assert.deepEqual(p.state.nhatKyGia, []);
+    }
+
+    // DeXuatID = null và DIEU_CHINH_THU_CONG là hợp lệ
+    const hopLeNull = {
+      ...createMockState(seedKho()),
+      nhatKyGia: [nhatKyGiaMau({ DeXuatID: null, LoaiBienDong: 'DIEU_CHINH_THU_CONG' })],
+      seq: { quyTacGia: 0, deXuatGia: 0, nhatKyDinhGia: 0, nhatKyGia: 1 },
+    };
+    assert.equal(kiemTraTrangThaiMoPhong(hopLeNull), null);
+  });
+
+  it('v2 đầy đủ có nhật ký ID=1 nhưng seq.nhatKyGia=0 → nâng seq lên >=1 kèm cảnh báo, không sửa input', () => {
+    const v2SeqThap = {
+      ...createMockState(seedKho()),
+      nhatKyGia: [nhatKyGiaMau({ NhatKyGiaID: 1 })],
+      seq: { quyTacGia: 0, deXuatGia: 0, nhatKyDinhGia: 0, nhatKyGia: 0 },
+    };
+    const banChup = snapshot(v2SeqThap);
+    const kq = nangCapTrangThaiV1(v2SeqThap);
+    assert.deepEqual(v2SeqThap, banChup);
+    assert.equal(kq.daNangCap, true);
+    assert.equal(kq.canhBao, CANH_BAO_KHOI_PHUC_SEQ);
+    assert.ok(kq.state.seq.nhatKyGia >= 1);
+
+    const storage = khoGiaLap(JSON.stringify(v2SeqThap));
+    const p = taoKho(storage).moPhien({ storage, seed: seedKho(), now: NOW });
+    assert.equal(p.meta.duLieuHong, false);
+    assert.ok(p.state.seq.nhatKyGia >= 1);
+    assert.equal(p.meta.canhBao, CANH_BAO_KHOI_PHUC_SEQ);
+  });
+
+  it('nangCapTrangThaiV1 kẹp cả 4 bộ đếm seq và giữ nguyên nếu đã hợp lệ', () => {
+    const s0 = withRule(createMockState(seedKho()));
+    const quyTacId = s0.quyTacGia[101].QuyTacGiaID;
+    const sauDuyet = duyet(
+      withDeXuat(
+        { ...s0, thanhVienToChuc: [{ ToChucID: 7, NguoiDungID: 'u1', VaiTro: 'QUAN_TRI' }] },
+        [{ DeXuatID: 5, GiaHienTai: 1500000, GiaDeXuat: 1600000 }],
+      ),
+      { deXuatId: 5 },
+    ).state;
+    const thap = {
+      ...sauDuyet,
+      seq: { quyTacGia: 0, deXuatGia: 1, nhatKyDinhGia: 0, nhatKyGia: 0 },
+    };
+    const kq = nangCapTrangThaiV1(thap);
+    assert.equal(kq.daNangCap, true);
+    assert.equal(kq.canhBao, CANH_BAO_KHOI_PHUC_SEQ);
+    assert.equal(kq.state.seq.quyTacGia, quyTacId);
+    assert.equal(kq.state.seq.deXuatGia, 5);
+    assert.equal(kq.state.seq.nhatKyDinhGia, sauDuyet.nhatKyDinhGia[sauDuyet.nhatKyDinhGia.length - 1].NhatKyDinhGiaID);
+    assert.equal(kq.state.seq.nhatKyGia, 1);
+
+    // Dữ liệu v2 đã đúng seq → không cảnh báo
+    const dung = nangCapTrangThaiV1(kq.state);
+    assert.equal(dung.daNangCap, false);
+    assert.equal(dung.canhBao, undefined);
+    const pDung = taoKho().moPhien({ storage: khoGiaLap(JSON.stringify(kq.state)), seed: seedKho(), now: NOW });
+    assert.equal(pDung.meta.duLieuHong, false);
+    assert.equal(pDung.meta.canhBao, null);
+  });
+
+  it('END-TO-END: nạp state v2 có nhatKyGia ID=1 nhưng seq=0 rồi duyệt PENDING → NhatKyGiaID=2, không trùng ID', () => {
+    const base = withRule(createMockState(seedKho()));
+    const daCoLog = withDeXuat(
+      {
+        ...base,
+        thanhVienToChuc: [{ ToChucID: 7, NguoiDungID: 'u1', VaiTro: 'QUAN_TRI' }],
+        nhatKyGia: [nhatKyGiaMau({ NhatKyGiaID: 1, DeXuatID: 9 })],
+      },
+      [{ DeXuatID: 10, GiaHienTai: 1500000, GiaDeXuat: 1650000 }],
+    );
+    daCoLog.seq.nhatKyGia = 0;
+
+    const storage = khoGiaLap(JSON.stringify(daCoLog));
+    const kho = taoKho(storage);
+    const p1 = kho.moPhien({ storage, seed: seedKho(), now: NOW });
+    assert.equal(p1.meta.duLieuHong, false);
+    assert.equal(p1.state.seq.nhatKyGia, 1);
+    assert.ok(p1.meta.canhBao);
+
+    const { state, result } = duyetDeXuatGia(
+      p1.state,
+      { deXuatId: 10, ghiChu: 'duyệt tiếp', nguoiDung: NGUOI },
+      NOW,
+    );
+    assert.equal(result.ok, true);
+    assert.equal(result.nhatKyGiaId, 2);
+    kho.luuPhien(p1, state);
+
+    const ids = state.nhatKyGia.map((r) => r.NhatKyGiaID);
+    assert.deepEqual(ids, [1, 2]);
+    assert.equal(new Set(ids).size, ids.length);
+
+    const p2 = taoKho(storage).moPhien({ storage, seed: seedKho(), now: NOW });
+    assert.equal(p2.meta.canhBao, null);
+    assert.equal(p2.state.seq.nhatKyGia, 2);
+    assert.deepEqual(p2.state.nhatKyGia.map((r) => r.NhatKyGiaID), [1, 2]);
+  });
+
+  it('v1 không có bảng mới vẫn nâng cấp kèm CANH_BAO_NANG_CAP_V1', () => {
+    const v1 = createMockState(seedKho());
+    delete v1.nhatKyGia;
+    delete v1.thanhVienToChuc;
+    delete v1.seq.nhatKyGia;
+    const p = taoKho().moPhien({ storage: khoGiaLap(JSON.stringify(v1)), seed: seedKho(), now: NOW });
+    assert.equal(p.meta.duLieuHong, false);
+    assert.equal(p.meta.canhBao, CANH_BAO_NANG_CAP_V1);
+    assert.deepEqual(p.state.nhatKyGia, []);
+    assert.deepEqual(p.state.thanhVienToChuc, []);
+    assert.equal(p.state.seq.nhatKyGia, 0);
   });
 });
