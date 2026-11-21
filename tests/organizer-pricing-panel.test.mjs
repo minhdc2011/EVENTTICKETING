@@ -531,6 +531,43 @@ test('createDialogFocusScope: nền đã inert do chủ sở hữu (React) khôn
   assert.equal(f.topbar.hasAttribute('aria-hidden'), false);
 });
 
+test('createDialogFocusScope: opener bị gỡ khỏi DOM thì cleanup trả focus về đích dự phòng còn kết nối', () => {
+  const f = makeModalFixture();
+  const {El} = {El: f.main.constructor};
+  const heading = new El('h3', {tabindex: '-1'});
+  const reloadBtn = new El('button');
+  f.topbar.append(heading, reloadBtn);
+  const scope = createDialogFocusScope({
+    dialog: f.dialog,
+    overlay: f.overlay,
+    ownerDocument: f.doc,
+    fallbackFocus: () => [reloadBtn, heading],
+  });
+  // Card chứa opener biến mất sau khi duyệt/tải lại.
+  f.opener.isConnected = false;
+  scope.cleanup();
+  assert.equal(f.topbar.inert, false);
+  assert.equal(f.doc.activeElement, reloadBtn);
+
+  // Nút tải lại không còn: dùng tiêu đề; opener còn kết nối thì vẫn ưu tiên opener.
+  const g = makeModalFixture();
+  const h2 = new g.main.constructor('h3', {tabindex: '-1'});
+  const gone = new g.main.constructor('button');
+  gone.isConnected = false;
+  g.topbar.append(h2);
+  const s2 = createDialogFocusScope({dialog: g.dialog, overlay: g.overlay, ownerDocument: g.doc, fallbackFocus: [gone, h2]});
+  g.opener.isConnected = false;
+  s2.cleanup();
+  assert.equal(g.doc.activeElement, h2);
+
+  const k = makeModalFixture();
+  const fb = new k.main.constructor('button');
+  k.topbar.append(fb);
+  const s3 = createDialogFocusScope({dialog: k.dialog, overlay: k.overlay, ownerDocument: k.doc, fallbackFocus: fb});
+  s3.cleanup();
+  assert.equal(k.doc.activeElement, k.opener);
+});
+
 test('createDialogFocusScope: backgroundElements tường minh và dialog không có control thì focus dialog', () => {
   const {doc, El, body} = makeDom();
   const bg = new El('main').append(new El('button'));

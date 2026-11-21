@@ -105,7 +105,9 @@ test('organizer-ui component files exist and contain no emoji icons', async () =
     '../src/components/organizer-ui/OrganizerAccessDeniedView.tsx',
     '../src/components/organizer-ui/OrganizerEventWizard.tsx',
     '../src/components/organizer-ui/OrganizerPricingConfig.tsx',
+    '../src/components/organizer-ui/OrganizerPriceProposals.tsx',
     '../src/components/organizer-ui/OrganizerPricingPanel.tsx',
+    '../src/components/organizer-ui/priceProposalsController.js',
   ];
 
   // Regex to detect common emojis (rocket, floppy disk, lightning, warning sign, lock, etc.)
@@ -142,5 +144,27 @@ test('organizer-pricing.css adheres to >= 11px font-size, 44px controls, focus-v
   assert.ok(fontSizes.length > 0, 'Found font-size rules');
   for (const size of fontSizes) {
     assert.ok(size >= 11, `Disallowed sub-11px font size found in organizer-pricing.css: ${size}px`);
+  }
+});
+
+test('organizer-price-proposals.css adheres to >= 11px font-size, 44px controls, focus-visible, tabular-nums, and breakpoints', async () => {
+  const css = await readFile(
+    new URL('../src/components/organizer-ui/organizer-price-proposals.css', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(css, /:focus-visible\s*\{[^}]*outline:\s*2px\s*solid\s*var\(--org-lime/i, 'Accessible focus-visible ring');
+  assert.match(css, /\.org-proposal-dialog\s+\.org-input[\s\S]*min-height:\s*44px/i, 'Inputs/textareas touch target >= 44px');
+  assert.match(css, /\.org-proposal-actions\s+\.org-btn[\s\S]*min-height:\s*44px/i, 'Action buttons touch target >= 44px');
+  assert.match(css, /font-variant-numeric:\s*tabular-nums/i, 'Tabular numerics for proposal figures');
+  assert.match(css, /@media\s*\(max-width:\s*1024px\)/i, '1024px breakpoint');
+  assert.match(css, /@media\s*\(max-width:\s*768px\)/i, '768px breakpoint');
+  assert.match(css, /@media\s*\(max-width:\s*480px\)/i, '480px breakpoint');
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/i, 'Reduced motion media query');
+
+  const fontSizes = [...css.matchAll(/font-size:\s*(\d+)px/g)].map((m) => Number(m[1]));
+  assert.ok(fontSizes.length > 0, 'Found font-size rules');
+  for (const size of fontSizes) {
+    assert.ok(size >= 11, `Disallowed sub-11px font size found in organizer-price-proposals.css: ${size}px`);
   }
 });
