@@ -101,6 +101,12 @@ INSERT INTO public."SU_KIEN" (
   );
 
 -- Event 997105 intentionally has NO row in CAU_HINH_SU_KIEN.
+-- Rows that differ from the 4/FALSE defaults are audited by
+-- trg_kiem_soat_cau_hinh_mua_ve, which needs an authenticated CHU_SO_HUU/QUAN_TRI
+-- (no bypass exists), so act as the org owner for this insert.
+SET LOCAL "request.jwt.claim.sub" = '88888888-8888-4888-8888-000000000001';
+SET LOCAL "request.jwt.claims" = '{"sub":"88888888-8888-4888-8888-000000000001","role":"authenticated"}';
+
 INSERT INTO public."CAU_HINH_SU_KIEN" ("SuKienID", "SoVeToiDaMoiDon", "YeuCauXacMinhOTP")
 VALUES
   (997101, 4, TRUE),

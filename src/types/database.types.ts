@@ -476,6 +476,42 @@ export type Database = {
         }
         Relationships: []
       }
+      NHAT_KY_CAU_HINH_MUA_VE: {
+        Row: {
+          NguoiThucHienID: string
+          NhatKyCauHinhMuaVeID: number
+          SoVeToiDaCu: number
+          SoVeToiDaMoi: number
+          SuKienID: number
+          ThoiGian: string
+          VaiTroToChuc: string
+          YeuCauOtpCu: boolean
+          YeuCauOtpMoi: boolean
+        }
+        Insert: {
+          NguoiThucHienID: string
+          NhatKyCauHinhMuaVeID?: never
+          SoVeToiDaCu: number
+          SoVeToiDaMoi: number
+          SuKienID: number
+          ThoiGian?: string
+          VaiTroToChuc: string
+          YeuCauOtpCu: boolean
+          YeuCauOtpMoi: boolean
+        }
+        Update: {
+          NguoiThucHienID?: string
+          NhatKyCauHinhMuaVeID?: never
+          SoVeToiDaCu?: number
+          SoVeToiDaMoi?: number
+          SuKienID?: number
+          ThoiGian?: string
+          VaiTroToChuc?: string
+          YeuCauOtpCu?: boolean
+          YeuCauOtpMoi?: boolean
+        }
+        Relationships: []
+      }
       NHAT_KY_GIA: {
         Row: {
           DeXuatID: number | null
@@ -954,6 +990,10 @@ export type Database = {
         Args: { p_su_kien_id: number }
         Returns: boolean
       }
+      da_xac_minh_otp: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       duyet_de_xuat_gia: {
         Args: { p_de_xuat_id: number; p_ghi_chu: string; p_gia_dieu_chinh?: number }
         Returns: Json
@@ -1026,6 +1066,10 @@ export type Database = {
           mo_phong: boolean | null
           thoi_diem_tinh: string | null
         }>
+      }
+      luu_cau_hinh_mua_ve: {
+        Args: { p_su_kien_id: number; p_so_ve_toi_da: number; p_yeu_cau_otp: boolean }
+        Returns: Json
       }
       luu_de_xuat_gia: {
         Args: { p_khu_vuc_id: number; p_quy_tac_gia_id: number; p_quy_tac_ngay_cap_nhat: string; p_gia_de_xuat: number; p_gia_tinh_toan_tho: number; p_ly_do: string }
