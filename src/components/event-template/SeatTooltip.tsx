@@ -64,7 +64,7 @@ export function SeatTooltip({
           <strong id="tooltip-number" className="text-white">{number}</strong>
         </div>
         <div className="text-amber-300 pt-1 text-xs">
-          Giá vé: <strong id="tooltip-price" className="text-sm font-bold text-white">{priceFormatted}</strong>
+          Giá vé: <strong id="tooltip-price" className="text-sm font-bold text-white et-num">{priceFormatted}</strong>
         </div>
       </div>
     </div>
