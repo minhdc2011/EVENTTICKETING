@@ -802,6 +802,9 @@ async function loadRealConcertRuntimeForLifecycleTest() {
             return () => {};
           }
           export const runtimeConfig = {useMockData: true, eventId: 1};
+          export const isSupabaseConfigured = () => false;
+          export const isApiConfigured = () => false;
+          export const isWebSocketConfigured = () => false;
           export function getActiveEventContext() { return {eventDatabaseId: 1, showId: 10}; }
         `,
         loader: 'js',
