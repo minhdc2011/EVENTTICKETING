@@ -186,14 +186,22 @@ export function OrganizerPricingPanel({
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     const dialog = dialogRef.current;
     if (!dialog) return;
+    // Hộp thoại con (vd. duyệt đề xuất) tự xử lý phím; panel cha không can thiệp.
+    const target = e.target as Element | null;
+    const nested = target && typeof target.closest === 'function' ? target.closest('[role="dialog"]') : null;
+    if ((nested && nested !== dialog) || dialog.querySelector('[role="dialog"]')) return;
     const decision = resolveDialogKeyDown({
       key: e.key,
       shiftKey: e.shiftKey,
       activeElement: dialog.ownerDocument?.activeElement ?? null,
       dialogElement: dialog,
       focusables: getFocusableElements(dialog),
+      canClose: !submitting,
     });
-    if (decision.action === 'close') {
+    if (e.key === 'Escape' && submitting) {
+      e.preventDefault();
+      e.stopPropagation();
+    } else if (decision.action === 'close') {
       e.preventDefault();
       e.stopPropagation();
       onClose();
@@ -278,7 +286,7 @@ export function OrganizerPricingPanel({
             </h2>
             <p className="org-pricing-subtitle">{event.name}</p>
           </div>
-          <button type="button" className="org-btn org-btn-secondary" onClick={onClose} aria-label="Đóng cấu hình giá">
+          <button type="button" className="org-btn org-btn-secondary" onClick={onClose} disabled={locked} aria-label="Đóng cấu hình giá">
             <IconClose size={16} />
           </button>
         </header>
@@ -370,109 +378,111 @@ export function OrganizerPricingPanel({
                     <div className="org-alert-body">{runError}</div>
                   </div>
                 )}
-                {runResult && (
-                  <div className="org-pricing-run-result" data-pricing-run-result aria-live="polite">
-                    <div className="org-pricing-summary-grid">
-                      <div className="org-pricing-summary-card">
-                        <span className="org-pricing-summary-label">Đã lưu</span>
-                        <strong className="org-pricing-summary-value">{runResult.summary.counts.DA_LUU}</strong>
+                <div className="org-pricing-run-result" data-pricing-run-result aria-live="polite">
+                  {runResult && (
+                    <>
+                      <div className="org-pricing-summary-grid">
+                        <div className="org-pricing-summary-card">
+                          <span className="org-pricing-summary-label">Đã lưu</span>
+                          <strong className="org-pricing-summary-value">{runResult.summary.counts.DA_LUU}</strong>
+                        </div>
+                        <div className="org-pricing-summary-card">
+                          <span className="org-pricing-summary-label">Bỏ qua</span>
+                          <strong className="org-pricing-summary-value">{runResult.summary.counts.BO_QUA}</strong>
+                        </div>
+                        <div className="org-pricing-summary-card">
+                          <span className="org-pricing-summary-label">PriceGuard chặn</span>
+                          <strong className="org-pricing-summary-value">{runResult.summary.counts.BI_CHAN}</strong>
+                        </div>
+                        <div className="org-pricing-summary-card">
+                          <span className="org-pricing-summary-label">Lỗi</span>
+                          <strong className="org-pricing-summary-value">{runResult.summary.counts.LOI}</strong>
+                        </div>
                       </div>
-                      <div className="org-pricing-summary-card">
-                        <span className="org-pricing-summary-label">Bỏ qua</span>
-                        <strong className="org-pricing-summary-value">{runResult.summary.counts.BO_QUA}</strong>
-                      </div>
-                      <div className="org-pricing-summary-card">
-                        <span className="org-pricing-summary-label">PriceGuard chặn</span>
-                        <strong className="org-pricing-summary-value">{runResult.summary.counts.BI_CHAN}</strong>
-                      </div>
-                      <div className="org-pricing-summary-card">
-                        <span className="org-pricing-summary-label">Lỗi</span>
-                        <strong className="org-pricing-summary-value">{runResult.summary.counts.LOI}</strong>
-                      </div>
-                    </div>
 
-                    <p className="org-pricing-hint">
-                      Đề xuất cũ hết hạn:{' '}
-                      <strong className="org-pricing-num">{runResult.result.hetHan.soLuong}</strong>
-                      {runResult.result.hetHan.deXuatHetHan.length > 0 && (
-                        <>
-                          {' '}
-                          (mã:{' '}
-                          <span className="org-pricing-num">
-                            {runResult.result.hetHan.deXuatHetHan.join(', ')}
-                          </span>
-                          )
-                        </>
-                      )}
-                      .
-                    </p>
+                      <p className="org-pricing-hint">
+                        Đề xuất cũ hết hạn:{' '}
+                        <strong className="org-pricing-num">{runResult.result.hetHan.soLuong}</strong>
+                        {runResult.result.hetHan.deXuatHetHan.length > 0 && (
+                          <>
+                            {' '}
+                            (mã:{' '}
+                            <span className="org-pricing-num">
+                              {runResult.result.hetHan.deXuatHetHan.join(', ')}
+                            </span>
+                            )
+                          </>
+                        )}
+                        .
+                      </p>
 
-                    {runResult.result.theoKhu.length === 0 ? (
-                      <p className="org-pricing-hint">Không có khu vực nào được xử lý trong lần chạy này.</p>
-                    ) : (
-                      <div className="org-pricing-table-wrap">
-                        <table className="org-pricing-table">
-                          <thead>
-                            <tr>
-                              <th scope="col">Khu vực</th>
-                              <th scope="col">Kết quả</th>
-                              <th scope="col">Chi tiết</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {runResult.result.theoKhu.map((item: KetQuaKhu, idx: number) => (
-                              <tr key={`${item.suatDienId}-${item.khuVucId}-${idx}`}>
-                                <td>{describeKhu(rows, item.khuVucId, item.suatDienId)}</td>
-                                <td>
-                                  {item.ketQua === 'DA_LUU' && (
-                                    <span className="org-pricing-badge org-pricing-badge-saved">Đã lưu</span>
-                                  )}
-                                  {item.ketQua === 'BO_QUA' && (
-                                    <span className="org-pricing-badge org-pricing-badge-skipped">Bỏ qua</span>
-                                  )}
-                                  {item.ketQua === 'BI_CHAN' && (
-                                    <span className="org-pricing-badge org-pricing-badge-blocked">Bị chặn</span>
-                                  )}
-                                  {item.ketQua === 'LOI' && (
-                                    <span className="org-pricing-badge org-pricing-badge-error">Lỗi</span>
-                                  )}
-                                </td>
-                                <td>
-                                  {item.ketQua === 'DA_LUU' && (
-                                    <div className="org-pricing-price-arrow">
-                                      <span>
-                                        Đề xuất <strong className="org-pricing-num">#{item.deXuatId}</strong>:
-                                      </span>
-                                      <span className="org-pricing-num">{moneyFormatter.format(item.giaHienTai)}</span>
-                                      <IconArrowRight size={13} />
-                                      <strong className="org-pricing-num">{moneyFormatter.format(item.giaDeXuat)}</strong>
-                                      <span>({ALERT_TYPE_LABELS[item.loaiCanhBao] ?? item.loaiCanhBao})</span>
-                                    </div>
-                                  )}
-                                  {item.ketQua === 'BO_QUA' && (
-                                    <span>
-                                      Lý do:{' '}
-                                      {item.lyDoBoQua.length > 0 ? item.lyDoBoQua.join(', ') : 'Không rõ lý do'}
-                                    </span>
-                                  )}
-                                  {item.ketQua === 'BI_CHAN' && (
-                                    <span>
-                                      Mã chặn: <strong>{item.maChan}</strong> · Nhật ký:{' '}
-                                      <span className="org-pricing-num">
-                                        {item.nhatKyId !== null ? `#${item.nhatKyId}` : '—'}
-                                      </span>
-                                    </span>
-                                  )}
-                                  {item.ketQua === 'LOI' && <span>{item.loi}</span>}
-                                </td>
+                      {runResult.result.theoKhu.length === 0 ? (
+                        <p className="org-pricing-hint">Không có khu vực nào được xử lý trong lần chạy này.</p>
+                      ) : (
+                        <div className="org-pricing-table-wrap">
+                          <table className="org-pricing-table">
+                            <thead>
+                              <tr>
+                                <th scope="col">Khu vực</th>
+                                <th scope="col">Kết quả</th>
+                                <th scope="col">Chi tiết</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </div>
-                )}
+                            </thead>
+                            <tbody>
+                              {runResult.result.theoKhu.map((item: KetQuaKhu, idx: number) => (
+                                <tr key={`${item.suatDienId}-${item.khuVucId}-${idx}`}>
+                                  <td>{describeKhu(rows, item.khuVucId, item.suatDienId)}</td>
+                                  <td>
+                                    {item.ketQua === 'DA_LUU' && (
+                                      <span className="org-pricing-badge org-pricing-badge-saved">Đã lưu</span>
+                                    )}
+                                    {item.ketQua === 'BO_QUA' && (
+                                      <span className="org-pricing-badge org-pricing-badge-skipped">Bỏ qua</span>
+                                    )}
+                                    {item.ketQua === 'BI_CHAN' && (
+                                      <span className="org-pricing-badge org-pricing-badge-blocked">Bị chặn</span>
+                                    )}
+                                    {item.ketQua === 'LOI' && (
+                                      <span className="org-pricing-badge org-pricing-badge-error">Lỗi</span>
+                                    )}
+                                  </td>
+                                  <td>
+                                    {item.ketQua === 'DA_LUU' && (
+                                      <div className="org-pricing-price-arrow">
+                                        <span>
+                                          Đề xuất <strong className="org-pricing-num">#{item.deXuatId}</strong>:
+                                        </span>
+                                        <span className="org-pricing-num">{moneyFormatter.format(item.giaHienTai)}</span>
+                                        <IconArrowRight size={13} />
+                                        <strong className="org-pricing-num">{moneyFormatter.format(item.giaDeXuat)}</strong>
+                                        <span>({ALERT_TYPE_LABELS[item.loaiCanhBao] ?? item.loaiCanhBao})</span>
+                                      </div>
+                                    )}
+                                    {item.ketQua === 'BO_QUA' && (
+                                      <span>
+                                        Lý do:{' '}
+                                        {item.lyDoBoQua.length > 0 ? item.lyDoBoQua.join(', ') : 'Không rõ lý do'}
+                                      </span>
+                                    )}
+                                    {item.ketQua === 'BI_CHAN' && (
+                                      <span>
+                                        Mã chặn: <strong>{item.maChan}</strong> · Nhật ký:{' '}
+                                        <span className="org-pricing-num">
+                                          {item.nhatKyId !== null ? `#${item.nhatKyId}` : '—'}
+                                        </span>
+                                      </span>
+                                    )}
+                                    {item.ketQua === 'LOI' && <span>{item.loi}</span>}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </section>
 
               {simulationEnabled && (
@@ -516,112 +526,114 @@ export function OrganizerPricingPanel({
                       <div className="org-alert-body">{simError}</div>
                     </div>
                   )}
-                  {simResult && (
-                    <div className="org-pricing-sim-result" data-pricing-sim-result aria-live="polite">
-                      {simResult.ketQua === 'DA_MO_PHONG' && (
-                        <>
-                          <p className="org-pricing-hint">
-                            <span className="org-chip org-pricing-sim-label">{NHAN_MO_PHONG_UI}</span> Đã mô phỏng kịch
-                            bản <strong>{simResult.kichBan}</strong> tại mốc{' '}
-                            <span className="org-pricing-num">{formatDateTime(simResult.thoiDiemNeo)}</span>. Suất đã mô
-                            phỏng: <strong className="org-pricing-num">{simResult.suatDaMoPhong.length}</strong> · Suất bỏ
-                            qua: <strong className="org-pricing-num">{simResult.suatBoQua.length}</strong>.
-                          </p>
+                  <div className="org-pricing-sim-result" data-pricing-sim-result aria-live="polite">
+                    {simResult && (
+                      <>
+                        {simResult.ketQua === 'DA_MO_PHONG' && (
+                          <>
+                            <p className="org-pricing-hint">
+                              <span className="org-chip org-pricing-sim-label">{NHAN_MO_PHONG_UI}</span> Đã mô phỏng kịch
+                              bản <strong>{simResult.kichBan}</strong> tại mốc{' '}
+                              <span className="org-pricing-num">{formatDateTime(simResult.thoiDiemNeo)}</span>. Suất đã mô
+                              phỏng: <strong className="org-pricing-num">{simResult.suatDaMoPhong.length}</strong> · Suất bỏ
+                              qua: <strong className="org-pricing-num">{simResult.suatBoQua.length}</strong>.
+                            </p>
 
-                          <div className="org-pricing-sim-stats">
-                            <div className="org-pricing-summary-card">
-                              <span className="org-pricing-summary-label">Đặt lại tổng</span>
-                              <strong className="org-pricing-summary-value">{simResult.datLai.tong}</strong>
+                            <div className="org-pricing-sim-stats">
+                              <div className="org-pricing-summary-card">
+                                <span className="org-pricing-summary-label">Đặt lại tổng</span>
+                                <strong className="org-pricing-summary-value">{simResult.datLai.tong}</strong>
+                              </div>
+                              <div className="org-pricing-summary-card">
+                                <span className="org-pricing-summary-label">Bỏ qua đã đổi</span>
+                                <strong className="org-pricing-summary-value">{simResult.datLai.boQuaDaThayDoi}</strong>
+                              </div>
+                              <div className="org-pricing-summary-card">
+                                <span className="org-pricing-summary-label">Bỏ qua đang khóa</span>
+                                <strong className="org-pricing-summary-value">{simResult.datLai.boQuaDangKhoa}</strong>
+                              </div>
+                              <div className="org-pricing-summary-card">
+                                <span className="org-pricing-summary-label">Chưa đặt lại</span>
+                                <strong className="org-pricing-summary-value">{simResult.datLai.chuaDatLai}</strong>
+                              </div>
                             </div>
-                            <div className="org-pricing-summary-card">
-                              <span className="org-pricing-summary-label">Bỏ qua đã đổi</span>
-                              <strong className="org-pricing-summary-value">{simResult.datLai.boQuaDaThayDoi}</strong>
-                            </div>
-                            <div className="org-pricing-summary-card">
-                              <span className="org-pricing-summary-label">Bỏ qua đang khóa</span>
-                              <strong className="org-pricing-summary-value">{simResult.datLai.boQuaDangKhoa}</strong>
-                            </div>
-                            <div className="org-pricing-summary-card">
-                              <span className="org-pricing-summary-label">Chưa đặt lại</span>
-                              <strong className="org-pricing-summary-value">{simResult.datLai.chuaDatLai}</strong>
-                            </div>
-                          </div>
 
-                          {simResult.khuVuc.length > 0 && (
-                            <div className="org-pricing-table-wrap">
-                              <table className="org-pricing-table">
-                                <thead>
-                                  <tr>
-                                    <th scope="col">Khu vực</th>
-                                    <th scope="col">Ghi mới</th>
-                                    <th scope="col">Đặt lại</th>
-                                    <th scope="col">Bỏ qua đang giữ</th>
-                                    <th scope="col">Kẹp cửa sổ 6h</th>
-                                    <th scope="col">Ghi chú</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {simResult.khuVuc.map((k) => (
-                                    <tr key={`${k.suatDienId}-${k.khuVucId}`}>
-                                      <td>{describeKhu(rows, k.khuVucId, k.suatDienId)}</td>
-                                      <td className="org-pricing-num">{k.ghiMoi}</td>
-                                      <td className="org-pricing-num">{k.datLai}</td>
-                                      <td className="org-pricing-num">{k.boQuaDangGiu}</td>
-                                      <td className="org-pricing-num">{k.biKepVaoCuaSo6h}</td>
-                                      <td>{k.khongCoGhe ? 'Không có ghế' : '—'}</td>
+                            {simResult.khuVuc.length > 0 && (
+                              <div className="org-pricing-table-wrap">
+                                <table className="org-pricing-table">
+                                  <thead>
+                                    <tr>
+                                      <th scope="col">Khu vực</th>
+                                      <th scope="col">Ghi mới</th>
+                                      <th scope="col">Đặt lại</th>
+                                      <th scope="col">Bỏ qua đang giữ</th>
+                                      <th scope="col">Kẹp cửa sổ 6h</th>
+                                      <th scope="col">Ghi chú</th>
                                     </tr>
-                                  ))}
-                                </tbody>
-                              </table>
+                                  </thead>
+                                  <tbody>
+                                    {simResult.khuVuc.map((k) => (
+                                      <tr key={`${k.suatDienId}-${k.khuVucId}`}>
+                                        <td>{describeKhu(rows, k.khuVucId, k.suatDienId)}</td>
+                                        <td className="org-pricing-num">{k.ghiMoi}</td>
+                                        <td className="org-pricing-num">{k.datLai}</td>
+                                        <td className="org-pricing-num">{k.boQuaDangGiu}</td>
+                                        <td className="org-pricing-num">{k.biKepVaoCuaSo6h}</td>
+                                        <td>{k.khongCoGhe ? 'Không có ghế' : '—'}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+
+                            <div className="org-pricing-next-step">
+                              <span>
+                                Bước tiếp theo: chạy tính giá ngay để engine tính đề xuất giá mới từ dữ liệu mô phỏng này.
+                              </span>
+                              <button
+                                type="button"
+                                className="org-btn org-btn-primary"
+                                onClick={handleRunNow}
+                                disabled={locked}
+                              >
+                                {runningNow ? (
+                                  <>
+                                    <IconSpinner size={15} />
+                                    <span>Đang gửi…</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <IconPlay size={15} />
+                                    <span>Chạy tính giá tiếp</span>
+                                  </>
+                                )}
+                              </button>
                             </div>
-                          )}
+                          </>
+                        )}
 
-                          <div className="org-pricing-next-step">
-                            <span>
-                              Bước tiếp theo: chạy tính giá ngay để engine tính đề xuất giá mới từ dữ liệu mô phỏng này.
-                            </span>
-                            <button
-                              type="button"
-                              className="org-btn org-btn-primary"
-                              onClick={handleRunNow}
-                              disabled={locked}
-                            >
-                              {runningNow ? (
-                                <>
-                                  <IconSpinner size={15} />
-                                  <span>Đang gửi…</span>
-                                </>
-                              ) : (
-                                <>
-                                  <IconPlay size={15} />
-                                  <span>Chạy tính giá tiếp</span>
-                                </>
-                              )}
-                            </button>
+                        {simResult.ketQua === 'KHONG_CO_SUAT_HOP_LE' && (
+                          <div className="org-alert org-alert-warning" role="status">
+                            <IconAlertTriangle size={16} className="org-alert-icon" />
+                            <div className="org-alert-body">
+                              <strong>{NHAN_MO_PHONG_UI} Không có suất diễn hợp lệ để mô phỏng</strong> (
+                              {simResult.ketQua}). Số suất bỏ qua:{' '}
+                              <span className="org-pricing-num">{simResult.suatBoQua.length}</span>. Hãy mở bán ít nhất
+                              một suất trước khi chạy mô phỏng.
+                            </div>
                           </div>
-                        </>
-                      )}
+                        )}
 
-                      {simResult.ketQua === 'KHONG_CO_SUAT_HOP_LE' && (
-                        <div className="org-alert org-alert-warning" role="status">
-                          <IconAlertTriangle size={16} className="org-alert-icon" />
-                          <div className="org-alert-body">
-                            <strong>{NHAN_MO_PHONG_UI} Không có suất diễn hợp lệ để mô phỏng</strong> (
-                            {simResult.ketQua}). Số suất bỏ qua:{' '}
-                            <span className="org-pricing-num">{simResult.suatBoQua.length}</span>. Hãy mở bán ít nhất
-                            một suất trước khi chạy mô phỏng.
+                        {simResult.ketQua === 'LOI' && (
+                          <div className="org-alert org-alert-danger" role="alert">
+                            <IconAlertTriangle size={16} className="org-alert-icon" />
+                            <div className="org-alert-body">Không thể mô phỏng: {simResult.loi}.</div>
                           </div>
-                        </div>
-                      )}
-
-                      {simResult.ketQua === 'LOI' && (
-                        <div className="org-alert org-alert-danger" role="alert">
-                          <IconAlertTriangle size={16} className="org-alert-icon" />
-                          <div className="org-alert-body">Không thể mô phỏng: {simResult.loi}.</div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        )}
+                      </>
+                    )}
+                  </div>
                 </section>
               )}
             </>
