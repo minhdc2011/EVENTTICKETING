@@ -45,6 +45,32 @@ export const NHAN_MO_PHONG = 'MO_PHONG';
 
 const NHAN_THAT = 'THAT';
 
+/**
+ * Danh sách đóng các loại lỗi OTP được phép xuất hiện trong state/thông báo.
+ * Phải khớp đúng union LoaiLoiOtp trong otpServiceCore.d.ts.
+ */
+export const LOAI_LOI_OTP = Object.freeze([
+  'SAI_MA',
+  'HET_HAN',
+  'CHUA_GUI',
+  'CLIENT_CHO_GUI_LAI',
+  'CLIENT_HET_LUOT_GUI_LAI',
+  'CLIENT_TAM_KHOA_NHAP',
+  'RATE_LIMIT',
+  'MANG',
+  'CAU_HINH',
+  'PHIEN_THAY_DOI',
+  'KHONG_XAC_DINH',
+]);
+
+/**
+ * Chuẩn hóa loại lỗi theo whitelist; giá trị ngoài danh sách (kể cả chuỗi có thể là mã OTP) → 'KHONG_XAC_DINH'.
+ * @param {unknown} x
+ */
+export function chuanHoaLoaiLoiOtp(x) {
+  return typeof x === 'string' && LOAI_LOI_OTP.includes(x) ? x : 'KHONG_XAC_DINH';
+}
+
 /** Lỗi dịch vụ OTP; message là câu tiếng Việt, không bao giờ chứa mã OTP hay message thô. */
 export class OtpServiceError extends Error {
   /**
@@ -173,11 +199,11 @@ export function phanLoaiLoiAuth(err, thoiGian = null) {
 /**
  * Câu thông báo tiếng Việt. Không nhúng mã OTP hay message thô của lỗi.
  * Số lần còn lại (nếu có thoiGian) luôn không âm và chỉ là thông tin phía client.
- * @param {string} loai
+ * @param {unknown} loai Được chuẩn hóa theo whitelist; giá trị lạ dùng thông báo chung.
  * @param {ReturnType<typeof tinhThoiGianOtp> | null} [thoiGian]
  */
 export function thongBaoLoiOtp(loai, thoiGian = null) {
-  switch (loai) {
+  switch (chuanHoaLoaiLoiOtp(loai)) {
     case 'SAI_MA': {
       if (!thoiGian) return 'Mã OTP không đúng. Vui lòng kiểm tra lại mã trong email.';
       const n = Math.max(0, thoiGian.soLanSaiConLai);
@@ -192,10 +218,23 @@ export function thongBaoLoiOtp(loai, thoiGian = null) {
       const n = Math.max(0, thoiGian.soLanGuiLaiConLai);
       return `Bạn thao tác quá nhanh. Vui lòng chờ một lúc rồi thử lại (còn ${n} lần gửi lại theo bộ đếm trên thiết bị này).`;
     }
+    case 'CHUA_GUI':
+      return 'Bạn chưa yêu cầu gửi mã OTP. Vui lòng gửi mã trước khi nhập.';
+    // Giới hạn phía client (thiết bị này), KHÁC với RATE_LIMIT do máy chủ Auth cưỡng chế.
+    case 'CLIENT_CHO_GUI_LAI': {
+      const s = thoiGian ? Math.max(0, thoiGian.giayChoGuiLai) : CHO_GUI_LAI_GIAY;
+      return `Giới hạn trên thiết bị này: vui lòng chờ ${s} giây nữa rồi mới gửi lại mã. Chưa có yêu cầu nào được gửi tới máy chủ.`;
+    }
+    case 'CLIENT_HET_LUOT_GUI_LAI':
+      return `Giới hạn trên thiết bị này: đã gửi lại mã ${SO_LAN_GUI_LAI_TOI_DA} lần trong 1 giờ. Chưa có yêu cầu nào được gửi tới máy chủ; vui lòng thử lại sau.`;
+    case 'CLIENT_TAM_KHOA_NHAP':
+      return `Giới hạn trên thiết bị này: đã nhập sai ${SO_LAN_SAI_TOI_DA} lần trong ${CUA_SO_SAI_GIAY / 60} phút. Chưa có yêu cầu nào được gửi tới máy chủ; vui lòng chờ rồi thử lại hoặc gửi lại mã.`;
     case 'MANG':
       return 'Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng và thử lại; lần này không tính là nhập sai.';
     case 'CAU_HINH':
       return 'Hệ thống xác thực chưa được cấu hình. Vui lòng liên hệ quản trị viên.';
+    case 'PHIEN_THAY_DOI':
+      return 'Phiên đăng nhập đã thay đổi trong lúc kiểm tra. Vui lòng thử lại; lần này không tính là nhập sai.';
     default:
       return 'Không thể xử lý yêu cầu OTP. Vui lòng thử lại sau.';
   }
@@ -264,6 +303,36 @@ export async function xacMinhOtpLogic(auth, email, token, tuyChon) {
   return { nguon: NHAN_THAT, userId: user?.id, email: user?.email };
 }
 
+/**
+ * Giới hạn phía CLIENT (thiết bị này) trước khi gửi lại. Ném CLIENT_* trước mọi cuộc gọi Auth/mock.
+ * Không phải cưỡng chế của Auth (RATE_LIMIT chỉ dành cho 429 / over_*_rate_limit).
+ * @param {{email: string, guiLuc: number | null, lichSuGuiLai: number[], lichSuSai: number[]}} st
+ * @param {number} nowMs
+ */
+export function kiemTraTruocKhiGui(st, nowMs) {
+  const tg = tinhThoiGianOtp(st, nowMs);
+  if (tg.coTheGuiLai) return;
+  const loai = tg.giayChoGuiLai > 0 ? 'CLIENT_CHO_GUI_LAI' : 'CLIENT_HET_LUOT_GUI_LAI';
+  throw new OtpServiceError(thongBaoLoiOtp(loai, tg), loai, {
+    soLanSaiConLai: tg.soLanSaiConLai,
+    soLanGuiLaiConLai: tg.soLanGuiLaiConLai,
+  });
+}
+
+/**
+ * Khóa nhập tạm thời phía CLIENT sau 5 lần sai/15 phút. Ném CLIENT_TAM_KHOA_NHAP trước mọi cuộc gọi Auth/mock.
+ * @param {{email: string, guiLuc: number | null, lichSuGuiLai: number[], lichSuSai: number[]}} st
+ * @param {number} nowMs
+ */
+export function kiemTraTruocKhiXacMinh(st, nowMs) {
+  const tg = tinhThoiGianOtp(st, nowMs);
+  if (!tg.biTamKhoaNhap) return;
+  throw new OtpServiceError(thongBaoLoiOtp('CLIENT_TAM_KHOA_NHAP', tg), 'CLIENT_TAM_KHOA_NHAP', {
+    soLanSaiConLai: 0,
+    soLanGuiLaiConLai: tg.soLanGuiLaiConLai,
+  });
+}
+
 // Lấy Auth chỉ khi không dùng mock; lỗi (thiếu cấu hình...) thành OtpServiceError, không rơi sang mock.
 function layAuthHoacLoi(layAuth, tuyChon, laXacMinh) {
   try {
@@ -295,7 +364,14 @@ export async function guiOtpTheoCauHinh(cauHinh, email, tuyChon) {
  */
 export async function xacMinhOtpTheoCauHinh(cauHinh, email, token, tuyChon) {
   const emailSach = email.trim().toLowerCase();
-  if (cauHinh.useMockData === true) return xacMinhOtpMock(token, tuyChon);
+  if (cauHinh.useMockData === true) {
+    // Trạng thái gửi của email khác không được dùng để xác minh email này.
+    const stEmail = tuyChon?.trangThai?.email;
+    if (typeof stEmail === 'string' && chuanHoaEmail(stEmail) !== emailSach) {
+      throw new OtpServiceError(thongBaoLoiOtp('CHUA_GUI'), 'CHUA_GUI');
+    }
+    return xacMinhOtpMock(token, tuyChon);
+  }
   const auth = layAuthHoacLoi(cauHinh.layAuth, tuyChon, true);
   return xacMinhOtpLogic(auth, emailSach, token, tuyChon);
 }
@@ -306,11 +382,346 @@ export async function guiOtpMock() {
 }
 
 /**
- * Xác minh mô phỏng: chỉ '123456' hợp lệ. Chỉ dùng khi runtimeConfig.useMockData.
+ * Xác minh mô phỏng: chỉ '123456' hợp lệ, và chỉ khi đã gửi và mã còn hiệu lực 300 giây.
+ * Chưa gửi → CHUA_GUI; hết hiệu lực → HET_HAN; cả hai không tăng bộ đếm nhập sai.
+ * Chỉ dùng khi runtimeConfig.useMockData.
  * @param {string} token
  * @param {{trangThai?: any, nowMs?: number}} [tuyChon]
  */
 export async function xacMinhOtpMock(token, tuyChon) {
+  const trangThai = tuyChon?.trangThai ?? null;
+  const nowMs = typeof tuyChon?.nowMs === 'number' ? tuyChon.nowMs : Date.now();
+  if (!trangThai || trangThai.guiLuc === null || trangThai.guiLuc === undefined) {
+    throw new OtpServiceError(thongBaoLoiOtp('CHUA_GUI'), 'CHUA_GUI');
+  }
+  if (!tinhThoiGianOtp(trangThai, nowMs).conHieuLuc) {
+    throw new OtpServiceError(thongBaoLoiOtp('HET_HAN'), 'HET_HAN');
+  }
   if (token === MA_MO_PHONG) return { nguon: NHAN_MO_PHONG, moPhong: true };
-  throw taoLoi({ code: 'validation_failed' }, tuyChon, true);
+  throw taoLoi({ code: 'validation_failed' }, { trangThai, nowMs }, true);
+}
+
+/** Thời gian hiệu lực bằng chứng xác minh OTP (giây); máy chủ cưỡng chế cho nhánh thật. */
+export const HIEU_LUC_XAC_MINH_GIAY = 86400;
+
+/** Chu kỳ kiểm tra lại RPC da_xac_minh_otp() của nhánh thật (ms). Chỉ để hẹn lịch, không cấp quyền. */
+export const KIEM_TRA_LAI_THAT_MS = 300000;
+
+/**
+ * Gợi ý thời điểm hết hạn bằng chứng thật từ access_token: mốc 'otp' mới nhất trong amr × 1000 + 24 giờ.
+ * Chỉ là gợi ý để hẹn lịch kiểm tra lại; RPC mới là nguồn quyết định. Không ném lỗi; không đọc được → null.
+ * Chỉ lấy các con số trong amr, không trả token hay claim.
+ * @param {unknown} token
+ * @returns {number | null}
+ */
+export function hetHanTuAccessToken(token) {
+  try {
+    if (typeof token !== 'string') return null;
+    const phan = token.split('.');
+    if (phan.length < 2 || !phan[1]) return null;
+    let b64 = phan[1].replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4 !== 0) b64 += '=';
+    const bin = atob(b64);
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    const payload = JSON.parse(new TextDecoder().decode(bytes));
+    const amr = payload && payload.amr;
+    if (!Array.isArray(amr)) return null;
+    let moc = null;
+    for (const m of amr) {
+      if (!m || typeof m !== 'object' || m.method !== 'otp') continue;
+      const ts = m.timestamp;
+      if (typeof ts !== 'number' || !Number.isFinite(ts)) continue;
+      if (moc === null || ts > moc) moc = ts;
+    }
+    return moc === null ? null : moc * 1000 + HIEU_LUC_XAC_MINH_GIAY * 1000;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Bằng chứng xác minh mô phỏng, gắn với tài khoản và thời điểm. Không phải bằng chứng thật.
+ * @param {string} userId
+ * @param {number} nowMs
+ */
+export function taoBangChungMock(userId, nowMs) {
+  return { userId, xacMinhLuc: nowMs, nguon: NHAN_MO_PHONG };
+}
+
+/**
+ * Bằng chứng mock còn hiệu lực: đúng tài khoản và 0 <= tuổi < 24 giờ (đúng 24 giờ là hết hạn).
+ * @param {{userId: string, xacMinhLuc: number, nguon: string} | null | undefined} bangChung
+ * @param {string} userId
+ * @param {number} nowMs
+ */
+export function bangChungMockConHieuLuc(bangChung, userId, nowMs) {
+  if (!bangChung || bangChung.nguon !== NHAN_MO_PHONG) return false;
+  if (typeof userId !== 'string' || bangChung.userId !== userId) return false;
+  const tuoi = nowMs - bangChung.xacMinhLuc;
+  return tuoi >= 0 && tuoi < HIEU_LUC_XAC_MINH_GIAY * 1000;
+}
+
+/**
+ * Kiểm tra bằng chứng thật qua RPC da_xac_minh_otp(). Chỉ trả kết quả khi không lỗi và data là boolean;
+ * mọi trường hợp khác ném OtpServiceError, không bao giờ trả true khi lỗi.
+ * @param {{rpc: Function}} rpcClient
+ * @returns {Promise<{daXacMinh: boolean}>}
+ */
+export async function kiemTraBangChungThat(rpcClient) {
+  let ketQua;
+  try {
+    ketQua = await rpcClient.rpc('da_xac_minh_otp');
+  } catch (err) {
+    throw taoLoi(err, undefined, false);
+  }
+  if (ketQua && ketQua.error) throw taoLoi(ketQua.error, undefined, false);
+  if (typeof ketQua?.data !== 'boolean') {
+    throw new OtpServiceError(thongBaoLoiOtp('KHONG_XAC_DINH'), 'KHONG_XAC_DINH');
+  }
+  return { daXacMinh: ketQua.data };
+}
+
+// ---- Điều phối thuần cho dịch vụ (otpService.ts chỉ là lớp mỏng gọi các hàm này) ----
+
+/**
+ * Kho bằng chứng mô phỏng trong bộ nhớ module (userId → bằng chứng); không vào storage.
+ * Nhánh thật không bao giờ đọc kho này. Xóa khi đăng xuất mô phỏng.
+ * @type {Map<string, {userId: string, xacMinhLuc: number, nguon: string}>}
+ */
+export const khoBangChungMock = new Map();
+
+/** Chuẩn hóa email để so khớp: trim + chữ thường. */
+export function chuanHoaEmail(email) {
+  return typeof email === 'string' ? email.trim().toLowerCase() : '';
+}
+
+/**
+ * Định danh tài khoản mock, đơn ánh theo email đã chuẩn hóa (a.b@x.com và ab@x.com khác nhau).
+ * @param {string} email
+ */
+export function taoDinhDanhMockNguoiMua(email) {
+  return `buyer-v2:${encodeURIComponent(chuanHoaEmail(email))}`;
+}
+
+/**
+ * Biên nhận gửi mô phỏng trong bộ nhớ module (email chuẩn hóa → biên nhận). Chỉ guiMaOtpTheoCauHinh ghi,
+ * sau khi gửi mock thành công. Không chứa mã OTP, không vào storage, không log. Nhánh thật không đọc.
+ * @type {Map<string, {email: string, userId: string, theHe: number, guiLuc: number}>}
+ */
+export const khoGuiMock = new Map();
+
+/** Đọc biên nhận gửi mô phỏng theo email (chỉ đọc, trả bản sao). */
+export function layBienNhanGuiMock(email, khoGui = khoGuiMock) {
+  const b = khoGui.get(chuanHoaEmail(email));
+  return b ? { ...b } : undefined;
+}
+
+// Bộ đếm thu hồi bằng chứng mô phỏng (cấp module). Tăng ở mọi lần xóa để vô hiệu hóa cả xác minh đang chờ.
+let theHeBangChungMock = 0;
+
+/** Thế hệ thu hồi hiện tại của bằng chứng mô phỏng. */
+export function layTheHeBangChungMock() {
+  return theHeBangChungMock;
+}
+
+/**
+ * Xóa bằng chứng mô phỏng và LUÔN tăng thế hệ thu hồi (kể cả khi xóa theo userId), để xác minh mô phỏng
+ * đang chờ không ghi lại bằng chứng sau đăng xuất / đổi tài khoản.
+ * @param {string} [userId] Không truyền = xóa toàn bộ.
+ * Đồng thời xóa biên nhận gửi mô phỏng: toàn bộ khi không truyền userId, nếu không thì của userId đó.
+ * @param {Map<string, any>} [kho] Kho tùy chọn (dùng cho test); mặc định là khoBangChungMock.
+ * @param {Map<string, any>} [khoGui] Kho biên nhận gửi tùy chọn; mặc định là khoGuiMock.
+ */
+export function xoaBangChungMock(userId, kho = khoBangChungMock, khoGui = khoGuiMock) {
+  theHeBangChungMock += 1;
+  if (userId === undefined) {
+    kho.clear();
+    khoGui.clear();
+  } else {
+    kho.delete(userId);
+    for (const [key, b] of [...khoGui]) if (b.userId === userId) khoGui.delete(key);
+  }
+  for (const cb of [...cacCallbackThuHoiMock]) {
+    try {
+      cb();
+    } catch {
+      // Callback lỗi không được làm hỏng việc thu hồi.
+    }
+  }
+}
+
+/** @type {Set<() => void>} */
+const cacCallbackThuHoiMock = new Set();
+
+/**
+ * Đăng ký callback được gọi mỗi khi xoaBangChungMock chạy (sau khi tăng thế hệ). Trả hàm hủy đăng ký.
+ * @param {() => void} cb
+ * @returns {() => void}
+ */
+export function dangKyThuHoiBangChungMock(cb) {
+  // Bọc để cùng một hàm đăng ký hai lần vẫn có hai mục độc lập.
+  const muc = () => cb();
+  cacCallbackThuHoiMock.add(muc);
+  return () => {
+    cacCallbackThuHoiMock.delete(muc);
+  };
+}
+
+// Biên nhận phải khớp email, tài khoản, thế hệ hiện tại và mốc gửi của trạng thái; sai → CHUA_GUI (không phải SAI_MA).
+function kiemTraBienNhanGuiMock(khoGui, email, expectedUserId, trangThai) {
+  const emailSach = chuanHoaEmail(email);
+  const b = khoGui.get(emailSach);
+  const hopLe =
+    !!b &&
+    typeof expectedUserId === 'string' &&
+    b.userId === expectedUserId &&
+    b.theHe === theHeBangChungMock &&
+    !!trangThai &&
+    typeof trangThai.guiLuc === 'number' &&
+    b.guiLuc === trangThai.guiLuc &&
+    chuanHoaEmail(trangThai.email) === emailSach;
+  if (!hopLe) throw new OtpServiceError(thongBaoLoiOtp('CHUA_GUI'), 'CHUA_GUI');
+}
+
+// Lấy client (có auth và rpc) chỉ cho nhánh thật; lỗi thành OtpServiceError, không rơi sang mock.
+function layClientHoacLoi(cauHinh) {
+  try {
+    if (typeof cauHinh.layClient !== 'function') throw new Error('Thiếu VITE_SUPABASE client');
+    return cauHinh.layClient();
+  } catch (err) {
+    throw taoLoi(err, undefined, false);
+  }
+}
+
+// Ảnh chụp phiên Supabase hiện tại: {userId, accessToken} hoặc null nếu không có phiên; lỗi thành OtpServiceError.
+// accessToken chỉ dùng để so sánh, không bao giờ được ghi log, trả ra ngoài hay đưa vào thông báo lỗi.
+async function chupPhienHienTai(client) {
+  let ketQua;
+  try {
+    ketQua = await client.auth.getSession();
+  } catch (err) {
+    throw taoLoi(err, undefined, false);
+  }
+  if (ketQua && ketQua.error) throw taoLoi(ketQua.error, undefined, false);
+  const session = ketQua?.data?.session;
+  const userId = session?.user?.id;
+  const accessToken = session?.access_token;
+  if (typeof userId !== 'string' || typeof accessToken !== 'string' || !accessToken) return null;
+  return { userId, accessToken, hetHanGoiY: hetHanTuAccessToken(accessToken) };
+}
+
+// Bằng chứng thật: chụp phiên TRƯỚC khi gọi RPC, gọi RPC, chụp phiên SAU. Chỉ true khi data === true,
+// userId trước = sau = expectedUserId và access_token trước = sau. Phiên đổi giữa chừng (đổi tài khoản,
+// đăng xuất, đăng xuất rồi đăng nhập lại, refresh token) → PHIEN_THAY_DOI (thử lại được), không bao giờ true.
+// Trả {daXacMinh, hetHanGoiY}; hetHanGoiY chỉ là số gợi ý (hoặc null), không bao giờ là token hay claim.
+async function daXacMinhThatChiTiet(client, expectedUserId) {
+  const truoc = await chupPhienHienTai(client);
+  if (!truoc || typeof expectedUserId !== 'string' || truoc.userId !== expectedUserId) {
+    return { daXacMinh: false, hetHanGoiY: null };
+  }
+  const { daXacMinh } = await kiemTraBangChungThat(client);
+  const sau = await chupPhienHienTai(client);
+  if (!sau || sau.userId !== truoc.userId || sau.accessToken !== truoc.accessToken) {
+    throw new OtpServiceError(thongBaoLoiOtp('PHIEN_THAY_DOI'), 'PHIEN_THAY_DOI');
+  }
+  return { daXacMinh: daXacMinh === true, hetHanGoiY: sau.hetHanGoiY };
+}
+
+async function daXacMinhThatChoUser(client, expectedUserId) {
+  return (await daXacMinhThatChiTiet(client, expectedUserId)).daXacMinh;
+}
+
+/**
+ * Gửi mã. Kiểm tra giới hạn client trước; chỉ ghi nhận lần gửi (ghiNhanGui) sau khi gửi thành công.
+ * @param {{useMockData: boolean, layAuth: Function, layClient?: Function}} cauHinh
+ * @param {string} email
+ * Mô phỏng: lần gửi gắn với email chuẩn hóa, userId và thế hệ phiên (biên nhận trong bộ nhớ, không có mã).
+ * @param {{trangThai?: any, nowMs?: number, userId?: string, khoGui?: Map<string, any>}} [tuyChon]
+ */
+export async function guiMaOtpTheoCauHinh(cauHinh, email, tuyChon) {
+  const nowMs = typeof tuyChon?.nowMs === 'number' ? tuyChon.nowMs : Date.now();
+  const truoc = tuyChon?.trangThai ?? taoTrangThaiOtp(email);
+  kiemTraTruocKhiGui(truoc, nowMs);
+  const laMock = cauHinh.useMockData === true;
+  const userId = tuyChon?.userId;
+  if (laMock && (typeof userId !== 'string' || !userId)) {
+    throw new OtpServiceError(thongBaoLoiOtp('KHONG_XAC_DINH'), 'KHONG_XAC_DINH');
+  }
+  const theHe = theHeBangChungMock; // chụp trước await
+  const ketQua = await guiOtpTheoCauHinh(cauHinh, email, { trangThai: tuyChon?.trangThai, nowMs });
+  if (laMock && theHe !== theHeBangChungMock) {
+    throw new OtpServiceError(thongBaoLoiOtp('PHIEN_THAY_DOI'), 'PHIEN_THAY_DOI');
+  }
+  const trangThai = ghiNhanGui(truoc, nowMs, { laGuiLai: truoc.guiLuc !== null });
+  if (laMock) {
+    const khoGui = tuyChon?.khoGui ?? khoGuiMock;
+    const emailSach = chuanHoaEmail(email);
+    khoGui.set(emailSach, { email: emailSach, userId, theHe, guiLuc: nowMs });
+  }
+  return { ...ketQua, trangThai };
+}
+
+/**
+ * Xác minh mã cho tài khoản expectedUserId. Kiểm tra khóa nhập client trước.
+ * Mô phỏng: ghi bằng chứng vào kho bộ nhớ. Thật: sau verifyOtp gọi lại da_xac_minh_otp() và
+ * đối chiếu getSession().user.id; không bao giờ suy ra đã xác minh từ verifyOtp.
+ * @param {{useMockData: boolean, layAuth: Function, layClient?: Function}} cauHinh
+ * @param {string} email
+ * @param {string} token
+ * @param {string} expectedUserId
+ * Mô phỏng: trước khi ghi bằng chứng phải có biên nhận gửi khớp email, expectedUserId, thế hệ và mốc gửi
+ * (kiểm tra trước và sau await); sai → CHUA_GUI, không tăng số lần sai; thành công thì dùng hết biên nhận.
+ * @param {{trangThai?: any, nowMs?: number, kho?: Map<string, any>, khoGui?: Map<string, any>}} [tuyChon]
+ */
+export async function xacMinhMaOtpTheoCauHinh(cauHinh, email, token, expectedUserId, tuyChon) {
+  const nowMs = typeof tuyChon?.nowMs === 'number' ? tuyChon.nowMs : Date.now();
+  const kho = tuyChon?.kho ?? khoBangChungMock;
+  const khoGui = tuyChon?.khoGui ?? khoGuiMock;
+  const laMock = cauHinh.useMockData === true;
+  const theHe = theHeBangChungMock; // chụp trước mọi await
+  const truoc = tuyChon?.trangThai ?? taoTrangThaiOtp(email);
+  kiemTraTruocKhiXacMinh(truoc, nowMs);
+  if (laMock) kiemTraBienNhanGuiMock(khoGui, email, expectedUserId, truoc);
+  const ketQua = await xacMinhOtpTheoCauHinh(cauHinh, email, token, { trangThai: tuyChon?.trangThai, nowMs });
+  const trangThai = datLaiSauThanhCong(truoc);
+  if (ketQua.nguon === NHAN_MO_PHONG) {
+    if (theHe !== theHeBangChungMock) {
+      throw new OtpServiceError(thongBaoLoiOtp('PHIEN_THAY_DOI'), 'PHIEN_THAY_DOI');
+    }
+    kiemTraBienNhanGuiMock(khoGui, email, expectedUserId, truoc);
+    khoGui.delete(chuanHoaEmail(email));
+    kho.set(expectedUserId, taoBangChungMock(expectedUserId, nowMs));
+    return { daXacMinh: true, nguon: NHAN_MO_PHONG, userId: expectedUserId, trangThai };
+  }
+  const client = layClientHoacLoi(cauHinh);
+  const daXacMinh = await daXacMinhThatChoUser(client, expectedUserId);
+  return { daXacMinh, nguon: NHAN_THAT, userId: expectedUserId, trangThai };
+}
+
+/**
+ * Kiểm tra đã xác minh OTP cho userId. Mô phỏng: đọc kho (24 giờ, trả kèm hetHanLuc khi còn hiệu lực).
+ * Thật: chỉ RPC + đối chiếu phiên, không cache; lỗi được ném. Nhánh thật không đọc kho mô phỏng.
+ * Cả hai nhánh trả kiemTraLaiLuc (mốc nên kiểm tra lại) và hetHanLuc (gợi ý hết hạn, null nếu không biết).
+ * Các mốc chỉ để hẹn lịch; quyền vào luôn do kết quả RPC/kho quyết định. Không trả token hay claim.
+ * @param {{useMockData: boolean, layClient?: Function}} cauHinh
+ * @param {string} userId
+ * @param {{nowMs?: number, kho?: Map<string, any>}} [tuyChon]
+ */
+export async function kiemTraDaXacMinhTheoCauHinh(cauHinh, userId, tuyChon) {
+  const nowMs = typeof tuyChon?.nowMs === 'number' ? tuyChon.nowMs : Date.now();
+  if (cauHinh.useMockData === true) {
+    const kho = tuyChon?.kho ?? khoBangChungMock;
+    const bangChung = kho.get(userId);
+    const daXacMinh = bangChungMockConHieuLuc(bangChung, userId, nowMs);
+    const hetHanLuc = daXacMinh ? bangChung.xacMinhLuc + HIEU_LUC_XAC_MINH_GIAY * 1000 : null;
+    return { daXacMinh, nguon: NHAN_MO_PHONG, hetHanLuc, kiemTraLaiLuc: hetHanLuc };
+  }
+  const client = layClientHoacLoi(cauHinh);
+  const { daXacMinh, hetHanGoiY } = await daXacMinhThatChiTiet(client, userId);
+  return {
+    daXacMinh,
+    nguon: NHAN_THAT,
+    hetHanLuc: daXacMinh ? hetHanGoiY : null,
+    kiemTraLaiLuc: nowMs + KIEM_TRA_LAI_THAT_MS,
+  };
 }

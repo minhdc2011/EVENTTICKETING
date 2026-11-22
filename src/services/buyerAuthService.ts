@@ -1,5 +1,6 @@
 import {runtimeConfig} from '../config/runtime';
 import {mapAuthError} from '../domain/organizerValidation';
+import {taoDinhDanhMockNguoiMua, xoaBangChungMock} from '../domain/otpServiceCore.js';
 import {
   ACCOUNT_PORTALS,
   authorizePortalSignIn,
@@ -56,10 +57,18 @@ function readMockBuyerSessionBase(): BuyerSession | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as Partial<BuyerSession> | null;
-    if (!parsed || typeof parsed !== 'object' || !parsed.email) return null;
-    return {userId: parsed.userId || 'mock-buyer', email: parsed.email, fullName: parsed.fullName};
+    if (!parsed || typeof parsed !== 'object' || typeof parsed.email !== 'string' || !parsed.email.trim()) {
+      return null;
+    }
+    return {
+      // Luôn suy userId từ email; bỏ qua parsed.userId cũ (dạng 'buyer-<slug>' có thể va chạm).
+      userId: taoDinhDanhMockNguoiMua(parsed.email),
+      email: parsed.email,
+      fullName: parsed.fullName,
+    };
   } catch {
-    return {userId: 'mock-buyer', email: raw};
+    const email = raw.trim();
+    return email ? {userId: taoDinhDanhMockNguoiMua(email), email} : null;
   }
 }
 
@@ -85,7 +94,11 @@ export function subscribeBuyerAuth(callback: (session: BuyerSession | null) => v
   };
   if (runtimeConfig.useMockData) {
     const handler = (e: StorageEvent) => {
-      if (e.key === MOCK_BUYER_SESSION || e.key === MOCK_ACCOUNT_PROFILES_KEY) {
+      if (e.key === MOCK_BUYER_SESSION) {
+        // Phiên mô phỏng thay đổi (đăng xuất, đăng nhập lại hoặc đổi tài khoản): thu hồi bằng chứng OTP mô phỏng.
+        xoaBangChungMock();
+        void handle({});
+      } else if (e.key === MOCK_ACCOUNT_PROFILES_KEY) {
         void handle({});
       }
     };
@@ -125,10 +138,15 @@ export async function signInBuyer(email: string, password: string): Promise<Buye
     const accountKind = await authorizePortalSignIn({
       portal: ACCOUNT_PORTALS.BUYER,
       loadProfile: () => readMockAccountKind(localStorage, cleanEmail),
-      revokeSession: () => localStorage.removeItem(MOCK_BUYER_SESSION),
+      revokeSession: () => {
+        xoaBangChungMock();
+        localStorage.removeItem(MOCK_BUYER_SESSION);
+      },
     });
+    // Đổi tài khoản hoặc đăng nhập lại mô phỏng: thu hồi bằng chứng OTP cũ và tăng thế hệ thu hồi.
+    xoaBangChungMock();
     const session: BuyerSession = {
-      userId: `buyer-${cleanEmail.replace(/[^a-zA-Z0-9]/g, '')}`,
+      userId: taoDinhDanhMockNguoiMua(cleanEmail),
       email: cleanEmail,
       accountKind,
     };
@@ -181,9 +199,10 @@ export async function signUpBuyer(
     throw new Error('Email hoặc mật khẩu chưa hợp lệ (mật khẩu tối thiểu 6 ký tự).');
   }
   if (runtimeConfig.useMockData) {
+    xoaBangChungMock();
     registerMockAccount(localStorage, cleanEmail);
     const session: BuyerSession = {
-      userId: `buyer-${cleanEmail.replace(/[^a-zA-Z0-9]/g, '')}`,
+      userId: taoDinhDanhMockNguoiMua(cleanEmail),
       email: cleanEmail,
       fullName: fullName?.trim(),
       accountKind: 'USER',
@@ -215,6 +234,8 @@ export async function signUpBuyer(
 
 export async function signOutBuyer(): Promise<void> {
   if (runtimeConfig.useMockData) {
+    // Bằng chứng OTP mô phỏng gắn với phiên mô phỏng: đăng xuất thì mất, đăng nhập lại phải nhập OTP.
+    xoaBangChungMock();
     localStorage.removeItem(MOCK_BUYER_SESSION);
     window.dispatchEvent(new StorageEvent('storage', {key: MOCK_BUYER_SESSION}));
     return;

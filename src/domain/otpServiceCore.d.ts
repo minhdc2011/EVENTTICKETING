@@ -10,10 +10,22 @@ export const NHAN_MO_PHONG: 'MO_PHONG';
 export type LoaiLoiOtp =
   | 'SAI_MA'
   | 'HET_HAN'
+  | 'CHUA_GUI'
+  // Giới hạn phía client (thiết bị này), khác RATE_LIMIT do Auth cưỡng chế.
+  | 'CLIENT_CHO_GUI_LAI'
+  | 'CLIENT_HET_LUOT_GUI_LAI'
+  | 'CLIENT_TAM_KHOA_NHAP'
   | 'RATE_LIMIT'
   | 'MANG'
   | 'CAU_HINH'
+  // Phiên đổi giữa lúc kiểm tra: thử lại được, không tăng số lần sai, không bao giờ là đã xác minh.
+  | 'PHIEN_THAY_DOI'
   | 'KHONG_XAC_DINH';
+
+/** Danh sách đóng khớp đúng union LoaiLoiOtp. */
+export const LOAI_LOI_OTP: readonly LoaiLoiOtp[];
+/** Giá trị ngoài whitelist (kể cả chuỗi lạ) → 'KHONG_XAC_DINH'. */
+export function chuanHoaLoaiLoiOtp(x: unknown): LoaiLoiOtp;
 
 export interface TrangThaiOtp {
   email: string;
@@ -78,7 +90,7 @@ export function ghiNhanSai(st: TrangThaiOtp, nowMs: number): TrangThaiOtp;
 export function datLaiSauThanhCong(st: TrangThaiOtp): TrangThaiOtp;
 export function tinhThoiGianOtp(st: TrangThaiOtp, nowMs: number): ThoiGianOtp;
 export function phanLoaiLoiAuth(err: unknown, thoiGian?: { conHieuLuc: boolean } | null): LoaiLoiOtp;
-export function thongBaoLoiOtp(loai: LoaiLoiOtp | string, thoiGian?: ThoiGianOtp | null): string;
+export function thongBaoLoiOtp(loai: unknown, thoiGian?: ThoiGianOtp | null): string;
 export function capNhatSauLoi(st: TrangThaiOtp, err: unknown, nowMs: number): TrangThaiOtp;
 export function guiOtpLogic(auth: AuthGuiOtp, email: string, tuyChon?: TuyChonLoiOtp): Promise<KetQuaGuiOtp>;
 export function xacMinhOtpLogic(
@@ -104,3 +116,101 @@ export function xacMinhOtpTheoCauHinh(
 ): Promise<KetQuaXacMinhOtp>;
 export function guiOtpMock():Promise<KetQuaGuiOtp>;
 export function xacMinhOtpMock(token: string, tuyChon?: TuyChonLoiOtp): Promise<KetQuaXacMinhOtp>;
+
+export const HIEU_LUC_XAC_MINH_GIAY: 86400;
+/** Chu kỳ kiểm tra lại RPC của nhánh thật (ms); chỉ để hẹn lịch. */
+export const KIEM_TRA_LAI_THAT_MS: 300000;
+/** Gợi ý hết hạn (ms) từ amr 'otp' của access_token + 24 giờ; null nếu không đọc được. Không ném lỗi. */
+export function hetHanTuAccessToken(token: unknown): number | null;
+/** Định danh tài khoản mock, đơn ánh theo email chuẩn hóa. */
+export function taoDinhDanhMockNguoiMua(email: string): string;
+/** Đăng ký callback gọi mỗi khi xoaBangChungMock chạy; trả hàm hủy đăng ký. */
+export function dangKyThuHoiBangChungMock(cb: () => void): () => void;
+
+export interface BangChungMock {
+  userId: string;
+  xacMinhLuc: number;
+  nguon: 'MO_PHONG';
+}
+export function taoBangChungMock(userId: string, nowMs: number): BangChungMock;
+export function bangChungMockConHieuLuc(
+  bangChung: BangChungMock | null | undefined,
+  userId: string,
+  nowMs: number,
+): boolean;
+export function kiemTraBangChungThat(rpcClient: {
+  rpc: (fn: any, ...args: any[]) => PromiseLike<any>;
+}): Promise<{ daXacMinh: boolean }>;
+
+export function kiemTraTruocKhiGui(st: TrangThaiOtp, nowMs: number): void;
+export function kiemTraTruocKhiXacMinh(st: TrangThaiOtp, nowMs: number): void;
+
+export interface RpcSessionClient {
+  rpc: (fn: any, ...args: any[]) => PromiseLike<any>;
+  // getSession().data.session cần có user.id và access_token (chỉ để so sánh phiên, không lưu/log).
+  auth: { getSession: () => Promise<any> };
+}
+export interface CauHinhOtpDayDu {
+  useMockData: boolean;
+  layAuth: () => any;
+  layClient?: () => RpcSessionClient;
+}
+export type KhoBangChungMock = Map<string, BangChungMock>;
+export const khoBangChungMock: KhoBangChungMock;
+/**
+ * Biên nhận gửi mô phỏng (trong bộ nhớ): gắn email chuẩn hóa, userId và thế hệ phiên lúc gửi.
+ * Không chứa mã OTP; chỉ guiMaOtpTheoCauHinh ghi sau khi gửi mock thành công.
+ */
+export interface BienNhanGuiMock {
+  email: string;
+  userId: string;
+  theHe: number;
+  guiLuc: number;
+}
+export type KhoGuiMock = Map<string, BienNhanGuiMock>;
+export const khoGuiMock: KhoGuiMock;
+export function chuanHoaEmail(email: string): string;
+/** Đọc biên nhận gửi mock theo email (bản sao, chỉ đọc). */
+export function layBienNhanGuiMock(email: string, khoGui?: KhoGuiMock): BienNhanGuiMock | undefined;
+/**
+ * Luôn tăng thế hệ thu hồi (kể cả khi xóa theo userId); kho mặc định là khoBangChungMock.
+ * Đồng thời xóa biên nhận gửi mock: toàn bộ khi không truyền userId, nếu không thì của userId đó.
+ */
+export function xoaBangChungMock(userId?: string, kho?: KhoBangChungMock, khoGui?: KhoGuiMock): void;
+/** Thế hệ thu hồi hiện tại của bằng chứng mô phỏng. */
+export function layTheHeBangChungMock(): number;
+
+export interface KetQuaGuiMaOtp extends KetQuaGuiOtp {
+  trangThai: TrangThaiOtp;
+}
+export interface KetQuaXacMinhMaOtp {
+  daXacMinh: boolean;
+  nguon: 'THAT' | 'MO_PHONG';
+  userId: string;
+  trangThai: TrangThaiOtp;
+}
+export function guiMaOtpTheoCauHinh(
+  cauHinh: CauHinhOtpDayDu,
+  email: string,
+  tuyChon?: TuyChonLoiOtp & { userId?: string; khoGui?: KhoGuiMock },
+): Promise<KetQuaGuiMaOtp>;
+export function xacMinhMaOtpTheoCauHinh(
+  cauHinh: CauHinhOtpDayDu,
+  email: string,
+  token: string,
+  expectedUserId: string,
+  tuyChon?: TuyChonLoiOtp & { kho?: KhoBangChungMock; khoGui?: KhoGuiMock },
+): Promise<KetQuaXacMinhMaOtp>;
+export function kiemTraDaXacMinhTheoCauHinh(
+  cauHinh: { useMockData: boolean; layClient?: () => RpcSessionClient },
+  userId: string,
+  tuyChon?: { nowMs?: number; kho?: KhoBangChungMock },
+): Promise<KetQuaKiemTraDaXacMinh>;
+export interface KetQuaKiemTraDaXacMinh {
+  daXacMinh: boolean;
+  nguon: 'THAT' | 'MO_PHONG';
+  /** Gợi ý thời điểm hết hạn (ms) hoặc null; chỉ để hẹn lịch, không cấp quyền. */
+  hetHanLuc: number | null;
+  /** Mốc (ms) nên kiểm tra lại; chỉ để hẹn lịch. */
+  kiemTraLaiLuc: number | null;
+}

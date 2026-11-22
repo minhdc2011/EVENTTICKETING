@@ -1,13 +1,16 @@
 /**
- * Dịch vụ OTP qua email cho luồng người mua (W5).
+ * Dịch vụ OTP qua email cho luồng người mua (W5) — lớp mỏng nối cấu hình runtime vào lõi thuần
+ * src/domain/otpServiceCore.js (toàn bộ logic có test nằm ở đó).
  *
- * - Nhánh thật: gọi signInWithOtp({ email, options: { shouldCreateUser: false } }) và
- *   verifyOtp({ email, token, type: 'email' }) qua requireSupabaseClient().
- *   Lỗi cấu hình, mạng hoặc Auth đều ném OtpServiceError, tuyệt đối không chuyển sang mock.
- * - Nhánh mock: chỉ kích hoạt khi runtimeConfig.useMockData === true; chỉ mã '123456' hợp lệ
- *   và kết quả được đánh dấu { nguon: 'MO_PHONG', moPhong: true }.
- * - Không lưu OTP vào storage, trạng thái bền vững hay log; không tự tạo bằng chứng xác minh.
- * - Bộ đếm 3 lần gửi lại/giờ và 5 lần sai/15 phút chỉ là thông tin hiển thị phía client.
+ * - Nhánh thật: signInWithOtp / verifyOtp qua requireSupabaseClient(); sau verifyOtp phải gọi lại
+ *   RPC da_xac_minh_otp() và đối chiếu getSession().user.id. Lỗi cấu hình, mạng hoặc Auth đều ném
+ *   OtpServiceError, tuyệt đối không chuyển sang mock.
+ * - Nhánh mock: chỉ khi runtimeConfig.useMockData === true; mã '123456', bằng chứng nằm trong bộ nhớ
+ *   (24 giờ) và có nguồn 'MO_PHONG'; không bao giờ được coi là bằng chứng thật. Mỗi lần gửi mock được
+ *   gắn với email, tài khoản và thế hệ phiên (biên nhận trong bộ nhớ, không chứa mã); đăng xuất/đổi tài
+ *   khoản (xoaBangChungMock) thu hồi biên nhận, xác minh bằng trạng thái gửi cũ → CHUA_GUI.
+ * - Không lưu OTP vào storage, URL, log hay thông báo lỗi.
+ * - Giới hạn gửi lại/nhập sai (CLIENT_*) chỉ là phía client; RATE_LIMIT là cưỡng chế của Auth.
  */
 import type {SupabaseClient} from '@supabase/supabase-js';
 import {runtimeConfig} from '../config/runtime';
@@ -24,26 +27,52 @@ import {
   SO_LAN_GUI_LAI_TOI_DA,
   SO_LAN_SAI_TOI_DA,
   capNhatSauLoi,
+  chuanHoaLoaiLoiOtp,
+  dangKyThuHoiBangChungMock,
   datLaiSauThanhCong,
   ghiNhanGui,
   ghiNhanSai,
-  guiOtpTheoCauHinh,
+  guiMaOtpTheoCauHinh,
+  HIEU_LUC_XAC_MINH_GIAY,
+  KIEM_TRA_LAI_THAT_MS,
+  LOAI_LOI_OTP,
+  taoDinhDanhMockNguoiMua,
+  bangChungMockConHieuLuc,
+  kiemTraDaXacMinhTheoCauHinh,
+  kiemTraTruocKhiGui,
+  kiemTraTruocKhiXacMinh,
+  layTheHeBangChungMock,
   phanLoaiLoiAuth,
+  taoBangChungMock,
   taoTrangThaiOtp,
   thongBaoLoiOtp,
   tinhThoiGianOtp,
-  xacMinhOtpTheoCauHinh,
+  xacMinhMaOtpTheoCauHinh,
+  xoaBangChungMock,
 } from '../domain/otpServiceCore.js';
 import type {
   AuthGuiOtp,
   AuthXacMinhOtp,
+  BangChungMock,
+  BienNhanGuiMock,
+  KetQuaGuiMaOtp,
   KetQuaGuiOtp,
+  KetQuaKiemTraDaXacMinh,
+  KetQuaXacMinhMaOtp,
   KetQuaXacMinhOtp,
   LoaiLoiOtp,
+  RpcSessionClient,
   ThoiGianOtp,
   TrangThaiOtp,
   TuyChonLoiOtp,
 } from '../domain/otpServiceCore';
+import {TRANG_THAI_CONG, taoBoDieuPhoiCongOtp} from '../domain/otpGate.js';
+import type {
+  BoDieuPhoiCongOtp,
+  LoiCongOtp,
+  StatusCongOtp,
+  TrangThaiCongOtp,
+} from '../domain/otpGate';
 
 export {
   CHO_GUI_LAI_GIAY,
@@ -55,62 +84,129 @@ export {
   OtpServiceError,
   SO_LAN_GUI_LAI_TOI_DA,
   SO_LAN_SAI_TOI_DA,
+  TRANG_THAI_CONG,
   capNhatSauLoi,
+  chuanHoaLoaiLoiOtp,
+  dangKyThuHoiBangChungMock,
   datLaiSauThanhCong,
   ghiNhanGui,
   ghiNhanSai,
+  HIEU_LUC_XAC_MINH_GIAY,
+  KIEM_TRA_LAI_THAT_MS,
+  LOAI_LOI_OTP,
+  taoDinhDanhMockNguoiMua,
+  bangChungMockConHieuLuc,
+  kiemTraTruocKhiGui,
+  kiemTraTruocKhiXacMinh,
+  layTheHeBangChungMock,
   phanLoaiLoiAuth,
+  taoBangChungMock,
   taoTrangThaiOtp,
   thongBaoLoiOtp,
   tinhThoiGianOtp,
+  xoaBangChungMock,
 };
 
 export type {
+  BienNhanGuiMock,
   AuthGuiOtp,
   AuthXacMinhOtp,
+  BangChungMock,
+  BoDieuPhoiCongOtp,
+  KetQuaGuiMaOtp,
   KetQuaGuiOtp,
+  KetQuaXacMinhMaOtp,
   KetQuaXacMinhOtp,
   LoaiLoiOtp,
+  LoiCongOtp,
+  StatusCongOtp,
   ThoiGianOtp,
+  TrangThaiCongOtp,
   TrangThaiOtp,
   TuyChonLoiOtp,
 };
 
 export type OtpAuthClient = AuthGuiOtp & AuthXacMinhOtp;
+type SessionClient = {auth: {getSession: () => Promise<any>}};
+type RpcClient = {rpc: (fn: any, ...args: any[]) => PromiseLike<any>};
 
 export interface OtpServiceOptions {
   client?: SupabaseClient<Database> | {auth: OtpAuthClient};
   trangThai?: TrangThaiOtp;
   now?: number;
+  /** Tài khoản gắn với lần gửi mock (bắt buộc cho guiMaOtp ở nhánh mock; nhánh thật bỏ qua). */
+  userId?: string;
 }
 
 /**
  * Chỉ cấu hình runtime quyết định nhánh mock; không có tùy chọn nào của caller được ghi đè.
  * Lỗi lấy client (thiếu cấu hình) được core đổi thành OtpServiceError CAU_HINH, không rơi sang mock.
  */
-function cauHinhOtp(opts: OtpServiceOptions) {
+function cauHinhOtp(opts: {client?: unknown}) {
+  const layClient = () => (opts.client ?? requireSupabaseClient()) as unknown as RpcSessionClient;
   return {
     useMockData: runtimeConfig.useMockData,
-    layAuth: () => (opts.client ?? requireSupabaseClient()).auth as OtpAuthClient,
+    layAuth: () => (layClient() as unknown as {auth: OtpAuthClient}).auth,
+    layClient,
   };
 }
 
-function taoTuyChon(opts: OtpServiceOptions): TuyChonLoiOtp | undefined {
-  if (!opts.trangThai && opts.now === undefined) return undefined;
+function taoTuyChon(opts: OtpServiceOptions): TuyChonLoiOtp & {userId?: string} {
   return {
     ...(opts.trangThai ? {trangThai: opts.trangThai} : {}),
+    ...(opts.userId ? {userId: opts.userId} : {}),
     nowMs: opts.now ?? Date.now(),
   };
 }
 
-export async function guiMaOtp(email: string, opts: OtpServiceOptions = {}): Promise<KetQuaGuiOtp> {
-  return guiOtpTheoCauHinh(cauHinhOtp(opts), email, taoTuyChon(opts));
+/**
+ * Gửi mã. Kiểm tra giới hạn client (CLIENT_CHO_GUI_LAI / CLIENT_HET_LUOT_GUI_LAI) trước khi gọi Auth;
+ * chỉ ghi nhận lần gửi sau khi gửi thành công.
+ */
+export function guiMaOtp(email: string, opts: OtpServiceOptions = {}): Promise<KetQuaGuiMaOtp> {
+  return guiMaOtpTheoCauHinh(cauHinhOtp(opts), email, taoTuyChon(opts));
 }
 
-export async function xacMinhMaOtp(
+/**
+ * Xác minh mã cho tài khoản expectedUserId (khóa nhập client được kiểm tra trước).
+ * Thật: sau verifyOtp gọi lại da_xac_minh_otp() và đối chiếu phiên hiện tại với expectedUserId.
+ */
+export function xacMinhMaOtp(
   email: string,
   token: string,
+  expectedUserId: string,
   opts: OtpServiceOptions = {},
-): Promise<KetQuaXacMinhOtp> {
-  return xacMinhOtpTheoCauHinh(cauHinhOtp(opts), email, token, taoTuyChon(opts));
+): Promise<KetQuaXacMinhMaOtp> {
+  return xacMinhMaOtpTheoCauHinh(cauHinhOtp(opts), email, token, expectedUserId, taoTuyChon(opts));
+}
+
+/**
+ * Kiểm tra đã xác minh OTP. Mô phỏng: kho bộ nhớ (24 giờ, trả kèm hetHanLuc nếu còn hạn).
+ * Thật: chỉ RPC da_xac_minh_otp() và phiên hiện tại phải đúng args.userId; không cache;
+ * lỗi được ném (không bao giờ coi là đã xác minh). Trả kèm hetHanLuc (gợi ý) và kiemTraLaiLuc,
+ * chỉ để hẹn lịch kiểm tra lại, không dùng để cấp quyền.
+ */
+export function kiemTraDaXacMinhOtp(args: {
+  userId: string;
+  now?: number;
+  client?: SessionClient & RpcClient;
+}): Promise<KetQuaKiemTraDaXacMinh> {
+  return kiemTraDaXacMinhTheoCauHinh(cauHinhOtp(args), args.userId, {nowMs: args.now ?? Date.now()});
+}
+
+/**
+ * Tạo bộ điều phối cổng OTP cho giao diện người mua, nối vào kiemTraDaXacMinhOtp.
+ */
+export function taoCongOtpNguoiMua(tuyChon: {
+  emit: (trangThai: TrangThaiCongOtp) => void;
+  isActive?: () => boolean;
+  client?: SessionClient & RpcClient;
+}): BoDieuPhoiCongOtp {
+  return taoBoDieuPhoiCongOtp({
+    kiemTra: ({userId}) => kiemTraDaXacMinhOtp({userId, client: tuyChon.client}),
+    emit: tuyChon.emit,
+    ...(tuyChon.isActive ? {isActive: tuyChon.isActive} : {}),
+    // Mock: thu hồi bằng chứng (xoaBangChungMock) phải tước quyền vào rồi kiểm tra lại, kể cả khi userId không đổi.
+    ...(runtimeConfig.useMockData ? {dangKyThuHoi: dangKyThuHoiBangChungMock} : {}),
+  });
 }
