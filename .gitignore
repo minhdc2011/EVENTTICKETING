@@ -10,3 +10,21 @@ coverage/
 
 # multi-agent run logs
 .multiagent/runs/
+
+# agent / công cụ cục bộ, không đưa lên repo
+.gemini/
+.github/hooks/
+.multiagent/org.ps1
+.multiagent/package.json
+.multiagent/package-lock.json
+.multiagent/pages.json
+.multiagent/screenshots.mjs
+.multiagent/vite.capture.mjs
+
+# ảnh QA, bản mẫu HTML tĩnh, file build sinh ra, lockfile phụ
+artifacts/
+prototype/
+/assets/
+bun.lock
+.tmp/
+supabase/.temp/
