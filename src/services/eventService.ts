@@ -14,6 +14,7 @@ import {resolvePublicArtistsFallback} from '../domain/artistLineup.js';
 import {resolveMockCatalogExtraArtists} from '../domain/mockCatalogArtists.js';
 import {laSuKienDemo, taoTiersDemo} from '../domain/pricingMockDemo.js';
 import {docTrangThaiMoPhong} from './pricingService';
+import {docCauHinhMuaVe} from './purchaseConfigService';
 
 export type {CatalogArtist};
 
@@ -746,25 +747,34 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
   });
 }
 
-export type PublicPurchaseConfig = {maxTicketsPerOrder: number | null; holdMinutes: number | null};
+export type PublicPurchaseConfig = {
+  maxTicketsPerOrder: number | null;
+  holdMinutes: number | null;
+  requireOtp: boolean;
+  trangThai: 'DA_CAU_HINH' | 'CHUA_CAU_HINH' | 'LOI_DOC';
+  loiDoc?: boolean;
+};
 
-/** Per-event purchase configuration (CAU_HINH_SU_KIEN). Null values mean "not configured": callers use defaults. */
+/** Per-event purchase configuration (CAU_HINH_SU_KIEN). Read errors fail closed for OTP. */
 export async function loadEventPurchaseConfig(event: Pick<PublicEventRecord, 'id'>): Promise<PublicPurchaseConfig> {
-  const empty: PublicPurchaseConfig = {maxTicketsPerOrder: null, holdMinutes: null};
-  if (runtimeConfig.useMockData || !isSupabaseConfigured()) return empty;
   try {
-    const {requireSupabaseClient} = await import('./supabaseClient');
-    const supabase = requireSupabaseClient();
-    const {data, error} = await supabase.from('CAU_HINH_SU_KIEN')
-      .select('SoVeToiDaMoiDon, ThoiGianGiuChoPhut').eq('SuKienID', event.id).maybeSingle();
-    if (error || !data) return empty;
+    const config = await docCauHinhMuaVe(event.id);
     return {
-      maxTicketsPerOrder: data.SoVeToiDaMoiDon == null ? null : Number(data.SoVeToiDaMoiDon),
-      holdMinutes: data.ThoiGianGiuChoPhut == null ? null : Number(data.ThoiGianGiuChoPhut),
+      maxTicketsPerOrder: config.soVeToiDaMoiDon,
+      holdMinutes: config.thoiGianGiuChoPhut,
+      requireOtp: config.yeuCauXacMinhOtp,
+      trangThai: config.trangThai,
+      loiDoc: false,
     };
   } catch (error) {
-    console.warn('Không đọc được cấu hình mua vé, dùng giá trị mặc định:', error);
-    return empty;
+    console.warn('Không đọc được cấu hình mua vé, đóng an toàn yêu cầu OTP:', error);
+    return {
+      maxTicketsPerOrder: null,
+      holdMinutes: null,
+      requireOtp: true,
+      trangThai: 'LOI_DOC',
+      loiDoc: true,
+    };
   }
 }
 
