@@ -71,7 +71,8 @@ Mong đợi: `Result: PASS`, 14 file, 820 test (số liệu 22/11/2026). Gồm `
 eval "$(npx --yes supabase@3.2.0 status -o env | grep -E '^(API_URL|SERVICE_ROLE_KEY)=')"
 SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" node scripts/concurrency-approve.mjs
 ```
-Mong đợi: `"pass": true`; một lời gọi thành công, lời gọi kia mã `40001` (`DE_XUAT_DA_XU_LY`); đề xuất `APPROVED`, giá khu bằng giá đề xuất, đúng một dòng `NHAT_KY_GIA`.
+Mong đợi theo thiết kế: `"pass": true`; một lời gọi thành công, lời gọi kia mã `40001` (`DE_XUAT_DA_XU_LY`); đề xuất `APPROVED`, giá khu bằng giá đề xuất, đúng một dòng `NHAT_KY_GIA`.
+**Lưu ý đã biết (22/11/2026):** với PostgREST v14.5 người thua cuộc đua nhận `504` sau khoảng 60 giây (PostgREST tự thử lại khi gặp `40001`) nên script báo `pass: false` dù dữ liệu vẫn đúng. Xem `docs/sprint2-supabase/P2-P5-kiem-chung-supabase-cuc-bo.md` mục 4.5. Khi trình bày, nói đúng điều này, đừng chỉ chạy lại cho đến khi may mắn đạt.
 Script **không xóa** dữ liệu mà nó tạo, vì `NHAT_KY_GIA` là nhật ký bất biến. Danh sách còn lại được in ở `cleanup.leftovers`. Chạy `npm run db:reset` sau đó. Chỉ dùng khóa service_role cục bộ, không bao giờ dán vào file hoặc commit.
 
 **Hai phiên cùng giữ vé vượt giới hạn:** `node scripts/concurrency-limit.mjs` với cùng hai biến môi trường. Mong đợi: một phiên thành công, phiên kia nhận `VUOT_GIOI_HAN_VE`, tổng vé không quá 4.

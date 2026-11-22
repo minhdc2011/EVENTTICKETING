@@ -8,7 +8,7 @@ W6 tích hợp OTP, giới hạn vé và Dynamic Pricing, không thêm tính nă
 |---|---|
 | `npm run check` (tsc, `node --test`, vite build) | Đạt: 946/946 test, build thành công |
 | `npm run db:reset` rồi `npm run db:test` | `Result: PASS`: 14 file, 820 test |
-| `scripts/concurrency-approve.mjs` (hai BTC duyệt cùng một đề xuất, Supabase cục bộ) | `pass: true`: một lời gọi thành công, một nhận `40001 DE_XUAT_DA_XU_LY`; đề xuất `APPROVED`; giá 500.000 → 600.000; đúng một dòng `NHAT_KY_GIA` |
+| `scripts/concurrency-approve.mjs` (hai BTC duyệt cùng một đề xuất, Supabase cục bộ) | **Đính chính 22/11/2026 (tối):** lần chạy đầu `pass: true` (người thua nhận `40001`), nhưng **không tái hiện được**: 13/13 lần chạy sau đó người thua nhận `504` sau 60 giây vì PostgREST v14.5 tự thử lại khi hàm ném `40001`. Dữ liệu luôn nhất quán (một người thắng, đúng một dòng `NHAT_KY_GIA`). Chi tiết và cách sửa: `docs/sprint2-supabase/P2-P5-kiem-chung-supabase-cuc-bo.md` mục 4.5 |
 | `scripts/concurrency-limit.mjs` (hai phiên cùng giữ vé, chạy ở W4) | Đạt: một thành công, một `VUOT_GIOI_HAN_VE`, tổng vé 3 ≤ 4 |
 | Trình duyệt thật (bàn phím, 360 px, ảnh, độ trễ giá ≤ 5 giây) | **Chưa kiểm chứng** |
 | OTP thật qua Supabase hosted, Realtime trên hosted | **Chưa kiểm chứng** |
@@ -64,7 +64,7 @@ Quy ước: **máy chủ** = pgTAP trên DB cục bộ đã chạy; **gate** = t
 | T4-02.4 đổi kịch bản Demand Simulator thì đề xuất đổi hướng | `mockPricing.js`; `sprint2_demand_simulator.sql`; `tests/sprint2-integration.test.mjs` (`ban_nhanh` tăng, `ban_cham` giảm) | gate + máy chủ. **Video demo là việc của người làm** |
 | T4-03.1 duyệt → giá đổi, có `NHAT_KY_GIA`; khán giả thấy ≤ 5 giây | `duyet_de_xuat_gia`; `sprint2_price_approval.sql`; `priceRealtime.js` | giá đổi + audit: máy chủ. **Độ trễ ≤ 5 giây chưa đo** |
 | T4-03.2 từ chối giữ giá | `tu_choi_de_xuat_gia`; `sprint2_price_approval.sql` | máy chủ |
-| T4-03.3 hai BTC duyệt cùng lúc: một thành công, một lỗi | khóa `FOR UPDATE` + `40001`; `scripts/concurrency-approve.mjs` | **chạy thật đạt** (lỗi là `40001`; ứng dụng đổi thành 409 ở lớp dịch vụ) |
+| T4-03.3 hai BTC duyệt cùng lúc: một thành công, một lỗi | khóa `FOR UPDATE` + `40001`; `scripts/concurrency-approve.mjs` | **Một phần**: toàn vẹn dữ liệu đạt; người thua nhận 504 sau 60 giây qua PostgREST v14.5 thay vì 409 (xem đính chính mục 1). Chờ quyết định đổi sang `PT409` |
 | T4-03.4 vai trò không đủ quyền bị chặn | `co_quyen_dinh_gia`, chặn `service_role` (`42501`); `sprint2_price_approval.sql` | máy chủ |
 | T4-04.1 ghế đang giữ giữ `DonGiaChot` | `CHI_TIET_GIU_CHO.DonGiaChot`; `sprint2_otp_limit.sql`, `sprint2_integration.sql`, `sprint2-integration.test.mjs` | máy chủ + gate |
 | T4-05.1 đề xuất vượt khung bị chặn, giá giữ nguyên, có audit | PriceGuard trong `luu_de_xuat_gia`; `sprint2_pricing_rpc.sql`, `sprint2_pricing_security.sql` | máy chủ |

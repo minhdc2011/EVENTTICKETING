@@ -11,8 +11,9 @@
  *
  *   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/concurrency-approve.mjs
  *
- * STATUS: run once against a local Supabase (22/11/2026): one approval won, the other got 40001
- * DE_XUAT_DA_XU_LY. Run only against a local Supabase that can be reset (`npm run db:reset`), never production.
+ * STATUS (22/11/2026): the first local run passed (loser got 40001 DE_XUAT_DA_XU_LY) but was NOT reproducible:
+ * since then PostgREST v14.5 retries any 40001 until Kong returns 504 after 60 s, so the loser sees 504 and this
+ * script reports pass=false (data stays consistent: one winner, one audit row). See docs/sprint2-supabase/. Run only against a local Supabase that can be reset (`npm run db:reset`), never production.
  *
  * Only SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are read from the environment. The service role
  * prepares, observes and cleans fixtures only; the approvals use each organizer's own user JWT
