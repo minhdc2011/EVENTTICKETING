@@ -868,6 +868,83 @@
 .et-summary-counter {
   font: 12px var(--seat-font-mono);
   color: var(--seat-muted);
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.et-summary-limit-note {
+  margin: 0;
+  padding: 10px 22px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--seat-muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.et-purchase-limit-alert {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: flex-start;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  margin: 12px 22px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--seat-amber);
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.08);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--seat-amber);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.et-purchase-limit-alert.hidden {
+  display: none;
+}
+
+.et-purchase-limit-alert > * {
+  min-width: 0;
+  flex: 1 1 200px;
+}
+
+#selected-tickets-summary-card .concert-summary-actions {
+  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
+}
+
+#selected-tickets-summary-card .et-summary-limit-note {
+  padding: 10px 0 0;
+}
+
+#selected-tickets-summary-card .et-purchase-limit-alert {
+  margin: 12px 0;
+}
+
+@media (max-width: 420px) {
+  .et-summary-head {
+    padding: 16px;
+  }
+  .et-summary-limit-note {
+    padding: 8px 16px 0;
+  }
+  .et-purchase-limit-alert {
+    margin: 10px 16px 0;
+    font-size: 12px;
+  }
+  #selected-tickets-summary-card .et-summary-limit-note {
+    padding: 8px 0 0;
+  }
+  #selected-tickets-summary-card .et-purchase-limit-alert {
+    margin: 10px 0;
+  }
 }
 
 .et-summary-body {

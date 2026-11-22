@@ -26,6 +26,14 @@ import {isValidPrice, khopMaPhamViNghiemNgat} from '../../domain/priceRealtime.j
 import {getActiveEventContext, runtimeConfig} from '../../config/runtime';
 import {loadEventPurchaseConfig} from '../../services/eventService';
 import {resolvePurchaseLimits, DEFAULT_HOLD_MINUTES} from '../../domain/purchaseLimits.js';
+import {chuanHoaLoiGiuCho, laLoiVuotGioiHan} from '../../domain/purchaseLimitError.js';
+import {
+  createPurchaseLimitNotice,
+  describePurchaseLimits,
+  remainingNoticeMs,
+  shouldClearPurchaseLimitNotice,
+  type PurchaseLimitNotice,
+} from '../../domain/purchaseLimitPresentation.js';
 import {
   isStandingZone,
   sumStanding,
@@ -98,6 +106,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const [standing, setStanding] = useState<Record<string, number>>({});
   const [clock, setClock] = useState<number>(() => Date.now());
   const [limits, setLimits] = useState(() => resolvePurchaseLimits(null));
+  const [limitNotice, setLimitNotice] = useState<PurchaseLimitNotice | null>(null);
 
   const holdButtonRef = useRef<HTMLButtonElement>(null);
   const pendingHoldSeatCodesRef = useRef<Set<string> | null>(null);
@@ -159,6 +168,19 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     };
   }, [event?.id]);
 
+  // Over-limit notice has its own region and timer: it lives at least 5s and ignores toasts,
+  // realtime banners and re-renders; only this timer, a scope change or unmount clears it.
+  useEffect(() => {
+    if (!limitNotice) return undefined;
+    const timer = window.setTimeout(() => {
+      setLimitNotice((current) =>
+        current === limitNotice && shouldClearPurchaseLimitNotice(current, Date.now()) ? null : current,
+      );
+    }, Math.max(remainingNoticeMs(limitNotice, Date.now()), 0) + 1);
+    return () => window.clearTimeout(timer);
+  }, [limitNotice]);
+
+  const limitCopy = describePurchaseLimits(limits);
   const saleOpen = saleStatus === 'ON_SALE';
   const isMock = runtimeConfig.useMockData;
   const isConnectionTrusted = isMock || connectionStatus === 'CONNECTED';
@@ -190,6 +212,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       setIsReleasePending(false);
       pendingHoldSeatCodesRef.current = null;
       setRealtimeBanner(null);
+      setLimitNotice(null);
       setAnnouncement('');
       setSelectedZoneId(null);
       setFilter('all');
@@ -470,10 +493,11 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 
       if (!evaluation.allowed) {
         if (evaluation.message) {
-          setRealtimeBanner(evaluation.message);
-          setAnnouncement(evaluation.message);
+          const capMessage = limitCopy.differ ? `${evaluation.message} ${limitCopy.text}` : evaluation.message;
+          setRealtimeBanner(capMessage);
+          setAnnouncement(capMessage);
           dispatchToast({
-            message: evaluation.message,
+            message: capMessage,
             type: 'warning',
           });
         }
@@ -489,7 +513,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       )}`;
       setAnnouncement(msg);
     },
-    [activeHold, isPending, limits.maxPerOrder, saleOpen, selectedSeats, standingCount]
+    [activeHold, isPending, limitCopy.differ, limitCopy.text, limits.maxPerOrder, saleOpen, selectedSeats, standingCount]
   );
 
   // Clear all seats
@@ -504,12 +528,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       });
       setStanding(result.standing);
       const msg = result.clamped
-        ? `Tối đa ${limits.maxPerOrder} vé mỗi lượt đặt.`
+        ? `Tối đa ${limits.maxPerOrder} vé mỗi lượt đặt.${limitCopy.differ ? ` ${limitCopy.text}` : ''}`
         : `${zone?.TenKhuVuc || zoneCode}: ${result.quantity} vé đứng.`;
       setAnnouncement(msg);
       if (result.clamped) dispatchToast({message: msg, type: 'warning'});
     },
-    [activeHold, catalog?.zones, isPending, limits.maxPerOrder, saleOpen, selectedSeats.length, standing]
+    [activeHold, catalog?.zones, isPending, limitCopy.differ, limitCopy.text, limits.maxPerOrder, saleOpen, selectedSeats.length, standing]
   );
 
   const handleClearAll = useCallback(() => {
@@ -611,6 +635,16 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       setAnnouncement(`Đã giữ ${requestedSeats.length + requestedStandingCount} vé thành công.`);
     } catch (err: any) {
       if (!isCurrent()) return;
+      const normalizedErr = chuanHoaLoiGiuCho(err);
+      if (laLoiVuotGioiHan(normalizedErr)) {
+        // Over-limit: show server-provided numbers in the dedicated region, keep the selection untouched.
+        const notice = createPurchaseLimitNotice(normalizedErr, {nowMs: Date.now()});
+        if (notice) {
+          setLimitNotice(notice);
+          setAnnouncement(notice.message);
+        }
+        return;
+      }
       console.error('Lỗi yêu cầu giữ chỗ:', err);
       const isConflict =
         err?.status === 409 ||
@@ -740,6 +774,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             </h2>
             <p className="et-seatmap-subcopy">
               Chọn khu vực, tìm vị trí yêu thích và giữ tối đa {limits.maxPerOrder} vé trong một lượt đặt.
+              {limitCopy.differ ? ` ${limitCopy.text}` : ''}
             </p>
           </div>
           <div className="et-seatmap-meta">
@@ -993,6 +1028,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             standingTotal={calculateStandingTotal(standing, catalog?.zones || [])}
             heldPriceSnapshot={heldPriceSnapshot}
             maxCap={limits.maxPerOrder}
+            configuredMax={limits.configuredMax}
+            limitExplanation={limitCopy.differ ? limitCopy.text : null}
+            limitNotice={limitNotice}
             holdLabel={holdLabel}
             onChangeStanding={handleStandingChange}
             saleOpen={saleOpen}

@@ -13,6 +13,8 @@ function positiveInt(value) {
 }
 
 /**
+ * configuredMax = per-event ticket limit (counter denominator, default 4);
+ * maxPerOrder = ceiling for one selection/hold = min(4, configuredMax).
  * @param {{maxTicketsPerOrder?: unknown, holdMinutes?: unknown} | null | undefined} config
  * @returns {{maxPerOrder: number, configuredMax: number, holdMinutes: number, cappedByServer: boolean}}
  */
