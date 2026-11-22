@@ -1,6 +1,7 @@
 import type {RefObject} from 'react';
 import type {SeatRecord} from '../../types/ticketing';
 import {formatMoneyVND, calculateSelectionTotal} from '../../domain/seatMap.js';
+import {formatSelectionCounter} from '../../domain/purchaseLimitPresentation.js';
 import {HELD_PRICE_NOTE_CLIENT, type HeldPriceSnapshot} from '../../domain/pricePresentation.js';
 
 export interface StandingLine {
@@ -15,7 +16,17 @@ export interface SelectionSummaryProps {
   standingLines?: StandingLine[];
   standingTotal?: number;
   heldPriceSnapshot?: HeldPriceSnapshot | null;
+  /** Per-selection ceiling = min(4, configuredMax). */
   maxCap?: number;
+  /** Per-event ticket limit shown in the counter (default 4). */
+  configuredMax?: number;
+  limitExplanation?: string | null;
+  limitNotice?: {
+    message: string;
+    gioiHan: number | null;
+    dangGiu: number | null;
+    conLai: number | null;
+  } | null;
   holdLabel?: string;
   onChangeStanding?: (zoneCode: string, quantity: number) => void;
   saleOpen: boolean;
@@ -34,6 +45,9 @@ export function SelectionSummary({
   standingTotal = 0,
   heldPriceSnapshot = null,
   maxCap = 4,
+  configuredMax = maxCap,
+  limitExplanation = null,
+  limitNotice = null,
   holdLabel = '5 phút',
   onChangeStanding,
   saleOpen,
@@ -76,9 +90,14 @@ export function SelectionSummary({
             Ghế đã chọn
           </h2>
           <span id="count" className="et-summary-counter et-num">
-            {count} / {maxCap} vé
+            {formatSelectionCounter(count, {configuredMax, maxPerOrder: maxCap})}
           </span>
         </div>
+        {limitExplanation && (
+          <p className="et-summary-limit-note" data-od-id="purchase-limit-note">
+            {limitExplanation}
+          </p>
+        )}
 
         {/* Body */}
         <div id="selection" className="et-summary-body" data-od-id="selected-tickets">
@@ -167,6 +186,18 @@ export function SelectionSummary({
             </>
           )}
         </div>
+
+        {limitNotice && (
+          <div
+            className="et-purchase-limit-alert"
+            role="alert"
+            aria-live="polite"
+            data-od-id="purchase-limit-alert"
+            id="purchase-limit-alert"
+          >
+            <span>{limitNotice.message}</span>
+          </div>
+        )}
 
         {/* Payment / Hold CTA */}
         <div className="et-payment-section">

@@ -4,7 +4,7 @@
       <div class="concert-seatmap-shell">
         <header class="concert-seatmap-heading">
           <h2>Chọn chỗ ngồi · Super Concert 2026</h2>
-          <p>Chọn phân khu, xem ghế trống và giữ tối đa 4 vé trong một lượt đặt.</p>
+          <p id="concert-seatmap-subcopy">Chọn phân khu, xem ghế trống và giữ tối đa 4 vé trong một lượt đặt.</p>
         </header>
 
         <!-- Filter & Search Toolbar (Mở rộng Should-Have) -->
@@ -413,10 +413,11 @@
               <div class="et-summary-head">
                 <h3 id="concert-summary-title">Ghế đã chọn</h3>
                 <div class="concert-summary-actions">
-                  <span id="summary-count" class="et-summary-counter">0 / 4 vé</span>
+                  <span id="summary-count" class="et-summary-counter">Đã chọn 0/4 vé</span>
                   <button id="btn-clear-all-seats" type="button" class="et-clear-btn hidden">Bỏ chọn tất cả</button>
                 </div>
               </div>
+              <p id="concert-limit-note" class="et-summary-limit-note hidden" data-od-id="purchase-limit-note"></p>
 
               <div id="selected-seats-list" class="et-summary-body concert-summary-body">
                 <div id="empty-seats-msg" class="et-selection-empty">
@@ -429,6 +430,14 @@
                   <p>Khám phá sơ đồ bên cạnh. Ghế bạn chọn sẽ xuất hiện ở đây.</p>
                 </div>
               </div>
+
+              <div
+                id="concert-purchase-limit-alert"
+                class="et-purchase-limit-alert hidden"
+                data-od-id="purchase-limit-alert"
+                role="alert"
+                aria-live="polite"
+              ></div>
 
               <div class="et-payment-section">
                 <div class="et-total-row">
@@ -445,7 +454,7 @@
                 <button id="btn-proceed-booking" type="button" disabled class="et-seatmap-cta">
                   <span data-proceed-label>Chọn ghế để tiếp tục →</span>
                 </button>
-                <p class="et-hold-note">Chỗ chỉ được giữ sau khi yêu cầu thành công. Thời gian giữ dự kiến: 5 phút.</p>
+                <p id="concert-hold-note" class="et-hold-note">Chỗ chỉ được giữ sau khi yêu cầu thành công. Thời gian giữ dự kiến: 5 phút.</p>
               </div>
             </section>
 

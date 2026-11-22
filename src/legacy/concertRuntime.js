@@ -2,10 +2,21 @@
 import {loadTicketingCatalog} from '../services/ticketDataService';
 import {runtimeConfig, getActiveEventContext} from '../config/runtime';
 import {createSeatHold, releaseSeatHold} from '../services/bookingService';
+import {docCauHinhMuaVe} from '../services/purchaseConfigService';
 import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
 import {subscribeToPriceUpdates} from '../services/priceRealtimeService';
 import {buildHeldPriceSnapshot, describePriceConnectionStatus} from '../domain/pricePresentation.js';
 import {isValidPrice, khopMaPhamViNghiemNgat} from '../domain/priceRealtime.js';
+import {resolvePurchaseLimits, formatHoldLabel, DEFAULT_HOLD_MINUTES} from '../domain/purchaseLimits.js';
+import {chuanHoaLoiGiuCho, laLoiVuotGioiHan} from '../domain/purchaseLimitError.js';
+import {
+  createPurchaseLimitNotice,
+  describePurchaseLimits,
+  formatLimitExplanation,
+  formatSelectionCounter,
+  remainingNoticeMs,
+  shouldClearPurchaseLimitNotice,
+} from '../domain/purchaseLimitPresentation.js';
 import {
   dispatchToast,
   dispatchSeatTooltip,
@@ -97,7 +108,102 @@ import {
       let retryHandler = null;
       let runtimeGeneration = 0;
       let isHoldRequestPending = false;
+      let currentLimits = resolvePurchaseLimits(null);
+      let activeLimitNotice = null;
+      let limitNoticeTimer = null;
       const listenerCleanups = [];
+
+      function getTotalSelectedCount() {
+        let seatedCount = 0;
+        selectedSeatIds.forEach(id => {
+          if (!standingTickets.has(id)) seatedCount += 1;
+        });
+        return seatedCount + standingTickets.size;
+      }
+
+      function clearLimitNoticeTimer() {
+        if (limitNoticeTimer) {
+          window.clearTimeout(limitNoticeTimer);
+          limitNoticeTimer = null;
+        }
+      }
+
+      function renderPurchaseLimitNotice() {
+        const alertEl = document.getElementById('concert-purchase-limit-alert');
+        if (!alertEl) return;
+        if (!activeLimitNotice) {
+          alertEl.classList.add('hidden');
+          alertEl.textContent = '';
+          return;
+        }
+        alertEl.textContent = activeLimitNotice.message;
+        alertEl.classList.remove('hidden');
+      }
+
+      function schedulePurchaseLimitNoticeDismiss(notice) {
+        clearLimitNoticeTimer();
+        const delay = Math.max(remainingNoticeMs(notice, Date.now()), 0) + 1;
+        limitNoticeTimer = window.setTimeout(() => {
+          if (activeLimitNotice !== notice) return;
+          if (shouldClearPurchaseLimitNotice(notice, Date.now())) {
+            activeLimitNotice = null;
+            limitNoticeTimer = null;
+            renderPurchaseLimitNotice();
+          } else {
+            schedulePurchaseLimitNoticeDismiss(notice);
+          }
+        }, delay);
+      }
+
+      function showPurchaseLimitNotice(notice) {
+        if (!notice) return;
+        activeLimitNotice = notice;
+        renderPurchaseLimitNotice();
+        schedulePurchaseLimitNoticeDismiss(notice);
+      }
+
+      function syncPurchaseLimitUI() {
+        const limitCopy = describePurchaseLimits(currentLimits);
+        const subcopy = document.getElementById('concert-seatmap-subcopy');
+        if (subcopy) {
+          subcopy.textContent = `Chọn phân khu, xem ghế trống và giữ tối đa ${currentLimits.maxPerOrder} vé trong một lượt đặt.${limitCopy.differ ? ` ${limitCopy.text}` : ''}`;
+        }
+        const limitNote = document.getElementById('concert-limit-note');
+        if (limitNote) {
+          const explanation = formatLimitExplanation(currentLimits);
+          if (explanation) {
+            limitNote.textContent = explanation;
+            limitNote.classList.remove('hidden');
+          } else {
+            limitNote.textContent = '';
+            limitNote.classList.add('hidden');
+          }
+        }
+        const holdNote = document.getElementById('concert-hold-note');
+        if (holdNote) {
+          holdNote.textContent = `Chỗ chỉ được giữ sau khi yêu cầu thành công. Thời gian giữ dự kiến: ${formatHoldLabel(currentLimits.holdMinutes || DEFAULT_HOLD_MINUTES)}.`;
+        }
+        if (activeDetailZoneCode) {
+          renderZoneDetailPanel();
+        }
+        updateSidebar();
+      }
+
+      async function loadCurrentPurchaseLimits() {
+        try {
+          const {eventDatabaseId} = getActiveEventContext();
+          if (eventDatabaseId == null || eventDatabaseId === '') {
+            return resolvePurchaseLimits(null);
+          }
+          const config = await docCauHinhMuaVe(eventDatabaseId);
+          return resolvePurchaseLimits({
+            maxTicketsPerOrder: config?.soVeToiDaMoiDon,
+            holdMinutes: config?.thoiGianGiuChoPhut,
+          });
+        } catch {
+          return resolvePurchaseLimits(null);
+        }
+      }
 
       function listen(target, type, handler) {
         if (!target) return;
@@ -871,7 +977,7 @@ import {
             <div class="detail-standing-card">
               <div class="detail-standing-copy">
                 <strong>Vé đứng tự do · Không đánh số ghế</strong>
-                <p>Chọn số lượng, sau đó thêm vào tạm tính. Giới hạn tối đa 4 vé mỗi tài khoản.</p>
+                <p>Chọn số lượng, sau đó thêm vào tạm tính. Tối đa ${currentLimits.maxPerOrder} vé mỗi lượt đặt.${currentLimits.cappedByServer ? ` ${describePurchaseLimits(currentLimits).text}` : ''}</p>
               </div>
               <div class="detail-standing-actions">
                 <div class="detail-standing-qty" aria-label="Số lượng vé ${zone.name}">
@@ -1122,9 +1228,11 @@ import {
           selectedSeatIds.delete(seat.id);
           showToast(`Đã bỏ chọn ghế ${seat.id}`, 'info');
         } else {
-          // Check limit 4 tickets (FR-T2-02)
-          if (selectedSeatIds.size >= 4) {
-            showToast('Bạn chỉ được chọn tối đa 4 vé trên mỗi tài khoản (Quy định SRS FR-T2-02)', 'warning');
+          // Check per-selection ceiling = min(4, configuredMax)
+          if (getTotalSelectedCount() >= currentLimits.maxPerOrder) {
+            const limitCopy = describePurchaseLimits(currentLimits);
+            const capMsg = `Bạn chỉ được chọn tối đa ${currentLimits.maxPerOrder} vé trong một lượt đặt.${limitCopy.differ ? ` ${limitCopy.text}` : ''}`;
+            showToast(capMsg, 'warning');
             return;
           }
           // Select
@@ -1156,8 +1264,13 @@ import {
         if (!(zoneCode in standingQuantities)) return;
         const selectedStandingCount = Object.values(standingQuantities).reduce((sum, count) => sum + count, 0);
         const nextQuantity = standingQuantities[zoneCode] + delta;
-        if (nextQuantity < 0 || (delta > 0 && selectedSeatIds.size + selectedStandingCount >= 4)) {
-          showToast('Bạn chỉ được chọn tối đa 4 vé trên mỗi tài khoản.', 'warning');
+        if (nextQuantity < 0) return;
+        if (delta > 0 && getTotalSelectedCount() + selectedStandingCount >= currentLimits.maxPerOrder) {
+          const limitCopy = describePurchaseLimits(currentLimits);
+          showToast(
+            `Bạn chỉ được chọn tối đa ${currentLimits.maxPerOrder} vé trong một lượt đặt.${limitCopy.differ ? ` ${limitCopy.text}` : ''}`,
+            'warning',
+          );
           return;
         }
         standingQuantities[zoneCode] = nextQuantity;
@@ -1176,14 +1289,18 @@ import {
           showToast('Hãy chọn số lượng vé đứng trước khi thêm vào tạm tính.', 'warning');
           return;
         }
-        if (selectedSeatIds.size + quantity > 4) {
-          showToast('Tổng số vé không được vượt quá 4 vé.', 'warning');
+        if (getTotalSelectedCount() + quantity > currentLimits.maxPerOrder) {
+          const limitCopy = describePurchaseLimits(currentLimits);
+          showToast(
+            `Tối đa ${currentLimits.maxPerOrder} vé mỗi lượt đặt.${limitCopy.differ ? ` ${limitCopy.text}` : ''}`,
+            'warning',
+          );
           return;
         }
 
         const prefix = zoneCode === 'GA_STAND_1' ? 'GA1-STAND-' : 'GA2-STAND-';
         let added = 0;
-        for (let index = 1; added < quantity && index <= 4; index++) {
+        for (let index = 1; added < quantity && index <= currentLimits.maxPerOrder; index++) {
           const ticketId = `${prefix}${String(index).padStart(2, '0')}`;
           if (selectedSeatIds.has(ticketId)) continue;
           selectedSeatIds.add(ticketId);
@@ -1220,11 +1337,12 @@ import {
         if (!listContainer || !emptyMsg || !summaryCount || !summaryTotal || !proceedBtn) return;
 
         listContainer.querySelectorAll('[data-selected-ticket]').forEach(item => item.remove());
+        const totalSelectedCount = getTotalSelectedCount();
 
-        if (selectedSeatIds.size === 0) {
+        if (totalSelectedCount === 0) {
           listContainer.appendChild(emptyMsg);
           emptyMsg.classList.remove('hidden');
-          summaryCount.innerText = '0 / 4 vé';
+          summaryCount.innerText = formatSelectionCounter(0, currentLimits);
           summaryTotal.innerText = '0 VNĐ';
           proceedBtn.disabled = true;
           if (proceedLabel) proceedLabel.textContent = 'Chọn ghế để tiếp tục →';
@@ -1286,10 +1404,10 @@ import {
           listContainer.appendChild(itemEl);
         });
 
-        summaryCount.innerText = `${selectedSeatIds.size} / 4 vé`;
+        summaryCount.innerText = formatSelectionCounter(totalSelectedCount, currentLimits);
         summaryTotal.innerText = formatVND(totalAmount);
         proceedBtn.disabled = !isTicketSelectionEnabled() || isHoldRequestPending;
-        if (proceedLabel) proceedLabel.textContent = `Giữ ${selectedSeatIds.size} vé tạm · 5 phút →`;
+        if (proceedLabel) proceedLabel.textContent = `Giữ ${totalSelectedCount} vé tạm · ${formatHoldLabel(currentLimits.holdMinutes || DEFAULT_HOLD_MINUTES)} →`;
       }
 
       function removeSingleSeat(ticketId) {
@@ -1735,12 +1853,21 @@ import {
             });
           } catch (error) {
             if (holdGeneration !== runtimeGeneration) return;
+            const normalizedError = chuanHoaLoiGiuCho(error);
+            if (laLoiVuotGioiHan(normalizedError)) {
+              // Over-limit: show server-provided numbers in the dedicated region, keep selection untouched.
+              const notice = createPurchaseLimitNotice(normalizedError, {nowMs: Date.now()});
+              if (notice) {
+                showPurchaseLimitNotice(notice);
+              }
+              return;
+            }
             console.error('Không thể giữ chỗ:', error);
             showToast('Không thể giữ chỗ lúc này. Vui lòng tải lại trạng thái ghế và thử lại.', 'error');
           } finally {
             if (holdGeneration === runtimeGeneration) {
               isHoldRequestPending = false;
-              btnProceedBooking.disabled = !isTicketSelectionEnabled() || selectedSeatIds.size === 0;
+              btnProceedBooking.disabled = !isTicketSelectionEnabled() || getTotalSelectedCount() === 0;
               btnProceedBooking.removeAttribute('aria-busy');
             }
           }
@@ -1893,9 +2020,16 @@ import {
       async function initializeTicketingData(expectedRoot = activeRuntimeRoot, generation = runtimeGeneration) {
         setSeatingDataState('loading');
         updateRealtimeConnectionStatus('CONNECTING');
+        currentLimits = resolvePurchaseLimits(null);
+        syncPurchaseLimitUI();
         try {
-          await loadDataFromDatabase();
+          const [, loadedLimits] = await Promise.all([
+            loadDataFromDatabase(),
+            loadCurrentPurchaseLimits(),
+          ]);
           if (generation !== runtimeGeneration || expectedRoot !== activeRuntimeRoot || !expectedRoot?.isConnected) return;
+          currentLimits = loadedLimits;
+          syncPurchaseLimitUI();
           mountZonesOnStadiumMap();
           renderSeats();
           syncSaleAvailabilityUI();
@@ -1993,7 +2127,11 @@ import {
         standingTickets.clear();
         standingQuantities.GA_STAND_1 = 0;
         standingQuantities.GA_STAND_2 = 0;
-        updateSidebar();
+        clearLimitNoticeTimer();
+        activeLimitNotice = null;
+        renderPurchaseLimitNotice();
+        currentLimits = resolvePurchaseLimits(null);
+        syncPurchaseLimitUI();
         currentZoneFilter = 'ALL';
         currentSearchQuery = '';
         pendingMapSeat = null;

@@ -659,6 +659,7 @@ async function loadConcertRuntimeWithStubs() {
               b.onResolve({filter: /services\/bookingService$/}, () => ({path: 'bookingService', namespace: 'concert-stub'}));
               b.onResolve({filter: /services\/seatRealtimeService$/}, () => ({path: 'seatRealtimeService', namespace: 'concert-stub'}));
               b.onResolve({filter: /services\/priceRealtimeService$/}, () => ({path: 'priceRealtimeService', namespace: 'concert-stub'}));
+              b.onResolve({filter: /services\/purchaseConfigService$/}, () => ({path: 'purchaseConfigService', namespace: 'concert-stub'}));
               b.onResolve({filter: /config\/runtime$/}, () => ({path: 'runtime', namespace: 'concert-stub'}));
 
               b.onLoad({filter: /^ticketDataService$/, namespace: 'concert-stub'}, () => ({
@@ -680,9 +681,14 @@ async function loadConcertRuntimeWithStubs() {
                 contents: `export const subscribeToPriceUpdates = (...args) => globalThis.__CONCERT_TEST_MOCK__.subscribeToPriceUpdates(...args);`,
                 loader: 'js',
               }));
+              b.onLoad({filter: /^purchaseConfigService$/, namespace: 'concert-stub'}, () => ({
+                contents: `export const docCauHinhMuaVe = (...args) => globalThis.__CONCERT_TEST_MOCK__.docCauHinhMuaVe?.(...args) ?? Promise.resolve({soVeToiDaMoiDon: 4, thoiGianGiuChoPhut: 5});`,
+                loader: 'js',
+              }));
               b.onLoad({filter: /^runtime$/, namespace: 'concert-stub'}, () => ({
                 contents: `
                   export const runtimeConfig = {useMockData: false, eventId: 'super-concert-2026'};
+                  export const isSupabaseConfigured = () => false;
                   export const getActiveEventContext = () => globalThis.__CONCERT_TEST_MOCK__.getActiveEventContext();
                 `,
                 loader: 'js',
