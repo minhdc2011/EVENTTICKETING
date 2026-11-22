@@ -25,6 +25,7 @@ export interface MockHoldCreateParams {
   eventId?: string;
   items: HoldItem[];
   gioiHan?: number | null;
+  bangGiaChot?: ReadonlyMap<string, number> | null;
 }
 
 export interface MockHoldStore {
@@ -41,6 +42,11 @@ export interface MockHoldStoreOptions {
 }
 
 export function tinhSoLuongYeuCau(items: readonly HoldItem[] | unknown): number;
+
+export function ganDonGiaChot(
+  items: readonly HoldItem[],
+  bangGiaChot?: ReadonlyMap<string, number> | null,
+): HoldItem[];
 
 export function demVeDangGiu(
   holds: readonly Partial<MockHoldEntry>[] | unknown,
