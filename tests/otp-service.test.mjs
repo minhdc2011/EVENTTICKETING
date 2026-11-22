@@ -37,6 +37,8 @@ import {
   hetHanTuAccessToken,
   dangKyThuHoiBangChungMock,
   taoDinhDanhMockNguoiMua,
+  taoKhoTrangThaiOtpPhien,
+  khoTrangThaiOtpPhien,
 } from '../src/domain/otpServiceCore.js';
 
 const T0 = 1_000_000_000;
@@ -744,6 +746,96 @@ test('RATE_LIMIT từ Auth (429) vẫn là RATE_LIMIT, khác CLIENT_*', async ()
   const err = await guiMaOtpTheoCauHinh(cauHinhThat(client).cauHinh, EMAIL, { nowMs: T0 }).catch((e) => e);
   assert.equal(err.loai, 'RATE_LIMIT');
   assert.deepEqual(client.thuTu, ['signInWithOtp']);
+});
+
+// ---- Request gửi chậm: chờ gửi lại tính từ lúc hoàn tất ----
+
+function authGuiCham(dongHo, doTreMs) {
+  return {
+    signInWithOtp: async () => {
+      dongHo.t += doTreMs; // mô phỏng 10 giây trôi qua trong lúc chờ mạng
+      return { data: {}, error: null };
+    },
+    verifyOtp: async () => ({ data: {}, error: null }),
+  };
+}
+
+test('request gửi mất 10 giây: guiLuc là mốc hoàn tất và chờ đủ 60 giây từ đó (layNow)', async () => {
+  const dongHo = { t: T0 };
+  const cauHinh = { useMockData: false, layAuth: () => authGuiCham(dongHo, 10_000) };
+  const ketQua = await guiMaOtpTheoCauHinh(cauHinh, EMAIL, { layNow: () => dongHo.t });
+  const hoanTat = T0 + 10_000;
+  assert.equal(ketQua.trangThai.guiLuc, hoanTat);
+  const luc59 = tinhThoiGianOtp(ketQua.trangThai, hoanTat + 59_999);
+  assert.equal(luc59.coTheGuiLai, false);
+  assert.equal(luc59.giayChoGuiLai, 1);
+  assert.equal(tinhThoiGianOtp(ketQua.trangThai, hoanTat).giayChoGuiLai, 60);
+  assert.equal(tinhThoiGianOtp(ketQua.trangThai, hoanTat + 60_000).coTheGuiLai, true);
+  const loi = (() => {
+    try {
+      kiemTraTruocKhiGui(ketQua.trangThai, hoanTat + 59_999);
+      return null;
+    } catch (e) {
+      return e;
+    }
+  })();
+  assert.ok(loi instanceof OtpServiceError);
+  assert.equal(loi.loai, 'CLIENT_CHO_GUI_LAI');
+  kiemTraTruocKhiGui(ketQua.trangThai, hoanTat + 60_000);
+});
+
+test('hoanTatMs ghi đè và nowMs cố định giữ nguyên hành vi cũ', async () => {
+  const dongHo = { t: T0 };
+  const cauHinh = { useMockData: false, layAuth: () => authGuiCham(dongHo, 10_000) };
+  const a = await guiMaOtpTheoCauHinh(cauHinh, EMAIL, { layNow: () => dongHo.t, hoanTatMs: T0 + 12_345 });
+  assert.equal(a.trangThai.guiLuc, T0 + 12_345);
+  const b = await guiMaOtpTheoCauHinh(cauHinh, EMAIL, { nowMs: T0 });
+  assert.equal(b.trangThai.guiLuc, T0);
+});
+
+test('mock: biên nhận gửi dùng cùng mốc hoàn tất để xác minh khớp', async () => {
+  xoaBangChungMock();
+  const dongHo = { t: T0 };
+  // Mỗi lần đọc đồng hồ tiến 10 giây: mốc bắt đầu T0+10s, mốc hoàn tất T0+20s.
+  const ketQua = await guiMaOtpTheoCauHinh(cauHinhMock(), EMAIL, { userId: 'u-cham', layNow: () => (dongHo.t += 10_000) });
+  assert.equal(layBienNhanGuiMock(EMAIL).guiLuc, ketQua.trangThai.guiLuc);
+  assert.ok(ketQua.trangThai.guiLuc >= T0 + 20_000);
+  xoaBangChungMock();
+});
+
+// ---- Kho trạng thái OTP theo phiên người mua ----
+
+test('kho trạng thái phiên: giữ cooldown và lượt sai cùng (userId, email), reset khi đổi/đăng xuất/xóa', () => {
+  const kho = taoKhoTrangThaiOtpPhien();
+  const phien = { userId: 'u1', email: 'A@Example.com ' };
+  let st = kho.lay(phien);
+  st = ghiNhanSai(ghiNhanGui(st, T0), giay(5));
+  kho.ghi(phien, st);
+
+  // Kiểm tra lại cổng / remount: cùng phiên (email viết khác hoa thường) → giữ nguyên.
+  const lai = kho.lay({ userId: 'u1', email: 'a@example.com' });
+  assert.equal(lai.guiLuc, T0);
+  assert.equal(lai.lichSuSai.length, 1);
+  assert.equal(tinhThoiGianOtp(lai, giay(10)).coTheGuiLai, false);
+
+  // Đổi email hoặc userId → trống.
+  assert.equal(kho.lay({ userId: 'u1', email: 'b@example.com' }).guiLuc, null);
+  kho.ghi({ userId: 'u1', email: 'b@example.com' }, ghiNhanGui(taoTrangThaiOtp('b@example.com'), T0));
+  assert.equal(kho.lay({ userId: 'u2', email: 'b@example.com' }).guiLuc, null);
+
+  // Đăng xuất.
+  kho.ghi({ userId: 'u2', email: 'b@example.com' }, ghiNhanGui(taoTrangThaiOtp('b@example.com'), T0));
+  assert.equal(kho.lay(null), null);
+  assert.equal(kho.lay({ userId: 'u2', email: 'b@example.com' }).guiLuc, null);
+
+  // Thu hồi / thành công → xoa.
+  kho.ghi({ userId: 'u2', email: 'b@example.com' }, ghiNhanGui(taoTrangThaiOtp('b@example.com'), T0));
+  kho.xoa();
+  assert.equal(kho.lay({ userId: 'u2', email: 'b@example.com' }).guiLuc, null);
+
+  // ghi cho phiên khác khóa hiện tại bị bỏ qua.
+  kho.ghi({ userId: 'x', email: 'x@x.com' }, ghiNhanGui(taoTrangThaiOtp('x@x.com'), T0));
+  assert.equal(kho.lay({ userId: 'u2', email: 'b@example.com' }).guiLuc, null);
 });
 
 // ---- guiMaOtpTheoCauHinh: chỉ ghi nhận sau khi gửi thành công ----
@@ -1549,5 +1641,36 @@ test('dangKyThuHoiBangChungMock: cùng một hàm đăng ký hai lần là hai m
   } finally {
     huyA();
     huyB();
+  }
+});
+
+test('ganOnVerified: ưu tiên handler mới đang gắn, gỡ cũ không xóa handler mới, và xoaBangChungMock tự xóa khoTrangThaiOtpPhien', async () => {
+  khoTrangThaiOtpPhien.xoa();
+  xoaBangChungMock();
+  try {
+    const phien = { userId: 'u-gan', email: 'Gan@Example.com' };
+    const st0 = khoTrangThaiOtpPhien.lay(phien);
+    khoTrangThaiOtpPhien.ghi(phien, ghiNhanGui(st0, T0));
+    assert.equal(khoTrangThaiOtpPhien.lay(phien).guiLuc, T0);
+
+    // Module-level dangKyThuHoiBangChungMock tự xóa singleton khi thu hồi mock.
+    xoaBangChungMock();
+    assert.equal(khoTrangThaiOtpPhien.lay(phien).guiLuc, null);
+
+    // ganOnVerified: panel 2 gắn trước khi panel 1 gỡ -> gỡ panel 1 không làm mất panel 2.
+    const kho = taoKhoTrangThaiOtpPhien();
+    const goi = [];
+    const huy1 = kho.ganOnVerified(phien, () => goi.push('p1'));
+    const huy2 = kho.ganOnVerified(phien, () => goi.push('p2'));
+    huy1();
+    await kho.thucHienXacMinh(phien, '123456', {
+      xacMinhMaOtp: async () => ({ daXacMinh: true, nguon: 'THAT', userId: phien.userId }),
+      onVerified: () => goi.push('fallback'),
+    });
+    assert.deepEqual(goi, ['p2']);
+    huy2();
+  } finally {
+    khoTrangThaiOtpPhien.xoa();
+    xoaBangChungMock();
   }
 });

@@ -41,9 +41,11 @@ import {
   kiemTraDaXacMinhTheoCauHinh,
   kiemTraTruocKhiGui,
   kiemTraTruocKhiXacMinh,
+  khoTrangThaiOtpPhien,
   layTheHeBangChungMock,
   phanLoaiLoiAuth,
   taoBangChungMock,
+  taoKhoTrangThaiOtpPhien,
   taoTrangThaiOtp,
   thongBaoLoiOtp,
   tinhThoiGianOtp,
@@ -55,6 +57,10 @@ import type {
   AuthXacMinhOtp,
   BangChungMock,
   BienNhanGuiMock,
+  ChiTietKhoOtp,
+  KhoTrangThaiOtpPhien,
+  TuyChonThucHienGui,
+  TuyChonThucHienXacMinh,
   KetQuaGuiMaOtp,
   KetQuaGuiOtp,
   KetQuaKiemTraDaXacMinh,
@@ -98,9 +104,11 @@ export {
   bangChungMockConHieuLuc,
   kiemTraTruocKhiGui,
   kiemTraTruocKhiXacMinh,
+  khoTrangThaiOtpPhien,
   layTheHeBangChungMock,
   phanLoaiLoiAuth,
   taoBangChungMock,
+  taoKhoTrangThaiOtpPhien,
   taoTrangThaiOtp,
   thongBaoLoiOtp,
   tinhThoiGianOtp,
@@ -108,6 +116,10 @@ export {
 };
 
 export type {
+  ChiTietKhoOtp,
+  KhoTrangThaiOtpPhien,
+  TuyChonThucHienGui,
+  TuyChonThucHienXacMinh,
   BienNhanGuiMock,
   AuthGuiOtp,
   AuthXacMinhOtp,
@@ -155,7 +167,8 @@ function taoTuyChon(opts: OtpServiceOptions): TuyChonLoiOtp & {userId?: string} 
   return {
     ...(opts.trangThai ? {trangThai: opts.trangThai} : {}),
     ...(opts.userId ? {userId: opts.userId} : {}),
-    nowMs: opts.now ?? Date.now(),
+    // Không chụp Date.now() trước await: khi không có opts.now, lõi đo mốc hoàn tất bằng layNow.
+    ...(typeof opts.now === 'number' ? {nowMs: opts.now} : {layNow: () => Date.now()}),
   };
 }
 

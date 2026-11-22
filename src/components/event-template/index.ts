@@ -15,4 +15,14 @@ export {
   SeatingSection,
   type SeatMapSectionProps,
 } from './SeatMapSection';
+export {
+  PurchaseAccessGate,
+  BUYER_RETURN_TO_KEY,
+  buildEventReturnTarget,
+  type PurchaseAccessGateProps,
+} from './PurchaseAccessGate';
+export {
+  OtpVerificationPanel,
+  type OtpVerificationPanelProps,
+} from './OtpVerificationPanel';
 export * from './eventTemplateLogic.js';

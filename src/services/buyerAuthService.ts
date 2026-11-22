@@ -1,6 +1,6 @@
 import {runtimeConfig} from '../config/runtime';
 import {mapAuthError} from '../domain/organizerValidation';
-import {taoDinhDanhMockNguoiMua, xoaBangChungMock} from '../domain/otpServiceCore.js';
+import {khoTrangThaiOtpPhien, taoDinhDanhMockNguoiMua, xoaBangChungMock} from '../domain/otpServiceCore.js';
 import {
   ACCOUNT_PORTALS,
   authorizePortalSignIn,
@@ -83,7 +83,11 @@ export function subscribeBuyerAuth(callback: (session: BuyerSession | null) => v
   let unsubscribed = false;
   const handle = createAuthChangeHandler<BuyerSession>({
     resolveSession: getBuyerSession,
-    emit: callback,
+    emit: (session) => {
+      // Đồng bộ kho OTP cấp phiên: đổi tài khoản/email hoặc đăng xuất vô hiệu hóa request đang chờ, kể cả khi cổng đã unmount.
+      khoTrangThaiOtpPhien.lay(session);
+      callback(session);
+    },
     isActive: () => !unsubscribed,
   });
   activeBuyerRefreshers.add(handle.refresh);
@@ -171,6 +175,7 @@ export async function signInBuyer(email: string, password: string): Promise<Buye
         .eq('NguoiDungID', data.user.id)
         .maybeSingle(),
     revokeSession: async () => {
+      khoTrangThaiOtpPhien.xoa();
       const {error: signOutError} = await client.auth.signOut();
       if (!signOutError) return;
       try {
@@ -181,12 +186,14 @@ export async function signInBuyer(email: string, password: string): Promise<Buye
     },
   });
 
-  return {
+  const session: BuyerSession = {
     userId: data.user.id,
     email: data.user.email || cleanEmail,
     fullName: data.user.user_metadata?.full_name || '',
     accountKind,
   };
+  khoTrangThaiOtpPhien.lay(session);
+  return session;
 }
 
 export async function signUpBuyer(
@@ -226,6 +233,7 @@ export async function signUpBuyer(
         accountKind: 'USER',
       }
     : null;
+  if (session) khoTrangThaiOtpPhien.lay(session);
   return {
     session,
     requiresEmailConfirmation: !data.session,
@@ -245,5 +253,7 @@ export async function signOutBuyer(): Promise<void> {
     await requireSupabaseClient().auth.signOut();
   } catch (err) {
     console.warn('Đăng xuất người mua vé hoàn tất:', err);
+  } finally {
+    khoTrangThaiOtpPhien.xoa();
   }
 }

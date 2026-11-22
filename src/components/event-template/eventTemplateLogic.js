@@ -551,3 +551,81 @@ export function resolveHeroCta(saleStatus, isConcert = false) {
   }
 }
 
+/**
+ * Builds a context key scoping purchase-gate state to an exact event and show.
+ * @param {string | number} eventId
+ * @param {string | number | null | undefined} [showId]
+ * @returns {string}
+ */
+export function buildPurchaseGateContextKey(eventId, showId) {
+  return `${String(eventId)}::${String(showId ?? '')}`;
+}
+
+/**
+ * Synchronizes the legacy Super Concert runtime lifecycle with purchase-gate state and DOM readiness.
+ * Checks `#stadium-svg` connectedness right before `initConcertRuntime()` so the legacy 50ms retry loop
+ * is never started when ticket HTML is absent or unmounting.
+ *
+ * @param {{
+ *   isConcert: boolean,
+ *   isGateOpen: boolean,
+ *   isContextValid?: () => boolean,
+ *   loadRuntime: () => Promise<{initConcertRuntime: () => unknown, teardownConcertRuntime: () => void}>,
+ *   getRoot?: () => {isConnected?: boolean} | null,
+ *   onError?: (error: unknown) => void,
+ * }} options
+ * @returns {() => void}
+ */
+export function syncConcertRuntimeEffect({
+  isConcert,
+  isGateOpen,
+  isContextValid,
+  loadRuntime,
+  getRoot = () => (typeof document !== 'undefined' ? document.getElementById('stadium-svg') : null),
+  onError,
+}) {
+  if (!isConcert || !isGateOpen) {
+    return () => {};
+  }
+
+  let disposed = false;
+  /** @type {{initConcertRuntime: () => unknown, teardownConcertRuntime: () => void} | null} */
+  let resolvedRuntime = null;
+  let initialized = false;
+
+  /** @type {Promise<{initConcertRuntime: () => unknown, teardownConcertRuntime: () => void}>} */
+  let loadPromise;
+  try {
+    loadPromise = Promise.resolve(loadRuntime());
+  } catch (error) {
+    onError?.(error);
+    return () => {
+      disposed = true;
+    };
+  }
+
+  loadPromise
+    .then((runtime) => {
+      if (disposed) return;
+      if (typeof isContextValid === 'function' && !isContextValid()) return;
+      const root = getRoot();
+      if (!root || !root.isConnected) return;
+      resolvedRuntime = runtime;
+      initialized = true;
+      return runtime.initConcertRuntime();
+    })
+    .catch((error) => {
+      if (!disposed) {
+        onError?.(error);
+      }
+    });
+
+  return () => {
+    disposed = true;
+    if (initialized && resolvedRuntime) {
+      resolvedRuntime.teardownConcertRuntime();
+    }
+  };
+}
+
+

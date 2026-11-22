@@ -95,6 +95,209 @@ export function taoTrangThaiOtp(email) {
   return { email, guiLuc: null, lichSuGuiLai: [], lichSuSai: [] };
 }
 
+// OtpServiceError.message luôn là câu tiếng Việt cố định; lỗi khác → thông báo chung, không dùng message thô.
+const thongBaoTuLoiKho = (err) =>
+  err instanceof OtpServiceError ? err.message : thongBaoLoiOtp('KHONG_XAC_DINH');
+
+/**
+ * Kho trạng thái OTP (bộ đếm gửi lại/nhập sai, mốc gửi) theo phiên người mua, chỉ trong bộ nhớ; không bao giờ chứa mã nhập.
+ * Cùng (userId, email chuẩn hóa) → giữ nguyên qua kiểm tra lại cổng/remount panel; đổi tài khoản/email, đăng xuất
+ * (lay(null)), thu hồi hoặc xác minh thành công (xoa) → bắt đầu lại từ trạng thái trống.
+ */
+export function taoKhoTrangThaiOtpPhien() {
+  /**
+   * Mục phiên hiện tại. theHe = thế hệ kho lúc tạo mục; yeuCau = promise đang chờ (không bao giờ chứa mã nhập).
+   * @type {{khoa: string, theHe: number, trangThai: any, busy: 'send' | 'verify' | null, error: string | null, notice: string | null, yeuCau: Promise<void> | null} | null}
+   */
+  let o = null;
+  // Thế hệ phiên của kho: tăng khi xoa(), lay(null) hoặc đổi khóa (userId + email chuẩn hóa).
+  let theHeKho = 0;
+  /** @type {Set<() => void>} */
+  const nguoiNghe = new Set();
+  const khoaCua = (/** @type {any} */ s) => `${s.userId}\u0000${chuanHoaEmail(s.email)}`;
+  const coPhien = (/** @type {any} */ p) => !!p && typeof p.userId === 'string' && !!p.userId;
+  const thongBao = () => {
+    for (const cb of [...nguoiNghe]) {
+      try {
+        cb();
+      } catch {
+        // Người nghe lỗi không được làm hỏng kho.
+      }
+    }
+  };
+  // Lấy (hoặc tạo) mục cho phiên; trả null nếu không có phiên. Đổi khóa → tăng thế hệ, bỏ mục cũ (yêu cầu đang chờ thành cũ).
+  const layMuc = (/** @type {any} */ phien) => {
+    if (!coPhien(phien)) {
+      theHeKho += 1;
+      const coMuc = o !== null;
+      o = null;
+      if (coMuc) thongBao();
+      return null;
+    }
+    const khoa = khoaCua(phien);
+    if (!o || o.khoa !== khoa) {
+      const doiKhoa = o !== null;
+      if (doiKhoa) theHeKho += 1;
+      o = { khoa, theHe: theHeKho, trangThai: taoTrangThaiOtp(phien.email), busy: null, error: null, notice: null, yeuCau: null };
+      // Đổi khóa có thể xảy ra khi đang render: hoãn thông báo để không cập nhật state trong lúc render.
+      if (doiKhoa) queueMicrotask(thongBao);
+    }
+    return o;
+  };
+  const chiTiet = (/** @type {any} */ m) => ({ trangThai: m.trangThai, busy: m.busy, error: m.error, notice: m.notice, theHe: m.theHe });
+  const chup = (/** @type {any} */ m) => ({ khoa: m.khoa, theHe: m.theHe, mock: theHeBangChungMock });
+  const conHopLe = (/** @type {any} */ m, /** @type {any} */ c) => o === m && m.khoa === c.khoa && m.theHe === c.theHe && theHeBangChungMock === c.mock;
+  // Kết quả cũ: bỏ hoàn toàn. Chỉ khi mục vẫn là mục đó (chỉ thu hồi mock) mới gỡ cờ busy, không áp dụng kết quả.
+  const boKetQuaCu = (/** @type {any} */ m) => {
+    if (o === m) {
+      m.busy = null;
+      m.yeuCau = null;
+      thongBao();
+    }
+  };
+  const layNow = (/** @type {any} */ tuyChon) => (typeof tuyChon?.layNow === 'function' ? tuyChon.layNow() : Date.now());
+  // Handler onVerified đang gắn từ panel hiện hành (theo khóa phiên); không bao giờ chứa mã nhập.
+  /** @type {{khoa: string, fn: (ketQua: any) => void | Promise<void>} | null} */
+  let onVerifiedGan = null;
+
+  return {
+    /**
+     * Gắn handler onVerified hiện hành cho phiên; trả hàm gỡ (chỉ gỡ nếu handler đó vẫn đang gắn).
+     * Nhờ vậy xác minh bắt đầu ở panel cũ nhưng hoàn tất khi panel mới đã mount vẫn gọi đúng handler mới.
+     */
+    ganOnVerified(/** @type {{userId: string, email: string} | null | undefined} */ phien, /** @type {(ketQua: any) => void | Promise<void>} */ fn) {
+      if (!coPhien(phien) || typeof fn !== 'function') return () => {};
+      const muc = { khoa: khoaCua(phien), fn };
+      onVerifiedGan = muc;
+      return () => {
+        if (onVerifiedGan === muc) onVerifiedGan = null;
+      };
+    },
+    lay(/** @type {{userId: string, email: string} | null | undefined} */ phien) {
+      const m = layMuc(phien);
+      return m ? m.trangThai : null;
+    },
+    ghi(/** @type {{userId: string, email: string}} */ phien, /** @type {any} */ trangThai) {
+      if (phien && typeof phien.userId === 'string' && o && o.khoa === khoaCua(phien)) o.trangThai = trangThai;
+    },
+    xoa() {
+      theHeKho += 1;
+      o = null;
+      thongBao();
+    },
+    layChiTiet(/** @type {{userId: string, email: string} | null | undefined} */ phien) {
+      const m = layMuc(phien);
+      return m ? chiTiet(m) : null;
+    },
+    dangKy(/** @type {() => void} */ listener) {
+      // Bọc để cùng một hàm đăng ký hai lần vẫn có hai mục độc lập.
+      const muc = () => listener();
+      nguoiNghe.add(muc);
+      return () => {
+        nguoiNghe.delete(muc);
+      };
+    },
+    /**
+     * Gửi mã; yêu cầu sống qua remount panel. Đang busy → trả promise đang chờ, không gửi thêm.
+     * @param {{userId: string, email: string}} phien
+     * @param {{guiMaOtp: (email: string, opts: any) => Promise<any>, layNow?: () => number, thongBaoThanhCong?: string, thongBaoLoi?: (err: unknown) => string}} tuyChon
+     */
+    thucHienGui(phien, tuyChon) {
+      const m = layMuc(phien);
+      if (!m) return Promise.resolve();
+      if (m.busy !== null && m.yeuCau) return m.yeuCau;
+      const c = chup(m);
+      const st = m.trangThai;
+      m.busy = 'send';
+      m.error = null;
+      m.notice = null;
+      const chay = (async () => {
+        let ketQua;
+        let loi;
+        let thatBai = false;
+        try {
+          ketQua = await tuyChon.guiMaOtp(phien.email, { trangThai: st, userId: phien.userId });
+        } catch (err) {
+          thatBai = true;
+          loi = err;
+        }
+        if (!conHopLe(m, c)) return boKetQuaCu(m);
+        if (thatBai) {
+          m.trangThai = capNhatSauLoi(m.trangThai, loi, layNow(tuyChon));
+          m.error = tuyChon.thongBaoLoi ? tuyChon.thongBaoLoi(loi) : thongBaoTuLoiKho(loi);
+        } else {
+          // guiLuc do guiMaOtp ghi tại thời điểm hoàn tất; cooldown 60 giây tính từ đó.
+          m.trangThai = ketQua.trangThai;
+          m.notice = tuyChon.thongBaoThanhCong ?? 'Đã gửi mã xác minh tới email của bạn.';
+        }
+        m.busy = null;
+        m.yeuCau = null;
+        thongBao();
+      })();
+      m.yeuCau = chay;
+      thongBao();
+      return chay;
+    },
+    /**
+     * Xác minh mã; maNhap chỉ đi qua tham số này (không lưu trong kho). Đang busy → trả promise đang chờ.
+     * onVerified chỉ được gọi khi kết quả còn hợp lệ.
+     * @param {{userId: string, email: string}} phien
+     * @param {string} maNhap
+     * @param {{xacMinhMaOtp: (email: string, token: string, userId: string, opts: any) => Promise<any>, onVerified?: (ketQua: any) => void | Promise<void>, layNow?: () => number, thongBaoThanhCong?: string, thongBaoLoi?: (err: unknown) => string}} tuyChon
+     */
+    thucHienXacMinh(phien, maNhap, tuyChon) {
+      const m = layMuc(phien);
+      if (!m) return Promise.resolve();
+      if (m.busy !== null && m.yeuCau) return m.yeuCau;
+      const c = chup(m);
+      const st = m.trangThai;
+      m.busy = 'verify';
+      m.error = null;
+      m.notice = null;
+      const chay = (async () => {
+        let ketQua;
+        let loi;
+        let thatBai = false;
+        try {
+          ketQua = await tuyChon.xacMinhMaOtp(phien.email, maNhap, phien.userId, { trangThai: st });
+        } catch (err) {
+          thatBai = true;
+          loi = err;
+        }
+        if (!conHopLe(m, c)) return boKetQuaCu(m);
+        if (thatBai) {
+          // SAI_MA tăng bộ đếm đúng một lần tại đây (capNhatSauLoi); các lỗi khác giữ nguyên.
+          m.trangThai = capNhatSauLoi(m.trangThai, loi, layNow(tuyChon));
+          m.error = tuyChon.thongBaoLoi ? tuyChon.thongBaoLoi(loi) : thongBaoTuLoiKho(loi);
+          m.busy = null;
+          m.yeuCau = null;
+          thongBao();
+          return;
+        }
+        m.trangThai = datLaiSauThanhCong(ketQua?.trangThai ?? m.trangThai);
+        m.notice = tuyChon.thongBaoThanhCong ?? 'Xác minh thành công. Đang kiểm tra quyền vào chọn vé…';
+        m.busy = null;
+        m.yeuCau = null;
+        thongBao();
+        // Ưu tiên handler đang gắn (đúng phiên); không có thì dùng tuyChon.onVerified (panel không truyền nó,
+        // nên khi unmount hoàn toàn kho chỉ cập nhật trạng thái và không gọi callback của gate đã hủy).
+        const gan = onVerifiedGan && onVerifiedGan.khoa === m.khoa ? onVerifiedGan.fn : null;
+        const handler = gan ?? tuyChon.onVerified;
+        if (typeof handler === 'function') {
+          try {
+            await handler(ketQua);
+          } catch {
+            // Lỗi ở bước sau xác minh do cổng xử lý; kho không đưa chi tiết lỗi ra ngoài.
+          }
+        }
+      })();
+      m.yeuCau = chay;
+      thongBao();
+      return chay;
+    },
+  };
+}
+
 /**
  * Ghi nhận một lần gửi. Chỉ lần gửi lại mới được tính vào bộ đếm gửi lại.
  * @param {{email: string, guiLuc: number | null, lichSuGuiLai: number[], lichSuSai: number[]}} st
@@ -567,6 +770,13 @@ export function dangKyThuHoiBangChungMock(cb) {
   };
 }
 
+/**
+ * Kho trạng thái/yêu cầu OTP cấp module theo phiên người mua: sống qua unmount/remount toàn bộ cổng khi điều hướng SPA.
+ * Tự xóa khi thu hồi bằng chứng mô phỏng; buyerAuthService đồng bộ khi phiên đổi/đăng xuất. Không chứa mã nhập.
+ */
+export const khoTrangThaiOtpPhien = taoKhoTrangThaiOtpPhien();
+dangKyThuHoiBangChungMock(() => khoTrangThaiOtpPhien.xoa());
+
 // Biên nhận phải khớp email, tài khoản, thế hệ hiện tại và mốc gửi của trạng thái; sai → CHUA_GUI (không phải SAI_MA).
 function kiemTraBienNhanGuiMock(khoGui, email, expectedUserId, trangThai) {
   const emailSach = chuanHoaEmail(email);
@@ -636,27 +846,42 @@ async function daXacMinhThatChoUser(client, expectedUserId) {
  * @param {{useMockData: boolean, layAuth: Function, layClient?: Function}} cauHinh
  * @param {string} email
  * Mô phỏng: lần gửi gắn với email chuẩn hóa, userId và thế hệ phiên (biên nhận trong bộ nhớ, không có mã).
- * @param {{trangThai?: any, nowMs?: number, userId?: string, khoGui?: Map<string, any>}} [tuyChon]
+ * nowMs cố định cả mốc bắt đầu lẫn hoàn tất (dùng cho test); layNow/hoanTatMs đo mốc hoàn tất sau await.
+ * @param {{trangThai?: any, nowMs?: number, layNow?: () => number, hoanTatMs?: number, userId?: string, khoGui?: Map<string, any>}} [tuyChon]
  */
 export async function guiMaOtpTheoCauHinh(cauHinh, email, tuyChon) {
-  const nowMs = typeof tuyChon?.nowMs === 'number' ? tuyChon.nowMs : Date.now();
+  const batDauMs =
+    typeof tuyChon?.nowMs === 'number'
+      ? tuyChon.nowMs
+      : typeof tuyChon?.layNow === 'function'
+        ? tuyChon.layNow()
+        : Date.now();
   const truoc = tuyChon?.trangThai ?? taoTrangThaiOtp(email);
-  kiemTraTruocKhiGui(truoc, nowMs);
+  kiemTraTruocKhiGui(truoc, batDauMs);
   const laMock = cauHinh.useMockData === true;
   const userId = tuyChon?.userId;
   if (laMock && (typeof userId !== 'string' || !userId)) {
     throw new OtpServiceError(thongBaoLoiOtp('KHONG_XAC_DINH'), 'KHONG_XAC_DINH');
   }
   const theHe = theHeBangChungMock; // chụp trước await
-  const ketQua = await guiOtpTheoCauHinh(cauHinh, email, { trangThai: tuyChon?.trangThai, nowMs });
+  const ketQua = await guiOtpTheoCauHinh(cauHinh, email, { trangThai: tuyChon?.trangThai, nowMs: batDauMs });
   if (laMock && theHe !== theHeBangChungMock) {
     throw new OtpServiceError(thongBaoLoiOtp('PHIEN_THAY_DOI'), 'PHIEN_THAY_DOI');
   }
-  const trangThai = ghiNhanGui(truoc, nowMs, { laGuiLai: truoc.guiLuc !== null });
+  // Mốc gửi thành công được đo khi yêu cầu hoàn tất (không phải lúc bắt đầu) để chờ gửi lại đủ từ lúc đó.
+  const hoanTatMs =
+    typeof tuyChon?.hoanTatMs === 'number'
+      ? tuyChon.hoanTatMs
+      : typeof tuyChon?.layNow === 'function'
+        ? Math.max(batDauMs, tuyChon.layNow())
+        : typeof tuyChon?.nowMs === 'number'
+          ? tuyChon.nowMs
+          : Math.max(batDauMs, Date.now());
+  const trangThai = ghiNhanGui(truoc, hoanTatMs, { laGuiLai: truoc.guiLuc !== null });
   if (laMock) {
     const khoGui = tuyChon?.khoGui ?? khoGuiMock;
     const emailSach = chuanHoaEmail(email);
-    khoGui.set(emailSach, { email: emailSach, userId, theHe, guiLuc: nowMs });
+    khoGui.set(emailSach, { email: emailSach, userId, theHe, guiLuc: hoanTatMs });
   }
   return { ...ketQua, trangThai };
 }

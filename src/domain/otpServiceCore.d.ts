@@ -51,6 +51,10 @@ export interface ThoiGianOtp {
 export interface TuyChonLoiOtp {
   trangThai?: TrangThaiOtp;
   nowMs?: number;
+  /** Đồng hồ để đo mốc bắt đầu/hoàn tất gửi (chỉ guiMaOtpTheoCauHinh dùng); bị bỏ qua nếu có nowMs. */
+  layNow?: () => number;
+  /** Mốc hoàn tất gửi cố định (ghi đè mọi nguồn khác). */
+  hoanTatMs?: number;
 }
 
 export interface KetQuaGuiOtp {
@@ -85,6 +89,61 @@ export class OtpServiceError extends Error {
 }
 
 export function taoTrangThaiOtp(email: string): TrangThaiOtp;
+export interface KhoTrangThaiOtpPhien {
+  /** Trạng thái của phiên (tạo trống nếu khóa userId+email đổi); null và xóa kho nếu không có phiên. */
+  lay(phien: { userId: string; email: string } | null | undefined): TrangThaiOtp | null;
+  ghi(phien: { userId: string; email: string }, trangThai: TrangThaiOtp): void;
+  /** Tăng thế hệ phiên, bỏ mục hiện tại (yêu cầu đang chờ trở thành cũ) và thông báo người nghe. */
+  xoa(): void;
+  /** Chi tiết phiên (tạo mục trống nếu khóa đổi); null nếu không có phiên. Không chứa mã nhập. */
+  layChiTiet(phien: { userId: string; email: string } | null | undefined): ChiTietKhoOtp | null;
+  /** Đăng ký nghe thay đổi (busy/lỗi/thông báo/trạng thái/xóa); trả hàm hủy đăng ký. */
+  dangKy(listener: () => void): () => void;
+  /**
+   * Gắn handler onVerified hiện hành của phiên (panel đang mount); trả hàm gỡ. Khi xác minh thành công,
+   * handler đang gắn được ưu tiên hơn tuyChon.onVerified; không gắn thì dùng tuyChon.onVerified (nếu có).
+   */
+  ganOnVerified?(
+    phien: { userId: string; email: string } | null | undefined,
+    fn: (ketQua: any) => void | Promise<void>,
+  ): () => void;
+  /** Gửi mã; busy → trả promise đang chờ, không gửi thêm. Không bao giờ reject. Kết quả cũ bị bỏ hoàn toàn. */
+  thucHienGui(phien: { userId: string; email: string }, tuyChon: TuyChonThucHienGui): Promise<void>;
+  /** Xác minh mã; maNhap không được lưu. Không bao giờ reject. onVerified chỉ gọi khi kết quả còn hợp lệ. */
+  thucHienXacMinh(
+    phien: { userId: string; email: string },
+    maNhap: string,
+    tuyChon: TuyChonThucHienXacMinh,
+  ): Promise<void>;
+}
+export interface ChiTietKhoOtp {
+  trangThai: TrangThaiOtp;
+  busy: 'send' | 'verify' | null;
+  error: string | null;
+  notice: string | null;
+  theHe: number;
+}
+export interface TuyChonThucHienGui {
+  guiMaOtp: (email: string, opts: { trangThai: TrangThaiOtp; userId: string }) => Promise<{ trangThai: TrangThaiOtp }>;
+  layNow?: () => number;
+  thongBaoThanhCong?: string;
+  thongBaoLoi?: (err: unknown) => string;
+}
+export interface TuyChonThucHienXacMinh {
+  xacMinhMaOtp: (
+    email: string,
+    token: string,
+    userId: string,
+    opts: { trangThai: TrangThaiOtp },
+  ) => Promise<{ trangThai?: TrangThaiOtp }>;
+  onVerified?: (ketQua: any) => void | Promise<void>;
+  layNow?: () => number;
+  thongBaoThanhCong?: string;
+  thongBaoLoi?: (err: unknown) => string;
+}
+export function taoKhoTrangThaiOtpPhien(): KhoTrangThaiOtpPhien;
+/** Kho OTP cấp module theo phiên người mua (sống qua remount cổng); xóa khi thu hồi mock, đổi phiên hoặc đăng xuất. */
+export const khoTrangThaiOtpPhien: KhoTrangThaiOtpPhien;
 export function ghiNhanGui(st: TrangThaiOtp, nowMs: number, tuyChon?: { laGuiLai?: boolean }): TrangThaiOtp;
 export function ghiNhanSai(st: TrangThaiOtp, nowMs: number): TrangThaiOtp;
 export function datLaiSauThanhCong(st: TrangThaiOtp): TrangThaiOtp;

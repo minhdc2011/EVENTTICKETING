@@ -96,3 +96,23 @@ export function resolveHeroCta(
   ariaLabel: string;
 };
 
+export function buildPurchaseGateContextKey(
+  eventId: string | number,
+  showId?: string | number | null
+): string;
+
+export interface ConcertRuntimeModule {
+  initConcertRuntime: () => unknown;
+  teardownConcertRuntime: () => void;
+}
+
+export function syncConcertRuntimeEffect(options: {
+  isConcert: boolean;
+  isGateOpen: boolean;
+  isContextValid?: () => boolean;
+  loadRuntime: () => Promise<ConcertRuntimeModule>;
+  getRoot?: () => {isConnected?: boolean} | null;
+  onError?: (error: unknown) => void;
+}): () => void;
+
+
