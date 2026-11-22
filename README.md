@@ -40,7 +40,7 @@ npm run check
 - `docs/api-contract.md`: request/response và quy tắc khóa ghế cho backend.
 - `src/legacy/`: markup và runtime đã được kiểm chứng, tạm giữ để chuyển đổi dần
   mà không làm hỏng SVG camera zoom, countdown và logic chọn ghế.
-- `prototype/index-static.html`: bản HTML trước khi chuyển sang React để đối chiếu.
+- Bản HTML tĩnh trước khi chuyển sang React (`prototype/index-static.html`) không còn nằm trong repo; xem lịch sử Git nếu cần đối chiếu.
 
 ## Product Foundation sau Sprint 1
 
