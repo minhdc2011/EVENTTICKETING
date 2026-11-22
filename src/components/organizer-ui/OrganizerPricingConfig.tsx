@@ -297,7 +297,7 @@ export function OrganizerPricingConfig({
         )}
         {notice && (
           <>
-            <div className="org-alert org-alert-success">
+            <div className="org-alert org-alert-success" role="status">
               <IconCheck size={16} className="org-alert-icon" />
               <div className="org-alert-body">
                 Đã lưu cấu hình. Lưu cấu hình không tự áp giá mới cho khán giả; giá chỉ đổi khi một đề xuất được duyệt.
@@ -314,7 +314,7 @@ export function OrganizerPricingConfig({
               </div>
             ))}
             {notice.deXuatHetHieuLuc.length > 0 && (
-              <div className="org-alert org-alert-info">
+              <div className="org-alert org-alert-info" role="status">
                 <IconInfoCircle size={16} className="org-alert-icon" />
                 <div className="org-alert-body">
                   {notice.deXuatHetHieuLuc.length} đề xuất chờ duyệt đã bị vô hiệu sau khi thu hẹp khung giá (mã:{' '}

@@ -54,6 +54,7 @@ export function resolveDialogKeyDown(input: {
   activeElement: Element | null | undefined;
   dialogElement: HTMLElement;
   focusables?: HTMLElement[];
+  canClose?: boolean;
 }): DialogKeyAction;
 
 export interface DialogFocusScope {
