@@ -65,21 +65,8 @@ INSERT INTO public."SU_KIEN" (
   NOW() + INTERVAL '10 days', NOW() + INTERVAL '10 days 3 hours',
   NOW() - INTERVAL '1 day', NOW() + INTERVAL '5 days',
   'Ha Noi', 'San T3 Int',
-  'DANG_MO_BAN', 'CONG_KHAI'
+  'DANG_MO_BAN', 'BAN_NHAP'
 );
-
--- trg_kiem_soat_cau_hinh_mua_ve audits non-default values (4/FALSE) and requires
--- an authenticated CHU_SO_HUU/QUAN_TRI JWT on INSERT.
-SELECT set_config('request.jwt.claim.role', 'authenticated', true),
-       set_config('request.jwt.claim.sub', '66666666-6666-4666-8666-000000000001', true),
-       set_config('request.jwt.claims', '{"role":"authenticated","sub":"66666666-6666-4666-8666-000000000001"}', true);
-
-INSERT INTO public."CAU_HINH_SU_KIEN" ("SuKienID", "SoVeToiDaMoiDon", "YeuCauXacMinhOTP")
-VALUES (996101, 4, TRUE);
-
-SELECT set_config('request.jwt.claim.role', '', true),
-       set_config('request.jwt.claim.sub', '', true),
-       set_config('request.jwt.claims', '', true);
 
 INSERT INTO public."SUAT_DIEN" (
   "SuatDienID", "SuKienID", "Slug", "TenSuatDien",
@@ -108,6 +95,22 @@ INSERT INTO public."QUY_TAC_GIA" (
   996101, 996101, 200000.00, 140000.00, 300000.00,
   10000.00, 0.2000, TRUE
 );
+
+-- Cong bo su kien (trigger can quyen bien tap va suat/khu hop le) roi ghi cau hinh.
+-- trg_kiem_soat_cau_hinh_mua_ve audits non-default values (4/FALSE) and requires
+-- an authenticated CHU_SO_HUU/QUAN_TRI JWT on INSERT.
+SELECT set_config('request.jwt.claim.role', 'authenticated', true),
+       set_config('request.jwt.claim.sub', '66666666-6666-4666-8666-000000000001', true),
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"66666666-6666-4666-8666-000000000001"}', true);
+
+UPDATE public."SU_KIEN" SET "TrangThaiCongBo" = 'CONG_KHAI' WHERE "SuKienID" = 996101;
+
+INSERT INTO public."CAU_HINH_SU_KIEN" ("SuKienID", "SoVeToiDaMoiDon", "YeuCauXacMinhOTP")
+VALUES (996101, 4, TRUE);
+
+SELECT set_config('request.jwt.claim.role', '', true),
+       set_config('request.jwt.claim.sub', '', true),
+       set_config('request.jwt.claims', '', true);
 
 CREATE TEMP TABLE t3_int_res (
   step TEXT PRIMARY KEY,
