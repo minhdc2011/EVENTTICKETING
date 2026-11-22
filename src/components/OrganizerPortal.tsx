@@ -31,6 +31,7 @@ import {
   OrganizerEventWizard,
   OrganizerOnboarding,
   OrganizerPricingPanel,
+  OrganizerPurchaseConfig,
   OrganizerSidebar,
   OrganizerStatsCards,
   OrganizerTopBar,
@@ -38,6 +39,7 @@ import {
   IconPlus,
 } from './organizer-ui';
 import {canManagePricing} from './organizer-ui/pricingFormLogic.js';
+import {canManagePurchaseConfig} from '../services/purchaseConfigService';
 import './organizer-ui/organizer-ui.css';
 import './organizer-ui/organizer-skin.css';
 
@@ -205,6 +207,9 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   const [pricingEvent, setPricingEvent] = useState<OrganizerEvent | null>(null);
   const pricingOpenerRef = useRef<HTMLElement | null>(null);
   const wasPricingOpenRef = useRef(false);
+  const [purchaseConfigEvent, setPurchaseConfigEvent] = useState<OrganizerEvent | null>(null);
+  const purchaseConfigOpenerRef = useRef<HTMLElement | null>(null);
+  const wasPurchaseConfigOpenRef = useRef(false);
 
   const defaultDates = useMemo(() => getDefaultDraftDates(), []);
 
@@ -291,6 +296,9 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   const canEdit = canManageOrganizationEvents(activeOrg);
   const canPricing = canManagePricing(activeOrg, activeOrg?.organizationId);
   const isPricingOpen = Boolean(pricingEvent && canPricing);
+  const isPurchaseConfigOpen = Boolean(
+    purchaseConfigEvent && canManagePurchaseConfig(activeOrg, purchaseConfigEvent.organizationId),
+  );
   const orgEvents = useMemo(
     () => filterEventsByOrganization(events, activeOrg?.organizationId),
     [events, activeOrg?.organizationId],
@@ -308,9 +316,21 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     wasPricingOpenRef.current = isPricingOpen;
   }, [isPricingOpen]);
 
-  // Đổi tổ chức: đóng ngay màn hình cấu hình giá của tổ chức trước.
+  useEffect(() => {
+    if (wasPurchaseConfigOpenRef.current && !isPurchaseConfigOpen) {
+      const opener = purchaseConfigOpenerRef.current;
+      purchaseConfigOpenerRef.current = null;
+      if (opener && opener.isConnected) {
+        opener.focus();
+      }
+    }
+    wasPurchaseConfigOpenRef.current = isPurchaseConfigOpen;
+  }, [isPurchaseConfigOpen]);
+
+  // Đổi tổ chức: đóng ngay màn hình cấu hình giá và cấu hình mua vé của tổ chức trước.
   useEffect(() => {
     setPricingEvent(null);
+    setPurchaseConfigEvent(null);
   }, [activeOrg?.organizationId]);
 
   // Nếu mất quyền hoặc sự kiện không còn thuộc tổ chức đang chọn, đóng/đặt lại panel.
@@ -327,6 +347,20 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
       setPricingEvent(matched);
     }
   }, [pricingEvent, canPricing, orgEvents]);
+
+  useEffect(() => {
+    if (!purchaseConfigEvent) return;
+    if (!canManagePurchaseConfig(activeOrg, purchaseConfigEvent.organizationId)) {
+      setPurchaseConfigEvent(null);
+      return;
+    }
+    const matched = orgEvents.find((e) => e.id === purchaseConfigEvent.id) ?? null;
+    if (!matched) {
+      setPurchaseConfigEvent(null);
+    } else if (matched !== purchaseConfigEvent) {
+      setPurchaseConfigEvent(matched);
+    }
+  }, [purchaseConfigEvent, activeOrg, orgEvents]);
 
   async function addOrg(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -400,13 +434,19 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     <OrganizerFrame
       userEmail={session.email}
       onSignOut={logout}
-      backgroundInert={isPricingOpen}
+      backgroundInert={isPricingOpen || isPurchaseConfigOpen}
       overlay={
         isPricingOpen && pricingEvent ? (
           <OrganizerPricingPanel
             event={pricingEvent}
             activeOrg={activeOrg}
             onClose={() => setPricingEvent(null)}
+          />
+        ) : isPurchaseConfigOpen && purchaseConfigEvent ? (
+          <OrganizerPurchaseConfig
+            event={purchaseConfigEvent}
+            activeOrg={activeOrg}
+            onClose={() => setPurchaseConfigEvent(null)}
           />
         ) : null
       }
@@ -523,6 +563,14 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
                             pricingOpenerRef.current =
                               document.activeElement instanceof HTMLElement ? document.activeElement : null;
                             setPricingEvent(target);
+                          }
+                        }}
+                        canManagePurchaseConfig={canManagePurchaseConfig(activeOrg, item.organizationId)}
+                        onOpenPurchaseConfig={(target) => {
+                          if (canManagePurchaseConfig(activeOrg, target.organizationId)) {
+                            purchaseConfigOpenerRef.current =
+                              document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                            setPurchaseConfigEvent(target);
                           }
                         }}
                       />

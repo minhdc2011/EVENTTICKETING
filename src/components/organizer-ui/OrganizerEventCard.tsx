@@ -6,6 +6,7 @@ import {
   IconEdit,
   IconExternalLink,
   IconPublish,
+  IconShield,
   IconSliders,
   IconSpinner,
   IconTicket,
@@ -28,6 +29,8 @@ type OrganizerEventCardProps = {
   onPublish: (id: number) => void;
   canManagePricing?: boolean;
   onOpenPricing?: (event: OrganizerEvent) => void;
+  canManagePurchaseConfig?: boolean;
+  onOpenPurchaseConfig?: (event: OrganizerEvent) => void;
 };
 
 export function OrganizerEventCard({
@@ -38,6 +41,8 @@ export function OrganizerEventCard({
   onPublish,
   canManagePricing = false,
   onOpenPricing,
+  canManagePurchaseConfig = false,
+  onOpenPurchaseConfig,
 }: OrganizerEventCardProps) {
   const isPublished = event.status === 'CONG_KHAI';
   const eventDateFormatted = (() => {
@@ -110,6 +115,18 @@ export function OrganizerEventCard({
           >
             <IconSliders size={14} />
             <span>Cấu hình giá</span>
+          </button>
+        )}
+
+        {canManagePurchaseConfig && onOpenPurchaseConfig && (
+          <button
+            type="button"
+            className="org-btn org-btn-secondary"
+            onClick={() => onOpenPurchaseConfig(event)}
+            title="Cấu hình xác minh OTP và số vé tối đa mỗi đơn"
+          >
+            <IconShield size={14} />
+            <span>Cấu hình mua vé</span>
           </button>
         )}
 
