@@ -1,11 +1,27 @@
 import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import type {Json} from '../types/database.types';
 import type {ApiEnvelope, CreateHoldRequest, HoldRecord} from '../types/ticketing';
+import {chuanHoaLoiGiuCho} from '../domain/purchaseLimitError';
+import {GIOI_HAN_MAC_DINH, taoKhoGiuChoMoPhong} from '../domain/mockBooking';
 import {apiRequest} from './apiClient';
+import {docCauHinhMuaVe} from './purchaseConfigService';
 import {requireSupabaseClient} from './supabaseClient';
 
 const HOLD_DURATION_MS = 300_000;
 const SESSION_STORAGE_KEY = 'eventticketing-session-id';
+const MOCK_SESSION_KEY = 'eventticketing:mock-organizer-session';
+
+const khoGiuChoMoPhong = taoKhoGiuChoMoPhong({thoiGianGiuMs: HOLD_DURATION_MS});
+
+function getMockAccountId(): string {
+  try {
+    const storage = typeof globalThis.localStorage === 'undefined' ? null : globalThis.localStorage;
+    const email = storage?.getItem(MOCK_SESSION_KEY)?.trim();
+    return email || 'mock-user';
+  } catch {
+    return 'mock-user';
+  }
+}
 
 function getBrowserSessionId(): string {
   const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
@@ -52,7 +68,7 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
       data = legacyResult.data;
       error = legacyResult.error;
     }
-    if (error) throw error;
+    if (error) throw chuanHoaLoiGiuCho(error);
     return data as unknown as HoldRecord;
   }
 
@@ -64,17 +80,31 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
     return result.data;
   }
 
-  return {
-    holdId: `mock-${crypto.randomUUID()}`,
+  const active = getActiveEventContext();
+  const suKienId = active.eventDatabaseId;
+  let gioiHan: number = GIOI_HAN_MAC_DINH;
+  try {
+    const config = await docCauHinhMuaVe(suKienId);
+    gioiHan = config.soVeToiDaMoiDon;
+  } catch {
+    gioiHan = GIOI_HAN_MAC_DINH;
+  }
+
+  return khoGiuChoMoPhong.giuCho({
+    taiKhoanId: getMockAccountId(),
+    suKienId,
+    suatDienId: active.showId,
     eventId: request.eventId,
-    status: 'ACTIVE',
-    expiresAt: new Date(Date.now() + HOLD_DURATION_MS).toISOString(),
     items: request.items,
-  };
+    gioiHan,
+  });
 }
 
 export async function releaseSeatHold(holdId: string): Promise<void> {
-  if (runtimeConfig.useMockData || holdId.startsWith('mock-')) return;
+  if (runtimeConfig.useMockData || holdId.startsWith('mock-')) {
+    khoGiuChoMoPhong.huy(holdId);
+    return;
+  }
 
   if (isSupabaseConfigured()) {
     const supabase = requireSupabaseClient();
