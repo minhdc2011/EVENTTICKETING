@@ -6,6 +6,8 @@ import {
   IconEdit,
   IconExternalLink,
   IconPublish,
+  IconShield,
+  IconSliders,
   IconSpinner,
   IconTicket,
 } from './OrganizerIcons';
@@ -25,6 +27,10 @@ type OrganizerEventCardProps = {
   isPublishing: boolean;
   onEdit: (id: number) => void;
   onPublish: (id: number) => void;
+  canManagePricing?: boolean;
+  onOpenPricing?: (event: OrganizerEvent) => void;
+  canManagePurchaseConfig?: boolean;
+  onOpenPurchaseConfig?: (event: OrganizerEvent) => void;
 };
 
 export function OrganizerEventCard({
@@ -33,6 +39,10 @@ export function OrganizerEventCard({
   isPublishing,
   onEdit,
   onPublish,
+  canManagePricing = false,
+  onOpenPricing,
+  canManagePurchaseConfig = false,
+  onOpenPurchaseConfig,
 }: OrganizerEventCardProps) {
   const isPublished = event.status === 'CONG_KHAI';
   const eventDateFormatted = (() => {
@@ -93,6 +103,30 @@ export function OrganizerEventCard({
           >
             <IconEdit size={14} />
             <span>Chỉnh sửa</span>
+          </button>
+        )}
+
+        {canManagePricing && onOpenPricing && (
+          <button
+            type="button"
+            className="org-btn org-btn-secondary"
+            onClick={() => onOpenPricing(event)}
+            title="Cấu hình định giá động và chạy tính giá"
+          >
+            <IconSliders size={14} />
+            <span>Cấu hình giá</span>
+          </button>
+        )}
+
+        {canManagePurchaseConfig && onOpenPurchaseConfig && (
+          <button
+            type="button"
+            className="org-btn org-btn-secondary"
+            onClick={() => onOpenPurchaseConfig(event)}
+            title="Cấu hình xác minh OTP và số vé tối đa mỗi đơn"
+          >
+            <IconShield size={14} />
+            <span>Cấu hình mua vé</span>
           </button>
         )}
 

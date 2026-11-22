@@ -10,8 +10,33 @@ import {
   type BuyerSession,
 } from '../services/buyerAuthService';
 import {IconBuilding, IconEye, IconEyeOff, IconUser} from './common/Icons';
+import {BUYER_RETURN_TO_KEY} from './event-template/PurchaseAccessGate';
 import {GlobalHeader} from './site/GlobalHeader';
 import './site/auth.css';
+
+const SAFE_EVENT_RETURN_RE = /^events\/[a-z0-9._-]+(?:\/shows\/[a-z0-9._-]+)?(?:#seating-section)?$/i;
+
+function readBuyerReturnTarget(): string | null {
+  try {
+    const raw = window.sessionStorage.getItem(BUYER_RETURN_TO_KEY);
+    if (!raw) return null;
+    const trimmed = raw.trim();
+    if (trimmed.includes('..')) return null;
+    return SAFE_EVENT_RETURN_RE.test(trimmed) ? trimmed : null;
+  } catch {
+    return null;
+  }
+}
+
+function consumeBuyerReturnTarget(): string {
+  const target = readBuyerReturnTarget();
+  try {
+    window.sessionStorage.removeItem(BUYER_RETURN_TO_KEY);
+  } catch {
+    // sessionStorage bị chặn: bỏ qua khi dọn khóa quay lại.
+  }
+  return target ?? 'events';
+}
 
 const onSpaNav = (target: string) => (e: MouseEvent) => {
   if (!e.metaKey && !e.ctrlKey) {
@@ -42,6 +67,7 @@ export function BuyerAuth({page}: {page?: string}) {
   const registerTabRef = useRef<HTMLButtonElement>(null);
   const isBuyerSession = Boolean(session && canAccessPortal(session.accountKind, 'BUYER'));
   const activeSession = isBuyerSession ? session : null;
+  const pendingReturnTarget = activeSession ? readBuyerReturnTarget() : null;
 
   useEffect(() => {
     document.title = activeSession
@@ -112,9 +138,15 @@ export function BuyerAuth({page}: {page?: string}) {
         if (!isCurrent()) return;
         await refreshBuyerSession();
         if (!isCurrent()) return;
-        setMessage({type: 'success', text: 'Đăng nhập thành công! Đang chuyển về trang sự kiện…'});
+        const hasReturnTarget = Boolean(readBuyerReturnTarget());
+        setMessage({
+          type: 'success',
+          text: hasReturnTarget
+            ? 'Đăng nhập thành công! Đang quay lại sự kiện đang chọn vé…'
+            : 'Đăng nhập thành công! Đang chuyển về trang sự kiện…',
+        });
         setTimeout(() => {
-          if (isCurrent()) navigatePublicRoute('events');
+          if (isCurrent()) navigatePublicRoute(consumeBuyerReturnTarget());
         }, 600);
       } else {
         const result = await signUpBuyer(email, password, fullName);
@@ -122,9 +154,15 @@ export function BuyerAuth({page}: {page?: string}) {
         if (result.session) {
           await refreshBuyerSession();
           if (!isCurrent()) return;
-          setMessage({type: 'success', text: 'Đăng ký tài khoản thành công! Đang chuyển hướng…'});
+          const hasReturnTarget = Boolean(readBuyerReturnTarget());
+          setMessage({
+            type: 'success',
+            text: hasReturnTarget
+              ? 'Đăng ký tài khoản thành công! Đang quay lại sự kiện…'
+              : 'Đăng ký tài khoản thành công! Đang chuyển hướng…',
+          });
           setTimeout(() => {
-            if (isCurrent()) navigatePublicRoute('events');
+            if (isCurrent()) navigatePublicRoute(consumeBuyerReturnTarget());
           }, 800);
         } else if (result.requiresEmailConfirmation) {
           setMessage({
@@ -230,7 +268,20 @@ export function BuyerAuth({page}: {page?: string}) {
             {messageBox}
 
             <div className="et-auth__actions">
-              <button type="button" className="et-auth__btn et-auth__btn--primary" onClick={() => navigatePublicRoute('events')}>
+              {pendingReturnTarget ? (
+                <button
+                  type="button"
+                  className="et-auth__btn et-auth__btn--primary"
+                  onClick={() => navigatePublicRoute(consumeBuyerReturnTarget())}
+                >
+                  Quay lại chọn vé
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className={pendingReturnTarget ? 'et-auth__btn et-auth__btn--secondary' : 'et-auth__btn et-auth__btn--primary'}
+                onClick={() => navigatePublicRoute('events')}
+              >
                 Khám phá sự kiện
               </button>
               <button

@@ -1,0 +1,223 @@
+/* Cổng OTP trước bước chọn vé (PurchaseAccessGate + OtpVerificationPanel).
+   Co giãn hoàn toàn ở 360px: không đặt min-width cố định, cho phép xuống dòng. */
+.et-otp-gate-root {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 24px 0;
+  scroll-margin-top: 96px;
+}
+
+.et-otp-gate-root *,
+.et-otp-gate-root *::before,
+.et-otp-gate-root *::after {
+  box-sizing: border-box;
+}
+
+.et-otp-card {
+  width: 100%;
+  max-width: 560px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 20px 16px;
+  border: 1px solid #d7dde5;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1f262d;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.et-otp-card .et-otp-card {
+  max-width: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.et-otp-kicker {
+  margin: 0 0 4px;
+  color: #0353c2;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.et-otp-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.et-otp-text {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.et-otp-badge {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0 0 12px;
+  padding: 4px 10px;
+  border: 1px dashed #8a5a00;
+  border-radius: 999px;
+  background: #fff4dc;
+  color: #7a4a00;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.et-otp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.et-otp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.et-otp-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.et-otp-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #64748b;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  font-variant-numeric: tabular-nums;
+}
+
+.et-otp-input[aria-invalid='true'] {
+  border-color: #b42318;
+  border-width: 2px;
+}
+
+.et-otp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.et-otp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 140px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f262d;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.et-otp-btn--primary {
+  background: #0353c2;
+  color: #ffffff;
+  border-color: #0353c2;
+}
+
+.et-otp-btn[disabled],
+.et-otp-btn[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.et-otp-btn:focus-visible,
+.et-otp-input:focus-visible {
+  outline: 3px solid #0353c2;
+  outline-offset: 2px;
+}
+
+.et-otp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+}
+
+.et-otp-meta li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.et-otp-note {
+  margin: 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.et-otp-message {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 4px solid #0353c2;
+  border-radius: 4px;
+  background: #eef4fd;
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.et-otp-message--error {
+  border-left-color: #b42318;
+  background: #fde8ea;
+  color: #7a121b;
+}
+
+.et-otp-message--ok {
+  border-left-color: #0b5b35;
+  background: #e6f6ee;
+  color: #084226;
+}
+
+.et-otp-message strong {
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .et-otp-gate-root * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

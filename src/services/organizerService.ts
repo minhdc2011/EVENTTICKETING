@@ -10,6 +10,8 @@ import {
   readMockAccountKind,
   registerMockAccount,
 } from '../domain/accountAccess';
+import {ghepSuKienWorkspaceDemo} from '../domain/pricingMockDemo.js';
+import {khoiTaoDemoDinhGia, type DichVuMeta} from './pricingService';
 import type {PublicEventRecord, PublicShowRecord} from './eventService';
 import type {Json} from '../types/database.types';
 
@@ -274,6 +276,40 @@ export async function signOutOrganizer(): Promise<void> {
   const {requireSupabaseClient} = await import('./supabaseClient');
   const {error} = await requireSupabaseClient().auth.signOut();
   if (error) throw mapAuthError(error);
+}
+
+export async function khoiTaoDuLieuDemoDinhGia(): Promise<DichVuMeta> {
+  if (!runtimeConfig.useMockData) {
+    throw new Error('Khởi tạo dữ liệu demo định giá chỉ hỗ trợ ở chế độ mô phỏng.');
+  }
+  const now = Date.now();
+  const meta = await khoiTaoDemoDinhGia({now});
+
+  let existingEvents: unknown[] = [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(MOCK_EVENTS) || '[]');
+    if (Array.isArray(parsed)) existingEvents = parsed;
+  } catch {
+    existingEvents = [];
+  }
+  localStorage.setItem(MOCK_EVENTS, JSON.stringify(ghepSuKienWorkspaceDemo(existingEvents, now)));
+
+  let orgs: OrganizerMembership[] = [];
+  const storedOrgs = localStorage.getItem(MOCK_ORGS);
+  if (storedOrgs !== null) {
+    try {
+      const parsed = JSON.parse(storedOrgs);
+      if (Array.isArray(parsed)) orgs = parsed;
+    } catch {
+      orgs = [];
+    }
+  }
+  if (!orgs.some((o) => o?.organizationId === mockDefaultOrg.organizationId)) {
+    orgs = [mockDefaultOrg, ...orgs];
+  }
+  localStorage.setItem(MOCK_ORGS, JSON.stringify(orgs));
+
+  return meta;
 }
 
 export async function loadOrganizerWorkspace(): Promise<{

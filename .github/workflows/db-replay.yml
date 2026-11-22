@@ -1,6 +1,6 @@
 name: DB replay
 
-# Rebuilds the whole database from the migration chain on a clean local Supabase and runs the green pgTAP suites.
+# Rebuilds the whole database from the migration chain on a clean local Supabase and runs every pgTAP suite.
 # Catches migrations that cannot be replayed from scratch (see docs/LOCAL_DEV_DATABASE.md).
 on:
   pull_request:
@@ -29,8 +29,8 @@ jobs:
       - name: Start Supabase (applies every migration from scratch, then seed.sql)
         run: npm run db:start
 
-      - name: pgTAP (suites that are green today)
-        run: npm run db:test:ci
+      - name: pgTAP (every suite in supabase/tests)
+        run: npm run db:test
 
       - name: Stop Supabase
         if: always()

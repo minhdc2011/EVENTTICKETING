@@ -1,8 +1,9 @@
-import {useCallback, useEffect, useMemo, useState, type ReactNode} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from 'react';
 import {deriveSaleStatus} from '../../domain/eventStatus';
 import {loadPublicSchedule, type PublicScheduleItem} from '../../services/scheduleService';
 import {type PublicArtistRecord} from '../../services/artistService';
 import type {PublicEventRecord, PublicTicketTier} from '../../services/eventService';
+import type {PriceConnectionStatus} from '../../services/priceRealtimeService';
 import {ShowSwitcher} from './ShowSwitcher';
 import {ArtistLineupSection} from './ArtistLineupSection';
 import {EventContactSection} from './EventContactSection';
@@ -13,11 +14,12 @@ import {EventMediaSection} from './EventMediaSection';
 import {EventPolicySection} from './EventPolicySection';
 import {EventVenueSection} from './EventVenueSection';
 import {MobileStickyBar} from './MobileStickyBar';
+import {PurchaseAccessGate} from './PurchaseAccessGate';
 import {ScheduleDialog} from './ScheduleDialog';
 import {SeatMapSection} from './SeatMapSection';
 import {TeamInfoDialog} from './TeamInfoDialog';
 import {TicketTiersSection} from './TicketTiersSection';
-import {normalizeEventSlogan} from './eventTemplateLogic.js';
+import {buildPurchaseGateContextKey, normalizeEventSlogan, syncConcertRuntimeEffect} from './eventTemplateLogic.js';
 import './event-template.css';
 import './event-detail.css';
 
@@ -34,6 +36,8 @@ export type EventTemplateProps = {
   tiers: PublicTicketTier[];
   tierState: 'loading' | 'ready' | 'error';
   onRetryTiers?: () => void;
+  priceConnectionStatus?: PriceConnectionStatus;
+  hasPriceConnectedBefore?: boolean;
   slots?: EventTemplateSlots;
   schedule?: PublicScheduleItem[];
   artists?: PublicArtistRecord[];
@@ -50,6 +54,8 @@ export function EventTemplate({
   tiers,
   tierState,
   onRetryTiers,
+  priceConnectionStatus,
+  hasPriceConnectedBefore,
   slots,
   schedule: propSchedule,
   artists: propArtists,
@@ -147,28 +153,58 @@ export function EventTemplate({
   const hasSchedule = activeScheduleItems.length > 0;
 
   const isConcert = event.templateKey === 'SUPER_CONCERT_2026';
+  const gateContextKey = buildPurchaseGateContextKey(event.id, event.selectedShow?.id);
+  const [openGateContextKey, setOpenGateContextKey] = useState<string | null>(null);
+  const isPurchaseGateOpen = openGateContextKey === gateContextKey;
+  const activeRuntimeContextRef = useRef({gateContextKey, isPurchaseGateOpen});
+  activeRuntimeContextRef.current = {gateContextKey, isPurchaseGateOpen};
 
-  // Load concert runtime dynamically when concert specialization is active
-  useEffect(() => {
-    if (!isConcert) return;
-    let disposed = false;
-    let disposeRuntime: (() => void) | undefined;
-
-    void import('../../legacy/concertRuntime.js')
-      .then((runtime) => {
-        if (disposed) return;
-        disposeRuntime = runtime.teardownConcertRuntime;
-        return runtime.initConcertRuntime();
-      })
-      .catch((error) => {
-        console.error('Không thể khởi tạo trải nghiệm concert:', error);
+  const handlePurchaseAccessChange = useCallback(
+    (allowed: boolean, contextKey?: string) => {
+      if (allowed && contextKey !== undefined && contextKey !== activeRuntimeContextRef.current.gateContextKey) {
+        return;
+      }
+      const targetKey = contextKey ?? gateContextKey;
+      setOpenGateContextKey((prev) => {
+        if (allowed) return targetKey;
+        return prev === targetKey || contextKey === undefined ? null : prev;
       });
+    },
+    [gateContextKey],
+  );
 
-    return () => {
-      disposed = true;
-      disposeRuntime?.();
-    };
-  }, [isConcert, event.id, event.selectedShow?.id]);
+  // Chỉ khởi tạo concert runtime sau khi cổng mở và HTML chọn vé (#stadium-svg) đã mount; teardown khi đóng cổng hoặc đổi ngữ cảnh.
+  useEffect(() => {
+    const effectContextKey = gateContextKey;
+    let disposeRuntime: (() => void) | undefined;
+    return syncConcertRuntimeEffect({
+      isConcert,
+      isGateOpen: isPurchaseGateOpen,
+      isContextValid: () =>
+        activeRuntimeContextRef.current.gateContextKey === effectContextKey &&
+        activeRuntimeContextRef.current.isPurchaseGateOpen,
+      loadRuntime: async () => {
+        const runtime = await import('../../legacy/concertRuntime.js');
+        disposeRuntime = runtime.teardownConcertRuntime;
+        return {
+          initConcertRuntime: () => runtime.initConcertRuntime(),
+          teardownConcertRuntime: () => disposeRuntime?.(),
+        };
+      },
+      onError: (error) => {
+        console.error('Không thể khởi tạo trải nghiệm concert:', error);
+      },
+    });
+  }, [isConcert, isPurchaseGateOpen, gateContextKey]);
+
+  // Cuộn tới vùng chọn vé / cổng OTP khi quay lại từ trang đăng nhập với neo #seating-section.
+  useEffect(() => {
+    if (window.location.hash !== '#seating-section') return;
+    const target = document.getElementById('seating-section');
+    if (!target) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'});
+  }, [event.id, event.selectedShow?.id]);
 
   // Smooth in-page anchor navigation (nav, hero CTA, footer). Prevents the default hash
   // jump so the URL/route is untouched.
@@ -275,14 +311,18 @@ export function EventTemplate({
               tiers={tiers}
               tierState={tierState}
               onRetry={onRetryTiers}
+              priceConnectionStatus={priceConnectionStatus}
+              hasPriceConnectedBefore={hasPriceConnectedBefore}
             />
 
             {/* Specialization slot: Interactive Seating Map (defaults to data-driven SeatMapSection) */}
-            {slots?.seating !== undefined ? (
-              slots.seating
-            ) : (
-              <SeatMapSection event={event} />
-            )}
+            <PurchaseAccessGate event={event} onAccessChange={handlePurchaseAccessChange}>
+              {slots?.seating !== undefined ? (
+                slots.seating
+              ) : (
+                <SeatMapSection event={event} />
+              )}
+            </PurchaseAccessGate>
 
             {/* Section 03: Venue & Attendance (Auto-hides if empty) */}
             <div id="concert-guide-section" aria-hidden="true" />

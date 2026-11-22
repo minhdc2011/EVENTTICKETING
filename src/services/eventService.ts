@@ -12,6 +12,9 @@ import {
 } from '../domain/catalogFilters.js';
 import {resolvePublicArtistsFallback} from '../domain/artistLineup.js';
 import {resolveMockCatalogExtraArtists} from '../domain/mockCatalogArtists.js';
+import {laSuKienDemo, taoTiersDemo} from '../domain/pricingMockDemo.js';
+import {docTrangThaiMoPhong} from './pricingService';
+import {docCauHinhMuaVe} from './purchaseConfigService';
 
 export type {CatalogArtist};
 
@@ -463,17 +466,35 @@ export async function loadPublicEvent(
         const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
         const found = stored.find((e) => (e.slug === normalizedSlug || deduplicateSlug(e.slug) === normalizedSlug) && e.status === 'CONG_KHAI');
         if (found) {
-          const show: PublicShowRecord = {
-            id: Number(found.id) + 100,
-            slug: 'suat-1',
-            name: 'Suất diễn 1',
-            startsAt: found.startsAt,
-            endsAt: found.endsAt,
-            saleStartsAt: found.saleStartsAt,
-            saleEndsAt: found.saleEndsAt,
-            timezone: 'Asia/Ho_Chi_Minh',
-            databaseSaleStatus: 'SAP_MO_BAN',
-          };
+          const isDemo = laSuKienDemo(found.id) || laSuKienDemo(found.slug);
+          const saleStatus = isDemo ? 'DANG_MO_BAN' : 'SAP_MO_BAN';
+          const shows: PublicShowRecord[] =
+            Array.isArray(found.shows) && found.shows.length > 0
+              ? found.shows.map((s: any, idx: number) => ({
+                  id: Number(s.showId ?? Number(found.id) + 100 + idx),
+                  slug: String(s.slug || `suat-${idx + 1}`),
+                  name: String(s.name || `Suất diễn ${idx + 1}`),
+                  startsAt: String(s.startsAt || found.startsAt),
+                  endsAt: String(s.endsAt || found.endsAt),
+                  saleStartsAt: String(s.saleStartsAt || found.saleStartsAt),
+                  saleEndsAt: s.saleEndsAt ? String(s.saleEndsAt) : found.saleEndsAt,
+                  timezone: 'Asia/Ho_Chi_Minh',
+                  databaseSaleStatus: saleStatus,
+                }))
+              : [
+                  {
+                    id: Number(found.id) + 100,
+                    slug: 'suat-1',
+                    name: 'Suất diễn 1',
+                    startsAt: found.startsAt,
+                    endsAt: found.endsAt,
+                    saleStartsAt: found.saleStartsAt,
+                    saleEndsAt: found.saleEndsAt,
+                    timezone: 'Asia/Ho_Chi_Minh',
+                    databaseSaleStatus: saleStatus,
+                  },
+                ];
+          const show = shows[0];
           mockEvent = {
             id: Number(found.id),
             code: String(found.slug).toUpperCase().replaceAll('-', '_'),
@@ -482,17 +503,17 @@ export async function loadPublicEvent(
             description: found.description || undefined,
             templateKey: 'DEFAULT',
             category: String(found.category || 'KHAC'),
-            startsAt: found.startsAt,
-            endsAt: found.endsAt,
-            saleStartsAt: found.saleStartsAt,
-            saleEndsAt: found.saleEndsAt,
+            startsAt: show.startsAt,
+            endsAt: show.endsAt,
+            saleStartsAt: show.saleStartsAt,
+            saleEndsAt: show.saleEndsAt,
             venueName: String(found.venueName || 'Địa điểm tổ chức'),
             address: String(found.address || ''),
             capacity: Number(found.capacity || 100),
-            databaseSaleStatus: 'SAP_MO_BAN',
+            databaseSaleStatus: saleStatus,
             publicationStatus: 'CONG_KHAI',
             selectedShow: show,
-            shows: [show],
+            shows,
           };
         }
       } catch {
@@ -684,6 +705,10 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
     if (event.templateKey === 'SUPER_CONCERT_2026') return SUPER_CONCERT_TIERS;
     const matched = specificTiers;
     if (matched) return matched;
+    if (laSuKienDemo(event.id) || laSuKienDemo(event.slug)) {
+      const {state} = await docTrangThaiMoPhong();
+      return taoTiersDemo(state);
+    }
     try {
       const stored = JSON.parse(localStorage.getItem('eventticketing:mock-organizer-events') || '[]') as any[];
       const found = stored.find((e) => e.slug === event.slug || deduplicateSlug(e.slug) === event.slug);
@@ -722,25 +747,34 @@ export async function loadPublicTicketTiers(event: PublicEventRecord): Promise<P
   });
 }
 
-export type PublicPurchaseConfig = {maxTicketsPerOrder: number | null; holdMinutes: number | null};
+export type PublicPurchaseConfig = {
+  maxTicketsPerOrder: number | null;
+  holdMinutes: number | null;
+  requireOtp: boolean;
+  trangThai: 'DA_CAU_HINH' | 'CHUA_CAU_HINH' | 'LOI_DOC';
+  loiDoc?: boolean;
+};
 
-/** Per-event purchase configuration (CAU_HINH_SU_KIEN). Null values mean "not configured": callers use defaults. */
+/** Per-event purchase configuration (CAU_HINH_SU_KIEN). Read errors fail closed for OTP. */
 export async function loadEventPurchaseConfig(event: Pick<PublicEventRecord, 'id'>): Promise<PublicPurchaseConfig> {
-  const empty: PublicPurchaseConfig = {maxTicketsPerOrder: null, holdMinutes: null};
-  if (runtimeConfig.useMockData || !isSupabaseConfigured()) return empty;
   try {
-    const {requireSupabaseClient} = await import('./supabaseClient');
-    const supabase = requireSupabaseClient();
-    const {data, error} = await supabase.from('CAU_HINH_SU_KIEN')
-      .select('SoVeToiDaMoiDon, ThoiGianGiuChoPhut').eq('SuKienID', event.id).maybeSingle();
-    if (error || !data) return empty;
+    const config = await docCauHinhMuaVe(event.id);
     return {
-      maxTicketsPerOrder: data.SoVeToiDaMoiDon == null ? null : Number(data.SoVeToiDaMoiDon),
-      holdMinutes: data.ThoiGianGiuChoPhut == null ? null : Number(data.ThoiGianGiuChoPhut),
+      maxTicketsPerOrder: config.soVeToiDaMoiDon,
+      holdMinutes: config.thoiGianGiuChoPhut,
+      requireOtp: config.yeuCauXacMinhOtp,
+      trangThai: config.trangThai,
+      loiDoc: false,
     };
   } catch (error) {
-    console.warn('Không đọc được cấu hình mua vé, dùng giá trị mặc định:', error);
-    return empty;
+    console.warn('Không đọc được cấu hình mua vé, đóng an toàn yêu cầu OTP:', error);
+    return {
+      maxTicketsPerOrder: null,
+      holdMinutes: null,
+      requireOtp: true,
+      trangThai: 'LOI_DOC',
+      loiDoc: true,
+    };
   }
 }
 
