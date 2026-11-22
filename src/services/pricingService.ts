@@ -66,7 +66,7 @@ import type {
   MockPricingState,
   MoPhongNhuCauResult,
 } from '../domain/mockPricing';
-import {DEMO_NGUOI_DUNG, khoiTaoDemoPricing} from '../domain/pricingMockDemo.js';
+import {DEMO_KHU_IDS, DEMO_NGUOI_DUNG, docGiaDemo, khoiTaoDemoPricing} from '../domain/pricingMockDemo.js';
 import {phatThongBaoGiaMock} from '../domain/priceRealtime.js';
 
 export {PricingServiceError, DEMO_NGUOI_DUNG};
@@ -777,6 +777,30 @@ export async function docTrangThaiMoPhong(
   }
   const phien = moPhien(opts);
   return {...datMeta(phien.meta), state: phien.state};
+}
+
+/**
+ * Bảng MaKhuVuc → GiaVeNiemYet hiện hành của các khu demo, đọc không ghi (chỉ nhánh mock).
+ * Dùng để chốt giá khi tạo giữ chỗ; không khởi tạo lại seed demo.
+ */
+export async function docBangGiaChotDemo(
+  opts: PricingServiceOptions = {},
+): Promise<ReadonlyMap<string, number>> {
+  if (!dungMock(opts)) {
+    throw new PricingServiceError(
+      'Đọc bảng giá chốt demo chỉ hỗ trợ ở chế độ mô phỏng.',
+      'KHONG_HO_TRO_NHANH_THAT',
+    );
+  }
+  const {state} = moPhien(opts);
+  const giaTheoKhu = docGiaDemo(state);
+  const bang = new Map<string, number>();
+  for (const khuId of DEMO_KHU_IDS) {
+    const gia = giaTheoKhu.get(khuId);
+    const ma = state.khuVuc[khuId]?.MaKhuVuc;
+    if (gia !== undefined && typeof ma === 'string' && ma !== '') bang.set(ma, gia);
+  }
+  return bang;
 }
 
 function layKhoMacDinh(): KhoLuuTru | null {

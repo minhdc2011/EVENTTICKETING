@@ -124,8 +124,15 @@ export function getFocusableElements(container) {
  * Quyết định xử lý phím trong hộp thoại.
  * Trả {action:'close'} | {action:'wrap', target} | {action:'none'}.
  */
-export function resolveDialogKeyDown({key, shiftKey = false, activeElement, dialogElement, focusables = []}) {
-  if (key === 'Escape') return {action: 'close'};
+export function resolveDialogKeyDown({
+  key,
+  shiftKey = false,
+  activeElement,
+  dialogElement,
+  focusables = [],
+  canClose = true,
+}) {
+  if (key === 'Escape') return canClose === false ? {action: 'none'} : {action: 'close'};
   if (key !== 'Tab') return {action: 'none'};
   const list = Array.isArray(focusables) ? focusables : [];
   if (list.length === 0) return {action: 'wrap', target: dialogElement};
@@ -189,6 +196,8 @@ function collectBackgroundBranches(overlay, ownerDocument) {
  * Phạm vi focus cho modal: ghi nhớ opener, đặt inert + aria-hidden cho nền, focus vào điều khiển đầu tiên,
  * kéo focus về lại nếu thoát ra ngoài; cleanup() khôi phục trạng thái nền và focus về opener.
  */
+const SCOPE_STACKS = new WeakMap();
+
 export function createDialogFocusScope({dialog, overlay, ownerDocument, backgroundElements, fallbackFocus} = {}) {
   const doc = ownerDocument ?? (dialog && dialog.ownerDocument);
   const root = overlay ?? dialog;
@@ -215,7 +224,20 @@ export function createDialogFocusScope({dialog, overlay, ownerDocument, backgrou
   };
   focusInitial();
 
+  // Ngăn xếp scope theo document: chỉ scope trên cùng được kéo focus về.
+  let stack = null;
+  const entry = {};
+  if (doc && typeof doc === 'object') {
+    stack = SCOPE_STACKS.get(doc);
+    if (!stack) {
+      stack = [];
+      SCOPE_STACKS.set(doc, stack);
+    }
+    stack.push(entry);
+  }
+
   const onFocusIn = (event) => {
+    if (stack && stack[stack.length - 1] !== entry) return;
     const t = event && event.target;
     if (!t || (typeof root.contains === 'function' && root.contains(t))) return;
     focusInitial();
@@ -228,6 +250,10 @@ export function createDialogFocusScope({dialog, overlay, ownerDocument, backgrou
     cleanup() {
       if (!active) return;
       active = false;
+      if (stack) {
+        const i = stack.indexOf(entry);
+        if (i >= 0) stack.splice(i, 1);
+      }
       if (doc && typeof doc.removeEventListener === 'function') doc.removeEventListener('focusin', onFocusIn);
       for (const s of saved) restoreAttrs(s);
       if (opener && typeof opener.focus === 'function' && opener.isConnected !== false) {

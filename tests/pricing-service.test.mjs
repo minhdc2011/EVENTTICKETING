@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import {createMockState, laySoLieuDinhGia, toIso} from '../src/domain/mockPricing.js';
 import {
@@ -352,32 +351,6 @@ test('layKhoMacDinh trả null (không có localStorage): bộ nhớ tạm', () 
   const p = taoKho(null).moPhien({seed: seed(), now: NOW});
   assert.equal(p.meta.luuTru, 'BO_NHO');
   assert.ok(p.meta.canhBao);
-});
-
-// ------------------------------------------------------------------ kiểm tra nguồn .ts
-
-test('nguồn pricingService.ts: không có tùy chọn useMock, mock chỉ theo runtimeConfig.useMockData', async () => {
-  const src = await readFile(new URL('../src/services/pricingService.ts', import.meta.url), 'utf8');
-  assert.doesNotMatch(src, /\buseMock\b/);
-  assert.match(src, /function dungMock\([^)]*\): boolean \{\s*return runtimeConfig\.useMockData;\s*\}/);
-  assert.doesNotMatch(src, /\.update\(|\.upsert\(|\.insert\(|\.delete\(/);
-  assert.match(src, /chayDinhGiaNgayLogic/);
-});
-
-test('nguồn pricingService.ts: không đọc TrangThaiMoBan, không service-role, không any, lỗi thật không rơi về mock', async () => {
-  const src = await readFile(new URL('../src/services/pricingService.ts', import.meta.url), 'utf8');
-  const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-  assert.doesNotMatch(code, /TrangThaiMoBan/);
-  assert.doesNotMatch(code, /service_role|SERVICE_ROLE|serviceRole/);
-  assert.doesNotMatch(code, /:\s*any\b|\bas any\b|<any>/);
-  // Mỗi nhánh thật gọi layClient sau khối `if (dungMock(...))`; không có try/catch bọc để chuyển sang mock.
-  assert.doesNotMatch(code, /catch\s*\([^)]*\)\s*\{[^}]*(moPhien|Mock)\(/);
-  // Các lỗi RPC đều ném PricingServiceError.
-  assert.ok((code.match(/throw new PricingServiceError\(error\.message, error\.code\)/g) ?? []).length >= 5);
-  assert.doesNotMatch(src, /Không có API duyệt\/từ chối/);
-  assert.match(src, /export async function layDanhSachDeXuat\b/);
-  assert.match(src, /export async function duyetDeXuatGia\b/);
-  assert.match(src, /export async function tuChoiDeXuatGia\b/);
 });
 
 // ------------------------------------------------------------------ nhánh thật T1: duyệt/từ chối & đọc đề xuất

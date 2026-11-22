@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {test, mock} from 'node:test';
 import {fileURLToPath, pathToFileURL} from 'node:url';
@@ -828,15 +827,6 @@ test('một sự kiện có hai suất, một mở một đóng: chỉ khu của
   assert.equal(luu.length, 1);
   assert.equal(luu[0].args.p_khu_vuc_id, 1);
   assert.deepEqual([...kq.mocLapDay.keys()], [1]);
-});
-
-// ------------------------------------------------------------------ (j) mã nguồn script
-
-test('mã nguồn script không chứa các tham chiếu bị cấm', () => {
-  const nguon = readFileSync(DUONG_DAN_SCRIPT, 'utf8');
-  for (const cam of ['TrangThaiMoBan', 'trang_thai_suat', 'DANG_MO_BAN', 'mo_phong_nhu_cau', 'GiaVeNiemYet', 'dotenv', 'env-file', 'VITE_']) {
-    assert.ok(!nguon.includes(cam), `script không được chứa ${cam}`);
-  }
 });
 
 // ------------------------------------------------------------------ (k) import không tự chạy

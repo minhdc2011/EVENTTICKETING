@@ -284,14 +284,15 @@ export function OrganizerPriceProposals({
       activeElement: dialog.ownerDocument?.activeElement ?? null,
       dialogElement: dialog,
       focusables: getFocusableElements(dialog),
+      canClose: !submitting,
     });
-    if (decision.action === 'close') {
+    // Không để Tab/Escape nổi lên panel cha.
+    if (e.key === 'Tab' || e.key === 'Escape') e.stopPropagation();
+    if (e.key === 'Escape') {
       e.preventDefault();
-      e.stopPropagation();
-      closeDialog();
+      if (decision.action === 'close') closeDialog();
     } else if (decision.action === 'wrap') {
       e.preventDefault();
-      e.stopPropagation();
       decision.target.focus();
     }
   }
@@ -865,7 +866,7 @@ export function OrganizerPriceProposals({
                         aria-invalid={fieldErrors.giaDieuChinh ? true : undefined}
                         aria-describedby={
                           fieldErrors.giaDieuChinh
-                            ? 'proposal-adjusted-price-error'
+                            ? 'proposal-adjusted-price-hint proposal-adjusted-price-error'
                             : 'proposal-adjusted-price-hint'
                         }
                         disabled={submitting}

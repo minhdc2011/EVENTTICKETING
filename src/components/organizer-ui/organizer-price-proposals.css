@@ -247,6 +247,7 @@
 }
 
 .org-proposal-dialog-header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -264,6 +265,8 @@
 }
 
 .org-proposal-dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 20px;
   overflow-y: auto;
   display: flex;
@@ -337,12 +340,18 @@
 }
 
 .org-proposal-dialog-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 4px;
+  padding: 12px 0 2px;
+  background-color: var(--org-surface, #ffffff);
+  border-top: 1px solid var(--org-border-subtle, #e2e8f0);
 }
 
 .org-proposal-dialog-footer .org-btn {
@@ -381,6 +390,37 @@
   .org-proposal-price-grid,
   .org-proposal-metrics-grid {
     grid-template-columns: 1fr;
+  }
+
+  .org-proposals-header .org-btn,
+  .org-proposal-actions .org-btn,
+  .org-proposal-dialog-footer .org-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .org-proposal-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .org-proposal-dialog-overlay {
+    padding: 8px;
+  }
+
+  .org-proposal-dialog {
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+
+  .org-proposal-dialog-header {
+    padding: 12px;
+  }
+
+  .org-proposal-dialog-body {
+    padding: 12px;
+    gap: 12px;
   }
 
   .org-proposals-header .org-btn,

@@ -3,25 +3,17 @@ import type {Json} from '../types/database.types';
 import type {ApiEnvelope, CreateHoldRequest, HoldRecord} from '../types/ticketing';
 import {chuanHoaLoiGiuCho} from '../domain/purchaseLimitError';
 import {GIOI_HAN_MAC_DINH, taoKhoGiuChoMoPhong} from '../domain/mockBooking';
+import {laSuKienDemo} from '../domain/pricingMockDemo.js';
 import {apiRequest} from './apiClient';
+import {getBuyerSession} from './buyerAuthService';
 import {docCauHinhMuaVe} from './purchaseConfigService';
+import {docBangGiaChotDemo} from './pricingService';
 import {requireSupabaseClient} from './supabaseClient';
 
 const HOLD_DURATION_MS = 300_000;
 const SESSION_STORAGE_KEY = 'eventticketing-session-id';
-const MOCK_SESSION_KEY = 'eventticketing:mock-organizer-session';
 
 const khoGiuChoMoPhong = taoKhoGiuChoMoPhong({thoiGianGiuMs: HOLD_DURATION_MS});
-
-function getMockAccountId(): string {
-  try {
-    const storage = typeof globalThis.localStorage === 'undefined' ? null : globalThis.localStorage;
-    const email = storage?.getItem(MOCK_SESSION_KEY)?.trim();
-    return email || 'mock-user';
-  } catch {
-    return 'mock-user';
-  }
-}
 
 function getBrowserSessionId(): string {
   const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
@@ -80,6 +72,12 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
     return result.data;
   }
 
+  // Đọc lại phiên người mua ở mỗi lần giữ chỗ (không cache) để đăng xuất/đổi tài khoản có hiệu lực ngay.
+  const buyer = await getBuyerSession();
+  if (!buyer?.userId) {
+    throw new Error('Vui lòng đăng nhập tài khoản người mua để giữ chỗ.');
+  }
+
   const active = getActiveEventContext();
   const suKienId = active.eventDatabaseId;
   let gioiHan: number = GIOI_HAN_MAC_DINH;
@@ -90,13 +88,19 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
     gioiHan = GIOI_HAN_MAC_DINH;
   }
 
+  // Sự kiện demo: chốt giá theo GiaVeNiemYet hiện hành, đọc ngay trước khi tạo giữ chỗ.
+  // Không bọc try/catch: lỗi pricing phải nổi lên, không rơi về giá do caller gửi.
+  const laDemo = laSuKienDemo(active.eventId) || laSuKienDemo(active.eventDatabaseId);
+  const bangGiaChot = laDemo ? await docBangGiaChotDemo() : null;
+
   return khoGiuChoMoPhong.giuCho({
-    taiKhoanId: getMockAccountId(),
+    taiKhoanId: buyer.userId,
     suKienId,
     suatDienId: active.showId,
     eventId: request.eventId,
     items: request.items,
     gioiHan,
+    bangGiaChot,
   });
 }
 
