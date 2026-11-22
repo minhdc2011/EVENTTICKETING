@@ -32,6 +32,23 @@ export function tinhSoLuongYeuCau(items) {
   return total;
 }
 
+/**
+ * Sao chép items, luôn bỏ DonGiaChot/price do caller gửi. Khi có bangGiaChot (zoneCode → giá),
+ * DonGiaChot lấy từ bảng; thiếu khu hoặc giá không hợp lệ thì ném lỗi 22023 (không dùng giá caller).
+ */
+export function ganDonGiaChot(items, bangGiaChot) {
+  return items.map((item) => {
+    // eslint-disable-next-line no-unused-vars
+    const {DonGiaChot, price, ...rest} = item;
+    if (bangGiaChot === undefined || bangGiaChot === null) return rest;
+    const gia = bangGiaChot.get(rest.zoneCode);
+    if (typeof gia !== 'number' || !Number.isFinite(gia) || gia <= 0) {
+      throw taoLoi22023(`Khong co gia chot cho khu ${String(rest.zoneCode)}`);
+    }
+    return {...rest, DonGiaChot: gia};
+  });
+}
+
 export function demVeDangGiu(holds, taiKhoanId, suKienId, nowMs = Date.now()) {
   if (!Array.isArray(holds)) return 0;
   const targetAccount = normalizeId(taiKhoanId);
@@ -72,7 +89,7 @@ export function taoKhoGiuChoMoPhong(options = {}) {
   const holds = [];
 
   return {
-    giuCho({taiKhoanId, suKienId, suatDienId, eventId, items, gioiHan} = {}) {
+    giuCho({taiKhoanId, suKienId, suatDienId, eventId, items, gioiHan, bangGiaChot} = {}) {
       const soLuongMoi = tinhSoLuongYeuCau(items);
       if (Number.isNaN(soLuongMoi)) {
         throw taoLoi22023('So luong ve khong hop le');
@@ -97,11 +114,14 @@ export function taoKhoGiuChoMoPhong(options = {}) {
         });
       }
 
+      // Xác thực/gán giá trước khi ghi để giữ chỗ lỗi không chiếm hạn mức.
+      const itemsDaGan = ganDonGiaChot(items, bangGiaChot);
+
       const holdId = String(nextId());
       const expiresAtMs = nowMs + ttlMs;
       const expiresAt = new Date(expiresAtMs).toISOString();
       const resolvedEventId = String(eventId ?? suKienId ?? '');
-      const frozenItems = Object.freeze(items.map((item) => Object.freeze({...item})));
+      const frozenItems = Object.freeze(itemsDaGan.map((item) => Object.freeze({...item})));
 
       holds.push(
         Object.freeze({
@@ -124,7 +144,7 @@ export function taoKhoGiuChoMoPhong(options = {}) {
         eventId: resolvedEventId,
         status: 'ACTIVE',
         expiresAt,
-        items: items.map((item) => ({...item})),
+        items: itemsDaGan.map((item) => ({...item})),
       };
     },
 

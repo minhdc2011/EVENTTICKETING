@@ -3,9 +3,11 @@ import type {Json} from '../types/database.types';
 import type {ApiEnvelope, CreateHoldRequest, HoldRecord} from '../types/ticketing';
 import {chuanHoaLoiGiuCho} from '../domain/purchaseLimitError';
 import {GIOI_HAN_MAC_DINH, taoKhoGiuChoMoPhong} from '../domain/mockBooking';
+import {laSuKienDemo} from '../domain/pricingMockDemo.js';
 import {apiRequest} from './apiClient';
 import {getBuyerSession} from './buyerAuthService';
 import {docCauHinhMuaVe} from './purchaseConfigService';
+import {docBangGiaChotDemo} from './pricingService';
 import {requireSupabaseClient} from './supabaseClient';
 
 const HOLD_DURATION_MS = 300_000;
@@ -86,6 +88,11 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
     gioiHan = GIOI_HAN_MAC_DINH;
   }
 
+  // Sự kiện demo: chốt giá theo GiaVeNiemYet hiện hành, đọc ngay trước khi tạo giữ chỗ.
+  // Không bọc try/catch: lỗi pricing phải nổi lên, không rơi về giá do caller gửi.
+  const laDemo = laSuKienDemo(active.eventId) || laSuKienDemo(active.eventDatabaseId);
+  const bangGiaChot = laDemo ? await docBangGiaChotDemo() : null;
+
   return khoGiuChoMoPhong.giuCho({
     taiKhoanId: buyer.userId,
     suKienId,
@@ -93,6 +100,7 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
     eventId: request.eventId,
     items: request.items,
     gioiHan,
+    bangGiaChot,
   });
 }
 
