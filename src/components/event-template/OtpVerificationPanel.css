@@ -221,3 +221,28 @@
     animation: none !important;
   }
 }
+
+/* Thông báo "cần đăng nhập để giữ ghế" phía trên sơ đồ khi sự kiện không bật OTP (CSDL thật). */
+.et-otp-login-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border: 1px solid #b45309;
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #422006;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.et-otp-login-banner__text {
+  flex: 1 1 280px;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}

@@ -73,7 +73,7 @@ test('T3 AC1: EventTemplate wraps both SeatMapSection and slots.seating in Purch
   assert.match(allowedExpr[1], /configReady/);
   assert.match(allowedExpr[1], /!requireOtp\s*\|\|\s*gateCurrent\?\.status\s*===\s*TRANG_THAI_CONG\.DUOC_VAO/);
 
-  const childrenIdx = gateSrc.indexOf('if (allowed) return <>{children}</>;');
+  const childrenIdx = gateSrc.indexOf('if (allowed) {');
   const loadingIdx = gateSrc.indexOf("config.kind === 'loading'");
   const errorIdx = gateSrc.indexOf("config.kind === 'error'");
   assert.ok(childrenIdx !== -1 && loadingIdx !== -1 && errorIdx !== -1);

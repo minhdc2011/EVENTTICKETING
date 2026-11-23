@@ -59,3 +59,20 @@ export function chuanHoaLoiGiuCho(err) {
   if (err instanceof PurchaseLimitError) return err;
   return taoLoiVuotGioiHan(docChiTietGioiHan(err.details), err);
 }
+
+export const THONG_BAO_CAN_DANG_NHAP =
+  'Bạn cần đăng nhập tài khoản người mua để giữ ghế. Hãy đăng nhập rồi quay lại sự kiện này.';
+
+/**
+ * Lỗi giữ chỗ do chưa đăng nhập: RPC báo 28000 (không có tài khoản) hoặc PostgREST trả 401/permission denied vì
+ * khách ẩn danh không có quyền gọi hàm giữ chỗ. Không gồm lỗi thiếu xác minh OTP (cũng 42501 nhưng nói về OTP).
+ */
+export function laLoiChuaDangNhap(err) {
+  if (!err || typeof err !== 'object') return false;
+  const code = String(err.code ?? '');
+  const message = typeof err.message === 'string' ? err.message.toLowerCase() : '';
+  if (message.includes('otp')) return false;
+  if (code === '28000' || Number(err.status) === 401) return true;
+  if (code === '42501' && message.includes('permission denied')) return true;
+  return message.includes('can dang nhap') || message.includes('cần đăng nhập');
+}

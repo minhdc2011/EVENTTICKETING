@@ -26,7 +26,7 @@ import {isValidPrice, khopMaPhamViNghiemNgat} from '../../domain/priceRealtime.j
 import {getActiveEventContext, runtimeConfig} from '../../config/runtime';
 import {loadEventPurchaseConfig} from '../../services/eventService';
 import {resolvePurchaseLimits, DEFAULT_HOLD_MINUTES} from '../../domain/purchaseLimits.js';
-import {chuanHoaLoiGiuCho, laLoiVuotGioiHan} from '../../domain/purchaseLimitError.js';
+import {THONG_BAO_CAN_DANG_NHAP, chuanHoaLoiGiuCho, laLoiChuaDangNhap, laLoiVuotGioiHan} from '../../domain/purchaseLimitError.js';
 import {
   createPurchaseLimitNotice,
   describePurchaseLimits,
@@ -674,14 +674,18 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             setRealtimeBanner(defaultConflictMsg);
             dispatchToast({message: defaultConflictMsg, type: 'warning'});
           } else {
-            const errorText = 'Không thể giữ ghế lúc này. Vui lòng thử lại sau.';
+            const errorText = laLoiChuaDangNhap(err)
+              ? THONG_BAO_CAN_DANG_NHAP
+              : 'Không thể giữ ghế lúc này. Vui lòng thử lại sau.';
             setRealtimeBanner(errorText);
             dispatchToast({message: errorText, type: 'error'});
           }
           return validSelection;
         });
       } else {
-        const errorText = 'Không thể giữ ghế lúc này. Vui lòng thử lại sau.';
+        const errorText = laLoiChuaDangNhap(err)
+          ? THONG_BAO_CAN_DANG_NHAP
+          : 'Không thể giữ ghế lúc này. Vui lòng thử lại sau.';
         setRealtimeBanner(errorText);
         dispatchToast({message: errorText, type: 'error'});
       }

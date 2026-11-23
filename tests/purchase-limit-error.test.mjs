@@ -8,8 +8,10 @@ import {
   PurchaseLimitError,
   chuanHoaLoiGiuCho,
   docChiTietGioiHan,
+  laLoiChuaDangNhap,
   laLoiVuotGioiHan,
   taoLoiVuotGioiHan,
+  THONG_BAO_CAN_DANG_NHAP,
 } from '../src/domain/purchaseLimitError.js';
 
 const hopLe = {gioiHan: 4, dangGiu: 3, conLai: 1};
@@ -124,4 +126,17 @@ test('taoLoiVuotGioiHan nhận null và JSON hỏng', () => {
   assert.equal(err.conLai, null);
   assert.equal(taoLoiVuotGioiHan('{bad').chiTietHopLe, false);
   assert.equal(taoLoiVuotGioiHan(JSON.stringify(hopLe)).chiTietHopLe, true);
+});
+
+test('laLoiChuaDangNhap: nhận 28000, 401 và permission denied; không nhầm với OTP hay lỗi khác', () => {
+  assert.equal(laLoiChuaDangNhap({code: '28000', message: 'Can dang nhap de giu cho'}), true);
+  assert.equal(laLoiChuaDangNhap({status: 401, message: 'JWT'}), true);
+  assert.equal(laLoiChuaDangNhap({code: '42501', message: 'permission denied for function tao_giu_cho_theo_suat'}), true);
+  // thiếu OTP cũng là 42501 nhưng không phải chưa đăng nhập
+  assert.equal(laLoiChuaDangNhap({code: '42501', message: 'Can xac minh OTP de giu cho'}), false);
+  assert.equal(laLoiChuaDangNhap({code: '22023', message: 'VUOT_GIOI_HAN_VE'}), false);
+  assert.equal(laLoiChuaDangNhap({status: 409, message: 'conflict'}), false);
+  assert.equal(laLoiChuaDangNhap(null), false);
+  assert.equal(laLoiChuaDangNhap('permission denied'), false);
+  assert.match(THONG_BAO_CAN_DANG_NHAP, /đăng nhập/);
 });
