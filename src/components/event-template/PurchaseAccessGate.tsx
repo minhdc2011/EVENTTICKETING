@@ -85,6 +85,8 @@ export function PurchaseAccessGate({
   const [config, setConfig] = useState<ConfigState>({eventId: eventKey, kind: 'loading'});
   const [reloadKey, setReloadKey] = useState(0);
   const [session, setSession] = useState<BuyerSession | null>(null);
+  // Chỉ dùng khi sự kiện KHÔNG bật OTP trên CSDL thật: giữ chỗ vẫn cần tài khoản người mua đã đăng nhập.
+  const [daDangNhap, setDaDangNhap] = useState<boolean | null>(null);
   const [gateEntry, setGateEntry] = useState<{contextKey: string; state: TrangThaiCongOtp} | null>(null);
   const congRef = useRef<BoDieuPhoiCongOtp | null>(null);
   // Kho OTP cấp phiên người mua (module): giữ cooldown, bộ đếm và request đang chờ qua unmount/remount cả cổng (không giữ mã nhập).
@@ -148,6 +150,21 @@ export function PurchaseAccessGate({
     };
   }, [requireOtp, eventKey, showId, gateContextKey, khoOtp]);
 
+  // 3) Sự kiện không bật OTP (CSDL thật): không chặn cổng, nhưng báo người chưa đăng nhập vì máy chủ chỉ cho tài khoản đăng nhập giữ chỗ.
+  const canBaoDangNhap = !runtimeConfig.useMockData && configReady && !requireOtp;
+  useEffect(() => {
+    setDaDangNhap(null);
+    if (!canBaoDangNhap) return;
+    let active = true;
+    const unsubscribe = subscribeBuyerAuth((s) => {
+      if (active) setDaDangNhap(Boolean(s && canAccessPortal(s.accountKind, 'BUYER')));
+    });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [canBaoDangNhap, eventKey]);
+
   const gateCurrent =
     gateEntry && gateEntry.contextKey === gateContextKey && gateEntry.state.suKienId === eventKey
       ? gateEntry.state
@@ -175,7 +192,30 @@ export function PurchaseAccessGate({
   };
   const authHref = (page: 'login' | 'register') => buildPublicPath(window.location.pathname, page);
 
-  if (allowed) return <>{children}</>;
+  if (allowed) {
+    const hienThongBaoDangNhap = canBaoDangNhap && daDangNhap === false;
+    return (
+      <>
+        {hienThongBaoDangNhap ? (
+          <div className="et-otp-login-banner" role="status" aria-live="polite" data-testid="yeu-cau-dang-nhap-giu-cho">
+            <p className="et-otp-login-banner__text">
+              <strong>Cần đăng nhập để giữ ghế:</strong> bạn vẫn xem được sơ đồ, nhưng chỉ tài khoản người mua đã đăng nhập mới
+              giữ được ghế hoặc vé. Sau khi đăng nhập bạn sẽ quay lại đúng sự kiện này.
+            </p>
+            <div className="et-otp-actions">
+              <a className="et-otp-btn et-otp-btn--primary" href={authHref('login')} onClick={goAuth('login')}>
+                Đăng nhập
+              </a>
+              <a className="et-otp-btn" href={authHref('register')} onClick={goAuth('register')}>
+                Đăng ký
+              </a>
+            </div>
+          </div>
+        ) : null}
+        {children}
+      </>
+    );
+  }
 
   if (config.eventId !== eventKey || config.kind === 'loading') {
     return (

@@ -36,3 +36,6 @@ export function docChiTietGioiHan(details: unknown): ChiTietGioiHan | null;
 export function taoLoiVuotGioiHan(chiTiet: unknown, cause?: unknown): PurchaseLimitError;
 
 export function chuanHoaLoiGiuCho<T>(err: T): T | PurchaseLimitError;
+
+export const THONG_BAO_CAN_DANG_NHAP: string;
+export function laLoiChuaDangNhap(err: unknown): boolean;
