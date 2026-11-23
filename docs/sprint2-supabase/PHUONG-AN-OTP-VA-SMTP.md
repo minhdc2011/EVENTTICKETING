@@ -69,3 +69,19 @@ Mỗi phương án nêu rõ phải sửa gì trong tài liệu gốc (FR-T2-01, 
 3. Chỉ chọn **C** nếu giảng viên yêu cầu OTP phải chạy thật mà không có email; chọn **D** chỉ khi chấp nhận đổi bản chất yêu cầu từ "định danh" sang "chống bot".
 
 Nếu đổi yêu cầu (C hoặc D), tôi sẽ viết lại các mục FR-T2-01, AC-T2-01.x, Use Case và Sequence tương ứng trong nội dung viết tiếp báo cáo.
+
+## 5. Kết quả triển khai phương án A trên staging (23/11/2026)
+
+| Bước | Kết quả |
+|---|---|
+| Đẩy cấu hình Auth | SMTP Gmail (cổng 465, mật khẩu ứng dụng đọc từ biến môi trường, không ghi vào file), mẫu thư magic link có `{{ .Token }}`, giới hạn 30 thư/giờ |
+| Gửi OTP thật | Thư đến hộp thư test trong vài giây, tiêu đề "Ma xac minh EventTicketing", có mã 6 số |
+| Nhập mã đúng | Cấp phiên có `amr=otp` |
+| Dùng lại mã đã dùng | Bị từ chối (`otp_expired`) |
+| Sự kiện bật OTP (Hanou), tài khoản không OTP | Bị chặn `42501` "Can xac minh OTP de giu cho" |
+| Sự kiện bật OTP, phiên có OTP | Giữ chỗ thành công; giữ 1 vé rồi xin thêm 4 vé bị `VUOT_GIOI_HAN_VE` (còn 3); giữ thêm 3 vé (tổng 4) thành công |
+
+Lỗi tìm thấy khi thử: vé vùng đứng không gửi `ticketCode` nên mã tự ghép `MaKhuVuc-UUID` dài 54 ký tự với vùng `GENERAL_ADMISSION`, vượt `VARCHAR(50)` (lỗi 22001). Đã sửa bằng migration `20261123110000_sprint2_sua_ma_ve_vung_dung.sql` (cắt `MaKhuVuc` còn 13 ký tự).
+
+Trạng thái cuối: OTP đang **bật** cho sự kiện "Hanou" (SuKienID 6) làm sự kiện demo OTP; 5 sự kiện còn lại tắt OTP. Tài khoản demo đăng nhập nhanh không có hộp thư thật nên không qua được cổng OTP của sự kiện này.
+Cuối kỳ: thu hồi mật khẩu ứng dụng Gmail và đổi mật khẩu email test.
