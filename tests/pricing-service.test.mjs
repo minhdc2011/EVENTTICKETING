@@ -510,6 +510,15 @@ test('HET_HAN trả bình thường từ RPC thành ok:false mà không ném l�
   assert.deepEqual(rTuChoi, {ok: false, ...hetHanPayload});
 });
 
+test('chuanHoaLoiRpc: PT409 (mã mới của RPC duyệt) → 409 giống 40001 cũ, kèm trạng thái hiện tại', () => {
+  const eDaXuLy = chuanHoaLoiRpc({code: 'PT409', message: 'DE_XUAT_DA_XU_LY', details: 'APPROVED'});
+  assert.equal(eDaXuLy.status, 409);
+  assert.equal(eDaXuLy.ma, 'DE_XUAT_DA_XU_LY');
+  assert.deepEqual(eDaXuLy.chiTiet, {trangThai: 'APPROVED'});
+  assert.equal(chuanHoaLoiRpc({code: 'PT409', message: 'GIA_DA_THAY_DOI'}).status, 409);
+  assert.equal(chuanHoaLoiRpc({code: 'PT409', message: 'DE_XUAT_XUNG_DOT'}).ma, 'DE_XUAT_XUNG_DOT');
+});
+
 test('chuanHoaLoiRpc: 42501→403, 40001→409 (cả 3 message), 22023 NGOAI_KHUNG_GIA→422 kèm khung giá, lỗi khác/mạng→status null', async () => {
   const e403 = chuanHoaLoiRpc({code: '42501', message: 'Khong co quyen duyet de xuat gia'});
   assert.ok(e403 instanceof PricingServiceError);

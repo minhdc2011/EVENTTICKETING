@@ -548,7 +548,7 @@ function kiemTraDeXuatId(deXuatId: number): void {
 }
 
 function loiMockSangError(loi: MockLoiDuyet): PricingServiceError {
-  const code = loi.status === 403 ? '42501' : loi.status === 409 ? '40001' : '22023';
+  const code = loi.status === 403 ? '42501' : loi.status === 409 ? 'PT409' : '22023';
   return new PricingServiceError(loi.ma, code, {
     status: loi.status,
     ma: loi.ma,

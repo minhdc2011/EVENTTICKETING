@@ -341,7 +341,7 @@ export function classifyProposalError(error) {
   if (ma === 'DE_XUAT_HET_HAN') {
     return {status: 'expired', message: THONG_BAO_HET_HAN, canReload: true};
   }
-  if (status === 409 || code === '40001') {
+  if (status === 409 || code === 'PT409' || code === '40001') {
     if (ma === 'DE_XUAT_DA_XU_LY') {
       const trangThai = chiTiet && typeof chiTiet.trangThai === 'string' ? chiTiet.trangThai : null;
       return {
