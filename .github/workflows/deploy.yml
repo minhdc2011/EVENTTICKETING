@@ -50,9 +50,9 @@ jobs:
           VITE_SUPABASE_ANON_KEY: 'sb_publishable_mCPTLgmw3RBji1qcZ9urKw_rAWc-igK'
           VITE_EVENT_DATABASE_ID: '1'
           VITE_EVENT_ID: 'SUPER_CONCERT_2026'
-          # Bỏ dấu # ở dòng dưới để hiện nút "Đăng nhập nhanh" (tài khoản demo) trên trang công khai.
+          # Nút "Đăng nhập nhanh" (tài khoản demo) trên trang công khai để trình bày. Gỡ dòng dưới trước khi dùng dữ liệu thật.
           # Cần tạo tài khoản bằng scripts/seed-demo-accounts.mjs trước. TẮT lại trước khi nộp hoặc dùng dữ liệu thật.
-          # VITE_DEMO_QUICK_LOGIN: 'true'
+          VITE_DEMO_QUICK_LOGIN: 'true'
         run: npm run check
 
       - name: Upload Pages artifact

@@ -9,6 +9,7 @@ import {buildHeldPriceSnapshot, describePriceConnectionStatus} from '../domain/p
 import {isValidPrice, khopMaPhamViNghiemNgat} from '../domain/priceRealtime.js';
 import {resolvePurchaseLimits, formatHoldLabel, DEFAULT_HOLD_MINUTES} from '../domain/purchaseLimits.js';
 import {chuanHoaLoiGiuCho, laLoiVuotGioiHan} from '../domain/purchaseLimitError.js';
+import {EVENT_DA_DANG_NHAP, laLoiCanDangNhap, phatYeuCauDangNhap} from '../domain/loginRequired.js';
 import {
   createPurchaseLimitNotice,
   describePurchaseLimits,
@@ -1784,6 +1785,13 @@ import {
       // Proceed Booking Action (Modal Preview via React Adapter)
       const btnProceedBooking = document.getElementById('btn-proceed-booking');
       if (btnProceedBooking) {
+        // Chưa đăng nhập: hộp thoại toàn trang hiện lên; đăng nhập nhanh xong thì bấm lại nút giữ chỗ, lựa chọn vẫn còn.
+        let dangChoDangNhap = false;
+        listen(window, EVENT_DA_DANG_NHAP, () => {
+          if (!dangChoDangNhap) return;
+          dangChoDangNhap = false;
+          if (!btnProceedBooking.disabled) btnProceedBooking.click();
+        });
         listen(btnProceedBooking, 'click', async () => {
           if (isHoldRequestPending) return;
           if (!isTicketSelectionEnabled()) {
@@ -1853,6 +1861,11 @@ import {
             });
           } catch (error) {
             if (holdGeneration !== runtimeGeneration) return;
+            if (laLoiCanDangNhap(error)) {
+              dangChoDangNhap = true;
+              phatYeuCauDangNhap();
+              return;
+            }
             const normalizedError = chuanHoaLoiGiuCho(error);
             if (laLoiVuotGioiHan(normalizedError)) {
               // Over-limit: show server-provided numbers in the dedicated region, keep selection untouched.

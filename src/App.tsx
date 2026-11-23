@@ -16,6 +16,7 @@ import {
   type PublicEventRecord,
 } from './services/eventService';
 import {runtimeConfig, setActiveEventContext} from './config/runtime';
+import {LoginRequiredHost} from './components/site/LoginRequiredHost';
 import {resolvePublicRoute} from './domain/publicRoute';
 
 const BODY_CLASS =
@@ -104,5 +105,10 @@ export default function App() {
   if (loadState === 'not-found') return <EventNotFoundState />;
   if (loadState === 'error' || !event) return <AppErrorState onRetry={loadEvent} />;
 
-  return <GenericEventPage event={event} />;
+  return (
+    <>
+      <GenericEventPage event={event} />
+      <LoginRequiredHost event={event} />
+    </>
+  );
 }

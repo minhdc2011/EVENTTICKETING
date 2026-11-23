@@ -65,6 +65,14 @@ import {StandingTicketPicker} from './StandingTicketPicker';
 import {HoldConfirmationDialog} from './HoldConfirmationDialog';
 import {OfficialSeatingMap} from './OfficialSeatingMap';
 import {MapPanZoom, usePanZoom} from './MapPanZoom';
+import {
+  EVENT_DA_DANG_NHAP,
+  KHOA_GIU_CHO_DANG_CHO,
+  docYDinhGiuCho,
+  laLoiCanDangNhap,
+  phatYeuCauDangNhap,
+  taoYDinhGiuCho,
+} from '../../domain/loginRequired.js';
 import './SeatMapSection.css';
 
 export interface SeatMapSectionProps {
@@ -109,6 +117,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const [limitNotice, setLimitNotice] = useState<PurchaseLimitNotice | null>(null);
 
   const holdButtonRef = useRef<HTMLButtonElement>(null);
+  // Đang chờ đăng nhập tại chỗ (hộp thoại "Cần đăng nhập"): khi đăng nhập xong thì tự thử giữ chỗ lại.
+  const dangChoDangNhapRef = useRef(false);
+  const [resumeHold, setResumeHold] = useState(false);
   const pendingHoldSeatCodesRef = useRef<Set<string> | null>(null);
   const latestPriceSnapshotRef = useRef<ReadonlyMap<number, number> | null>(null);
 
@@ -635,6 +646,24 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       setAnnouncement(`Đã giữ ${requestedSeats.length + requestedStandingCount} vé thành công.`);
     } catch (err: any) {
       if (!isCurrent()) return;
+      if (laLoiCanDangNhap(err)) {
+        // Chưa đăng nhập: lưu lựa chọn (phòng khi phải rời trang để đăng nhập), hiện hộp thoại, giữ nguyên lựa chọn hiện tại.
+        try {
+          window.sessionStorage.setItem(
+            KHOA_GIU_CHO_DANG_CHO,
+            taoYDinhGiuCho({
+              scopeKey: currentScopeKey,
+              seatCodes: requestedSeats.map((seat) => seat.MaGheDayDu),
+              standing: requestedStanding,
+            }),
+          );
+        } catch {
+          // sessionStorage bị chặn: bỏ qua, người dùng chọn lại sau khi đăng nhập.
+        }
+        dangChoDangNhapRef.current = true;
+        phatYeuCauDangNhap();
+        return;
+      }
       const normalizedErr = chuanHoaLoiGiuCho(err);
       if (laLoiVuotGioiHan(normalizedErr)) {
         // Over-limit: show server-provided numbers in the dedicated region, keep the selection untouched.
@@ -695,7 +724,61 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         setIsPending(false);
       }
     }
-  }, [activeHold, catalog?.zones, event?.slug, fetchCatalog, holdLabel, isConnectionTrusted, isPending, saleOpen, selectedSeats, standing, standingCount]);
+  }, [activeHold, catalog?.zones, currentScopeKey, event?.slug, fetchCatalog, holdLabel, isConnectionTrusted, isPending, saleOpen, selectedSeats, standing, standingCount]);
+
+  const proceedHoldRef = useRef(handleProceedHold);
+  proceedHoldRef.current = handleProceedHold;
+
+  // Đăng nhập nhanh tại chỗ xong: tiếp tục thao tác giữ chỗ đang dừng.
+  useEffect(() => {
+    const onDangNhap = () => {
+      if (!dangChoDangNhapRef.current) return;
+      dangChoDangNhapRef.current = false;
+      try {
+        window.sessionStorage.removeItem(KHOA_GIU_CHO_DANG_CHO);
+      } catch {
+        // bỏ qua
+      }
+      void proceedHoldRef.current();
+    };
+    window.addEventListener(EVENT_DA_DANG_NHAP, onDangNhap);
+    return () => window.removeEventListener(EVENT_DA_DANG_NHAP, onDangNhap);
+  }, []);
+
+  // Quay lại trang sau khi đăng nhập ở trang riêng: khôi phục lựa chọn đã lưu rồi tự tiếp tục giữ chỗ.
+  useEffect(() => {
+    if (catalogState !== 'ready' || !catalog || activeHold) return;
+    let raw: string | null = null;
+    try {
+      raw = window.sessionStorage.getItem(KHOA_GIU_CHO_DANG_CHO);
+    } catch {
+      return;
+    }
+    const yDinh = docYDinhGiuCho(raw, currentScopeKey);
+    if (!yDinh) return;
+    try {
+      window.sessionStorage.removeItem(KHOA_GIU_CHO_DANG_CHO);
+    } catch {
+      // bỏ qua
+    }
+    const wanted = new Set(yDinh.seatCodes);
+    const seats = catalog.seats.filter((seat) => wanted.has(seat.MaGheDayDu) && seat.TrangThai === 'TRONG');
+    const zoneCodes = new Set(catalog.zones.map((zone) => zone.MaKhuVuc));
+    const standingKhoiPhuc = Object.fromEntries(Object.entries(yDinh.standing).filter(([code]) => zoneCodes.has(code)));
+    if (seats.length === 0 && Object.keys(standingKhoiPhuc).length === 0) return;
+    setSelectedSeats(seats.slice(0, Math.max(0, limits.maxPerOrder)));
+    setStanding(standingKhoiPhuc);
+    setResumeHold(true);
+    dispatchToast({message: 'Đã khôi phục lựa chọn của bạn, đang tiếp tục giữ chỗ…', type: 'info'});
+  }, [activeHold, catalog, catalogState, currentScopeKey, limits.maxPerOrder]);
+
+  useEffect(() => {
+    if (!resumeHold || isPending) return;
+    if (selectedSeats.length === 0 && standingCount === 0) return;
+    if (!isConnectionTrusted) return;
+    setResumeHold(false);
+    void proceedHoldRef.current();
+  }, [isConnectionTrusted, isPending, resumeHold, selectedSeats, standingCount]);
 
   // Release Hold (only clears state and announces success on confirmed release)
   const handleReleaseHold = useCallback(async () => {
