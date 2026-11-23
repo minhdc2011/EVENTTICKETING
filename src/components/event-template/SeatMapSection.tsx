@@ -1168,7 +1168,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 )}
             {(viewMode === 'interactive' || standingOnly || officialMapReady) && (
               <StandingTicketPicker
-                zones={activeStandingZone ? [activeStandingZone] : standingZones}
+                zones={activeStandingZone && !officialMapReady ? [activeStandingZone] : standingZones}
                 quantities={standing}
                 roomLeft={roomLeft}
                 disabled={!saleOpen || isPending || Boolean(activeHold)}

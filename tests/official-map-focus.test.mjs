@@ -152,7 +152,14 @@ test('bấm chọn phân khu trên sơ đồ không gọi scrollIntoView hay foc
   const handlerMatch = section.match(/const handleOfficialZoneSelect = useCallback\([\s\S]*?\}, \[\]\);/);
   assert.ok(handlerMatch, 'tìm thấy handleOfficialZoneSelect');
   assert.doesNotMatch(handlerMatch[0], /scrollIntoView/);
+  assert.match(section, /zones=\{activeStandingZone && !officialMapReady \? \[activeStandingZone\] : standingZones\}/);
 
   const grid = read('src/components/event-template/ZoneSeatGrid.tsx');
   assert.match(grid, /backButtonRef\.current\?\.focus\(\{preventScroll:\s*true\}\)/);
+
+  const css = read('src/components/event-template/SeatMapSection.css');
+  assert.match(css, /\.et-seatmap-card\s*\{[^}]*overflow-anchor:\s*none/);
+  assert.match(css, /\.et-map-viewport\s*\{[^}]*overflow-anchor:\s*none/);
+  assert.match(css, /\.et-pz\s*\{[^}]*overflow-anchor:\s*none/);
+  assert.match(css, /\.et-tm-stage\s*\{[^}]*overflow-anchor:\s*none/);
 });
