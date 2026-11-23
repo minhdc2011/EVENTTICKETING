@@ -39,3 +39,32 @@
 - **OTP mặc định cho sự kiện mới.** Khi chủ sở hữu hoặc quản trị tổ chức tạo bản nháp sự kiện, ứng dụng gọi RPC `luu_cau_hinh_mua_ve` để bật OTP ngay (có kiểm quyền và nhật ký như mọi lần lưu). Biên tập viên không đủ quyền ghi cấu hình nên sự kiện của họ giữ mặc định cũ (tắt OTP) cho tới khi chủ sở hữu bật ở màn Cấu hình mua vé. Không đổi hàm máy chủ nào: sự kiện chưa có dòng cấu hình vẫn được coi là không yêu cầu OTP (giữ nguyên hành vi và bộ pgTAP hiện có). Mọi sự kiện đang có trên staging (6) và dữ liệu mô phỏng (3) đã bật OTP.
 - **Đủ số vé tối đa.** Ghế còn trống chưa chọn hiện dấu cấm (vòng tròn viền đỏ gạch chéo), mờ đi và không chọn thêm được; ghế đã chọn vẫn bấm được để bỏ chọn. Áp dụng cho lưới ghế (nhà hát, arena) và Super Concert.
 - **Sơ đồ BTC.** Bấm một khu thì khu đó được tô viền bằng màu của nó, các khu xung quanh mờ đi (không phóng to); lưới ghế gốc nằm ngay bên dưới.
+
+## Bổ sung (23/11/2026, đợt 2): vòng đời giữ chỗ khi đăng xuất, sự kiện không có sơ đồ, khung gộp
+
+### Đăng xuất hoặc đổi tài khoản khi đang giữ chỗ
+
+Quy tắc: **trả chỗ lại ngay** và đưa giao diện về trạng thái "chưa giữ".
+
+| Tình huống | Hành vi |
+|---|---|
+| Đang giữ chỗ, bấm Đăng xuất (hoặc phiên chuyển sang tài khoản khác) | Gọi `huy_giu_cho`, đóng hộp thoại xác nhận, tắt đồng hồ, xóa lựa chọn ghế, báo "Bạn đã đăng xuất nên chỗ đang giữ đã được trả lại" |
+| Khách ẩn danh đăng nhập | Không đổi gì (lựa chọn giữ nguyên, tiếp tục thanh toán) |
+| Làm mới token cùng tài khoản | Không đổi gì |
+| Đăng xuất khi chưa giữ chỗ | Không đổi gì |
+
+Lý do: lượt giữ thuộc về tài khoản; sau khi đăng xuất người dùng không còn thấy hay hủy được nó, trong khi người khác bị chặn ghế đó tới 5 phút. Lựa chọn ghế cũng bị xóa để máy dùng chung không để lại lựa chọn cho người sau. `huy_giu_cho` xác thực bằng mã phiên trình duyệt chứ không bằng `auth.uid()` nên vẫn gọi được ngay sau khi đăng xuất. Hàm thuần `src/domain/holdSessionGuard.js` giữ quy tắc này (có test); React (`SeatMapSection`) và Super Concert (`concertRuntime.js`) dùng chung.
+
+Chưa xử lý: tải lại trang khi đang giữ chỗ vẫn làm mất trạng thái trên giao diện (lượt giữ trên máy chủ hết hạn sau 5 phút do tác vụ dọn tự động); nếu cần khôi phục thì phải thêm RPC đọc lượt giữ đang hoạt động của tài khoản.
+
+### Sự kiện không có sơ đồ chỗ ngồi
+
+Khi mọi khu đều là vé đứng và sự kiện không có sơ đồ BTC (áp dụng cho cả sự kiện tạo sau này), trang chỉ hiện bảng "Vé đứng (không chọn ghế)" và bảng tóm tắt; không có bản đồ, thanh công cụ, ô tìm ghế hay chú giải. Chữ đổi từ "ghế" sang "vé".
+
+### Khung gộp khi bấm một khu của sơ đồ BTC
+
+Một khung duy nhất: sơ đồ phóng vừa phải vào khu (khoảng 30% toàn cảnh) làm nền, khu đang chọn tô viền, các khu xung quanh mờ đi và bấm được để chuyển khu; bảng chọn ghế hiện tại (nền tím nhạt, nút ghế khối nổi, hướng sân khấu) nổi giữa khung. Nút "Thu nhỏ toàn cảnh" quay về sơ đồ đầy đủ và giữ nguyên lựa chọn.
+
+### OTP
+
+Mọi sự kiện đang mở bán trên staging (Super Concert, Hanou) và trong dữ liệu mô phỏng đã bật OTP; hai sự kiện UAT đã đóng cũng giữ cờ bật (không ảnh hưởng vì không mua được).

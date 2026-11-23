@@ -2,6 +2,8 @@
 import {loadTicketingCatalog} from '../services/ticketDataService';
 import {runtimeConfig, getActiveEventContext} from '../config/runtime';
 import {createSeatHold, releaseSeatHold} from '../services/bookingService';
+import {subscribeBuyerAuth} from '../services/buyerAuthService';
+import {taoBoTheoDoiPhienGiuCho} from '../domain/holdSessionGuard.js';
 import {docCauHinhMuaVe} from '../services/purchaseConfigService';
 import {subscribeToSeatUpdates} from '../services/seatRealtimeService';
 import {subscribeToPriceUpdates} from '../services/priceRealtimeService';
@@ -1464,6 +1466,22 @@ import {
         }
       }
 
+      // Đăng xuất hoặc đổi tài khoản khi đang giữ chỗ: trả chỗ lại, xóa lựa chọn và về trạng thái "chưa giữ".
+      function traChoKhiDoiTaiKhoan(thongBao) {
+        stopHoldCountdown();
+        void releaseActiveHold();
+        selectedSeatIds.clear();
+        standingTickets.clear();
+        standingQuantities.GA_STAND_1 = 0;
+        standingQuantities.GA_STAND_2 = 0;
+        updateStandingQuantityDisplay('GA_STAND_1');
+        updateStandingQuantityDisplay('GA_STAND_2');
+        updateSidebar();
+        renderSeats();
+        dispatchBookingModal({ open: false });
+        showToast(thongBao, 'info');
+      }
+
       function startHoldCountdown(durationSeconds = 300) {
         holdTimeRemaining = Math.max(0, Math.min(300, durationSeconds));
         document.getElementById('hold-timer-container')?.classList.remove('hidden');
@@ -1801,6 +1819,11 @@ import {
         // Chưa đăng nhập: hộp thoại toàn trang hiện lên; đăng nhập nhanh xong thì bấm lại nút giữ chỗ, lựa chọn vẫn còn.
         let dangChoDangNhap = false;
         let dangChoOtp = false;
+        const theoDoiPhien = taoBoTheoDoiPhienGiuCho();
+        listenerCleanups.push(subscribeBuyerAuth(session => {
+          const hanhDong = theoDoiPhien(session, Boolean(activeHoldId));
+          if (hanhDong) traChoKhiDoiTaiKhoan(hanhDong.thongBao);
+        }));
         listen(window, EVENT_DA_DANG_NHAP, () => {
           if (!dangChoDangNhap) return;
           dangChoDangNhap = false;

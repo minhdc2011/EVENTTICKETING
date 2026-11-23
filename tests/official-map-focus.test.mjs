@@ -46,16 +46,24 @@ test('ba sự kiện có sơ đồ trực quan bán đến cuối tháng 12/2026
   assert.ok(ends.length >= 4, 'Super Concert, hai ngày Creative Tech và Arena');
 });
 
-test('mở một khu: sơ đồ thu nhỏ tô viền khu đó, lưới ghế gốc nằm bên dưới (không phóng to, không vẽ ghế trong SVG)', () => {
+test('mở một khu của sơ đồ BTC: MỘT khung, sơ đồ phóng vừa phải làm nền, bảng ghế gốc nổi giữa khung', () => {
   const map = read('src/components/event-template/OfficialSeatingMap.tsx');
-  assert.doesNotMatch(map, /setAttribute\('viewBox'|createPortal|requestAnimationFrame/);
+  assert.match(map, /zoomToActive/);
+  assert.match(map, /setAttribute\('viewBox'/);
+  assert.match(map, /ZOOM_PADDING = 1\.9/);
+  assert.match(map, /MIN_VIEW_FRACTION = 0\.3;/);
+  assert.match(map, /prefers-reduced-motion/);
+  assert.doesNotMatch(map, /createPortal|seatLayer/, 'không vẽ ghế trong SVG');
   const css = read('src/components/event-template/SeatMapSection.css');
+  assert.match(css, /\.et-zone-stage\s*\{[^}]*position:\s*relative/s);
+  assert.match(css, /\.et-zone-stage \.et-map-viewport\s*\{[^}]*pointer-events:\s*none/s);
+  assert.match(css, /\.et-zone-stage \.et-detail-layout,[^{]*\{[^}]*pointer-events:\s*auto/s);
   assert.match(css, /\[data-zone-code\]\.is-focused\s*\{[^}]*stroke:\s*var\(--zone-color/s);
-  assert.match(css, /\.et-official-map--compact\s*\{[^}]*max-width:\s*520px/s);
   const section = read('src/components/event-template/SeatMapSection.tsx');
-  assert.match(section, /officialFocusActive/);
-  assert.match(section, /<OfficialSeatingMap\s+compact/);
-  assert.doesNotMatch(section, /officialZoomActive|seatLayer/);
+  assert.match(section, /officialFocusActive \? 'et-zone-stage'/);
+  assert.match(section, /<OfficialSeatingMap\s+zoomToActive/);
+  assert.doesNotMatch(section, /et-focus-map|<OfficialSeatingMap\s+compact/);
+  assert.match(section, /'Thu nhỏ toàn cảnh'/);
 });
 
 test('chưa đăng nhập: không còn thanh nhắc ở đầu trang, chỉ hộp thoại khi bấm Giữ chỗ', () => {
@@ -94,4 +102,23 @@ test('sự kiện mới tạo mặc định bật OTP (qua RPC lưu cấu hình,
   assert.match(svc, /batOtpMacDinhChoSuKienMoi\(\(created as/);
   assert.match(svc, /luuCauHinhMuaVe\(id, \{soVeToiDaMoiDon: 4, yeuCauXacMinhOtp: true\}\)/);
   assert.match(svc, /catch \(error\) \{\s*console\.warn\('Không bật được OTP mặc định/);
+});
+
+test('sự kiện không có sơ đồ chỗ ngồi chỉ hiện phần chọn vé (không bản đồ, thanh công cụ, chú giải)', () => {
+  const section = read('src/components/event-template/SeatMapSection.tsx');
+  assert.match(section, /const standingOnly =[\s\S]*every\(\(zone\) => isStandingZone\(zone\)\)[\s\S]*!event\?\.seatingMapUrl/);
+  assert.match(section, /\{!standingOnly && \(/);
+  assert.match(section, /\(viewMode === 'interactive' \|\| standingOnly\)/);
+  assert.match(section, /ticketOnly=\{standingOnly\}/);
+  assert.match(read('src/components/event-template/SelectionSummary.tsx'), /ticketOnly \? 'Vé đã chọn' : 'Ghế đã chọn'/);
+});
+
+test('đăng xuất hoặc đổi tài khoản khi đang giữ chỗ: trả chỗ lại và về trạng thái chưa giữ (React và Super Concert)', () => {
+  const section = read('src/components/event-template/SeatMapSection.tsx');
+  assert.match(section, /taoBoTheoDoiPhienGiuCho\(\)/);
+  assert.match(section, /void releaseSeatHold\(hold\.holdId\)/);
+  assert.match(section, /setIsHoldDialogOpen\(false\)/);
+  const runtime = read('src/legacy/concertRuntime.js');
+  assert.match(runtime, /subscribeBuyerAuth\(session =>/);
+  assert.match(runtime, /traChoKhiDoiTaiKhoan\(hanhDong\.thongBao\)/);
 });

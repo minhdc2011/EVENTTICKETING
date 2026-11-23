@@ -1514,15 +1514,68 @@
   .et-official-map-interactive [data-zone-code] { transition: none; }
 }
 
-/* Sơ đồ BTC thu nhỏ phía trên lưới ghế: khu đang mở được tô viền, các khu xung quanh mờ đi */
-.et-focus-map {
-  padding: 12px 16px 0;
+/* Khung gộp: sơ đồ BTC phóng vừa phải vào khu đang mở làm nền, bảng chọn ghế hiện tại nổi giữa khung. */
+.et-zone-stage {
+  position: relative;
+  margin: 8px 16px 0;
+  border: 1px solid var(--seat-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0d1527;
+  isolation: isolate;
 }
-.et-official-map--compact {
-  max-width: 520px;
-  margin: 0 auto;
+.et-zone-stage__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
-.et-official-map--compact figcaption { font-size: 12px; }
+.et-zone-stage .et-official-map--stage {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.et-zone-stage .et-official-map--stage figcaption { display: none; }
+.et-zone-stage .et-official-map-interactive,
+.et-zone-stage .et-official-map-interactive svg {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+/* Lớp trước: vùng chứa bảng ghế trong suốt, không chặn bấm vào các khu bên cạnh ở mép sơ đồ */
+.et-zone-stage .et-map-viewport {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 600px;
+  padding: 48px 24px;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0;
+  pointer-events: none;
+}
+.et-zone-stage .et-map-viewport .et-pz,
+.et-zone-stage .et-map-viewport .et-pz__content { pointer-events: none; background: transparent; }
+.et-zone-stage .et-detail-layout,
+.et-zone-stage .et-standing-zone-detail {
+  pointer-events: auto;
+  width: min(100%, 700px);
+  padding: 6px 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 18px 48px rgba(2, 6, 23, 0.5);
+}
+@media (max-width: 700px) {
+  .et-zone-stage { margin: 8px 0 0; border-radius: 8px; }
+  .et-zone-stage .et-map-viewport { padding: 36px 6px; min-height: 0; }
+  .et-zone-stage .et-detail-layout { padding: 6px 6px 12px; overflow-x: auto; }
+}
 
 /* Đồng hồ giữ chỗ 5 phút trong bảng tóm tắt (chỉ hiện khi đã giữ chỗ thật) */
 .et-hold-timer {
@@ -1610,7 +1663,7 @@
 }
 
 /* Nhãn chữ trên bản vẽ SVG thu nhỏ: thêm viền tối để đọc được trên khu đang sáng */
-.et-official-map--compact .et-official-map-interactive text {
+.et-official-map--stage .et-official-map-interactive text {
   paint-order: stroke fill;
   stroke: rgba(13, 21, 39, 0.9);
   stroke-width: 2.6px;

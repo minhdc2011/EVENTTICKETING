@@ -19,15 +19,23 @@ const out = process.env.OUT || path.join(os.tmpdir(), 'checkout-flow-shots');
 mkdirSync(out, {recursive: true});
 const target = process.argv[2];
 if (!target) { console.error('Usage: checkout-flow.mjs <url sự kiện MOCK có sơ đồ BTC, vd .../events/autumn-arena-festival-2026>'); process.exit(2); }
+async function moKhu(page, code) {
+  // Chờ SVG và bộ xử lý bấm được gắn xong; thử lại nếu bấm quá sớm.
+  await page.waitForSelector('.et-official-map-interactive svg', {timeout: 15000});
+  for (let i = 0; i < 5; i += 1) {
+    await page.locator(`.et-official-map-interactive [data-zone-code="${code}"]`).first().click({force: true});
+    if (await page.waitForSelector('.et-zone-stage', {timeout: 1500}).catch(() => null)) break;
+  }
+  await page.waitForTimeout(1500);
+}
 const browser = await chromium.launch({executablePath: process.env.CHROME_PATH || undefined});
 const page = await browser.newPage({viewport: {width: 1440, height: 900}});
 let blocked = 0; page.route(/\.supabase\.co/, (r) => { blocked++; r.abort(); });
 const errs = []; page.on('pageerror', (e) => errs.push(e.message));
 let fail = 0; const ok = (n, c, x='') => { if(!c) fail++; console.log((c?'PASS':'FAIL')+' - '+n+' '+x); };
-await page.goto(target, {waitUntil:'networkidle'}); await page.waitForTimeout(900);
+await page.goto(target, {waitUntil:'networkidle'}); await page.waitForSelector('.et-official-map-interactive svg', {timeout: 15000}); await page.waitForTimeout(500);
 ok('ẩn danh vẫn thấy sơ đồ (không bị chặn bởi cổng OTP)', (await page.locator('.et-official-map-interactive [data-zone-code]').count()) > 5);
-await page.locator('.et-official-map-interactive [data-zone-code="SEC_104"]').first().scrollIntoViewIfNeeded();
-await page.locator('.et-official-map-interactive [data-zone-code="SEC_104"]').first().click({force:true}); await page.waitForTimeout(1200);
+await moKhu(page, 'SEC_104');
 const seats = page.locator('.et-seat-rows .et-seat'); ok('chọn ghế được khi chưa đăng nhập: ghế hiện trong khu', (await seats.count()) >= 20);
 await seats.nth(0).click(); await seats.nth(1).click(); await page.waitForTimeout(300);
 ok('chọn 2 ghế khi chưa đăng nhập', (await page.locator('.et-seat-rows .et-seat[data-status=selected]').count()) === 2);
