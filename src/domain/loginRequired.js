@@ -1,4 +1,4 @@
-import {laLoiChuaDangNhap} from './purchaseLimitError.js';
+import {laLoiChuaDangNhap, laLoiThieuOtp} from './purchaseLimitError.js';
 
 /** Sự kiện cửa sổ: một thao tác (giữ ghế) cần đăng nhập; hộp thoại toàn trang sẽ hiện. */
 export const EVENT_CAN_DANG_NHAP = 'eventticketing:login-required';
@@ -6,6 +6,11 @@ export const EVENT_CAN_DANG_NHAP = 'eventticketing:login-required';
 export const EVENT_DA_DANG_NHAP = 'eventticketing:login-success';
 /** Khóa sessionStorage lưu lựa chọn ghế đang chờ khi người dùng rời trang để đăng nhập. */
 export const KHOA_GIU_CHO_DANG_CHO = 'eventticketing:pending-hold';
+/** Sự kiện cửa sổ: bước thanh toán cần xác minh OTP qua email; hộp thoại nhập mã sẽ hiện. */
+export const EVENT_CAN_OTP = 'eventticketing:otp-required';
+/** Sự kiện cửa sổ: người dùng vừa xác minh OTP xong; nơi đang chờ tiếp tục thanh toán. */
+export const EVENT_DA_XAC_MINH_OTP = 'eventticketing:otp-verified';
+export const THONG_BAO_CAN_OTP_THANH_TOAN = 'Cần xác minh OTP qua email trước khi thanh toán.';
 
 export const THONG_BAO_CAN_DANG_NHAP_GIU_CHO =
   'Bạn cần đăng nhập tài khoản người mua để giữ ghế. Hãy đăng nhập rồi quay lại sự kiện này.';
@@ -29,6 +34,21 @@ export function laLoiCanDangNhap(err) {
   return err.ma === 'CAN_DANG_NHAP' || laLoiChuaDangNhap(err);
 }
 
+export class OtpRequiredError extends Error {
+  constructor(message = THONG_BAO_CAN_OTP_THANH_TOAN, {cause} = {}) {
+    super(message);
+    this.name = 'OtpRequiredError';
+    this.ma = 'CAN_XAC_MINH_OTP';
+    if (cause !== undefined) this.cause = cause;
+  }
+}
+
+/** Đã đăng nhập nhưng chưa xác minh OTP (máy chủ từ chối 42501 nói về OTP, hoặc dịch vụ báo trước). */
+export function laLoiCanOtp(err) {
+  if (!err || typeof err !== 'object') return false;
+  return err.ma === 'CAN_XAC_MINH_OTP' || laLoiThieuOtp(err);
+}
+
 function phat(name, target) {
   const w = target ?? (typeof window === 'undefined' ? null : window);
   if (!w || typeof w.dispatchEvent !== 'function' || typeof CustomEvent === 'undefined') return false;
@@ -38,6 +58,8 @@ function phat(name, target) {
 
 export const phatYeuCauDangNhap = (target) => phat(EVENT_CAN_DANG_NHAP, target);
 export const phatDaDangNhap = (target) => phat(EVENT_DA_DANG_NHAP, target);
+export const phatYeuCauOtp = (target) => phat(EVENT_CAN_OTP, target);
+export const phatDaXacMinhOtp = (target) => phat(EVENT_DA_XAC_MINH_OTP, target);
 
 /** Chuỗi JSON lưu lựa chọn ghế đang chờ; không chứa dữ liệu cá nhân. */
 export function taoYDinhGiuCho({scopeKey, seatCodes, standing, now = Date.now()}) {

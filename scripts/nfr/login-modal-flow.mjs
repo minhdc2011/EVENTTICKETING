@@ -6,6 +6,9 @@
  *   VITE_USE_MOCK_DATA=true VITE_DEMO_QUICK_LOGIN=true VITE_SUPABASE_URL= VITE_SUPABASE_ANON_KEY= npx vite --port 5198
  *   FAKE_NOW=2026-10-27T12:00:00+07:00 SHOT_DIR=<thư mục ảnh> node scripts/nfr/login-modal-flow.mjs http://localhost:5198/events/autumn-arena-festival-2026 [http://localhost:5198/events/super-concert-2026]
  *
+ * LƯU Ý (23/11/2026): kịch bản này giả định sự kiện KHÔNG bật OTP. Dữ liệu hiện tại bật OTP ở mọi sự kiện, nơi luồng là
+ * Thanh toán -> đăng nhập -> OTP -> xác nhận: dùng scripts/nfr/checkout-flow.mjs và checkout-flow-super-concert.mjs.
+ *
  * AN TOÀN: chỉ chạy với bản MOCK. Mọi yêu cầu tới *.supabase.co bị chặn và script báo lỗi nếu có yêu cầu nào.
  */
 import {createRequire} from 'node:module';

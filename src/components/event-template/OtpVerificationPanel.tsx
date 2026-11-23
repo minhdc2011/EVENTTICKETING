@@ -258,7 +258,7 @@ export function OtpVerificationPanel({
 
   return (
     <div className="et-otp-card">
-      <p className="et-otp-kicker">Xác minh trước khi chọn vé</p>
+      <p className="et-otp-kicker">Xác minh khi thanh toán</p>
       <h3 className="et-otp-title">Nhập mã OTP gửi qua email</h3>
       {isMock ? (
         <p className="et-otp-badge" data-nguon={NHAN_MO_PHONG}>

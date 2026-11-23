@@ -205,7 +205,7 @@ async function loadStoryModules() {
  * Điểm xuất phát chung của kịch bản: bundle mới, mọi kho về trạng thái sạch, giá demo được seed,
  * sự kiện 990001 bật OTP với giới hạn 4 vé/đơn, và người mua đã đăng ký (phiên mock).
  */
-async function startDemoStory() {
+async function startDemoStory({xacMinhOtp = true} = {}) {
   store.clear();
   globalThis.__sprint2Ctx = {
     eventId: DEMO_SLUG,
@@ -231,6 +231,11 @@ async function startDemoStory() {
 
   const {session} = await svc.signUpBuyer(BUYER_EMAIL, BUYER_PASSWORD, 'Người mua demo');
   assert.ok(session?.userId, 'đăng ký người mua mock phải trả về phiên');
+  if (xacMinhOtp) {
+    const nguoiMua = await svc.getBuyerSession();
+    await svc.khoTrangThaiOtpPhien.thucHienGui(nguoiMua, {guiMaOtp: svc.guiMaOtp});
+    await svc.khoTrangThaiOtpPhien.thucHienXacMinh(nguoiMua, svc.MA_MO_PHONG, {xacMinhMaOtp: svc.xacMinhMaOtp});
+  }
   return {svc, session};
 }
 
@@ -691,8 +696,8 @@ async function waitForReact(condition, what, tries = 100) {
 // T1 (AC1): đăng nhập người mua -> gửi/xác minh OTP mock -> mở cổng chọn vé
 // ---------------------------------------------------------------------------
 
-test('T1: sự kiện bật OTP không mount phần chọn vé cho tới khi người mua xác minh OTP mock', async () => {
-  const {svc, session} = await startDemoStory();
+test('T1: sự kiện bật OTP vẫn cho xem và chọn vé; OTP chỉ được yêu cầu ở bước Thanh toán', async () => {
+  const {svc, session} = await startDemoStory({xacMinhOtp: false});
 
   // Đăng nhập lại (mock) bằng tài khoản vừa đăng ký.
   const signedIn = await svc.signInBuyer(BUYER_EMAIL, BUYER_PASSWORD);
@@ -723,39 +728,46 @@ test('T1: sự kiện bật OTP không mount phần chọn vé cho tới khi ng�
       await act(async () => {
         root.render(renderGate());
       });
-      await waitForReact(
-        () => container.textContent.includes('Xác minh OTP để chọn vé'),
-        'cổng OTP hiển thị khung xác minh (CAN_OTP)',
+      // Luồng mới: phần chọn vé mở ngay (không chặn xem/chọn), kể cả khi chưa xác minh OTP.
+      await waitForReact(() => container.querySelector(`#${SENTINEL_ID}`) !== null, 'phần chọn vé mở ngay cả khi chưa xác minh OTP');
+      assert.equal(accessChanges.at(-1), true, 'onAccessChange(true) khi cấu hình đã đọc, không đợi OTP');
+      assert.equal(container.textContent.includes('Xác minh OTP để thanh toán'), false, 'chưa bấm Thanh toán thì chưa hiện hộp thoại OTP');
+
+      // Bấm Thanh toán khi đã đăng nhập nhưng chưa có OTP: dịch vụ giữ chỗ từ chối bằng OtpRequiredError.
+      await assert.rejects(
+        () => svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17)]}),
+        (err) => err.ma === 'CAN_XAC_MINH_OTP',
       );
 
-      // Chưa xác minh: khung cổng có mặt, phần chọn vé của sự kiện KHÔNG được mount.
-      assert.ok(container.querySelector('#seating-section'), 'khung #seating-section của cổng phải có mặt');
-      assert.equal(container.querySelector(`#${SENTINEL_ID}`), null, 'chưa xác minh thì không mount phần chọn vé');
-      assert.equal(accessChanges.includes(true), false, 'onAccessChange không được báo true trước khi xác minh');
+      // Giao diện nhận yêu cầu OTP -> hộp thoại nhập mã hiện, phần chọn vé vẫn còn phía sau.
+      await act(async () => {
+        dom.win.dispatchEvent(new CustomEvent('eventticketing:otp-required'));
+      });
+      await waitForReact(
+        () => container.textContent.includes('Xác minh OTP để thanh toán'),
+        'hộp thoại OTP hiện khi bấm Thanh toán',
+      );
+      assert.ok(container.querySelector(`#${SENTINEL_ID}`), 'phần chọn vé vẫn còn phía sau hộp thoại');
 
-      // Gửi mã (dịch vụ thật), nhập sai một lần: cổng vẫn đóng.
+      // Gửi mã (dịch vụ thật), nhập sai một lần: chưa được thanh toán.
       const kho = svc.khoTrangThaiOtpPhien;
       await act(async () => {
         await kho.thucHienGui(current, {guiMaOtp: svc.guiMaOtp});
       });
       assert.ok(kho.layChiTiet(current).trangThai.guiLuc !== null, 'gửi mã phải ghi mốc gửi');
-
       await act(async () => {
         await kho.thucHienXacMinh(current, '000000', {xacMinhMaOtp: svc.xacMinhMaOtp});
       });
       assert.ok(kho.layChiTiet(current).error, 'mã sai phải báo lỗi trong kho OTP');
-      assert.equal(container.querySelector(`#${SENTINEL_ID}`), null, 'mã sai thì cổng vẫn đóng');
       assert.equal((await svc.kiemTraDaXacMinhOtp({userId: current.userId})).daXacMinh, false);
 
-      // Xác minh bằng mã mô phỏng: cổng kiểm tra lại và mở.
+      // Xác minh bằng mã mô phỏng: có bằng chứng, giữ chỗ/thanh toán được.
       await act(async () => {
         await kho.thucHienXacMinh(current, svc.MA_MO_PHONG, {xacMinhMaOtp: svc.xacMinhMaOtp});
       });
-      await waitForReact(() => container.querySelector(`#${SENTINEL_ID}`) !== null, 'phần chọn vé được mount sau xác minh');
-
-      assert.equal(container.querySelector('#seating-section'), null, 'khung cổng phải biến mất khi cổng mở');
-      assert.equal(accessChanges.at(-1), true, 'onAccessChange(true) phải được gọi sau khi xác minh');
       assert.equal((await svc.kiemTraDaXacMinhOtp({userId: current.userId})).daXacMinh, true);
+      const hold = await svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17)]});
+      assert.equal(hold.status, 'ACTIVE', 'sau OTP đúng thì thanh toán (giữ chỗ) thành công');
     } finally {
       await act(async () => {
         root.unmount();
@@ -957,7 +969,7 @@ test('T3: chạy engine lưu PENDING, giá chỉ đổi sau khi BTC duyệt; gi�
 
 test('xuyên suốt: đăng nhập -> OTP -> mở cổng -> giữ 3 vé -> xin thêm 2 bị từ chối -> engine PENDING -> BTC duyệt -> giữ chỗ cũ giữ DonGiaChot', async () => {
   // startDemoStory chỉ được gọi MỘT lần; từ đây không xóa store, không nạp lại bundle, không đăng xuất/đăng ký lại.
-  const {svc, session} = await startDemoStory();
+  const {svc, session} = await startDemoStory({xacMinhOtp: false});
   const nguoiDung = svc.DEMO_NGUOI_DUNG;
 
   // 1. Đăng nhập người mua; chưa xác minh OTP.
@@ -989,14 +1001,21 @@ test('xuyên suốt: đăng nhập -> OTP -> mở cổng -> giữ 3 vé -> xin t
           ),
         );
       });
-      await waitForReact(
-        () => container.textContent.includes('Xác minh OTP để chọn vé'),
-        'cổng OTP hiển thị khung xác minh (CAN_OTP)',
-      );
-      assert.equal(container.querySelector(`#${SENTINEL_ID}`), null, 'chưa xác minh thì không mount phần chọn vé');
-      assert.equal(accessChanges.includes(true), false, 'onAccessChange không được báo true trước khi xác minh');
+      await waitForReact(() => container.querySelector(`#${SENTINEL_ID}`) !== null, 'phần chọn vé mở ngay, không chặn trước OTP');
+      assert.equal(accessChanges.at(-1), true, 'onAccessChange(true) khi cấu hình đã đọc');
 
-      // 3. Gửi mã, nhập sai một lần (cổng vẫn đóng), rồi mã mô phỏng (cổng mở).
+      // 3. Bấm Thanh toán chưa có OTP: bị từ chối, hộp thoại OTP hiện; gửi mã, nhập sai một lần, rồi mã mô phỏng.
+      await assert.rejects(
+        () => svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17)]}),
+        (err) => err.ma === 'CAN_XAC_MINH_OTP',
+      );
+      await act(async () => {
+        dom.win.dispatchEvent(new CustomEvent('eventticketing:otp-required'));
+      });
+      await waitForReact(
+        () => container.textContent.includes('Xác minh OTP để thanh toán'),
+        'hộp thoại OTP hiện khi bấm Thanh toán',
+      );
       await act(async () => {
         await kho.thucHienGui(current, {guiMaOtp: svc.guiMaOtp});
       });
@@ -1004,12 +1023,11 @@ test('xuyên suốt: đăng nhập -> OTP -> mở cổng -> giữ 3 vé -> xin t
         await kho.thucHienXacMinh(current, '000000', {xacMinhMaOtp: svc.xacMinhMaOtp});
       });
       assert.ok(kho.layChiTiet(current).error, 'mã sai phải báo lỗi trong kho OTP');
-      assert.equal(container.querySelector(`#${SENTINEL_ID}`), null, 'mã sai thì cổng vẫn đóng');
+      assert.equal((await svc.kiemTraDaXacMinhOtp({userId: current.userId})).daXacMinh, false);
       await act(async () => {
         await kho.thucHienXacMinh(current, svc.MA_MO_PHONG, {xacMinhMaOtp: svc.xacMinhMaOtp});
       });
-      await waitForReact(() => container.querySelector(`#${SENTINEL_ID}`) !== null, 'phần chọn vé được mount sau xác minh');
-      assert.equal(accessChanges.at(-1), true, 'onAccessChange(true) phải được gọi sau khi xác minh');
+      assert.equal((await svc.kiemTraDaXacMinhOtp({userId: current.userId})).daXacMinh, true);
 
       // 4. Cùng phiên, cổng vẫn mở: giữ 3 vé VIP ở giá seed.
       const hold3 = await svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17), vipItem(18), vipItem(19)]});

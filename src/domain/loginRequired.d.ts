@@ -2,6 +2,16 @@ export const EVENT_CAN_DANG_NHAP: string;
 export const EVENT_DA_DANG_NHAP: string;
 export const KHOA_GIU_CHO_DANG_CHO: string;
 export const THONG_BAO_CAN_DANG_NHAP_GIU_CHO: string;
+export const EVENT_CAN_OTP: string;
+export const EVENT_DA_XAC_MINH_OTP: string;
+export const THONG_BAO_CAN_OTP_THANH_TOAN: string;
+export class OtpRequiredError extends Error {
+  ma: 'CAN_XAC_MINH_OTP';
+  constructor(message?: string, options?: {cause?: unknown});
+}
+export function laLoiCanOtp(err: unknown): boolean;
+export function phatYeuCauOtp(target?: unknown): boolean;
+export function phatDaXacMinhOtp(target?: unknown): boolean;
 export class LoginRequiredError extends Error {
   ma: 'CAN_DANG_NHAP';
   status: 401;

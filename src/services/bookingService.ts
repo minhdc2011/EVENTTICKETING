@@ -2,11 +2,12 @@ import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../con
 import type {Json} from '../types/database.types';
 import type {ApiEnvelope, CreateHoldRequest, HoldRecord} from '../types/ticketing';
 import {chuanHoaLoiGiuCho, laLoiChuaDangNhap} from '../domain/purchaseLimitError';
-import {LoginRequiredError} from '../domain/loginRequired.js';
+import {LoginRequiredError, OtpRequiredError, laLoiCanOtp} from '../domain/loginRequired.js';
 import {GIOI_HAN_MAC_DINH, taoKhoGiuChoMoPhong} from '../domain/mockBooking';
 import {laSuKienDemo} from '../domain/pricingMockDemo.js';
 import {apiRequest} from './apiClient';
 import {getBuyerSession} from './buyerAuthService';
+import {kiemTraDaXacMinhOtp} from './otpService';
 import {docCauHinhMuaVe} from './purchaseConfigService';
 import {docBangGiaChotDemo} from './pricingService';
 import {requireSupabaseClient} from './supabaseClient';
@@ -65,6 +66,8 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
       error = legacyResult.error;
     }
     if (error) {
+      // Đã đăng nhập nhưng sự kiện bật OTP mà chưa xác minh: giao diện hiện hộp thoại nhập mã rồi thử lại.
+      if (laLoiCanOtp(error)) throw new OtpRequiredError(undefined, {cause: error});
       if (laLoiChuaDangNhap(error)) throw new LoginRequiredError(undefined, {cause: error});
       throw chuanHoaLoiGiuCho(error);
     }
@@ -88,11 +91,18 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
   const active = getActiveEventContext();
   const suKienId = active.eventDatabaseId;
   let gioiHan: number = GIOI_HAN_MAC_DINH;
+  let yeuCauOtp = false;
   try {
     const config = await docCauHinhMuaVe(suKienId);
     gioiHan = config.soVeToiDaMoiDon;
+    yeuCauOtp = config.yeuCauXacMinhOtp === true;
   } catch {
     gioiHan = GIOI_HAN_MAC_DINH;
+  }
+  // Sự kiện bật OTP: phải có bằng chứng xác minh (mô phỏng) trước khi giữ chỗ/thanh toán, giống máy chủ thật.
+  if (yeuCauOtp) {
+    const daXacMinh = await kiemTraDaXacMinhOtp({userId: buyer.userId});
+    if (!daXacMinh.daXacMinh) throw new OtpRequiredError();
   }
 
   // Sự kiện demo: chốt giá theo GiaVeNiemYet hiện hành, đọc ngay trước khi tạo giữ chỗ.

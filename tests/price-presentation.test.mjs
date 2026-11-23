@@ -1614,7 +1614,7 @@ test('SeatMapSection hành vi: releaseSeatHold cũ hoàn tất muộn sau khi đ
       const dialog = container.querySelector('[data-od-id="hold-dialog"]');
       assert.ok(dialog);
       assert.match(dialog.textContent, /hold-show-20/);
-      assert.match(container.querySelector('[data-od-id="realtime-banner"]').textContent, /Đã giữ chỗ tạm/);
+      assert.match(container.querySelector('[data-od-id="realtime-banner"]').textContent, /Đã xác nhận thanh toán \(mô phỏng\)/);
       assert.ok(container.querySelector('[data-od-id="ticket-vip-a2"]'));
     },
   );
