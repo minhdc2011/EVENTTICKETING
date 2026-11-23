@@ -58,6 +58,7 @@ import {
   formatMoneyVND,
 } from '../../domain/seatMap.js';
 
+import {MapFirstTimeHint} from './MapFirstTimeHint';
 import {MapToolbar} from './MapToolbar';
 import {StadiumOverview} from './StadiumOverview';
 import {ZoneSeatGrid} from './ZoneSeatGrid';
@@ -1040,6 +1041,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             )}
 
             {/* Sơ đồ BTC có ghế: bản đồ kiểu Ticketmaster (ghế là chấm trên bản đồ) + khung thông tin vé bên cạnh. */}
+            {officialMapReady && <MapFirstTimeHint />}
             {officialMapReady && (
               <div className="et-tm-card" data-testid="so-do-kieu-ticketmaster">
                 <OfficialSeatingMap
