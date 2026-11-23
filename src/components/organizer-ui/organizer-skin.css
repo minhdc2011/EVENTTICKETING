@@ -1020,3 +1020,24 @@
     font-size: 12px;
   }
 }
+
+/* Studio: cột trái đứng yên khi cuộn / đổi bộ lọc; chỉ vùng nội dung bên phải thay đổi. */
+@media (min-width: 1025px) {
+  html:has(.organizer-shell) {
+    scrollbar-gutter: stable;
+  }
+  .organizer-shell .org-layout {
+    align-items: start;
+  }
+  .organizer-shell .org-sidebar {
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .organizer-shell .org-main {
+    min-height: calc(100vh - 64px);
+  }
+}

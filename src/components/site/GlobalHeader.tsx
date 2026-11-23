@@ -1,3 +1,4 @@
+import {useEffect, useState} from 'react';
 import type {MouseEvent, ReactNode} from 'react';
 import {canAccessPortal} from '../../domain/accountAccess';
 import {buildPublicPath, navigatePublicRoute} from '../../domain/publicRoute';
@@ -11,6 +12,32 @@ export type GlobalHeaderProps = {
   activeCategory?: string;
   onCategorySelect?: (key: string) => void;
 };
+
+type BtcAccount = {email: string};
+
+/** Tài khoản Ban tổ chức đang đăng nhập (cổng riêng với người mua) để header hiện đúng trạng thái. */
+function useBtcAccount(): BtcAccount | null {
+  const [account, setAccount] = useState<BtcAccount | null>(null);
+  useEffect(() => {
+    let stop: (() => void) | undefined;
+    let cancelled = false;
+    void import('../../services/organizerService').then(({subscribeOrganizerAuth}) => {
+      if (cancelled) return;
+      stop = subscribeOrganizerAuth((next) => setAccount(next ? {email: next.email} : null));
+    });
+    return () => {
+      cancelled = true;
+      stop?.();
+    };
+  }, []);
+  return account;
+}
+
+async function signOutBtc() {
+  const {signOutOrganizer} = await import('../../services/organizerService');
+  await signOutOrganizer();
+  navigatePublicRoute('events');
+}
 
 function routeHref(target: string): string {
   return buildPublicPath(window.location.pathname, target);
@@ -49,6 +76,9 @@ export function GlobalHeader({
   onCategorySelect,
 }: GlobalHeaderProps) {
   const emailName = session ? session.email.split('@')[0] || session.email : '';
+  const isBuyer = Boolean(session && canAccessPortal(session.accountKind, 'BUYER'));
+  const btcAccount = useBtcAccount();
+  const btcName = btcAccount ? btcAccount.email.split('@')[0] || btcAccount.email : '';
 
   return (
     <header className="et-site et-header">
@@ -89,12 +119,25 @@ export function GlobalHeader({
           <RouteLink target="organizer" className="et-header__link">
             Dành cho BTC
           </RouteLink>
-          {session && canAccessPortal(session.accountKind, 'BUYER') ? (
+          {isBuyer ? (
             <>
               <RouteLink target="account" className="et-header__link et-header__badge" title={session.email}>
                 <span className="et-header__badge-text">{emailName}</span>
               </RouteLink>
               <button type="button" className="et-header__link et-header__signout" onClick={() => void onSignOut()}>
+                Đăng xuất
+              </button>
+            </>
+          ) : btcAccount ? (
+            <>
+              <RouteLink target="organizer" className="et-header__link et-header__badge" title={`${btcAccount.email} (Ban tổ chức)`}>
+                <span className="et-header__badge-text">{btcName} · BTC</span>
+              </RouteLink>
+              <button
+                type="button"
+                className="et-header__link et-header__signout"
+                onClick={() => void signOutBtc()}
+              >
                 Đăng xuất
               </button>
             </>
