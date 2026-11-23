@@ -75,6 +75,11 @@
   cursor: pointer;
 }
 
+/* Nút nằm trực tiếp trong cột: không co giãn theo chiều dọc. */
+.et-login-modal__actions > .et-login-modal__btn {
+  flex: 0 0 auto;
+}
+
 .et-login-modal__btn--primary {
   background: #1d4ed8;
   color: #ffffff;
