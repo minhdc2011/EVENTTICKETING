@@ -45,3 +45,29 @@ test('ba sự kiện có sơ đồ trực quan bán đến cuối tháng 12/2026
   const ends = [...svc.matchAll(/saleEndsAt: '(2026-12-31T22:00:00\+07:00)'/g)];
   assert.ok(ends.length >= 4, 'Super Concert, hai ngày Creative Tech và Arena');
 });
+
+test('bấm khu thì camera phóng vào khu (animation viewBox) và có nút thu nhỏ toàn cảnh', () => {
+  const map = read('src/components/event-template/OfficialSeatingMap.tsx');
+  assert.match(map, /setAttribute\('viewBox'/);
+  assert.match(map, /requestAnimationFrame/);
+  assert.match(map, /prefers-reduced-motion/);
+  assert.match(map, /Thu nhỏ toàn cảnh/);
+});
+
+test('chưa đăng nhập: không còn thanh nhắc ở đầu trang, chỉ hộp thoại khi bấm Giữ chỗ', () => {
+  const gate = read('src/components/event-template/PurchaseAccessGate.tsx');
+  assert.doesNotMatch(gate, /yeu-cau-dang-nhap-giu-cho/);
+  assert.doesNotMatch(gate, /et-otp-login-banner/);
+  const host = read('src/components/site/LoginRequiredHost.tsx');
+  assert.match(host, /role="dialog"/);
+});
+
+test('đồng hồ 5 phút chỉ chạy khi đã giữ chỗ thật (React và Super Concert)', () => {
+  const summary = read('src/components/event-template/SelectionSummary.tsx');
+  assert.match(summary, /hasActiveHold && typeof holdRemainingSeconds === 'number'/);
+  const section = read('src/components/event-template/SeatMapSection.tsx');
+  assert.match(section, /holdRemainingSeconds=\{activeHold \? remainingSeconds : undefined\}/);
+  const runtime = read('src/legacy/concertRuntime.js');
+  assert.doesNotMatch(runtime, /Start 5-min Hold Countdown if not already running/);
+  assert.match(runtime, /holdTimerContainer\.classList\.toggle\('hidden', !holdTimerInterval\)/);
+});
