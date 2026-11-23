@@ -53,8 +53,8 @@ export class PublicEventNotFoundError extends Error {
 
 const MOCK_SHOW: PublicShowRecord = {
   id: 1, slug: 'dem-chinh', name: 'Đêm diễn chính',
-  startsAt: '2026-11-01T19:30:00+07:00', endsAt: '2026-11-30T23:00:00+07:00',
-  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-11-30T22:00:00+07:00',
+  startsAt: '2026-11-01T19:30:00+07:00', endsAt: '2026-12-31T23:00:00+07:00',
+  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-12-31T22:00:00+07:00',
   timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 
@@ -75,8 +75,8 @@ const MOCK_EVENT: PublicEventRecord = {
 };
 
 const MOCK_GENERIC_SHOWS: PublicShowRecord[] = [
-  {id: 21, slug: 'ngay-1', name: 'Ngày 1 · Kết nối', startsAt: '2026-11-01T09:00:00+07:00', endsAt: '2026-11-01T17:00:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-11-30T22:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
-  {id: 22, slug: 'ngay-2', name: 'Ngày 2 · Thực hành', startsAt: '2026-11-30T09:00:00+07:00', endsAt: '2026-11-30T23:59:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-11-30T22:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
+  {id: 21, slug: 'ngay-1', name: 'Ngày 1 · Kết nối', startsAt: '2026-11-01T09:00:00+07:00', endsAt: '2026-11-01T17:00:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-12-31T22:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
+  {id: 22, slug: 'ngay-2', name: 'Ngày 2 · Thực hành', startsAt: '2026-11-30T09:00:00+07:00', endsAt: '2026-11-30T23:59:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-12-31T22:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
 ];
 
 const MOCK_GENERIC_EVENT: PublicEventRecord = {
@@ -99,8 +99,8 @@ const MOCK_GENERIC_EVENT: PublicEventRecord = {
 // Event sử dụng sơ đồ arena end-stage tham khảo.
 const MOCK_ARENA_SHOW: PublicShowRecord = {
   id: 31, slug: 'dem-arena', name: 'Đêm diễn Arena Quốc tế',
-  startsAt: '2026-11-21T18:30:00+07:00', endsAt: '2026-11-21T23:30:00+07:00',
-  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-11-21T22:00:00+07:00',
+  startsAt: '2026-12-31T18:30:00+07:00', endsAt: '2026-12-31T23:30:00+07:00',
+  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-12-31T22:00:00+07:00',
   timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 

@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 import seatingHtml from '../legacy/fragments/seating.html?raw';
+import './event-template/SuperConcertSeatmapSync.css';
 import type {PublicEventRecord} from '../services/eventService';
 import {
   ArtistLineupSection,

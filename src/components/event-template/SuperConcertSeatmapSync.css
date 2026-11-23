@@ -1,0 +1,172 @@
+/* ==========================================================================
+   SUPER CONCERT: đồng bộ giao diện sơ đồ ghế với mẫu sự kiện chung (et-skin).
+   Chỉ đổi lớp trình bày (màu, viền, bo góc, thanh công cụ). Hình học SVG, camera zoom,
+   id/lớp mà concertRuntime.js dùng và mọi hành vi chọn ghế được giữ nguyên.
+   Màu lấy đúng token của mẫu chung: --seat-* trong event-detail.css (nền trắng, viền #e2e8f0/#d7dde5,
+   chữ #1f262d, nhấn #0353c2, bo 8px). Tệp này nạp sau index.css nên dùng !important
+   để thắng các quy tắc tối `#seating-section ... !important` cũ.
+   ========================================================================== */
+#seating-section.concert-seatmap-section {
+  --sc-card: #ffffff;
+  --sc-border: #e2e8f0;
+  --sc-border-strong: #d7dde5;
+  --sc-ink: #1f262d;
+  --sc-muted: #525b6c;
+  --sc-accent: #0353c2;
+  --sc-raised: #f4f6f8;
+  background: transparent !important;
+  color: var(--sc-ink);
+}
+
+/* ---------- Thanh công cụ: thẻ trắng như .et-seatmap-card ---------- */
+#seating-section.concert-seatmap-section #seating-toolbar {
+  background: var(--sc-card) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  padding: 12px 14px;
+}
+#seating-section.concert-seatmap-section #seating-toolbar::before,
+#seating-section.concert-seatmap-section #seating-toolbar::after { display: none !important; }
+#seating-section.concert-seatmap-section #seating-toolbar .text-slate-400 { color: var(--sc-muted) !important; }
+
+/* Nhóm tab phân khu: dạng segmented như .et-segmented */
+#seating-section.concert-seatmap-section #seating-toolbar > div:first-child {
+  border: 1px solid var(--sc-border-strong);
+  border-radius: 8px;
+  background: var(--sc-card);
+  padding: 3px;
+  gap: 2px !important;
+}
+#seating-section.concert-seatmap-section #seating-toolbar > div:first-child > span { display: none; }
+#seating-section.concert-seatmap-section .zone-tab {
+  background: transparent !important;
+  color: var(--sc-ink) !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  font-family: inherit;
+  font-weight: 600;
+  padding: 7px 12px;
+}
+#seating-section.concert-seatmap-section .zone-tab::after { display: none !important; }
+#seating-section.concert-seatmap-section .zone-tab:hover:not(.active-gold-tab) { background: var(--sc-raised) !important; }
+#seating-section.concert-seatmap-section .zone-tab.active-gold-tab {
+  background: var(--sc-raised) !important;
+  color: var(--sc-ink) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25) !important;
+}
+#seating-section.concert-seatmap-section .zone-tab:focus-visible {
+  outline: 2px solid var(--sc-accent);
+  outline-offset: 1px;
+}
+
+/* Ô tìm kiếm, nhóm phóng to: nền trắng, viền xám */
+#seating-section.concert-seatmap-section #search-seat-input,
+#seating-section.concert-seatmap-section #seating-toolbar .inset-dark-cell {
+  background: var(--sc-card) !important;
+  border: 1px solid var(--sc-border-strong) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: var(--sc-ink) !important;
+}
+#seating-section.concert-seatmap-section #search-seat-input::placeholder { color: var(--sc-muted) !important; }
+#seating-section.concert-seatmap-section #search-seat-input:focus-visible {
+  outline: 2px solid var(--sc-accent);
+  outline-offset: 1px;
+  border-color: var(--sc-accent) !important;
+}
+#seating-section.concert-seatmap-section #seating-toolbar .text-slate-300,
+#seating-section.concert-seatmap-section #seating-toolbar .text-slate-400,
+#seating-section.concert-seatmap-section #zoom-level-text { color: var(--sc-ink) !important; }
+#seating-section.concert-seatmap-section #seating-toolbar svg.text-slate-400 { color: var(--sc-muted) !important; }
+#seating-section.concert-seatmap-section #btn-zoom-reset { color: var(--sc-accent) !important; font-weight: 600; }
+#seating-section.concert-seatmap-section #seating-toolbar button:hover { background: var(--sc-raised) !important; }
+
+/* Trạng thái kết nối + chú thích trạng thái ghế */
+#seating-section.concert-seatmap-section .realtime-connection-status {
+  background: var(--sc-raised) !important;
+  border: 1px solid var(--sc-border-strong) !important;
+  color: var(--sc-ink) !important;
+  border-radius: 999px !important;
+}
+#seating-section.concert-seatmap-section .realtime-connection-status strong { color: var(--sc-ink) !important; }
+#seating-section.concert-seatmap-section .seating-status-legend,
+#seating-section.concert-seatmap-section .seating-status-legend__item { color: var(--sc-muted) !important; }
+
+/* ---------- Khung sơ đồ: thẻ trắng, bản vẽ SVG tối nằm trong khung bo góc (như .et-official-map) ---------- */
+#seating-section.concert-seatmap-section .concert-seatmap-canvas {
+  background: var(--sc-card) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+#seating-section.concert-seatmap-section .concert-seatmap-canvas::before,
+#seating-section.concert-seatmap-section .concert-seatmap-canvas::after { display: none !important; }
+#seating-section.concert-seatmap-section .stadium-map-shell {
+  background: var(--sc-card) !important;
+  border: 0 !important;
+  padding: 0 !important;
+  color: var(--sc-ink);
+}
+#seating-section.concert-seatmap-section .stadium-map-meta {
+  color: var(--sc-muted) !important;
+  font-size: 12px;
+}
+#seating-section.concert-seatmap-section .stadium-vector-shell {
+  border: 1px solid var(--sc-border-strong);
+  border-radius: 12px;
+  overflow: hidden;
+}
+#seating-section.concert-seatmap-section .stadium-map-instruction {
+  background: var(--sc-raised) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: 8px !important;
+  color: var(--sc-muted) !important;
+}
+#seating-section.concert-seatmap-section .stadium-map-instruction strong { color: var(--sc-accent) !important; }
+#seating-section.concert-seatmap-section .stadium-capacity-chip {
+  background: var(--sc-card) !important;
+  border: 1px solid var(--sc-border-strong) !important;
+  color: var(--sc-muted) !important;
+}
+#seating-section.concert-seatmap-section .stadium-map-caption > div {
+  background: var(--sc-raised) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: 8px !important;
+}
+#seating-section.concert-seatmap-section .stadium-map-caption strong { color: var(--sc-ink) !important; }
+#seating-section.concert-seatmap-section .stadium-map-caption span { color: var(--sc-muted) !important; }
+
+/* Danh sách ghế theo phân khu: thẻ trắng */
+#seating-section.concert-seatmap-section .seat-inventory-heading,
+#seating-section.concert-seatmap-section .seat-inventory-heading span { color: var(--sc-ink) !important; }
+#seating-section.concert-seatmap-section .zone-block {
+  background: var(--sc-card) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: var(--sc-ink) !important;
+}
+#seating-section.concert-seatmap-section .zone-block::before,
+#seating-section.concert-seatmap-section .zone-block::after { display: none !important; }
+#seating-section.concert-seatmap-section .zone-block :is(h3, h4, strong, .text-white) { color: var(--sc-ink) !important; }
+#seating-section.concert-seatmap-section .zone-block :is(p, .text-slate-400, .text-slate-300, .text-slate-500) { color: var(--sc-muted) !important; }
+#seating-section.concert-seatmap-section .zone-block .inset-dark-cell {
+  background: var(--sc-raised) !important;
+  border: 1px solid var(--sc-border-strong) !important;
+  border-radius: 8px !important;
+  color: var(--sc-ink) !important;
+}
+
+/* Thông báo tải dữ liệu */
+#seating-section.concert-seatmap-section .seating-data-message {
+  background: var(--sc-card) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: 8px !important;
+  color: var(--sc-ink) !important;
+}
+#seating-section.concert-seatmap-section .seating-data-message span { color: var(--sc-muted) !important; }
