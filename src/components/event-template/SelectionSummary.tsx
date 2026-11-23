@@ -1,6 +1,6 @@
 import type {RefObject} from 'react';
 import type {SeatRecord} from '../../types/ticketing';
-import {formatMoneyVND, calculateSelectionTotal} from '../../domain/seatMap.js';
+import {formatMoneyVND, calculateSelectionTotal, formatCountdown} from '../../domain/seatMap.js';
 import {formatSelectionCounter} from '../../domain/purchaseLimitPresentation.js';
 import {HELD_PRICE_NOTE_CLIENT, type HeldPriceSnapshot} from '../../domain/pricePresentation.js';
 
@@ -28,6 +28,8 @@ export interface SelectionSummaryProps {
     conLai: number | null;
   } | null;
   holdLabel?: string;
+  /** Số giây còn lại của lượt giữ chỗ thật (chỉ truyền khi đã giữ chỗ thành công). */
+  holdRemainingSeconds?: number;
   onChangeStanding?: (zoneCode: string, quantity: number) => void;
   saleOpen: boolean;
   isPending: boolean;
@@ -49,6 +51,7 @@ export function SelectionSummary({
   limitExplanation = null,
   limitNotice = null,
   holdLabel = '5 phút',
+  holdRemainingSeconds,
   onChangeStanding,
   saleOpen,
   isPending,
@@ -215,6 +218,15 @@ export function SelectionSummary({
               : 'Tổng tạm tính từ giá vé hiện tại; hệ thống xác nhận lại khi giữ ghế.'}
           </p>
 
+          {hasActiveHold && typeof holdRemainingSeconds === 'number' ? (
+            <div className="et-hold-timer" role="timer" data-testid="dong-ho-giu-cho">
+              <span>Thời gian giữ chỗ còn lại</span>
+              <strong className="et-num" data-low={holdRemainingSeconds <= 60 ? 'true' : undefined}>
+                {formatCountdown(holdRemainingSeconds)}
+              </strong>
+            </div>
+          ) : null}
+
           <button
             ref={holdButtonRef}
             type="button"
@@ -230,7 +242,7 @@ export function SelectionSummary({
           <p className="et-hold-note" id="hold-note">
             {hasActiveHold
               ? 'Đang giữ ghế trong phiên tạm thời. Nhấn để xem thời gian còn lại hoặc hủy giữ.'
-              : `Chỗ chỉ được giữ sau khi yêu cầu thành công. Thời gian giữ dự kiến: ${holdLabel}.`}
+              : `Ghế chỉ được giữ khi bạn bấm Giữ chỗ (cần đăng nhập). ${holdLabel} đếm ngược từ lúc giữ thành công; trước đó người khác vẫn có thể chọn ghế bạn đang xem.`}
           </p>
 
           {!isConnectionTrusted && (

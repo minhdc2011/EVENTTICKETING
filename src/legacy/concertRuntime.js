@@ -182,7 +182,7 @@ import {
         }
         const holdNote = document.getElementById('concert-hold-note');
         if (holdNote) {
-          holdNote.textContent = `Chỗ chỉ được giữ sau khi yêu cầu thành công. Thời gian giữ dự kiến: ${formatHoldLabel(currentLimits.holdMinutes || DEFAULT_HOLD_MINUTES)}.`;
+          holdNote.textContent = `Ghế chỉ được giữ khi bạn bấm Giữ chỗ (cần đăng nhập). ${formatHoldLabel(currentLimits.holdMinutes || DEFAULT_HOLD_MINUTES)} đếm ngược từ lúc giữ thành công; trước đó người khác vẫn có thể chọn ghế bạn đang xem.`;
         }
         if (activeDetailZoneCode) {
           renderZoneDetailPanel();
@@ -1355,12 +1355,9 @@ import {
 
         emptyMsg.classList.add('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
-        if (holdTimerContainer) holdTimerContainer.classList.remove('hidden');
-
-        // Start 5-min Hold Countdown if not already running
-        if (!holdTimerInterval) {
-          startHoldCountdown();
-        }
+        // Đồng hồ 5 phút chỉ hiện và chạy khi đã giữ chỗ thật trên máy chủ (startHoldCountdown gọi sau khi giữ thành công).
+        // Trước đó chỉ là lựa chọn cục bộ: không có đếm ngược để không đánh lừa người dùng.
+        if (holdTimerContainer) holdTimerContainer.classList.toggle('hidden', !holdTimerInterval);
 
         // Render every selected ticket, including standing tickets.
         let totalAmount = 0;
@@ -1455,6 +1452,7 @@ import {
 
       function startHoldCountdown(durationSeconds = 300) {
         holdTimeRemaining = Math.max(0, Math.min(300, durationSeconds));
+        document.getElementById('hold-timer-container')?.classList.remove('hidden');
         updateHoldTimerDisplay();
         clearInterval(holdTimerInterval);
         holdTimerInterval = setInterval(() => {
@@ -1480,6 +1478,7 @@ import {
       function stopHoldCountdown() {
         clearInterval(holdTimerInterval);
         holdTimerInterval = null;
+        document.getElementById('hold-timer-container')?.classList.add('hidden');
       }
 
       function updateHoldTimerDisplay() {

@@ -971,16 +971,21 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               </div>
             )}
 
-            {/* Khi đã mở một khu của sơ đồ BTC: vẫn hiện sơ đồ thu nhỏ, khu đang chọn sáng và các khu xung quanh bị làm mờ */}
+            {/* Khi đã mở một khu của sơ đồ BTC: camera phóng vào khu đó, khu sáng lên và các khu xung quanh bị làm mờ */}
             {viewMode === 'interactive' && event?.seatingMapUrl && activeDisplayZone && (
               <div className="et-focus-map" data-testid="so-do-lam-mo-khu-xung-quanh">
                 <OfficialSeatingMap
-                  compact
+                  zoomToActive
                   src={event.seatingMapUrl}
                   eventName={event.name}
                   zones={catalog?.zones || []}
                   activeZoneCode={activeDisplayZone.MaKhuVuc}
                   onSelectZone={handleOfficialZoneSelect}
+                  onResetView={() => {
+                    setSelectedZoneId(null);
+                    setFilter('all');
+                    setViewMode('official');
+                  }}
                 />
               </div>
             )}
@@ -1133,6 +1138,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             limitExplanation={limitCopy.differ ? limitCopy.text : null}
             limitNotice={limitNotice}
             holdLabel={holdLabel}
+            holdRemainingSeconds={activeHold ? remainingSeconds : undefined}
             onChangeStanding={handleStandingChange}
             saleOpen={saleOpen}
             isPending={isPending}
