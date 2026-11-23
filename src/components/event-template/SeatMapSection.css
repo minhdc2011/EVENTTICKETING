@@ -1637,3 +1637,53 @@
   stroke-width: 2.6px;
   stroke-linejoin: round;
 }
+
+/* ==========================================================================
+   Ghế vẽ ngay trong phân khu của sơ đồ BTC (giống Super Concert: phóng vào khu rồi chọn ghế tại chỗ).
+   Cùng bảng màu: còn trống xanh lá, đang chọn vàng, đã bán xám sọc, đang giữ viền cam, không mở bán sọc chéo.
+   ========================================================================== */
+.et-map-seat { cursor: pointer; outline: none; }
+.et-map-seat__dot {
+  fill: #22c55e;
+  stroke: #15803d;
+  stroke-width: 1.2;
+  transition: fill 0.15s, stroke 0.15s;
+}
+.et-map-seat__glyph {
+  fill: #052e16;
+  font-weight: 700;
+  pointer-events: none;
+  paint-order: normal;
+  stroke: none !important;
+}
+.et-map-seat:hover:not([data-status='sold']):not([data-status='held']):not([data-status='blocked']) .et-map-seat__dot {
+  fill: #4ade80;
+}
+.et-map-seat:focus-visible .et-map-seat__dot {
+  stroke: #0353c2;
+  stroke-width: 3;
+}
+.et-map-seat[data-status='sold'],
+.et-map-seat[data-status='held'],
+.et-map-seat[data-status='blocked'] { cursor: not-allowed; }
+.et-map-seat[data-status='sold'] .et-map-seat__dot { fill: #334155; stroke: #94a3b8; }
+.et-map-seat[data-status='sold'] .et-map-seat__glyph { fill: #e2e8f0; }
+.et-map-seat[data-status='held'] .et-map-seat__dot { fill: #fff7e0; stroke: #d97706; stroke-width: 1.6; }
+.et-map-seat[data-status='held'] .et-map-seat__glyph { fill: #92400e; }
+.et-map-seat[data-status='blocked'] .et-map-seat__dot { fill: #17191d; stroke: #6b7280; stroke-dasharray: 2 2; }
+.et-map-seat[data-status='blocked'] .et-map-seat__glyph { fill: #e5e7eb; }
+.et-map-seat[data-status='selected'] .et-map-seat__dot {
+  fill: #eab308;
+  stroke: #fde68a;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.8));
+}
+.et-map-seat[data-status='selected'] .et-map-seat__glyph { fill: #1f1300; }
+.et-map-seat[data-search-hit='true'] .et-map-seat__dot { stroke: #0353c2; stroke-width: 3; }
+.et-official-map--zoom .et-seat-info-box { margin: 12px auto 4px; }
+
+/* Nhãn chữ trong khu đang mở bị làm mờ khi ghế đã hiện, để không đè lên ghế */
+.et-official-map-interactive text.is-covered-by-seats {
+  opacity: 0.08;
+  transition: opacity 0.2s ease;
+}

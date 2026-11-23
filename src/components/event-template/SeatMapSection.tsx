@@ -430,6 +430,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     return standingZones.find((zone) => zone.KhuVucID === selectedZoneId) || null;
   }, [selectedZoneId, standingZones]);
   const activeDisplayZone = activeZoneGroup?.zone || activeStandingZone;
+  // Sơ đồ BTC đã phóng vào một khu: ghế/vé đứng của khu nằm ngay trên sơ đồ, không còn lưới ghế riêng.
+  const officialZoomActive = viewMode === 'interactive' && Boolean(event?.seatingMapUrl) && Boolean(activeDisplayZone);
 
   // Search result is derived from the catalog so every display mode reacts to it.
   const seatSearch = useMemo(
@@ -972,7 +974,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             )}
 
             {/* Khi đã mở một khu của sơ đồ BTC: camera phóng vào khu đó, khu sáng lên và các khu xung quanh bị làm mờ */}
-            {viewMode === 'interactive' && event?.seatingMapUrl && activeDisplayZone && (
+            {officialZoomActive && (
               <div className="et-focus-map" data-testid="so-do-lam-mo-khu-xung-quanh">
                 <OfficialSeatingMap
                   zoomToActive
@@ -986,11 +988,50 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                     setFilter('all');
                     setViewMode('official');
                   }}
+                  seatLayer={
+                    activeZoneGroup
+                      ? {
+                          rows: activeZoneGroup.rows,
+                          selectedSeats,
+                          searchQuery,
+                          focusSeatCode: seatSearch.status === 'found' ? seatSearch.seatCode : null,
+                          saleOpen,
+                          isPending,
+                          hasActiveHold: Boolean(activeHold),
+                          onInspectSeat: setInspectedSeat,
+                          onToggleSeat: handleToggleSeat,
+                        }
+                      : undefined
+                  }
                 />
+                {activeZoneGroup ? (
+                  <div className="et-seat-info-box" id="seat-info" role="region" aria-live="polite" data-od-id="seat-details">
+                    {inspectedSeat && inspectedSeat.KhuVucID === activeZoneGroup.zone.KhuVucID ? (
+                      <>
+                        <div>
+                          <strong>{inspectedSeat.MaGheDayDu}</strong>
+                          <small>
+                            Hàng {inspectedSeat.SoHang} · Ghế {inspectedSeat.SoGhe}
+                          </small>
+                        </div>
+                        <strong className="et-num">{formatMoneyVND(inspectedSeat.GiaVeNiemYet)}</strong>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          Chi tiết ghế
+                          <small>Rê chuột, dùng phím Tab hoặc chạm vào một ghế trong khu để xem</small>
+                        </div>
+                        <span>—</span>
+                      </>
+                    )}
+                  </div>
+                ) : null}
               </div>
             )}
 
-            {/* Map Viewport / State Panel */}
+            {/* Map Viewport / State Panel (ẩn khi sơ đồ BTC đã phóng vào khu: ghế nằm ngay trên sơ đồ) */}
+            {!officialZoomActive && (
             <div className="et-map-viewport" id="map" data-od-id="interactive-map">
               <MapPanZoom controller={panZoom} label="Sơ đồ chỗ ngồi. Giữ Ctrl và cuộn để thu phóng, kéo để di chuyển, hoặc dùng phím + − 0 và các mũi tên.">
               {viewMode === 'official' && event?.seatingMapUrl ? (
@@ -1077,6 +1118,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               )}
               </MapPanZoom>
             </div>
+            )}
 
             {viewMode === 'interactive' && (
               <StandingTicketPicker

@@ -445,7 +445,7 @@ test('mock: datLai() rõ ràng khi getter localStorage ném lỗi -> không ném
     const doc1 = kho.doc(1);
     assert.equal(doc1.trangThai, 'DA_CAU_HINH');
     assert.equal(doc1.soVeToiDaMoiDon, 4);
-    assert.equal(doc1.yeuCauXacMinhOtp, false);
+    assert.equal(doc1.yeuCauXacMinhOtp, true);
     assert.doesNotThrow(() => kho.luu(1, {soVeToiDaMoiDon: 6, yeuCauXacMinhOtp: true}, DEMO_NGUOI_DUNG));
     assert.equal(kho.doc(1).soVeToiDaMoiDon, 6);
   });
@@ -478,7 +478,7 @@ test('mock: kho trống (getItem null) khởi tạo seed demo xác định có n
   const doc1 = kho.doc(1);
   assert.equal(doc1.trangThai, 'DA_CAU_HINH');
   assert.equal(doc1.soVeToiDaMoiDon, DEFAULT_SO_VE_TOI_DA);
-  assert.equal(doc1.yeuCauXacMinhOtp, DEFAULT_YEU_CAU_OTP);
+  assert.equal(doc1.yeuCauXacMinhOtp, true); // demo: OTP bật cho mọi sự kiện hiện có
   assert.equal(doc1.nguon, NHAN_MO_PHONG);
   assert.equal(kho.layTrangThai().nhan, NHAN_MO_PHONG);
   assert.deepEqual(kho.layTrangThai(), khoiTaoDemoCauHinhMuaVe());
@@ -703,7 +703,7 @@ test('service tích hợp (mock): BTC lưu sự kiện A, khán giả loadEventP
     const audienceB1 = await svc.loadEventPurchaseConfig({id: 1});
     assert.equal(audienceB1.maxTicketsPerOrder, 4);
     assert.equal(audienceB1.holdMinutes, 5);
-    assert.equal(audienceB1.requireOtp, false);
+    assert.equal(audienceB1.requireOtp, true);
 
     const audienceB2 = await svc.loadEventPurchaseConfig({id: 2});
     assert.equal(audienceB2.maxTicketsPerOrder, 2);
@@ -868,7 +868,7 @@ test('service tích hợp (mock): lỗi storage, JSON/state hỏng và dòng h�
     });
     const btc1 = await svc.docCauHinhMuaVe(1);
     assert.equal(btc1.soVeToiDaMoiDon, 4);
-    assert.equal(btc1.yeuCauXacMinhOtp, false);
+    assert.equal(btc1.yeuCauXacMinhOtp, true);
     assert.equal(btc1.thoiGianGiuChoPhut, 5);
     assert.equal(btc1.trangThai, 'DA_CAU_HINH');
     assert.equal(btc1.nguon, 'MO_PHONG');
@@ -876,7 +876,7 @@ test('service tích hợp (mock): lỗi storage, JSON/state hỏng và dòng h�
     assert.deepEqual(audience1, {
       maxTicketsPerOrder: 4,
       holdMinutes: 5,
-      requireOtp: false,
+      requireOtp: true,
       trangThai: 'DA_CAU_HINH',
       loiDoc: false,
     });
@@ -908,7 +908,7 @@ test('service tích hợp (mock): lỗi storage, JSON/state hỏng và dòng h�
       assert.doesNotThrow(() => svc.datLaiKhoMoPhongCauHinhMuaVe());
       const resetDoc = await svc.docCauHinhMuaVe(1);
       assert.equal(resetDoc.soVeToiDaMoiDon, 4);
-      assert.equal(resetDoc.yeuCauXacMinhOtp, false);
+      assert.equal(resetDoc.yeuCauXacMinhOtp, true);
       assert.equal(resetDoc.trangThai, 'DA_CAU_HINH');
     });
 

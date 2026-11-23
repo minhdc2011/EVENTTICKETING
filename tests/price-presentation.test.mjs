@@ -275,7 +275,7 @@ async function loadBundledTsxModule(relativePath) {
       {
         name: 'resolve-react-esm',
         setup(b) {
-          b.onResolve({filter: /^react(\/jsx-runtime|\/jsx-dev-runtime)?$/}, (args) => ({
+          b.onResolve({filter: /^react(-dom)?(\/jsx-runtime|\/jsx-dev-runtime)?$/}, (args) => ({
             path: import.meta.resolve(args.path),
             external: true,
           }));
@@ -1120,7 +1120,7 @@ async function loadSeatMapSectionWithHarness() {
           {
             name: 'seatmap-test-stubs',
             setup(b) {
-              b.onResolve({filter: /^react(\/jsx-runtime|\/jsx-dev-runtime)?$/}, (args) => ({
+              b.onResolve({filter: /^react(-dom)?(\/jsx-runtime|\/jsx-dev-runtime)?$/}, (args) => ({
                 path: import.meta.resolve(args.path),
                 external: true,
               }));
@@ -1779,7 +1779,7 @@ async function loadGenericEventPageWithHarness() {
           {
             name: 'generic-page-test-stubs',
             setup(b) {
-              b.onResolve({filter: /^react(\/jsx-runtime|\/jsx-dev-runtime)?$/}, (args) => ({
+              b.onResolve({filter: /^react(-dom)?(\/jsx-runtime|\/jsx-dev-runtime)?$/}, (args) => ({
                 path: import.meta.resolve(args.path),
                 external: true,
               }));

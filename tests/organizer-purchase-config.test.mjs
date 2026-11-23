@@ -458,7 +458,7 @@ test('tích hợp mock: BTC lưu, mở lại đọc đúng, khán giả loadEven
   // Sự kiện khác không bị ảnh hưởng.
   const other = await svc.loadEventPurchaseConfig({id: 1});
   assert.equal(other.maxTicketsPerOrder, 4);
-  assert.equal(other.requireOtp, false);
+  assert.equal(other.requireOtp, true);
 });
 
 test('tích hợp mock: người không đủ quyền ở kho mock bị từ chối và lỗi được phân loại', async () => {

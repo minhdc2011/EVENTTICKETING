@@ -94,12 +94,18 @@ export function khoiTaoDemoCauHinhMuaVe() {
     cauHinh: {
       1: {
         SoVeToiDaMoiDon: DEFAULT_SO_VE_TOI_DA,
-        YeuCauXacMinhOTP: DEFAULT_YEU_CAU_OTP,
+        YeuCauXacMinhOTP: true,
         ThoiGianGiuChoPhut: 5,
         nhan: NHAN_MO_PHONG,
       },
       2: {
         SoVeToiDaMoiDon: 2,
+        YeuCauXacMinhOTP: true,
+        ThoiGianGiuChoPhut: 5,
+        nhan: NHAN_MO_PHONG,
+      },
+      3: {
+        SoVeToiDaMoiDon: DEFAULT_SO_VE_TOI_DA,
         YeuCauXacMinhOTP: true,
         ThoiGianGiuChoPhut: 5,
         nhan: NHAN_MO_PHONG,
