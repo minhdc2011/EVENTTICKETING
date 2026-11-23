@@ -1,4 +1,4 @@
-KẾT LUẬN: Chuỗi 25 migration và toàn bộ test máy chủ chạy đạt trên Supabase **hosted** (project sandbox mới). Phát hiện mới cần xử lý trước khi triển khai: cấu hình Auth mặc định của hosted **sai với đặc tả OTP** (hết hạn 3600 giây, mẫu email không có mã) và gói Free **không cho sửa mẫu email** nếu không cấu hình SMTP riêng. Lỗi `40001` bị PostgREST thử lại cũng **xảy ra trên hosted**.
+KẾT LUẬN (cập nhật cuối trang, mục 9): Chuỗi 25 migration và toàn bộ test máy chủ chạy đạt trên Supabase **hosted** (project sandbox mới). Phát hiện mới cần xử lý trước khi triển khai: cấu hình Auth mặc định của hosted **sai với đặc tả OTP** (hết hạn 3600 giây, mẫu email không có mã) và gói Free **không cho sửa mẫu email** nếu không cấu hình SMTP riêng. Lỗi `40001` bị PostgREST thử lại cũng **xảy ra trên hosted**.
 
 # Kiểm chứng Sprint 2 trên Supabase hosted (project sandbox)
 
@@ -143,3 +143,19 @@ Xem 4.4. Đo từ máy phát triển tới ap-southeast-1, đồng hồ cùng ti
 ## 8. Phụ lục
 
 Số liệu thô nằm ở đầu ra của từng script (không chứa khóa). Cách chạy: xem phần phụ lục của báo cáo cục bộ; với hosted đặt `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` từ `.env.sandbox.local` và bỏ trống `MAIL_URL` khi chạy `verify-otp-local.mjs`.
+
+## 9. Cập nhật sau quyết định của nhóm (23/11/2026)
+
+Nhóm chọn: đặt lại sandbox làm môi trường V2; đổi `40001` sang `PT409`; khóa đổi giá trực tiếp khi khu có quy tắc giá kích hoạt.
+
+| Việc | Kết quả |
+|---|---|
+| Migration mới `20261123090000_sprint2_pt409_va_khoa_gia_truc_tiep.sql` | Áp thành công cục bộ và trên hosted (26 migration). Đổi mã lỗi của `duyet_de_xuat_gia` và `tu_choi_de_xuat_gia` sang `PT409`; thêm trigger `trg_kiem_soat_doi_gia_truc_tiep` chặn `authenticated` và `anon` đổi `KHU_VUC.GiaVeNiemYet` khi khu có `QUY_TAC_GIA` đang kích hoạt (mã lỗi `42501`, `GIA_DUOC_QUAN_LY_BOI_DINH_GIA`) |
+| pgTAP | Cục bộ: 15 file, 834 test đạt. Hosted: 15 file, 834 test đạt (thêm `sprint2_price_guard.sql`, 14 test) |
+| Hai BTC duyệt cùng đề xuất, hosted (3 lần) | **3/3 đạt**: một thành công, người thua nhận `PT409 DE_XUAT_DA_XU_LY` ngay (cả script xong trong 5 đến 7 giây; trước đó treo khoảng 130 giây). AC-T4-03.3 đạt trọn vẹn |
+| Ghi trực tiếp giá khu, hosted | BIEN_TAP và CHU_SO_HUU nay bị chặn `42501 GIA_DUOC_QUAN_LY_BOI_DINH_GIA`; anon và người mua bị chặn bởi RLS. Chỉ còn chủ sở hữu ghi `CAU_HINH_SU_KIEN` (có audit, chủ ý) |
+| Mã ứng dụng | Dịch vụ giá, bộ điều khiển đề xuất và script nhận `PT409` (vẫn nhận `40001` cho CSDL cũ). `npm run check`: 947 test đạt |
+| Đặt lại sandbox | `db reset --remote --no-seed`: 26 migration, 7 sự kiện mẫu, 0 tài khoản, 0 dòng nhật ký giá. Cấu hình Auth đã đẩy ở mục 4.2 vẫn giữ |
+| Trỏ bản triển khai vào môi trường V2 | `.github/workflows/deploy.yml` và `.env.production` đổi sang `https://knmcvwwwusyneogqcgls.supabase.co` với khóa publishable của dự án này (khóa công khai theo thiết kế). Đọc cấu hình mua vé bằng đúng truy vấn của giao diện trả HTTP 200 (có cột OTP), nên lỗi "Chưa thể mở phần chọn vé" không còn ở môi trường này |
+
+Còn lại (không đổi): SMTP riêng và mẫu email có mã (gói Free không sửa được mẫu), gửi OTP thật tới hộp thư, đo thời gian vẽ lại giao diện, ảnh và video demo. Staging cũ `qxkgkbayxxaakkwtepss` không bị động tới và vẫn thiếu migration Sprint 1.5 và Sprint 2; cần quyết định riêng nếu muốn giữ hoặc đóng.
