@@ -28,6 +28,8 @@ export interface SelectionSummaryProps {
     conLai: number | null;
   } | null;
   holdLabel?: string;
+  /** Sự kiện không có sơ đồ chỗ ngồi: đổi chữ từ "ghế" sang "vé". */
+  ticketOnly?: boolean;
   /** Số giây còn lại của lượt giữ chỗ thật (chỉ truyền khi đã giữ chỗ thành công). */
   holdRemainingSeconds?: number;
   onChangeStanding?: (zoneCode: string, quantity: number) => void;
@@ -51,6 +53,7 @@ export function SelectionSummary({
   limitExplanation = null,
   limitNotice = null,
   holdLabel = '5 phút',
+  ticketOnly = false,
   holdRemainingSeconds,
   onChangeStanding,
   saleOpen,
@@ -81,7 +84,7 @@ export function SelectionSummary({
     if (isPending) return 'Đang kiểm tra ghế…';
     if (hasActiveHold) return 'Xem thời gian giữ ghế';
     if (count > 0) return `Thanh toán ${count} vé →`;
-    return 'Chọn ghế để tiếp tục →';
+    return ticketOnly ? 'Chọn vé để tiếp tục →' : 'Chọn ghế để tiếp tục →';
   };
 
   return (
@@ -90,7 +93,7 @@ export function SelectionSummary({
         {/* Head */}
         <div className="et-summary-head">
           <h2 id="summary-title" data-od-id="summary-title">
-            Ghế đã chọn
+            {ticketOnly ? 'Vé đã chọn' : 'Ghế đã chọn'}
           </h2>
           <span id="count" className="et-summary-counter et-num">
             {formatSelectionCounter(count, {configuredMax, maxPerOrder: maxCap})}
@@ -111,8 +114,12 @@ export function SelectionSummary({
                   <path d="M6 4h12v9H6zM4 9v10m16-10v10M4 15h16M7 19v2m10-2v2" strokeLinecap="round" />
                 </svg>
               </div>
-              <h3>Chọn một chỗ thật ưng ý</h3>
-              <p>Khám phá sơ đồ bên cạnh. Ghế bạn chọn sẽ xuất hiện ở đây.</p>
+              <h3>{ticketOnly ? 'Chọn số lượng vé' : 'Chọn một chỗ thật ưng ý'}</h3>
+              <p>
+                {ticketOnly
+                  ? 'Chọn số lượng ở bảng bên cạnh. Vé bạn chọn sẽ xuất hiện ở đây.'
+                  : 'Khám phá sơ đồ bên cạnh. Ghế bạn chọn sẽ xuất hiện ở đây.'}
+              </p>
             </div>
           ) : (
             <>

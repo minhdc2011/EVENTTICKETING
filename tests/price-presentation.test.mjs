@@ -1128,6 +1128,7 @@ async function loadSeatMapSectionWithHarness() {
               b.onResolve({filter: /services\/bookingService$/}, () => ({path: 'bookingService', namespace: 'seatmap-stub'}));
               b.onResolve({filter: /services\/seatRealtimeService$/}, () => ({path: 'seatRealtimeService', namespace: 'seatmap-stub'}));
               b.onResolve({filter: /services\/priceRealtimeService$/}, () => ({path: 'priceRealtimeService', namespace: 'seatmap-stub'}));
+              b.onResolve({filter: /services\/buyerAuthService$/}, () => ({path: 'buyerAuthService', namespace: 'seatmap-stub'}));
               b.onResolve({filter: /services\/eventService$/}, () => ({path: 'eventService', namespace: 'seatmap-stub'}));
               b.onResolve({filter: /config\/runtime$/}, () => ({path: 'runtime', namespace: 'seatmap-stub'}));
 
@@ -1144,6 +1145,10 @@ async function loadSeatMapSectionWithHarness() {
               }));
               b.onLoad({filter: /^seatRealtimeService$/, namespace: 'seatmap-stub'}, () => ({
                 contents: `export const subscribeToSeatUpdates = (...args) => globalThis.__SEATMAP_TEST_MOCK__.subscribeToSeatUpdates(...args);`,
+                loader: 'js',
+              }));
+              b.onLoad({filter: /^buyerAuthService$/, namespace: 'seatmap-stub'}, () => ({
+                contents: `export const subscribeBuyerAuth = () => () => {}; export const getBuyerSession = async () => null; export const refreshBuyerSession = async () => {}; export const signOutBuyer = async () => {}; export const signInBuyer = async () => null; export const signUpBuyer = async () => null;`,
                 loader: 'js',
               }));
               b.onLoad({filter: /^priceRealtimeService$/, namespace: 'seatmap-stub'}, () => ({
@@ -1785,6 +1790,7 @@ async function loadGenericEventPageWithHarness() {
               }));
               b.onResolve({filter: /services\/eventService$/}, () => ({path: 'eventService', namespace: 'generic-stub'}));
               b.onResolve({filter: /services\/priceRealtimeService$/}, () => ({path: 'priceRealtimeService', namespace: 'generic-stub'}));
+              b.onResolve({filter: /services\/buyerAuthService$/}, () => ({path: 'buyerAuthService', namespace: 'generic-stub'}));
               b.onResolve({filter: /services\/scheduleService$/}, () => ({path: 'scheduleService', namespace: 'generic-stub'}));
               b.onResolve({filter: /services\/artistService$/}, () => ({path: 'artistService', namespace: 'generic-stub'}));
               b.onResolve({filter: /config\/runtime$/}, () => ({path: 'runtime', namespace: 'generic-stub'}));
@@ -1794,6 +1800,10 @@ async function loadGenericEventPageWithHarness() {
 
               b.onLoad({filter: /^eventService$/, namespace: 'generic-stub'}, () => ({
                 contents: `export const loadPublicTicketTiers = (...args) => globalThis.__GENERIC_PAGE_TEST_MOCK__.loadPublicTicketTiers(...args);`,
+                loader: 'js',
+              }));
+              b.onLoad({filter: /^buyerAuthService$/, namespace: 'generic-stub'}, () => ({
+                contents: `export const subscribeBuyerAuth = () => () => {}; export const getBuyerSession = async () => null; export const refreshBuyerSession = async () => {}; export const signOutBuyer = async () => {}; export const signInBuyer = async () => null; export const signUpBuyer = async () => null;`,
                 loader: 'js',
               }));
               b.onLoad({filter: /^priceRealtimeService$/, namespace: 'generic-stub'}, () => ({

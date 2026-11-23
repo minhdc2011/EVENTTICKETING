@@ -8,8 +8,44 @@ export interface OfficialSeatingMapProps {
   onSelectZone: (zone: ZoneRecord) => void;
   /** Mã phân khu đang mở: khu này được tô viền bằng màu của nó, các khu xung quanh bị làm mờ. */
   activeZoneCode?: string | null;
-  /** Bản thu nhỏ đặt phía trên lưới ghế để vẫn thấy vị trí khu trên toàn sơ đồ. */
-  compact?: boolean;
+  /** Làm nền cho bảng chọn ghế: camera phóng vừa phải vào khu đang mở (animation viewBox), phủ kín khung. */
+  zoomToActive?: boolean;
+}
+
+const ZOOM_MS = 400;
+const ZOOM_PADDING = 1.9;
+const MIN_VIEW_FRACTION = 0.3;
+
+type ViewBox = {x: number; y: number; w: number; h: number};
+
+function parseViewBox(svg: SVGSVGElement): ViewBox | null {
+  const raw = svg.getAttribute('viewBox');
+  if (!raw) return null;
+  const [x, y, w, h] = raw.split(/[\s,]+/).map(Number);
+  return [x, y, w, h].every(Number.isFinite) && w > 0 && h > 0 ? {x, y, w, h} : null;
+}
+
+/** Khung nhìn (cùng tỷ lệ toàn cảnh) quanh một phân khu, quy về toạ độ viewBox hiện tại; chừa chỗ cho các khu xung quanh. */
+function viewBoxAround(svg: SVGSVGElement, el: SVGElement, full: ViewBox): ViewBox | null {
+  const ctm = svg.getScreenCTM();
+  if (!ctm) return null;
+  const inv = ctm.inverse();
+  const rect = el.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+  const p1 = new DOMPoint(rect.left, rect.top).matrixTransform(inv);
+  const p2 = new DOMPoint(rect.right, rect.bottom).matrixTransform(inv);
+  const aspect = full.w / full.h;
+  let w = Math.max(Math.abs(p2.x - p1.x) * ZOOM_PADDING, Math.abs(p2.y - p1.y) * ZOOM_PADDING * aspect, full.w * MIN_VIEW_FRACTION);
+  w = Math.min(w, full.w);
+  const h = w / aspect;
+  const cx = (p1.x + p2.x) / 2;
+  const cy = (p1.y + p2.y) / 2;
+  return {
+    x: Math.min(Math.max(cx - w / 2, full.x), full.x + full.w - w),
+    y: Math.min(Math.max(cy - h / 2, full.y), full.y + full.h - h),
+    w,
+    h,
+  };
 }
 
 const INTERACTIVE_MAP_FILES = new Set([
@@ -35,11 +71,14 @@ export function OfficialSeatingMap({
   zones,
   onSelectZone,
   activeZoneCode = null,
-  compact = false,
+  zoomToActive = false,
 }: OfficialSeatingMapProps) {
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const interactiveRootRef = useRef<HTMLDivElement>(null);
+  const fullViewRef = useRef<ViewBox | null>(null);
+  const currentViewRef = useRef<ViewBox | null>(null);
+  const rafRef = useRef<number | null>(null);
   const interactiveUrl = useMemo(() => getInteractiveMapUrl(src), [src]);
 
   useEffect(() => {
@@ -119,9 +158,55 @@ export function OfficialSeatingMap({
     });
   }, [activeZoneCode, svgMarkup, zones]);
 
+  // Camera: phóng vào khu đang mở bằng cách đổi viewBox có animation; phủ kín khung nền (slice).
+  useEffect(() => {
+    const root = interactiveRootRef.current;
+    const svg = root?.querySelector('svg') as SVGSVGElement | null | undefined;
+    if (!root || !svg || !svgMarkup || !zoomToActive) return undefined;
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    if (!fullViewRef.current) fullViewRef.current = parseViewBox(svg);
+    const full = fullViewRef.current;
+    if (!full) return undefined;
+    if (!currentViewRef.current) currentViewRef.current = full;
+
+    let target: ViewBox = full;
+    if (activeZoneCode) {
+      const el = root.querySelector(`[data-zone-code="${CSS.escape(activeZoneCode)}"]`) as SVGElement | null;
+      const around = el ? viewBoxAround(svg, el, full) : null;
+      if (around) target = around;
+    }
+    const from = currentViewRef.current;
+    const apply = (vb: ViewBox) => {
+      currentViewRef.current = vb;
+      svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+    };
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      apply(target);
+      return undefined;
+    }
+    const startedAt = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - startedAt) / ZOOM_MS);
+      const e = 1 - Math.pow(1 - t, 3);
+      apply({
+        x: from.x + (target.x - from.x) * e,
+        y: from.y + (target.y - from.y) * e,
+        w: from.w + (target.w - from.w) * e,
+        h: from.h + (target.h - from.h) * e,
+      });
+      rafRef.current = t < 1 ? requestAnimationFrame(step) : null;
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [activeZoneCode, svgMarkup, zoomToActive]);
+
   return (
     <figure
-      className={`et-official-map${compact ? ' et-official-map--compact' : ''}`}
+      className={`et-official-map${zoomToActive ? ' et-official-map--stage' : ''}`}
       data-focus-zone={activeZoneCode || undefined}
     >
       {svgMarkup ? (
@@ -136,8 +221,8 @@ export function OfficialSeatingMap({
         <img src={src} alt={`Sơ đồ mặt bằng tổ chức của ${eventName}`} loading="eager" />
       )}
       <figcaption>
-        {svgMarkup && compact
-          ? 'Khu đang chọn được tô viền, các khu xung quanh được làm mờ. Bấm khu khác để chuyển nhanh.'
+        {svgMarkup && zoomToActive
+          ? 'Khu đang chọn được tô viền, các khu xung quanh được làm mờ. Bấm khu bên cạnh để chuyển nhanh.'
           : svgMarkup
           ? 'Bấm trực tiếp vào một phân khu để mở ghế hoặc chọn số lượng vé của khu đó.'
           : loadFailed

@@ -25,6 +25,8 @@ import {
 import {isValidPrice, khopMaPhamViNghiemNgat} from '../../domain/priceRealtime.js';
 import {getActiveEventContext, runtimeConfig} from '../../config/runtime';
 import {loadEventPurchaseConfig} from '../../services/eventService';
+import {subscribeBuyerAuth} from '../../services/buyerAuthService';
+import {taoBoTheoDoiPhienGiuCho} from '../../domain/holdSessionGuard.js';
 import {resolvePurchaseLimits, DEFAULT_HOLD_MINUTES} from '../../domain/purchaseLimits.js';
 import {THONG_BAO_CAN_DANG_NHAP, chuanHoaLoiGiuCho, laLoiChuaDangNhap, laLoiVuotGioiHan} from '../../domain/purchaseLimitError.js';
 import {
@@ -419,6 +421,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     () => (catalog?.zones || []).filter((zone) => isStandingZone(zone)),
     [catalog]
   );
+  // Sự kiện không có sơ đồ chỗ ngồi (chỉ vé đứng, không có sơ đồ BTC): chỉ hiện phần chọn số lượng vé, không có bản đồ.
+  const standingOnly =
+    Boolean(catalog) &&
+    (catalog?.zones.length ?? 0) > 0 &&
+    (catalog?.zones || []).every((zone) => isStandingZone(zone)) &&
+    !event?.seatingMapUrl;
   const standingCount = sumStanding(standing);
   const roomLeft = Math.max(0, limits.maxPerOrder - selectedSeats.length - standingCount);
   const holdLabel = `${limits.holdMinutes || DEFAULT_HOLD_MINUTES} phút`;
@@ -738,6 +746,34 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     }
   }, [activeHold, catalog?.zones, currentScopeKey, event?.slug, fetchCatalog, holdLabel, isConnectionTrusted, isPending, saleOpen, selectedSeats, standing, standingCount]);
 
+  // Đăng xuất hoặc đổi tài khoản khi đang giữ chỗ: trả chỗ lại và về trạng thái "chưa giữ" (hold thuộc về tài khoản).
+  useEffect(() => {
+    const theoDoi = taoBoTheoDoiPhienGiuCho();
+    const unsubscribe = subscribeBuyerAuth((session) => {
+      const hold = activeHoldRef.current;
+      const hanhDong = theoDoi(session, Boolean(hold));
+      if (!hanhDong || !hold) return;
+      releaseOpIdRef.current += 1; // vô hiệu hóa thao tác hủy đang chờ (nếu có)
+      void releaseSeatHold(hold.holdId).catch((err) => console.warn('Không thể giải phóng lượt giữ chỗ khi đổi tài khoản:', err));
+      setActiveHold(null);
+      setSelectedSeats([]);
+      setStanding({});
+      setHeldSeatsSnapshot([]);
+      setHeldPriceSnapshot(null);
+      setIsHoldDialogOpen(false);
+      setIsReleasePending(false);
+      try {
+        window.sessionStorage.removeItem(KHOA_GIU_CHO_DANG_CHO);
+      } catch {
+        // bỏ qua
+      }
+      setRealtimeBanner(hanhDong.thongBao);
+      setAnnouncement(hanhDong.thongBao);
+      dispatchToast({message: hanhDong.thongBao, type: 'info'});
+    });
+    return unsubscribe;
+  }, []);
+
   const proceedHoldRef = useRef(handleProceedHold);
   proceedHoldRef.current = handleProceedHold;
 
@@ -876,12 +912,17 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         {/* Section Heading */}
         <div className="et-seatmap-heading">
           <div>
-            <p className="et-seatmap-eyebrow">Sơ đồ ghế tương tác</p>
+            <p className="et-seatmap-eyebrow">{standingOnly ? 'Chọn vé' : 'Sơ đồ ghế tương tác'}</p>
             <h2 className="et-seatmap-title" data-od-id="page-title">
-              {event?.name ? `Chọn chỗ ngồi · ${event.name}` : 'Chọn chỗ ngồi'}
+              {standingOnly
+                ? event?.name ? `Chọn vé · ${event.name}` : 'Chọn vé'
+                : event?.name ? `Chọn chỗ ngồi · ${event.name}` : 'Chọn chỗ ngồi'}
             </h2>
             <p className="et-seatmap-subcopy">
-              Chọn khu vực, tìm vị trí yêu thích và giữ tối đa {limits.maxPerOrder} vé trong một lượt đặt.
+              {standingOnly
+                ? 'Chọn số lượng vé và thanh toán tối đa'
+                : 'Chọn khu vực, tìm vị trí yêu thích và giữ tối đa'}{' '}
+              {limits.maxPerOrder} vé trong một lượt đặt.
               {limitCopy.differ ? ` ${limitCopy.text}` : ''}
             </p>
           </div>
@@ -920,6 +961,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         {/* Main Workarea (2 columns on desktop, stacked below 850px) */}
         <div className="et-seatmap-workarea">
           <section className="et-seatmap-card" aria-label="Sơ đồ tương tác">
+{!standingOnly && (
+<>
             {/* Toolbar */}
             <MapToolbar
               zones={catalog?.zones || []}
@@ -936,6 +979,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               saleOpen={saleOpen}
             />
 
+
+</>
+)}
             {priceConnectionDesc.visible && (
               <div
                 className={`et-price-status-bar et-price-status-bar--${priceConnectionDesc.tone}`}
@@ -947,6 +993,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               </div>
             )}
 
+{!standingOnly && (
+<>
             {/* Map Header */}
             <div className="et-map-card-head">
               <div>
@@ -978,6 +1026,11 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               </span>
             </div>
 
+
+</>
+)}
+{!standingOnly && (
+<>
             {seatSearch.status === 'not-found' && (
               <div className="et-seat-search-notice" role="status" data-od-id="seat-search-empty">
                 <div>
@@ -992,11 +1045,13 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               </div>
             )}
 
-            {/* Khi đã mở một khu của sơ đồ BTC: sơ đồ thu nhỏ tô viền khu đang chọn, các khu xung quanh bị làm mờ; ghế ở lưới bên dưới */}
+            {/* Mở một khu của sơ đồ BTC: MỘT khung duy nhất. Sơ đồ phóng vừa phải vào khu làm nền (khu đang chọn tô viền,
+                các khu xung quanh mờ), bảng chọn ghế hiện tại nổi ngay giữa khung. */}
+            <div className={officialFocusActive ? 'et-zone-stage' : undefined} data-testid={officialFocusActive ? 'so-do-lam-mo-khu-xung-quanh' : undefined}>
             {officialFocusActive && (
-              <div className="et-focus-map" data-testid="so-do-lam-mo-khu-xung-quanh">
+              <div className="et-zone-stage__backdrop">
                 <OfficialSeatingMap
-                  compact
+                  zoomToActive
                   src={event.seatingMapUrl}
                   eventName={event.name}
                   zones={catalog?.zones || []}
@@ -1053,7 +1108,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                     }}
                   >
                     <span aria-hidden="true">←</span>
-                    <span>{event?.seatingMapUrl ? 'Sơ đồ khán đài BTC' : 'Tổng quan sân vận động'}</span>
+                    <span>{event?.seatingMapUrl ? 'Thu nhỏ toàn cảnh' : 'Tổng quan sân vận động'}</span>
                   </button>
                   <div className="et-standing-zone-shape">
                     <strong>{activeStandingZone.TenKhuVuc || activeStandingZone.MaKhuVuc}</strong>
@@ -1075,7 +1130,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                   onInspectSeat={setInspectedSeat}
                   onToggleSeat={handleToggleSeat}
                   onRevealSeat={panZoom.reveal}
-                  backLabel={event?.seatingMapUrl ? 'Sơ đồ khán đài BTC' : 'Tổng quan sân vận động'}
+                  backLabel={event?.seatingMapUrl ? 'Thu nhỏ toàn cảnh' : 'Tổng quan sân vận động'}
                   onBackToOverview={() => {
                     setSelectedZoneId(null);
                     setFilter('all');
@@ -1094,8 +1149,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               )}
               </MapPanZoom>
             </div>
+            </div>
 
-            {viewMode === 'interactive' && (
+
+</>
+)}
+            {(viewMode === 'interactive' || standingOnly) && (
               <StandingTicketPicker
                 zones={activeStandingZone ? [activeStandingZone] : standingZones}
                 quantities={standing}
@@ -1105,6 +1164,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               />
             )}
 
+{!standingOnly && (
+<>
             {/* Map Footnote */}
             <div className="et-map-footnote">
               <span id="map-hint">
@@ -1142,6 +1203,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                 <span>Không mở bán</span>
               </span>
             </div>}
+
+</>
+)}
           </section>
 
           {/* Selection & Hold Summary Panel */}
@@ -1155,6 +1219,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             limitExplanation={limitCopy.differ ? limitCopy.text : null}
             limitNotice={limitNotice}
             holdLabel={holdLabel}
+            ticketOnly={standingOnly}
             holdRemainingSeconds={activeHold ? remainingSeconds : undefined}
             onChangeStanding={handleStandingChange}
             saleOpen={saleOpen}
