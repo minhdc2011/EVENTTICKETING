@@ -1,5 +1,9 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
-import type {ZoneRecord} from '../../types/ticketing';
+import {createPortal} from 'react-dom';
+import type {SeatRecord, ZoneRecord} from '../../types/ticketing';
+import type {ZoneRowGroup} from '../../domain/seatMap.js';
+import {layoutZoneSeats, parsePolygonPath, rectToPolygon, type BBox, type Point} from '../../domain/zoneSeatLayout';
+import {ZoneSeatsLayer, type ZoneSeatsLayerProps} from './ZoneSeatsLayer';
 
 export interface OfficialSeatingMapProps {
   src: string;
@@ -12,11 +16,37 @@ export interface OfficialSeatingMapProps {
   zoomToActive?: boolean;
   /** Nút "Thu nhỏ toàn cảnh" hiện trên sơ đồ khi đã phóng vào một khu. */
   onResetView?: () => void;
+  /** Ghế của khu đang mở: được vẽ ngay trong khu sau khi camera phóng xong, bấm để chọn. */
+  seatLayer?: Omit<ZoneSeatsLayerProps, 'placed'> & {rows: ZoneRowGroup[]};
+}
+
+/** Hộp bao và đa giác (nếu đọc được) của một khu, theo toạ độ viewBox hiện tại. */
+function readZoneShape(svg: SVGSVGElement, el: SVGElement): {bbox: BBox; polygon: Point[] | null} | null {
+  const ctm = svg.getScreenCTM();
+  if (!ctm) return null;
+  const inv = ctm.inverse();
+  const rect = el.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+  const p1 = new DOMPoint(rect.left, rect.top).matrixTransform(inv);
+  const p2 = new DOMPoint(rect.right, rect.bottom).matrixTransform(inv);
+  const bbox = {x: Math.min(p1.x, p2.x), y: Math.min(p1.y, p2.y), w: Math.abs(p2.x - p1.x), h: Math.abs(p2.y - p1.y)};
+  let polygon: Point[] | null = null;
+  const transformed = Boolean(el.closest('[transform]'));
+  if (!transformed) {
+    if (el.tagName.toLowerCase() === 'path') polygon = parsePolygonPath(el.getAttribute('d'));
+    else if (el.tagName.toLowerCase() === 'rect') {
+      const [x, y, width, height] = ['x', 'y', 'width', 'height'].map((k) => Number(el.getAttribute(k)));
+      if ([x, y, width, height].every(Number.isFinite) && width > 0 && height > 0) polygon = rectToPolygon({x, y, width, height});
+    }
+  }
+  return {bbox, polygon};
 }
 
 const ZOOM_MS = 380;
 const MIN_VIEW_FRACTION = 0.34;
 const ZOOM_PADDING = 1.55;
+const MIN_VIEW_FRACTION_TIGHT = 0.2;
+const ZOOM_PADDING_TIGHT = 1.12;
 
 type ViewBox = {x: number; y: number; w: number; h: number};
 
@@ -28,7 +58,7 @@ function parseViewBox(svg: SVGSVGElement): ViewBox | null {
 }
 
 /** Khung nhìn (cùng tỷ lệ với toàn cảnh) bao quanh một phân khu, quy về toạ độ viewBox hiện tại. */
-function viewBoxAround(svg: SVGSVGElement, el: SVGElement, full: ViewBox): ViewBox | null {
+function viewBoxAround(svg: SVGSVGElement, el: SVGElement, full: ViewBox, tight = false): ViewBox | null {
   const ctm = svg.getScreenCTM();
   if (!ctm) return null;
   const inv = ctm.inverse();
@@ -38,10 +68,11 @@ function viewBoxAround(svg: SVGSVGElement, el: SVGElement, full: ViewBox): ViewB
   const p2 = new DOMPoint(rect.right, rect.bottom).matrixTransform(inv);
   const cx = (p1.x + p2.x) / 2;
   const cy = (p1.y + p2.y) / 2;
-  const bw = Math.abs(p2.x - p1.x) * ZOOM_PADDING;
-  const bh = Math.abs(p2.y - p1.y) * ZOOM_PADDING;
+  const padding = tight ? ZOOM_PADDING_TIGHT : ZOOM_PADDING;
+  const bw = Math.abs(p2.x - p1.x) * padding;
+  const bh = Math.abs(p2.y - p1.y) * padding;
   const aspect = full.w / full.h;
-  let w = Math.max(bw, bh * aspect, full.w * MIN_VIEW_FRACTION);
+  let w = Math.max(bw, bh * aspect, full.w * (tight ? MIN_VIEW_FRACTION_TIGHT : MIN_VIEW_FRACTION));
   w = Math.min(w, full.w);
   const h = w / aspect;
   const x = Math.min(Math.max(cx - w / 2, full.x), full.x + full.w - w);
@@ -66,13 +97,17 @@ function getInteractiveMapUrl(src: string): URL | null {
   }
 }
 
-export function OfficialSeatingMap({src, eventName, zones, onSelectZone, activeZoneCode = null, zoomToActive = false, onResetView}: OfficialSeatingMapProps) {
+export function OfficialSeatingMap({src, eventName, zones, onSelectZone, activeZoneCode = null, zoomToActive = false, onResetView, seatLayer}: OfficialSeatingMapProps) {
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const interactiveRootRef = useRef<HTMLDivElement>(null);
   const fullViewRef = useRef<ViewBox | null>(null);
   const currentViewRef = useRef<ViewBox | null>(null);
   const rafRef = useRef<number | null>(null);
+  const [seatLayerNode, setSeatLayerNode] = useState<SVGGElement | null>(null);
+  const [zoomSettled, setZoomSettled] = useState(false);
+  const [zoneShape, setZoneShape] = useState<{bbox: BBox; polygon: Point[] | null} | null>(null);
+  const wantsSeats = Boolean(seatLayer);
   const interactiveUrl = useMemo(() => getInteractiveMapUrl(src), [src]);
 
   useEffect(() => {
@@ -165,7 +200,7 @@ export function OfficialSeatingMap({src, eventName, zones, onSelectZone, activeZ
     let target: ViewBox = full;
     if (activeZoneCode) {
       const el = root.querySelector(`[data-zone-code="${CSS.escape(activeZoneCode)}"]`) as SVGElement | null;
-      const around = el ? viewBoxAround(svg, el, full) : null;
+      const around = el ? viewBoxAround(svg, el, full, wantsSeats) : null;
       if (around) target = around;
     }
 
@@ -176,8 +211,10 @@ export function OfficialSeatingMap({src, eventName, zones, onSelectZone, activeZ
     };
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    setZoomSettled(false);
     if (reduce) {
       apply(target);
+      setZoomSettled(true);
       return undefined;
     }
     const startedAt = performance.now();
@@ -191,13 +228,76 @@ export function OfficialSeatingMap({src, eventName, zones, onSelectZone, activeZ
         h: from.h + (target.h - from.h) * eased,
       });
       rafRef.current = t < 1 ? requestAnimationFrame(step) : null;
+      if (t >= 1) setZoomSettled(true);
     };
     rafRef.current = requestAnimationFrame(step);
     return () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     };
-  }, [activeZoneCode, svgMarkup, zoomToActive]);
+  }, [activeZoneCode, svgMarkup, zoomToActive, wantsSeats]);
+
+  // Lớp ghế: một <g> đặt trong chính SVG để ghế dùng chung hệ toạ độ với khu.
+  useEffect(() => {
+    const svg = interactiveRootRef.current?.querySelector('svg') as SVGSVGElement | null | undefined;
+    if (!svg || !svgMarkup || !zoomToActive || !wantsSeats) {
+      setSeatLayerNode(null);
+      return undefined;
+    }
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    node.setAttribute('class', 'et-map-seat-layer');
+    svg.appendChild(node);
+    setSeatLayerNode(node);
+    return () => {
+      node.remove();
+      setSeatLayerNode(null);
+    };
+  }, [svgMarkup, zoomToActive, wantsSeats]);
+
+  // Đọc hình dạng khu sau khi camera dừng, rồi bố trí ghế trong khu.
+  useEffect(() => {
+    setZoneShape(null);
+    if (!zoomSettled || !activeZoneCode || !wantsSeats) return;
+    const root = interactiveRootRef.current;
+    const svg = root?.querySelector('svg') as SVGSVGElement | null | undefined;
+    const el = root?.querySelector(`[data-zone-code="${CSS.escape(activeZoneCode)}"]`) as SVGElement | null | undefined;
+    if (svg && el) setZoneShape(readZoneShape(svg, el));
+  }, [zoomSettled, activeZoneCode, wantsSeats, svgMarkup]);
+
+  const placedSeats = useMemo(
+    () =>
+      seatLayer && zoneShape
+        ? layoutZoneSeats<SeatRecord>({rows: seatLayer.rows, bbox: zoneShape.bbox, polygon: zoneShape.polygon})
+        : [],
+    [seatLayer?.rows, zoneShape],
+  );
+  const placedSeatCount = placedSeats.length;
+
+  // Nhãn chữ của bản vẽ nằm trong khu đang mở sẽ che ghế: làm mờ chúng khi ghế đã hiện (tên khu vẫn ở tiêu đề phía trên).
+  useEffect(() => {
+    const root = interactiveRootRef.current;
+    const svg = root?.querySelector('svg') as SVGSVGElement | null | undefined;
+    if (!svg) return undefined;
+    const covered: SVGElement[] = [];
+    if (zoneShape && placedSeatCount > 0 && activeZoneCode) {
+      const el = svg.querySelector(`[data-zone-code="${CSS.escape(activeZoneCode)}"]`) as SVGElement | null;
+      const zr = el?.getBoundingClientRect();
+      if (zr) {
+        svg.querySelectorAll<SVGElement>('text').forEach((text) => {
+          if (text.closest('.et-map-seat-layer')) return;
+          const r = text.getBoundingClientRect();
+          const cx = (r.left + r.right) / 2;
+          const cy = (r.top + r.bottom) / 2;
+          if (cx >= zr.left && cx <= zr.right && cy >= zr.top && cy <= zr.bottom) {
+            text.classList.add('is-covered-by-seats');
+            covered.push(text);
+          }
+        });
+      }
+    }
+    return () => covered.forEach((text) => text.classList.remove('is-covered-by-seats'));
+  }, [zoneShape, placedSeatCount, activeZoneCode, svgMarkup]);
+
 
   return (
     <figure
@@ -221,9 +321,25 @@ export function OfficialSeatingMap({src, eventName, zones, onSelectZone, activeZ
       ) : (
         <img src={src} alt={`Sơ đồ mặt bằng tổ chức của ${eventName}`} loading="eager" />
       )}
+      {seatLayerNode && placedSeats.length > 0 && seatLayer
+        ? createPortal(
+            <ZoneSeatsLayer
+              placed={placedSeats}
+              selectedSeats={seatLayer.selectedSeats}
+              searchQuery={seatLayer.searchQuery}
+              focusSeatCode={seatLayer.focusSeatCode}
+              saleOpen={seatLayer.saleOpen}
+              isPending={seatLayer.isPending}
+              hasActiveHold={seatLayer.hasActiveHold}
+              onInspectSeat={seatLayer.onInspectSeat}
+              onToggleSeat={seatLayer.onToggleSeat}
+            />,
+            seatLayerNode,
+          )
+        : null}
       <figcaption>
         {svgMarkup && zoomToActive
-          ? 'Đã phóng vào khu đang chọn; các khu xung quanh được làm mờ. Bấm khu bên cạnh để chuyển, hoặc "Thu nhỏ toàn cảnh".'
+          ? 'Bấm trực tiếp vào ghế trong khu để chọn. Các khu xung quanh được làm mờ; bấm khu bên cạnh để chuyển, hoặc "Thu nhỏ toàn cảnh".'
           : svgMarkup
           ? 'Bấm trực tiếp vào một phân khu để mở ghế hoặc chọn số lượng vé của khu đó.'
           : loadFailed

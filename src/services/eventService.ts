@@ -819,8 +819,9 @@ export function getFallbackCatalog(eventSlug?: string): TicketingCatalog {
     rowNames.forEach((row, rowIdx) => {
       for (let num = 1; num <= 10; num++) {
         const numStr = num < 10 ? '0' + num : '' + num;
-        const isSold = (seatIdCounter % 7 === 0);
-        const isHeld = (seatIdCounter % 11 === 0);
+        // Demo: mở toàn bộ ghế (không còn ghế mô phỏng đã bán/đang giữ sẵn).
+        const isSold = false;
+        const isHeld = false;
         seats.push({
           GheID: seatIdCounter++,
           KhuVucID: zone.KhuVucID,
