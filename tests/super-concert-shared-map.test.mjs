@@ -7,11 +7,19 @@ const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 
 const svg = read('public/maps/super-concert-stadium.svg');
 
-test('SVG Super Concert có đủ khu ghế và khu vé đứng với mã khu trùng cơ sở dữ liệu', () => {
+test('SVG Super Concert đồng bộ phong cách Ticketmaster (header bar, chú giải, gradient) và có đủ khu', () => {
   for (const code of ['VVIP_DIAMOND', 'VIP_PLATINUM_1', 'ZONE_A_T1', 'ZONE_B_T2', 'ZONE_CD_UP', 'GA_STAND_1']) {
     assert.equal((svg.match(new RegExp(`data-zone-code="${code}"`, 'g')) ?? []).length, 1, `${code} đúng một phần tử`);
   }
   assert.match(svg, /<svg[^>]*viewBox="0 0 1000 930"/);
+  assert.match(svg, /EVENTTICKETING STADIUM SEATING CHART/);
+  assert.match(svg, /id="sc-legend"/);
+});
+
+test('Upper Tier (ZONE_CD_UP) có ghế trong dữ liệu mẫu để không bị trống trên bản đồ', () => {
+  const seats = JSON.parse(read('public/data_seats.json'));
+  const upperSeats = seats.filter((s) => s.KhuVucID === 8 || String(s.MaGheDayDu).startsWith('CD-'));
+  assert.ok(upperSeats.length >= 60, `Upper Tier có ${upperSeats.length} ghế`);
 });
 
 test('mỗi khu ghế ngồi có data-arc hợp lệ để xếp ghế theo vành', () => {

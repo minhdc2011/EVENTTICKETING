@@ -56,8 +56,9 @@ test('resolution does not depend on seat status: sold seats are still found', ()
   assert.equal(result.seatCode, 'VIP1-C-02');
 });
 
-test('works against the bundled Super Concert catalog (48 seats)', async () => {
+test('works against the bundled Super Concert catalog (120 seats)', async () => {
   const catalog = JSON.parse(await readFile(new URL('../public/data_seats.json', import.meta.url), 'utf8'));
   assert.equal(resolveSeatSearch(catalog, 'vvip-a-01').status, 'found');
+  assert.equal(resolveSeatSearch(catalog, 'cd-j-05').status, 'found');
   assert.equal(resolveSeatSearch(catalog, 'ZZZ-999').status, 'not-found');
 });
