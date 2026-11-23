@@ -11,3 +11,7 @@ export const ROLE_LABELS: Record<string, string>;
 export const CATEGORY_LABELS: Record<string, string>;
 export const LOCATION_MODE_LABELS: Record<string, string>;
 export const WIZARD_STEP_TITLES: string[];
+export function getStepForBlockerField(field: string | undefined): number;
+export function evaluateWizardStepsCompletion(
+  readiness: {blockers?: Array<{field?: string}>; isReady?: boolean} | null | undefined,
+): boolean[];

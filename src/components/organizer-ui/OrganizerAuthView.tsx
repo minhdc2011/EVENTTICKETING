@@ -154,11 +154,6 @@ export function OrganizerAuthView({
   return (
     <main className="org-auth-container organizer-auth">
       <div className="org-auth-hero">
-        <div className="org-auth-hero-eyebrow">
-          <IconShield size={16} />
-          <span>CỔNG BAN TỔ CHỨC SỰ KIỆN</span>
-        </div>
-
         <h1 className="org-auth-hero-title">
           Biến ý tưởng
           <br />

@@ -11,6 +11,10 @@ export function OrganizerStatsCards({
   publishedCount,
   draftCount,
 }: OrganizerStatsCardsProps) {
+  if (totalCount === 0) {
+    return null;
+  }
+
   return (
     <section className="org-stats-grid" aria-label="Thống kê tổng quan sự kiện">
       <div className="org-stat-card">
@@ -19,7 +23,7 @@ export function OrganizerStatsCards({
           <IconCalendar size={18} style={{color: 'var(--org-text-muted)'}} />
         </div>
         <div className="org-stat-value">{totalCount}</div>
-        <div className="org-stat-hint">Toàn bộ sự kiện thuộc tổ chức đang chọn</div>
+        <div className="org-stat-hint">Toàn bộ sự kiện của tổ chức</div>
       </div>
 
       <div className="org-stat-card">
@@ -28,7 +32,7 @@ export function OrganizerStatsCards({
           <IconCheck size={18} style={{color: 'var(--org-status-success)'}} />
         </div>
         <div className="org-stat-value" style={{color: 'var(--org-status-success)'}}>{publishedCount}</div>
-        <div className="org-stat-hint">Đang mở bán công khai trên Marketplace</div>
+        <div className="org-stat-hint">Đang mở bán công khai</div>
       </div>
 
       <div className="org-stat-card">
@@ -37,7 +41,7 @@ export function OrganizerStatsCards({
           <IconEdit size={18} style={{color: 'var(--org-status-warning)'}} />
         </div>
         <div className="org-stat-value" style={{color: 'var(--org-status-warning)'}}>{draftCount}</div>
-        <div className="org-stat-hint">Đang thiết lập, chưa hiển thị cho khán giả</div>
+        <div className="org-stat-hint">Chưa hiển thị cho khán giả</div>
       </div>
     </section>
   );

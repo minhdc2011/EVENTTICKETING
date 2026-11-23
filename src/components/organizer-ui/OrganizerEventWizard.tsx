@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {buildPublicPath, deduplicateSlug} from '../../domain/publicRoute';
 import {
   evaluatePublishReadiness,
@@ -42,12 +42,25 @@ const money = new Intl.NumberFormat('vi-VN', {
 
 import {getCategoryTheme} from '../../domain/categoryThemes';
 import {
+  evaluateWizardStepsCompletion,
   getDefaultDraftDates,
+  getStepForBlockerField,
   toSlug,
   CATEGORY_LABELS as categoryLabels,
   LOCATION_MODE_LABELS as locationModeLabels,
   WIZARD_STEP_TITLES,
 } from './organizerLogic';
+
+const SEAT_MAP_PRESETS = [
+  {label: 'Sân vận động End-Stage', url: '/maps/super-concert-stadium.svg'},
+  {label: 'Nhà thi đấu Arena', url: '/maps/ticketmaster-arena-endstage.svg'},
+  {label: 'Nhà hát Proscenium', url: '/maps/ticketmaster-theater-proscenium.svg'},
+];
+
+function toTierCode(name: string): string {
+  const slug = toSlug(name);
+  return slug ? slug.replace(/-/g, '_').toUpperCase().slice(0, 28) : '';
+}
 
 export {getDefaultDraftDates};
 
@@ -73,20 +86,44 @@ export function OrganizerEventWizard({
 }: OrganizerEventWizardProps) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FullEventAggregateInput>(initialAggregate);
+  const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(initialAggregate));
+  const [slugTouched, setSlugTouched] = useState(() => Boolean(initialAggregate.slug));
+  const [confirmClose, setConfirmClose] = useState(false);
   const [selectedShowIdx, setSelectedShowIdx] = useState(0);
   const [busyDraft, setBusyDraft] = useState(false);
   const [busyPublish, setBusyPublish] = useState(false);
   const [feedback, setFeedback] = useState<{type: 'success' | 'error' | 'info'; text: string} | null>(null);
+  const bodyRef = useRef<HTMLDivElement | null>(null);
 
   const readiness = useMemo<PublishReadinessResult>(() => evaluatePublishReadiness(formData), [formData]);
+  const stepsCompleted = useMemo(() => evaluateWizardStepsCompletion(readiness), [readiness]);
+  const isDirty = useMemo(() => JSON.stringify(formData) !== savedSnapshot, [formData, savedSnapshot]);
+
+  const requestClose = useCallback(() => {
+    if (isDirty) {
+      setConfirmClose(true);
+    } else {
+      onClose();
+    }
+  }, [isDirty, onClose]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        requestClose();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [requestClose]);
+
+  const goToStep = useCallback((targetStep: number) => {
+    setStep(targetStep);
+    if (bodyRef.current) {
+      bodyRef.current.scrollTop = 0;
+    }
+  }, []);
 
   function updateField<K extends keyof FullEventAggregateInput>(key: K, value: FullEventAggregateInput[K]) {
     setFormData((prev) => ({...prev, [key]: value}));
@@ -357,16 +394,19 @@ export function OrganizerEventWizard({
     });
   }
 
-  async function handleSaveDraft() {
+  async function handleSaveDraft(closeAfter = false) {
     setBusyDraft(true);
     setFeedback(null);
     try {
       const result = await saveDraftAction(formData);
-      setFormData((prev) => ({
-        ...prev,
+      const nextData = {
+        ...formData,
         eventId: result.eventId,
         slug: result.slug,
-      }));
+      };
+      setFormData(nextData);
+      setSavedSnapshot(JSON.stringify(nextData));
+      setConfirmClose(false);
       setFeedback({
         type: result.warning ? 'info' : 'success',
         text: result.warning
@@ -374,6 +414,9 @@ export function OrganizerEventWizard({
           : `Đã lưu bản nháp thành công! (Mã sự kiện: #${result.eventId})`,
       });
       await onSaved(result, false);
+      if (closeAfter) {
+        onClose();
+      }
     } catch (error) {
       setFeedback({
         type: 'error',
@@ -390,7 +433,7 @@ export function OrganizerEventWizard({
         type: 'error',
         text: `Sự kiện còn ${readiness.blockers.length} tiêu chí bắt buộc chưa đạt. Vui lòng kiểm tra lại Bước 6.`,
       });
-      setStep(6);
+      goToStep(6);
       return;
     }
     setBusyPublish(true);
@@ -398,6 +441,8 @@ export function OrganizerEventWizard({
     try {
       const draftRes = await saveDraftAction(formData);
       await publishEventAction(draftRes.eventId);
+      setSavedSnapshot(JSON.stringify(formData));
+      setConfirmClose(false);
       setFeedback({
         type: 'success',
         text: 'Xuất sắc! Sự kiện đã được công bố chính thức lên Marketplace.',
@@ -430,7 +475,7 @@ export function OrganizerEventWizard({
         <header className="org-wizard-header wizard-modal-header">
           <div className="org-wizard-header-title-box">
             <span className="org-wizard-header-tag wizard-header-tag">
-              {formData.eventId ? `CHỈNH SỬA SỰ KIỆN #${formData.eventId}` : 'TẠO SỰ KIỆN MỚI'}
+              {formData.eventId ? `Sửa sự kiện #${formData.eventId}` : 'Tạo sự kiện mới'}
             </span>
             <h2 id="wizard-dialog-title" className="org-wizard-header-title">
               {formData.name || 'Sự kiện chưa đặt tên'}
@@ -438,30 +483,16 @@ export function OrganizerEventWizard({
           </div>
 
           <div className="org-wizard-header-actions">
-            <button
-              type="button"
-              className="org-btn org-btn-secondary wizard-header-save-btn"
-              onClick={handleSaveDraft}
-              disabled={busyDraft || busyPublish || !canEdit}
-              style={{minHeight: '44px', padding: '0 14px'}}
-            >
-              {busyDraft ? (
-                <>
-                  <IconSpinner size={14} />
-                  <span>Đang lưu…</span>
-                </>
-              ) : (
-                <>
-                  <IconSave size={14} />
-                  <span>Lưu bản nháp</span>
-                </>
-              )}
-            </button>
+            {isDirty ? (
+              <span className="org-wizard-save-pill is-dirty">Chưa lưu</span>
+            ) : formData.eventId ? (
+              <span className="org-wizard-save-pill">Đã lưu nháp</span>
+            ) : null}
 
             <button
               type="button"
               className="org-wizard-close-btn wizard-modal-close"
-              onClick={onClose}
+              onClick={requestClose}
               aria-label="Đóng biểu mẫu sự kiện"
             >
               <IconClose size={20} />
@@ -469,12 +500,48 @@ export function OrganizerEventWizard({
           </div>
         </header>
 
+        {confirmClose && (
+          <div className="org-wizard-confirm-bar" role="alert">
+            <span>Bạn có thay đổi chưa lưu. Lưu bản nháp trước khi đóng biểu mẫu?</span>
+            <div className="org-wizard-confirm-actions">
+              {canEdit && (
+                <button
+                  type="button"
+                  className="org-btn org-btn-primary"
+                  onClick={() => void handleSaveDraft(true)}
+                  disabled={busyDraft || busyPublish}
+                >
+                  Lưu & Đóng
+                </button>
+              )}
+              <button
+                type="button"
+                className="org-btn org-btn-secondary"
+                onClick={() => {
+                  setConfirmClose(false);
+                  onClose();
+                }}
+                disabled={busyDraft || busyPublish}
+              >
+                Đóng không lưu
+              </button>
+              <button
+                type="button"
+                className="org-btn org-btn-secondary"
+                onClick={() => setConfirmClose(false)}
+              >
+                Tiếp tục sửa
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Stepper Navigation */}
         <nav className="org-wizard-stepper wizard-step-bar" aria-label="Các bước tạo sự kiện">
           {WIZARD_STEP_TITLES.map((title, idx) => {
             const stepNum = idx + 1;
             const isActive = step === stepNum;
-            const isCompleted = step > stepNum;
+            const isCompleted = Boolean(stepsCompleted[idx]);
             return (
               <button
                 key={stepNum}
@@ -482,7 +549,7 @@ export function OrganizerEventWizard({
                 className={`org-wizard-step-item wizard-step-item ${isActive ? 'is-active' : ''} ${
                   isCompleted ? 'is-completed' : ''
                 }`}
-                onClick={() => setStep(stepNum)}
+                onClick={() => goToStep(stepNum)}
                 aria-current={isActive ? 'step' : undefined}
               >
                 <span className="org-wizard-step-circle wizard-step-circle">
@@ -521,14 +588,14 @@ export function OrganizerEventWizard({
         )}
 
         {/* Wizard Body Steps */}
-        <div className="org-wizard-body wizard-modal-content">
+        <div ref={bodyRef} className="org-wizard-body wizard-modal-content">
           {/* STEP 1: Basic Information */}
           {step === 1 && (
             <div className="wizard-form-section">
               <div className="org-wizard-section-intro wizard-section-intro">
                 <h3 className="org-wizard-section-title">Bước 1: Thông tin chung & Nhận diện</h3>
                 <p className="org-wizard-section-subtitle">
-                  Thiết lập tên sự kiện, đường dẫn slug thân thiện và mô tả chi tiết nội dung.
+                  Đặt tên, chọn thể loại và mô tả ngắn gọn để khán giả hiểu ngay sự kiện của bạn.
                 </p>
               </div>
 
@@ -540,34 +607,22 @@ export function OrganizerEventWizard({
                   <input
                     className="org-input"
                     value={formData.name}
-                    onChange={(e) => updateField('name', e.target.value)}
-                    onBlur={(e) => {
-                      if (!formData.slug && e.target.value) {
-                        updateField('slug', toSlug(e.target.value));
-                      }
+                    onChange={(e) => {
+                      const nextName = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        name: nextName,
+                        slug: slugTouched ? prev.slug : toSlug(nextName),
+                      }));
                     }}
                     placeholder="Ví dụ: Hanoi Indie Music Festival 2026"
                     required
                   />
-                  <span className="org-label-hint">Tối thiểu 5 ký tự. Sẽ hiển thị ở tiêu đề lớn.</span>
-                </label>
-
-                <label className="org-label wizard-label">
-                  <span>
-                    Đường dẫn (Slug) <span className="org-label-required">*</span>
+                  <span className="org-label-hint">
+                    Tối thiểu 5 ký tự · URL dự kiến: <code>/events/{formData.slug || 'slug-su-kien'}</code>
                   </span>
-                  <input
-                    className="org-input"
-                    value={formData.slug}
-                    onChange={(e) => updateField('slug', toSlug(e.target.value))}
-                    placeholder="hanoi-indie-music-festival-2026"
-                    required
-                  />
-                  <span className="org-label-hint">Dùng cho URL: /events/{formData.slug || 'slug-su-kien'}</span>
                 </label>
-              </div>
 
-              <div className="org-grid-2 wizard-grid-2">
                 <label className="org-label wizard-label">
                   <span>
                     Thể loại sự kiện <span className="org-label-required">*</span>
@@ -583,20 +638,46 @@ export function OrganizerEventWizard({
                       </option>
                     ))}
                   </select>
-                  <span className="org-label-hint">Phân loại giúp khán giả dễ dàng tìm kiếm trên marketplace.</span>
-                </label>
-
-                <label className="org-label wizard-label">
-                  <span>Slogan / Thông điệp ngắn</span>
-                  <input
-                    className="org-input"
-                    value={formData.slogan || ''}
-                    onChange={(e) => updateField('slogan', e.target.value)}
-                    placeholder="Ví dụ: Một đêm nhạc thăng hoa của những tâm hồn tự do"
-                  />
-                  <span className="org-label-hint">Dòng thông điệp hiển thị dưới tiêu đề (tùy chọn).</span>
+                  <span className="org-label-hint">Giúp khán giả lọc đúng sự kiện trên marketplace.</span>
                 </label>
               </div>
+
+              <details className="org-wizard-disclosure" style={{marginBottom: '16px'}}>
+                <summary className="org-wizard-disclosure-summary">
+                  <span>
+                    Tùy chỉnh đường dẫn URL (Slug): <code>/events/{formData.slug || 'tu-dong-tao-tu-ten'}</code>
+                  </span>
+                </summary>
+                <div className="org-wizard-disclosure-body">
+                  <label className="org-label wizard-label">
+                    <span>
+                      Đường dẫn (Slug) <span className="org-label-required">*</span>
+                    </span>
+                    <input
+                      className="org-input"
+                      value={formData.slug}
+                      onChange={(e) => {
+                        setSlugTouched(true);
+                        updateField('slug', toSlug(e.target.value));
+                      }}
+                      placeholder="hanoi-indie-music-festival-2026"
+                      required
+                    />
+                    <span className="org-label-hint">Dùng chữ thường, số và dấu gạch nối (ví dụ: super-concert-2026).</span>
+                  </label>
+                </div>
+              </details>
+
+              <label className="org-label wizard-label" style={{marginBottom: '16px'}}>
+                <span>Slogan / Thông điệp ngắn</span>
+                <input
+                  className="org-input"
+                  value={formData.slogan || ''}
+                  onChange={(e) => updateField('slogan', e.target.value)}
+                  placeholder="Ví dụ: Một đêm nhạc thăng hoa của những tâm hồn tự do"
+                />
+                <span className="org-label-hint">Hiển thị dưới tiêu đề sự kiện (tùy chọn).</span>
+              </label>
 
               {/* Category Theme Visual Feedback */}
               {(() => {
@@ -606,7 +687,7 @@ export function OrganizerEventWizard({
                     className="org-category-theme-preview"
                     style={{
                       borderColor: currentTheme.badgeBorder,
-                      background: 'rgba(255, 255, 255, 0.02)',
+                      background: '#f8fafc',
                     }}
                   >
                     <div
@@ -620,9 +701,9 @@ export function OrganizerEventWizard({
                       <span>{currentTheme.label}</span>
                     </div>
                     <div className="org-category-theme-info">
-                      <strong>Giao diện công bố theo thể loại:</strong>
+                      <strong>Giao diện trang sự kiện theo thể loại:</strong>
                       <span>
-                        {currentTheme.tagline}. Hệ thống sẽ tự động áp dụng phối màu, ánh sáng sân khấu và phong cách thị giác đồng bộ lên trang sự kiện công khai của bạn.
+                        {currentTheme.tagline}. Hệ thống tự áp dụng phối màu đồng bộ lên trang bán vé công khai.
                       </span>
                     </div>
                   </div>
@@ -630,15 +711,17 @@ export function OrganizerEventWizard({
               })()}
 
               <label className="org-label wizard-label">
-                <span>Mô tả chi tiết sự kiện</span>
+                <span>
+                  Mô tả chi tiết sự kiện <span className="org-label-required">*</span>
+                </span>
                 <textarea
                   className="org-textarea"
-                  rows={6}
+                  rows={5}
                   value={formData.description || ''}
                   onChange={(e) => updateField('description', e.target.value)}
-                  placeholder="Giới thiệu nội dung sự kiện, danh sách nghệ sĩ/diễn giả khách mời, lịch trình chi tiết và các trải nghiệm đặc biệt…"
+                  placeholder="Giới thiệu nội dung sự kiện, nghệ sĩ/diễn giả khách mời, lịch trình nổi bật và các quyền lợi tham dự…"
                 />
-                <span className="org-label-hint">Khuyến nghị tối thiểu 20 ký tự để được duyệt công bố.</span>
+                <span className="org-label-hint">Bắt buộc tối thiểu 20 ký tự khi công bố lên marketplace.</span>
               </label>
             </div>
           )}
@@ -653,10 +736,10 @@ export function OrganizerEventWizard({
                 </p>
               </div>
 
-              <div className="org-alert org-alert-warning" role="note">
-                <IconAlertTriangle className="org-alert-icon" size={18} />
+              <div className="org-alert org-alert-info" role="note">
+                <IconInfoCircle className="org-alert-icon" size={18} />
                 <div className="org-alert-body">
-                  <strong>Lưu ý bảo vệ thương mại:</strong> Sau khi sự kiện được công bố và phát sinh lượt mua hoặc giữ chỗ, thời gian bắt đầu của suất diễn sẽ bị khóa chặt ở tầng backend. Hệ thống sẽ từ chối lưu thay đổi nếu cố tình dời lịch diễn đã bán vé.
+                  <strong>Lưu ý lịch diễn:</strong> Sau khi sự kiện đã mở bán và có người đặt vé, giờ bắt đầu của các suất có giao dịch sẽ được cố định để đảm bảo quyền lợi khán giả.
                 </div>
               </div>
 
@@ -877,56 +960,62 @@ export function OrganizerEventWizard({
               </div>
 
               {/* REPEATABLE SECTION: Lịch trình sự kiện (Timeline) */}
-              <div style={{marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--org-border-default)'}}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '16px',
-                    flexWrap: 'wrap',
-                    gap: '12px',
-                  }}
-                >
-                  <div>
-                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--org-text-primary)'}}>
-                      Lịch trình hoạt động (Timeline) {(formData.schedule || []).length > 0 ? `(${formData.schedule?.length})` : ''}
-                    </h4>
-                    <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
-                      Tùy chọn. Khán giả có thể xem timeline chi tiết trên trang sự kiện như Super Concert.
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    className="org-btn org-btn-secondary wizard-secondary-btn"
-                    onClick={addScheduleItem}
-                    style={{minHeight: '44px', padding: '0 16px', fontSize: '13px'}}
+              <details
+                className="org-wizard-disclosure org-wizard-disclosure--section"
+                open={(formData.schedule || []).length > 0}
+                style={{marginTop: '28px'}}
+              >
+                <summary className="org-wizard-disclosure-summary">
+                  <span>
+                    Lịch trình hoạt động (Timeline){' '}
+                    {(formData.schedule || []).length > 0 ? `(${formData.schedule?.length} mục)` : '(Tùy chọn · Bấm để thêm)'}
+                  </span>
+                </summary>
+                <div className="org-wizard-disclosure-body">
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '16px',
+                      flexWrap: 'wrap',
+                      gap: '12px',
+                    }}
                   >
-                    <IconPlus size={15} />
-                    <span>Thêm mục lịch trình</span>
-                  </button>
-                </div>
-
-                {(!formData.schedule || formData.schedule.length === 0) ? (
-                  <div className="org-wizard-empty-box">
-                    <IconClock size={32} style={{color: 'var(--org-text-muted)', marginBottom: '12px'}} />
-                    <h5 style={{margin: '0 0 6px', fontSize: '15px', color: 'var(--org-text-primary)', fontWeight: 600}}>
-                      Chưa có mục lịch trình nào
-                    </h5>
-                    <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.5}}>
-                      Lịch trình là tùy chọn. Nếu để trống, mục lịch trình sẽ tự động ẩn trên trang công khai. Bạn có thể thêm các mốc như Check-in, Soundcheck, Khai mạc hoặc Biểu diễn.
-                    </p>
+                    <span style={{fontSize: '13px', color: 'var(--org-text-secondary)'}}>
+                      Hiển thị các mốc thời gian chi tiết như Check-in, Soundcheck hoặc Khai mạc trên trang sự kiện.
+                    </span>
                     <button
                       type="button"
-                      className="org-btn org-btn-secondary"
+                      className="org-btn org-btn-secondary wizard-secondary-btn"
                       onClick={addScheduleItem}
-                      style={{minHeight: '44px', padding: '0 18px', fontSize: '13px'}}
+                      style={{minHeight: '44px', padding: '0 16px', fontSize: '13px'}}
                     >
                       <IconPlus size={15} />
-                      <span>+ Thêm mục lịch trình đầu tiên</span>
+                      <span>Thêm mục lịch trình</span>
                     </button>
                   </div>
-                ) : (
+
+                  {(!formData.schedule || formData.schedule.length === 0) ? (
+                    <div className="org-wizard-empty-box">
+                      <IconClock size={32} style={{color: 'var(--org-text-muted)', marginBottom: '12px'}} />
+                      <h5 style={{margin: '0 0 6px', fontSize: '15px', color: 'var(--org-text-primary)', fontWeight: 600}}>
+                        Chưa có mục lịch trình nào
+                      </h5>
+                      <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.5}}>
+                        Lịch trình là tùy chọn. Nếu để trống, mục này sẽ tự động ẩn trên trang công khai.
+                      </p>
+                      <button
+                        type="button"
+                        className="org-btn org-btn-secondary"
+                        onClick={addScheduleItem}
+                        style={{minHeight: '44px', padding: '0 18px', fontSize: '13px'}}
+                      >
+                        <IconPlus size={15} />
+                        <span>Thêm mục lịch trình đầu tiên</span>
+                      </button>
+                    </div>
+                  ) : (
                   <div style={{display: 'flex', flexDirection: 'column', gap: '14px'}}>
                     {formData.schedule.map((item, sIdx) => {
                       const isTimeInvalid = Boolean(item.startTime && item.endTime && item.endTime <= item.startTime);
@@ -1071,7 +1160,8 @@ export function OrganizerEventWizard({
                     })}
                   </div>
                 )}
-              </div>
+                </div>
+              </details>
             </div>
           )}
 
@@ -1085,10 +1175,10 @@ export function OrganizerEventWizard({
                 </p>
               </div>
 
-              <div className="org-alert org-alert-warning" role="note">
-                <IconAlertTriangle className="org-alert-icon" size={18} />
+              <div className="org-alert org-alert-info" role="note">
+                <IconInfoCircle className="org-alert-icon" size={18} />
                 <div className="org-alert-body">
-                  <strong>Lưu ý bảo vệ thương mại:</strong> Sau khi sự kiện được công bố và có vé đang giữ chỗ hoặc đã thanh toán, các trường thương mại cốt lõi sẽ bị khóa backend: giá vé không thể sửa đổi, sức chứa không thể giảm dưới số vé đã cấp, và không thể xóa phân khu/suất diễn đang có vé giữ hoặc vé bán.
+                  <strong>Lưu ý giá & sức chứa:</strong> Sau khi sự kiện công bố và có khách giữ hoặc mua vé, giá niêm yết và sức chứa tối thiểu của hạng vé đang mở bán sẽ được cố định để bảo vệ quyền lợi người mua.
                 </div>
               </div>
 
@@ -1160,7 +1250,7 @@ export function OrganizerEventWizard({
                             height: '14px',
                             borderRadius: '50%',
                             backgroundColor: tier.color || '#84CC16',
-                            border: '1px solid rgba(255,255,255,0.2)',
+                            border: '1px solid rgba(15, 23, 42, 0.16)',
                           }}
                         />
                         <span>Hạng #{tIdx + 1}: {tier.name}</span>
@@ -1187,7 +1277,16 @@ export function OrganizerEventWizard({
                         <input
                           className="org-input"
                           value={tier.name}
-                          onChange={(e) => updateTier(selectedShowIdx, tIdx, {name: e.target.value})}
+                          onChange={(e) => {
+                            const nextName = e.target.value;
+                            const isDefaultCode =
+                              !tier.code ||
+                              tier.code.startsWith('TIER_') ||
+                              tier.code === 'GENERAL_ADMISSION' ||
+                              tier.code === toTierCode(tier.name);
+                            const nextCode = isDefaultCode ? toTierCode(nextName) || tier.code : tier.code;
+                            updateTier(selectedShowIdx, tIdx, {name: nextName, code: nextCode});
+                          }}
                           placeholder="Ví dụ: VIP Khán đài A / Vé GA"
                           required
                         />
@@ -1326,8 +1425,7 @@ export function OrganizerEventWizard({
                       placeholder="4"
                     />
                     <span className="org-label-hint">
-                      Từ {CONFIG_LIMITS.maxTicketsPerOrder.min} đến {CONFIG_LIMITS.maxTicketsPerOrder.max}. Để trống: dùng mặc định 4.
-                      Hiện máy chủ giữ chỗ vẫn giới hạn cứng 4 vé mỗi lượt.
+                      Từ {CONFIG_LIMITS.maxTicketsPerOrder.min} đến {CONFIG_LIMITS.maxTicketsPerOrder.max}. Để trống nếu dùng mặc định (4 vé/lượt).
                     </span>
                   </label>
                   <label className="org-label wizard-label">
@@ -1414,23 +1512,37 @@ export function OrganizerEventWizard({
 
                 <div>
                   <label className="org-label wizard-label">
-                    <span>Sơ đồ khán đài / Sơ đồ phân khu tĩnh (URL)</span>
+                    <span>Sơ đồ khán đài / Sơ đồ chỗ ngồi (Mẫu hoặc URL)</span>
                     <input
                       className="org-input"
                       value={formData.seatingMapUrl || ''}
                       onChange={(e) => updateField('seatingMapUrl', e.target.value)}
-                      placeholder="https://example.com/seating-map.png"
+                      placeholder="/maps/super-concert-stadium.svg hoặc https://..."
                     />
-                    <span className="org-label-hint">Ảnh minh họa vị trí các khán đài để khán giả chọn vé.</span>
+                    <span className="org-label-hint">
+                      Chọn nhanh mẫu sơ đồ tương tác có sẵn của EventTicketing hoặc dán URL ảnh sơ đồ riêng.
+                    </span>
                   </label>
+                  <div className="org-wizard-preset-row">
+                    {SEAT_MAP_PRESETS.map((preset) => (
+                      <button
+                        key={preset.url}
+                        type="button"
+                        className={`org-filter-pill ${formData.seatingMapUrl === preset.url ? 'is-active' : ''}`}
+                        onClick={() => updateField('seatingMapUrl', preset.url)}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
                   {formData.seatingMapUrl && (
-                    <div style={{marginTop: '10px', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--org-border-default)'}}>
+                    <div style={{marginTop: '10px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--org-border-default)', background: '#f3f6fa'}}>
                       <img
                         src={formData.seatingMapUrl}
                         alt="Sơ đồ khán đài"
                         onError={(e) => (e.currentTarget.style.display = 'none')}
                         onLoad={(e) => (e.currentTarget.style.display = 'block')}
-                        style={{maxHeight: '160px', width: '100%', objectFit: 'contain'}}
+                        style={{maxHeight: '180px', width: '100%', objectFit: 'contain'}}
                       />
                     </div>
                   )}
@@ -1449,45 +1561,51 @@ export function OrganizerEventWizard({
               </label>
 
               {/* REPEATABLE SECTION: Nghệ sĩ biểu diễn (Artist Lineup) */}
-              <div style={{marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--org-border-default)'}}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '16px',
-                    flexWrap: 'wrap',
-                    gap: '12px',
-                  }}
-                >
-                  <div>
-                    <h4 style={{margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--org-text-primary)'}}>
-                      Dàn nghệ sĩ biểu diễn (Artist Lineup) {(formData.artists || []).length > 0 ? `(${formData.artists?.length})` : ''}
-                    </h4>
-                    <span style={{fontSize: '12px', color: 'var(--org-text-secondary)'}}>
-                      Tùy chọn. Hiển thị dàn nghệ sĩ khách mời trên trang sự kiện tương tự Super Concert.
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    className="org-btn org-btn-secondary wizard-secondary-btn"
-                    onClick={addArtistItem}
-                    style={{minHeight: '44px', padding: '0 16px', fontSize: '13px'}}
+              <details
+                className="org-wizard-disclosure org-wizard-disclosure--section"
+                open={(formData.artists || []).length > 0}
+                style={{marginTop: '28px'}}
+              >
+                <summary className="org-wizard-disclosure-summary">
+                  <span>
+                    Dàn nghệ sĩ biểu diễn (Artist Lineup){' '}
+                    {(formData.artists || []).length > 0 ? `(${formData.artists?.length} người)` : '(Tùy chọn · Bấm để thêm)'}
+                  </span>
+                </summary>
+                <div className="org-wizard-disclosure-body">
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '16px',
+                      flexWrap: 'wrap',
+                      gap: '12px',
+                    }}
                   >
-                    <IconPlus size={15} />
-                    <span>Thêm nghệ sĩ</span>
-                  </button>
-                </div>
+                    <span style={{fontSize: '13px', color: 'var(--org-text-secondary)'}}>
+                      Hiển thị dàn nghệ sĩ khách mời hoặc diễn giả trên trang chi tiết sự kiện.
+                    </span>
+                    <button
+                      type="button"
+                      className="org-btn org-btn-secondary wizard-secondary-btn"
+                      onClick={addArtistItem}
+                      style={{minHeight: '44px', padding: '0 16px', fontSize: '13px'}}
+                    >
+                      <IconPlus size={15} />
+                      <span>Thêm nghệ sĩ</span>
+                    </button>
+                  </div>
 
-                {(!formData.artists || formData.artists.length === 0) ? (
-                  <div className="org-wizard-empty-box">
-                    <IconBuilding size={32} style={{color: 'var(--org-text-muted)', marginBottom: '12px'}} />
-                    <h5 style={{margin: '0 0 6px', fontSize: '15px', color: 'var(--org-text-primary)', fontWeight: 600}}>
-                      Chưa có nghệ sĩ nào trong danh sách
-                    </h5>
-                    <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.5}}>
-                      Danh sách nghệ sĩ là tùy chọn. Đối với các concert ca nhạc, festival hay kịch nói, dàn nghệ sĩ giúp thu hút khán giả đặt vé ngay từ cái nhìn đầu tiên.
-                    </p>
+                  {(!formData.artists || formData.artists.length === 0) ? (
+                    <div className="org-wizard-empty-box">
+                      <IconBuilding size={32} style={{color: 'var(--org-text-muted)', marginBottom: '12px'}} />
+                      <h5 style={{margin: '0 0 6px', fontSize: '15px', color: 'var(--org-text-primary)', fontWeight: 600}}>
+                        Chưa có nghệ sĩ nào trong danh sách
+                      </h5>
+                      <p style={{margin: '0 auto 16px', maxWidth: '440px', fontSize: '13px', color: 'var(--org-text-secondary)', lineHeight: 1.5}}>
+                        Danh sách nghệ sĩ là tùy chọn. Bạn có thể bổ sung ngay hoặc thêm sau khi tạo bản nháp.
+                      </p>
                     <button
                       type="button"
                       className="org-btn org-btn-secondary"
@@ -1653,7 +1771,8 @@ export function OrganizerEventWizard({
                     })}
                   </div>
                 )}
-              </div>
+                </div>
+              </details>
             </div>
           )}
 
@@ -1832,9 +1951,9 @@ export function OrganizerEventWizard({
               <div className="org-alert org-alert-info" role="note" style={{marginBottom: '24px'}}>
                 <IconShield className="org-alert-icon" size={18} />
                 <div className="org-alert-body">
-                  <strong>Chính sách lưu dữ liệu & Khóa thương mại:</strong>
+                  <strong>Nguyên tắc bảo vệ quyền lợi người mua vé:</strong>
                   <p style={{margin: '4px 0 0', lineHeight: 1.5}}>
-                    Ở trạng thái bản nháp (Draft), hệ thống cho phép chỉnh sửa và xóa linh hoạt. Tuy nhiên, một khi sự kiện đã xuất bản (Published) và phát sinh giao dịch hoặc giữ chỗ thành công, các trường thương mại (giờ bắt đầu suất diễn, giá vé, sức chứa tối thiểu, và xóa phân khu có giao dịch) sẽ bị khóa chặt bởi các quy tắc an toàn backend. Không phải mọi trường dữ liệu đều có thể lưu đè sau khi đã mở bán.
+                    Khi sự kiện đang ở Bản nháp, bạn có thể chỉnh sửa toàn bộ thông tin. Sau khi công bố và có khách đặt vé, giờ bắt đầu suất diễn, giá vé gốc và sức chứa tối thiểu của hạng vé đang bán sẽ được cố định tự động.
                   </p>
                 </div>
               </div>
@@ -1847,17 +1966,30 @@ export function OrganizerEventWizard({
 
                 <div className="org-checklist-grid">
                   {/* Blockers */}
-                  {readiness.blockers.map((blocker, bIdx) => (
-                    <div key={bIdx} className="org-checklist-item org-checklist-item-blocker checklist-item checklist-item--blocker">
-                      <div className="org-checklist-item-icon">
-                        <IconClose size={16} />
+                  {readiness.blockers.map((blocker, bIdx) => {
+                    const targetStep = getStepForBlockerField(blocker.field);
+                    return (
+                      <div key={bIdx} className="org-checklist-item org-checklist-item-blocker checklist-item checklist-item--blocker">
+                        <div className="org-checklist-item-icon">
+                          <IconClose size={16} />
+                        </div>
+                        <div className="org-checklist-item-content org-checklist-item-row">
+                          <div>
+                            <h4>Cần bổ sung để công bố:</h4>
+                            <p>{blocker.message}</p>
+                          </div>
+                          <button
+                            type="button"
+                            className="org-btn org-btn-secondary org-checklist-jump-btn"
+                            onClick={() => goToStep(targetStep)}
+                          >
+                            Sửa ở bước {targetStep}
+                            <IconArrowRight size={14} />
+                          </button>
+                        </div>
                       </div>
-                      <div className="org-checklist-item-content">
-                        <h4>Bắt buộc để công bố:</h4>
-                        <p>{blocker.message}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {/* Warnings */}
                   {readiness.warnings.map((warn, wIdx) => (
@@ -1896,7 +2028,7 @@ export function OrganizerEventWizard({
             <button
               type="button"
               className="org-btn org-btn-secondary wizard-secondary-btn"
-              onClick={handleSaveDraft}
+              onClick={() => void handleSaveDraft(false)}
               disabled={busyDraft || busyPublish || !canEdit}
             >
               {busyDraft ? (
@@ -1920,14 +2052,10 @@ export function OrganizerEventWizard({
                 className="org-event-btn-preview"
                 title="Mở trang xem trước trong tab mới"
               >
-                <span>Xem trước sự kiện</span>
+                <span>Xem trước</span>
                 <IconExternalLink size={13} />
               </a>
             )}
-
-            <span style={{fontSize: '11px', color: 'var(--org-text-secondary)'}}>
-              * Sau khi bán vé, giá và giờ diễn sẽ bị khóa an toàn backend.
-            </span>
           </div>
 
           <div className="org-wizard-footer-right">
@@ -1935,7 +2063,7 @@ export function OrganizerEventWizard({
               <button
                 type="button"
                 className="org-btn org-btn-secondary wizard-secondary-btn"
-                onClick={() => setStep(step - 1)}
+                onClick={() => goToStep(step - 1)}
                 disabled={busyDraft || busyPublish}
               >
                 <IconArrowLeft size={16} />
@@ -1947,7 +2075,7 @@ export function OrganizerEventWizard({
               <button
                 type="button"
                 className="org-btn org-btn-primary organizer-primary"
-                onClick={() => setStep(step + 1)}
+                onClick={() => goToStep(step + 1)}
                 disabled={busyDraft || busyPublish}
               >
                 <span>Tiếp theo</span>
@@ -1965,7 +2093,7 @@ export function OrganizerEventWizard({
                   borderColor: readiness.isReady ? 'var(--et-blue, #0353c2)' : '#c7d0db',
                   cursor: readiness.isReady ? 'pointer' : 'not-allowed',
                 }}
-                title={!readiness.isReady ? 'Cần khắc phục tất cả blocker trước khi công bố' : undefined}
+                title={!readiness.isReady ? 'Cần bổ sung tất cả tiêu chí ở Bước 6 trước khi công bố' : undefined}
               >
                 {busyPublish ? (
                   <>
