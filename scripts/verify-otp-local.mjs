@@ -4,7 +4,7 @@
  * Supabase CLI, người mua nhập mã đọc từ email, rồi gọi da_xac_minh_otp() và tao_giu_cho_theo_suat.
  * Phục vụ AC-T2-01.1, .2, .3 (phần Auth có khóa hay không), .4, .5 (60 giây, mã mới vô hiệu mã cũ), .7.
  *
- *   SUPABASE_URL=... SUPABASE_ANON_KEY=... SUPABASE_SERVICE_ROLE_KEY=... [MAIL_URL=http://127.0.0.1:54324] \
+ *   SUPABASE_URL=... SUPABASE_ANON_KEY=... SUPABASE_SERVICE_ROLE_KEY=... [MAIL_URL=http://127.0.0.1:54324 (bắt buộc khi chạy cục bộ; bỏ trống ở hosted)] \
  *     node scripts/verify-otp-local.mjs
  *
  * Mất khoảng 8 phút vì phải chờ cửa sổ 60 giây và hiệu lực 300 giây thật. KHÔNG bao giờ in mã OTP hay token:
@@ -15,7 +15,11 @@ import {createClient} from '@supabase/supabase-js';
 import {randomBytes} from 'node:crypto';
 
 const {SUPABASE_URL: url, SUPABASE_ANON_KEY: anonKey, SUPABASE_SERVICE_ROLE_KEY: serviceKey} = process.env;
-const mailUrl = (process.env.MAIL_URL ?? 'http://127.0.0.1:54324').replace(/\/+$/, '');
+// Có MAIL_URL (Mailpit/Inbucket cục bộ): gửi OTP thật qua Auth và đọc email. Không có: lấy mã bằng Admin API generateLink
+// (không gửi email), dùng cho Supabase hosted nơi email mặc định chỉ gửi tới thành viên nhóm. Khi đó các kiểm tra phụ thuộc
+// việc gửi email thật (mẫu thư, giới hạn 60 giây giữa hai lần gửi) được đánh dấu CHUA_CHAY.
+const mailUrl = process.env.MAIL_URL ? process.env.MAIL_URL.replace(/\/+$/, '') : null;
+const modeMail = mailUrl !== null;
 for (const [k, v] of Object.entries({SUPABASE_URL: url, SUPABASE_ANON_KEY: anonKey, SUPABASE_SERVICE_ROLE_KEY: serviceKey})) {
   if (!v) { console.error(`Missing environment variable: ${k}`); process.exit(2); }
 }
@@ -30,6 +34,11 @@ const errText = (e) => `${e?.status ?? ''} ${e?.code ?? e?.name ?? ''} ${e?.mess
 const decodeJwt = (t) => JSON.parse(Buffer.from(t.split('.')[1], 'base64url').toString('utf8'));
 
 async function latestMail(to, afterMs) {
+  if (!modeMail) {
+    const {data, error} = await admin.auth.admin.generateLink({type: 'magiclink', email: to});
+    if (error) return null;
+    return {id: 'generateLink', subject: '(generateLink, không gửi email)', text: String(data?.properties?.email_otp ?? '')};
+  }
   for (let i = 0; i < 30; i++) {
     const list = await (await fetch(`${mailUrl}/api/v1/messages`)).json();
     const msgs = (list.messages ?? []).filter((m) => (m.To ?? []).some((x) => x.Address === to) && new Date(m.Created).getTime() >= afterMs - 2000);
@@ -107,16 +116,20 @@ async function main() {
   // S2 — gửi OTP lần 1, email thật
   const auth = createClient(url, anonKey, opts).auth;
   const t0 = Date.now();
-  const s1 = await auth.signInWithOtp({email: buyer.email, options: {shouldCreateUser: false}});
-  note('S2a', 'AC-T2-01.1', 'gửi OTP (signInWithOtp)', s1.error ? 'KHONG_DAT' : 'DAT', s1.error ? errText(s1.error) : 'đã gửi');
+  const s1 = modeMail ? await auth.signInWithOtp({email: buyer.email, options: {shouldCreateUser: false}}) : {error: null};
+  note('S2a', 'AC-T2-01.1', modeMail ? 'gửi OTP (signInWithOtp)' : 'tạo mã OTP bằng Admin API (KHÔNG gửi email)', s1.error ? 'KHONG_DAT' : 'DAT', s1.error ? errText(s1.error) : 'đã gửi');
   const mailA = await latestMail(buyer.email, t0);
   const codeA = codeOf(mailA);
-  note('S2b', 'AC-T2-01.1', 'email có mã 6 số hiển thị cho người dùng (mẫu magic_link có {{ .Token }})', codeA ? 'DAT' : 'KHONG_DAT', `tiêu đề="${mailA?.subject ?? ''}"; độ dài mã=${codeA?.length ?? 0} (mã không ghi)`);
+  note('S2b', 'AC-T2-01.1', modeMail ? 'email có mã 6 số hiển thị cho người dùng (mẫu magic_link có {{ .Token }})' : 'Auth tạo mã 6 số (generateLink); mẫu thư KHÔNG kiểm được', !codeA ? 'KHONG_DAT' : (modeMail ? 'DAT' : 'CHUA_CHAY'), `tiêu đề="${mailA?.subject ?? ''}"; độ dài mã=${codeA?.length ?? 0} (mã không ghi)`);
   const tSend = Date.now() - t0;
 
   // S3 — gửi lại ngay (dưới 60 giây)
-  const s2 = await auth.signInWithOtp({email: buyer.email, options: {shouldCreateUser: false}});
-  note('S3', 'AC-T2-01.5', 'gửi lại ngay (< 60 giây) phải bị từ chối', s2.error ? 'DAT' : 'KHONG_DAT', s2.error ? errText(s2.error) : 'được gửi ngoài mong đợi');
+  if (modeMail) {
+    const s2 = await auth.signInWithOtp({email: buyer.email, options: {shouldCreateUser: false}});
+    note('S3', 'AC-T2-01.5', 'gửi lại ngay (< 60 giây) phải bị từ chối', s2.error ? 'DAT' : 'KHONG_DAT', s2.error ? errText(s2.error) : 'được gửi ngoài mong đợi');
+  } else {
+    note('S3', 'AC-T2-01.5', 'gửi lại ngay (< 60 giây) phải bị từ chối', 'CHUA_CHAY', 'hosted: email mặc định chỉ gửi tới địa chỉ thuộc nhóm; cần một hộp thư thật');
+  }
 
   // S4 — sai mã nhiều lần, rồi xem mã đúng còn dùng được không (Auth có khóa không)
   const wrong = [];
@@ -124,11 +137,11 @@ async function main() {
   note('S4a', 'AC-T2-01.2', 'sai mã: Auth trả lỗi gì (không có "số lần còn lại")', wrong.every((w) => w !== 'OK?!') ? 'DAT' : 'KHONG_DAT', wrong[0]);
 
   // S5 — sau ≥ 62 giây gửi mã B; mã A phải bị vô hiệu
-  const wait1 = Math.max(0, 62_000 - (Date.now() - t0));
+  const wait1 = modeMail ? Math.max(0, 62_000 - (Date.now() - t0)) : 0;
   console.error(`chờ ${Math.round(wait1 / 1000)}s để qua cửa sổ 60 giây`); await sleep(wait1);
   const tB = Date.now();
-  const sB = await auth.signInWithOtp({email: buyer.email, options: {shouldCreateUser: false}});
-  note('S5a', 'AC-T2-01.5', 'gửi lại sau 62 giây thành công', sB.error ? 'KHONG_DAT' : 'DAT', sB.error ? errText(sB.error) : 'đã gửi');
+  const sB = modeMail ? await auth.signInWithOtp({email: buyer.email, options: {shouldCreateUser: false}}) : {error: null};
+  note('S5a', 'AC-T2-01.5', modeMail ? 'gửi lại sau 62 giây thành công' : 'tạo mã mới bằng Admin API (KHÔNG gửi email; không kiểm khoảng chờ 60 giây)', sB.error ? 'KHONG_DAT' : 'DAT', sB.error ? errText(sB.error) : 'đã gửi');
   const mailB = await latestMail(buyer.email, tB);
   const codeB = codeOf(mailB);
   const oldTry = await createClient(url, anonKey, opts).auth.verifyOtp({email: buyer.email, token: codeA ?? '000000', type: 'email'});
@@ -148,13 +161,13 @@ async function main() {
   }
 
   // S7 — hết hạn 300 giây
-  const wait2 = Math.max(0, 62_000 - (Date.now() - tB));
+  const wait2 = modeMail ? Math.max(0, 62_000 - (Date.now() - tB)) : 0;
   await sleep(wait2);
   const tC = Date.now();
-  const sC = await auth.signInWithOtp({email: buyer.email, options: {shouldCreateUser: false}});
+  const sC = modeMail ? await auth.signInWithOtp({email: buyer.email, options: {shouldCreateUser: false}}) : {error: null};
   const mailC = await latestMail(buyer.email, tC);
   const codeC = codeOf(mailC);
-  note('S7a', 'AC-T2-01.4', 'gửi mã C để thử hết hạn', sC.error || !codeC ? 'KHONG_DAT' : 'DAT', sC.error ? errText(sC.error) : 'đã gửi');
+  note('S7a', 'AC-T2-01.4', modeMail ? 'gửi mã C để thử hết hạn' : 'tạo mã C bằng Admin API để thử hết hạn', sC.error || !codeC ? 'KHONG_DAT' : 'DAT', sC.error ? errText(sC.error) : 'đã gửi');
   const early = Math.max(0, 295_000 - (Date.now() - tC));
   console.error(`chờ ${Math.round(early / 1000)}s trước mốc 300s`); await sleep(early);
   // thử ở 295s (còn hạn) KHÔNG dùng mã vì dùng sẽ tiêu thụ; chỉ thử sau 301s.
