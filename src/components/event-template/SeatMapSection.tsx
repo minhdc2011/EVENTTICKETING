@@ -99,6 +99,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const panZoom = usePanZoom();
   const mapRef = useRef<OfficialSeatingMapHandle>(null);
   const [mapZoom, setMapZoom] = useState(1);
+  // Mã các khu có hình trên sơ đồ BTC; khu không có hình thì không đưa vào danh sách chọn khu (không thể mở trên bản đồ).
+  const [mappedZoneCodes, setMappedZoneCodes] = useState<ReadonlySet<string> | null>(null);
   const {zoomIn: handleZoomIn, zoomOut: handleZoomOut, reset: handleZoomReset} = panZoom;
   const zoom = panZoom.view.zoom;
   const [selectedSeats, setSelectedSeats] = useState<SeatRecord[]>([]);
@@ -968,7 +970,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 <>
             {/* Toolbar */}
             <MapToolbar
-              zones={catalog?.zones || []}
+              zones={officialMapReady && mappedZoneCodes ? (catalog?.zones || []).filter((z) => mappedZoneCodes.has(z.MaKhuVuc)) : catalog?.zones || []}
               activeFilter={filter}
               onFilterChange={handleFilterChange}
               searchQuery={searchQuery}
@@ -1067,6 +1069,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                   onSelectZone={handleOfficialZoneSelect}
                   onInspectSeat={setInspectedSeat}
                   onZoomChange={(z) => setMapZoom((prev) => (Math.abs(prev - z) < 0.02 ? prev : z))}
+                  onZonesMeasured={setMappedZoneCodes}
+                  onExitZone={() => {
+                    setSelectedZoneId(null);
+                    setFilter('all');
+                    setInspectedSeat(null);
+                  }}
                 />
                 <SeatTicketPanel
                   seat={inspectedSeat}

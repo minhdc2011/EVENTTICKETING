@@ -448,7 +448,7 @@ test('architectural verification: Super Concert preserves its bespoke map while 
   // 2. Organizer-created events still use the reusable React seat map.
   assert.match(concertSectionsTsx, /return\s+<SeatMapSection\s+\{\.\.\.props\}/i, 'Non-Super-Concert events delegate to SeatMapSection');
   // 3. GenericEventPage passes event into SeatingSection
-  assert.match(genericPageTsx, /seating:\s*<SeatingSection\s+event=\{event\}/i, 'GenericEventPage passes event into SeatingSection');
+  assert.doesNotMatch(genericPageTsx, /seating:\s*<SeatingSection/i, 'GenericEventPage no longer injects a bespoke seating slot');
 
   // 4. EventTemplate provides data-driven fallback to SeatMapSection
   assert.match(templateTsx, /<SeatMapSection\s+event=\{event\}/i, 'EventTemplate falls back to SeatMapSection for organizer events');

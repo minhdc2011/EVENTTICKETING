@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 930" width="100%" height="100%" role="img" aria-label="Sơ đồ mặt bằng sân vận động Mỹ Đình" style="background:#0d1527;font-family:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+  <title>Sơ đồ mặt bằng sân vận động Mỹ Đình</title>
+  <desc>Sơ đồ dạng móng ngựa với sân khấu ở phía dưới, khu vé đứng trong lòng sân và các tầng khán đài bao quanh. Sinh bởi scripts/build-super-concert-map.mjs.</desc>
+  <defs>
+    <linearGradient id="sc-stage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ecff70"/>
+      <stop offset="1" stop-color="#b9df22"/>
+    </linearGradient>
+    <pattern id="pitchGrid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <rect width="64" height="64" fill="#111812"/>
+      <rect width="32" height="64" fill="#151e16"/>
+    </pattern>
+    <pattern id="blockedPattern" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+      <rect width="18" height="18" fill="#151719"/>
+      <rect width="7" height="18" fill="#292c30"/>
+    </pattern>
+    <path id="sc-arc-vvip" d="M354.23 293.63 A248 218 0 0 1 645.77 293.63"/>
+    <path id="sc-arc-vip" d="M314.85 242.67 A315 281 0 0 1 685.15 242.67"/>
+    <path id="sc-arc-a" d="M227.20 610.50 A315 281 0 0 1 314.85 242.67"/>
+    <path id="sc-arc-b" d="M685.15 242.67 A315 281 0 0 1 772.80 610.50"/>
+    <path id="sc-arc-upper" d="M128.46 315.73 A410 365 0 0 1 871.54 315.73"/>
+  </defs>
+
+  <ellipse cx="500" cy="470" rx="455" ry="405" fill="#0c100e" stroke="rgba(255,255,255,0.17)" stroke-width="3"/>
+  <g aria-hidden="true">
+    <path d="M 894.04 672.50 A 455 405 0 0 1 655.62 850.58 L 624.84 775.40 A 365 325 0 0 0 816.10 632.50 Z" fill="url(#blockedPattern)" stroke="rgba(255,255,255,0.09)" stroke-width="1.5"/>
+    <path d="M 655.62 850.58 A 455 405 0 0 1 344.38 850.58 L 375.16 775.40 A 365 325 0 0 0 624.84 775.40 Z" fill="url(#blockedPattern)" stroke="rgba(255,255,255,0.09)" stroke-width="1.5"/>
+    <path d="M 344.38 850.58 A 455 405 0 0 1 105.96 672.50 L 183.90 632.50 A 365 325 0 0 0 375.16 775.40 Z" fill="url(#blockedPattern)" stroke="rgba(255,255,255,0.09)" stroke-width="1.5"/>
+  </g>
+
+  <g id="sc-zones">
+    <path data-zone-code="ZONE_CD_UP" role="button" tabindex="0" aria-label="Khán đài C-D Tầng cao (Upper Tier)" data-arc="500 470 455 405 365 325 225 315" d="M 105.96 672.50 A 455 405 0 1 1 894.04 672.50 L 816.10 632.50 A 365 325 0 1 0 183.90 632.50 Z" fill="#a9cb73" stroke="#0c100e" stroke-width="2"/>
+    <path data-zone-code="ZONE_A_T1" role="button" tabindex="0" aria-label="Khán đài A Tầng 1 (Tribune A)" data-arc="500 470 350 315 280 247 150 234" d="M 196.89 627.50 A 350 315 0 0 1 294.28 215.16 L 335.42 270.17 A 280 247 0 0 0 257.51 593.50 Z" fill="#f0b44e" stroke="#0c100e" stroke-width="2"/>
+    <path data-zone-code="ZONE_B_T2" role="button" tabindex="0" aria-label="Khán đài B Tầng 2 (Tribune B)" data-arc="500 470 350 315 280 247 306 390" d="M 705.72 215.16 A 350 315 0 0 1 803.11 627.50 L 742.49 593.50 A 280 247 0 0 0 664.58 270.17 Z" fill="#9b7af0" stroke="#0c100e" stroke-width="2"/>
+    <path data-zone-code="VIP_PLATINUM_1" role="button" tabindex="0" aria-label="VIP Platinum 1" data-arc="500 470 350 315 280 247 234 306" d="M 294.28 215.16 A 350 315 0 0 1 705.72 215.16 L 664.58 270.17 A 280 247 0 0 0 335.42 270.17 Z" fill="#6f95ed" stroke="#0c100e" stroke-width="2"/>
+    <path data-zone-code="VVIP_DIAMOND" role="button" tabindex="0" aria-label="VVIP Diamond Lounge" data-arc="500 470 272 240 224 196 234 306" d="M 340.12 275.84 A 272 240 0 0 1 659.88 275.84 L 631.66 311.43 A 224 196 0 0 0 368.34 311.43 Z" fill="#e5bc38" stroke="#0c100e" stroke-width="2"/>
+  </g>
+  <path d="M 47.49 512.33 L 137.00 503.97 M 67.27 344.85 L 152.86 369.57 M 161.87 199.00 L 228.75 252.53 M 314.93 100.01 L 351.54 173.10 M 500.00 65.00 L 500.00 145.00 M 685.07 100.01 L 648.46 173.10 M 838.13 199.00 L 771.25 252.53 M 932.73 344.85 L 847.14 369.57 M 952.51 512.33 L 863.00 503.97 M 150.21 480.99 L 220.17 478.62 M 185.42 331.91 L 248.34 361.72 M 814.58 331.91 L 751.66 361.72 M 849.79 480.99 L 779.83 478.62 M 427.23 161.88 L 441.78 228.40 M 572.77 161.88 L 558.22 228.40 M 443.45 235.24 L 453.43 278.28 M 556.55 235.24 L 546.57 278.28" fill="none" stroke="#0c100e" stroke-width="3" pointer-events="none" aria-hidden="true"/>
+
+  <ellipse cx="500" cy="475" rx="258" ry="246" fill="url(#pitchGrid)" stroke="rgba(216,255,62,0.2)" stroke-width="2" pointer-events="none"/>
+
+  <g>
+    <rect data-zone-code="GA_STAND_1" role="button" tabindex="0" aria-label="GA Fanzone Standing 1 (Khu A)" x="330" y="330" width="340" height="160" rx="14" fill="#78d683" stroke="#c8ffb6" stroke-width="3"/>
+    <text x="500" y="410" fill="#071008" font-size="23" font-weight="800" letter-spacing="0.6" text-anchor="middle" dominant-baseline="middle" pointer-events="none">STANDING · FANZONE</text>
+  </g>
+
+  <path d="M475 540 Q475 520 500 520 Q525 520 525 540 L525 670 L475 670 Z" fill="url(#sc-stage)" stroke="#f4ff9b" stroke-width="1.5" pointer-events="none"/>
+  <rect x="380" y="670" width="240" height="70" rx="12" fill="url(#sc-stage)" stroke="#f4ff9b" stroke-width="1.5" pointer-events="none"/>
+  <text x="500" y="705" fill="#0b1204" font-size="26" font-weight="800" letter-spacing="1.5" text-anchor="middle" dominant-baseline="middle" pointer-events="none">STAGE</text>
+
+  <g fill="rgba(255,255,255,0.9)" font-size="16" font-weight="800" letter-spacing="1" pointer-events="none" aria-hidden="true">
+    <text><textPath href="#sc-arc-vvip" startOffset="50%" text-anchor="middle">VVIP LOUNGE</textPath></text>
+    <text><textPath href="#sc-arc-vip" startOffset="50%" text-anchor="middle">VIP PLATINUM 1</textPath></text>
+    <text><textPath href="#sc-arc-a" startOffset="50%" text-anchor="middle">KHÁN ĐÀI A</textPath></text>
+    <text><textPath href="#sc-arc-b" startOffset="50%" text-anchor="middle">KHÁN ĐÀI B</textPath></text>
+    <text><textPath href="#sc-arc-upper" startOffset="50%" text-anchor="middle">KHÁN ĐÀI C · UPPER TIER</textPath></text>
+    <text x="500" y="902" fill="rgba(255,255,255,0.4)" font-size="14" text-anchor="middle">KHUẤT TẦM NHÌN · KHÔNG BÁN</text>
+  </g>
+</svg>

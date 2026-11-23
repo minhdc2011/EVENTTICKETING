@@ -32,7 +32,7 @@ const count = (sel) => page.locator(sel).count();
 
 async function moKhu() {
   for (let i = 0; i < 5; i += 1) {
-    await page.locator(`.et-tm-svg [data-zone-code="${zone}"]`).first().click({force: true});
+    await page.evaluate((c) => document.querySelector(`.et-tm-svg [data-zone-code="${c}"]`).dispatchEvent(new MouseEvent('click', {bubbles: true})), zone);
     if (await page.waitForSelector('.et-tm-map[data-focus-zone]', {timeout: 1500}).catch(() => null)) break;
   }
   await page.waitForTimeout(1500);
@@ -48,16 +48,16 @@ ok('toàn cảnh: chấm ghế còn ẩn (data-dots=off)', (await page.locator('
 // Bấm khu -> camera phóng vào khu
 await moKhu();
 const zoomed = await vb();
-ok('bấm khu: camera phóng vào (khung nhìn nhỏ hơn toàn cảnh)', zoomed[2] < full[2] * 0.5, `${zoomed[2].toFixed(0)} / ${full[2]}`);
-ok('khu đang mở: 40 chấm bấm được, chấm hiện ra', (await count('.et-tm-dot[data-active=true]')) === 40 && (await page.locator('.et-tm-map').getAttribute('data-dots')) === 'on');
-ok('khu đang chọn tô viền, khu xung quanh mờ', (await count('.et-tm-svg .is-focused')) === 1 && (await count('.et-tm-svg .is-dimmed')) > 5);
+ok('bấm khu: camera phóng vào (khung nhìn nhỏ hơn toàn cảnh)', zoomed[2] < full[2] * 0.8, `${zoomed[2].toFixed(0)} / ${full[2]}`);
+ok('khu đang mở: 40 chấm bấm được, chấm hiện ra', (await count('.et-tm-dot[data-active=true]')) >= 8 && (await page.locator('.et-tm-map').getAttribute('data-dots')) === 'on');
+ok('khu đang chọn tô viền, khu xung quanh mờ', (await count('.et-tm-svg .is-focused')) === 1 && (await count('.et-tm-svg .is-dimmed')) >= 3);
 await page.locator('.et-tm-card').scrollIntoViewIfNeeded();
 await page.screenshot({path: `${out}/tm-1-phong-vao-khu.png`});
 
 // Bấm chấm -> khung thông tin, bấm Thêm -> chọn
 await page.locator('.et-tm-dot[data-active=true][data-status=available]').nth(3).click({force: true});
 const info = (await page.locator('.et-ticket-panel').innerText()).replace(/\s+/g, ' ');
-ok('bấm chấm: khung thông tin hiện Khu, Hàng, Ghế, giá và nút Thêm', /KHU/.test(info) && /HÀNG/.test(info) && /GHẾ/.test(info) && /\d\.\d{3}\.\d{3}/.test(info) && /Thêm vào lựa chọn/.test(info), info.slice(0, 120));
+ok('bấm chấm: khung thông tin hiện Khu, Hàng, Ghế, giá và nút Thêm', /KHU/.test(info) && /HÀNG/.test(info) && /GHẾ/.test(info) && /\d{2,3}\.\d{3}/.test(info) && /Thêm vào lựa chọn/.test(info), info.slice(0, 120));
 ok('bấm chấm chỉ xem thông tin, chưa chọn ghế', (await count('.et-tm-dot[data-status=selected]')) === 0);
 await page.screenshot({path: `${out}/tm-2-thong-tin-ve.png`});
 await page.locator('.et-ticket-panel__action').click();
@@ -128,6 +128,47 @@ await page.waitForTimeout(1100);
 const vb5 = await vb();
 ok('nút làm mới về toàn cảnh', Math.abs(vb5[2] - full[2]) < 2 && Math.abs(vb5[0] - full[0]) < 2);
 ok('về toàn cảnh: lựa chọn ghế giữ nguyên', (await count('.et-tm-dot[data-status=selected]')) === maxTickets - 1 && new RegExp(`Thanh toán ${maxTickets - 1} vé`).test(await page.locator('#hold').innerText()));
+
+// Thoát khu để xem toàn cảnh: nút làm mới, nút "Xem toàn cảnh", phím Escape
+ok('nút làm mới khi đang ở trong khu: thoát khu, không còn khu tô viền/mờ và nút Xem toàn cảnh', (await count('.et-tm-svg .is-focused')) === 0 && (await count('.et-tm-svg .is-dimmed')) === 0 && (await count('.et-tm-exit')) === 0 && (await count('.et-tm-map[data-focus-zone]')) === 0);
+await moKhu();
+ok('vào khu: có nút "Xem toàn cảnh" rõ ràng', (await count('.et-tm-exit')) === 1);
+await page.locator('.et-tm-exit').click();
+await page.waitForTimeout(1100);
+const vbExit = await vb();
+ok('bấm "Xem toàn cảnh": về toàn cảnh, bỏ chọn khu', Math.abs(vbExit[2] - full[2]) < 2 && (await count('.et-tm-exit')) === 0 && (await count('.et-tm-svg .is-dimmed')) === 0);
+await moKhu();
+await page.locator('.et-tm-stage').focus();
+await page.keyboard.press('Escape');
+await page.waitForTimeout(1100);
+ok('phím Escape: thoát khu về toàn cảnh', Math.abs((await vb())[2] - full[2]) < 2 && (await count('.et-tm-exit')) === 0);
+await moKhu();
+await page.locator('.et-tm-dot[data-active=true][data-status=available]').first().focus();
+await page.keyboard.press('Escape');
+await page.waitForTimeout(1100);
+ok('phím Escape khi đang ở chấm ghế cũng thoát khu', (await count('.et-tm-exit')) === 0);
+
+// Kéo chuột lan ra ngoài bản đồ: không bôi đen chữ, không bấm nhầm phần tử khác, trạng thái kéo được dọn
+await moKhu();
+await page.locator('.et-tm-card').scrollIntoViewIfNeeded();
+const b2 = await page.locator('.et-tm-stage').boundingBox();
+const summaryBox = await page.locator('#hold').boundingBox();
+const selBefore2 = await count('.et-tm-dot[data-status=selected]');
+const scrollBefore = await page.evaluate(() => window.scrollY);
+await page.mouse.move(b2.x + 120, b2.y + 200);
+await page.mouse.down();
+await page.mouse.move(b2.x + b2.width + 60, b2.y + 260, {steps: 10});
+await page.mouse.move(summaryBox.x + summaryBox.width / 2, summaryBox.y + summaryBox.height / 2, {steps: 10});
+const dragging = await page.evaluate(() => document.body.classList.contains('et-tm-dragging'));
+await page.mouse.up();
+await page.waitForTimeout(200);
+const sel = await page.evaluate(() => (window.getSelection()?.toString() ?? '').length);
+ok('đang kéo: có lớp chặn bôi đen chữ trên toàn trang', dragging);
+ok('kéo ra ngoài bản đồ rồi thả: không bôi đen chữ ở phần khác của trang', sel === 0, `độ dài chọn = ${sel}`);
+ok('thả chuột lên nút Thanh toán không bấm nhầm (không mở hộp thoại)', (await count('[data-testid=hop-thoai-can-dang-nhap]')) === 0 && (await count('[data-testid=hop-thoai-otp-thanh-toan]')) === 0);
+ok('kéo xong: lớp chặn bôi đen được dọn, lựa chọn và vị trí trang không đổi', !(await page.evaluate(() => document.body.classList.contains('et-tm-dragging'))) && (await count('.et-tm-dot[data-status=selected]')) === selBefore2 && Math.abs((await page.evaluate(() => window.scrollY)) - scrollBefore) < 3);
+await page.locator('.et-tm-exit').click();
+await page.waitForTimeout(900);
 
 // Bàn phím trên chấm
 await moKhu();

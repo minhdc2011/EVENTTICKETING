@@ -2,7 +2,7 @@
 /**
  * Đăng xuất khi đang giữ chỗ (sơ đồ BTC): trả chỗ lại, về trạng thái chưa giữ, giữ lại được đủ vé ở lượt mới.
  * Chrome thật, chế độ MOCK (VITE_USE_MOCK_DATA=true VITE_DEMO_QUICK_LOGIN=true npx vite --port 5199); mọi yêu cầu tới *.supabase.co bị chặn.
- *   CHROME_PATH=<chrome.exe> OUT=<thư mục ảnh> node scripts/nfr/logout-hold-flow.mjs
+ *   CHROME_PATH=<chrome.exe> OUT=<thư mục ảnh> node scripts/nfr/logout-hold-flow.mjs [url sự kiện] [mã khu]   (Super Concert: .../events/super-concert-2026 ZONE_A_T1)
  */
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
@@ -15,10 +15,10 @@ const {chromium} = require('playwright-core');
 const out = process.env.OUT || path.join(os.tmpdir(), 'logout-hold-flow-shots');
 mkdirSync(out, {recursive: true});
 async function moKhu(page, code) {
-  // Chờ SVG và bộ xử lý bấm được gắn xong; thử lại nếu bấm quá sớm.
+  // Chờ SVG và bộ xử lý bấm được gắn xong; thử lại nếu bấm quá sớm. Bấm thẳng vào phần tử vì tâm hộp bao của khu hình vành nằm ở chỗ trống.
   await page.waitForSelector('.et-tm-svg svg', {timeout: 15000});
   for (let i = 0; i < 5; i += 1) {
-    await page.locator(`.et-tm-svg [data-zone-code="${code}"]`).first().click({force: true});
+    await page.evaluate((c) => document.querySelector(`.et-tm-svg [data-zone-code="${c}"]`).dispatchEvent(new MouseEvent('click', {bubbles: true})), code);
     if (await page.waitForSelector('.et-tm-map[data-focus-zone]', {timeout: 1500}).catch(() => null)) break;
   }
   await page.waitForTimeout(1500);
@@ -49,9 +49,9 @@ async function pay(n) {
   }
   await page.waitForSelector('#dialog-title', {timeout: 8000});
 }
-await page.goto('http://localhost:5199/events/autumn-arena-festival-2026', {waitUntil:'networkidle'});
+await page.goto(process.argv[2] || 'http://localhost:5199/events/autumn-arena-festival-2026', {waitUntil:'networkidle'});
 await page.waitForSelector('.et-tm-svg svg'); await page.waitForTimeout(500);
-await moKhu(page, 'SEC_104');
+await moKhu(page, process.argv[3] || 'SEC_104');
 await pay(2);
 ok('đã giữ chỗ và có đồng hồ', /Xác nhận thanh toán thành công/.test(await page.locator('#dialog-title').innerText()));
 await page.locator('#close-dialog').click(); await page.waitForTimeout(300);

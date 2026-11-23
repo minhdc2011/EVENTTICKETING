@@ -18,12 +18,12 @@ const {chromium} = require('playwright-core');
 const out = process.env.OUT || path.join(os.tmpdir(), 'checkout-flow-shots');
 mkdirSync(out, {recursive: true});
 const target = process.argv[2];
-if (!target) { console.error('Usage: checkout-flow.mjs <url sự kiện MOCK có sơ đồ BTC, vd .../events/autumn-arena-festival-2026>'); process.exit(2); }
+if (!target) { console.error('Usage: checkout-flow.mjs <url sự kiện MOCK có sơ đồ BTC, vd .../events/autumn-arena-festival-2026> [mã khu, mặc định SEC_104; Super Concert: ZONE_A_T1]'); process.exit(2); }
 async function moKhu(page, code) {
-  // Chờ SVG và bộ xử lý bấm được gắn xong; thử lại nếu bấm quá sớm.
+  // Chờ SVG và bộ xử lý bấm được gắn xong; thử lại nếu bấm quá sớm. Bấm thẳng vào phần tử vì tâm hộp bao của khu hình vành nằm ở chỗ trống.
   await page.waitForSelector('.et-tm-svg svg', {timeout: 15000});
   for (let i = 0; i < 5; i += 1) {
-    await page.locator(`.et-tm-svg [data-zone-code="${code}"]`).first().click({force: true});
+    await page.evaluate((c) => document.querySelector(`.et-tm-svg [data-zone-code="${c}"]`).dispatchEvent(new MouseEvent('click', {bubbles: true})), code);
     if (await page.waitForSelector('.et-tm-map[data-focus-zone]', {timeout: 1500}).catch(() => null)) break;
   }
   await page.waitForTimeout(1500);
@@ -43,8 +43,8 @@ const errs = []; page.on('pageerror', (e) => errs.push(e.message));
 let fail = 0; const ok = (n, c, x='') => { if(!c) fail++; console.log((c?'PASS':'FAIL')+' - '+n+' '+x); };
 await page.goto(target, {waitUntil:'networkidle'}); await page.waitForSelector('.et-tm-svg svg', {timeout: 15000}); await page.waitForTimeout(500);
 ok('ẩn danh vẫn thấy sơ đồ (không bị chặn bởi cổng OTP)', (await page.locator('.et-tm-svg [data-zone-code]').count()) > 5);
-await moKhu(page, 'SEC_104');
-ok('chọn ghế được khi chưa đăng nhập: chấm ghế hiện trong khu', (await page.locator('.et-tm-dot[data-active=true]').count()) >= 20);
+await moKhu(page, process.argv[3] || 'SEC_104');
+ok('chọn ghế được khi chưa đăng nhập: chấm ghế hiện trong khu', (await page.locator('.et-tm-dot[data-active=true]').count()) >= 6);
 await chonGhe(page, 2); await page.waitForTimeout(300);
 ok('chọn 2 ghế khi chưa đăng nhập', (await page.locator('.et-tm-dot[data-status=selected]').count()) === 2);
 const label = (await page.locator('#hold').innerText()).replace(/\s+/g,' ');

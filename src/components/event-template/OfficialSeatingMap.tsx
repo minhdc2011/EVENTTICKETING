@@ -14,9 +14,13 @@ import {createPortal} from 'react-dom';
 import type {SeatRecord, ZoneRecord} from '../../types/ticketing';
 import {formatMoneyVND, mapSeatStatus, STATUS_NAMES, type ZoneRowGroup} from '../../domain/seatMap.js';
 import {
+  arcSectorBBox,
   layoutZoneSeats,
+  parseArcSpec,
   parsePolygonPath,
+  parsePolygonPoints,
   rectToPolygon,
+  type ArcSpec,
   type BBox,
   type PlacedSeat,
   type Point,
@@ -53,11 +57,16 @@ export interface OfficialSeatingMapProps {
   onInspectSeat: (seat: SeatRecord) => void;
   /** Báo mức thu phóng hiện tại (1 = toàn cảnh) để hiện số % và bật/tắt chấm ghế. */
   onZoomChange?: (zoom: number) => void;
+  /** Thoát khỏi khu đang mở để xem toàn cảnh (bỏ chọn khu). Gọi khi bấm "Xem toàn cảnh", nút làm mới hoặc phím Escape. */
+  onExitZone?: () => void;
+  /** Báo mã các khu có hình trên bản đồ (để ẩn khu không có hình khỏi danh sách chọn). */
+  onZonesMeasured?: (codes: ReadonlySet<string>) => void;
 }
 
 const INTERACTIVE_MAP_FILES = new Set([
   'ticketmaster-theater-proscenium.svg',
   'ticketmaster-arena-endstage.svg',
+  'super-concert-stadium.svg',
 ]);
 
 const ZOOM_MS = 380;
@@ -69,7 +78,7 @@ const DOTS_ZOOM = 1.7;
 const DRAG_THRESHOLD_PX = 5;
 
 type ViewBox = {x: number; y: number; w: number; h: number};
-type Shape = {bbox: BBox; polygon: Point[] | null};
+type Shape = {bbox: BBox; polygon: Point[] | null; arc: ArcSpec | null};
 
 function getInteractiveMapUrl(src: string): URL | null {
   try {
@@ -88,7 +97,23 @@ function parseViewBox(svg: SVGSVGElement): ViewBox | null {
   return [x, y, w, h].every(Number.isFinite) && w > 0 && h > 0 ? {x, y, w, h} : null;
 }
 
-/** Hộp bao và đa giác (nếu đọc được) của một khu, theo toạ độ viewBox. */
+/** Phần tử hình học đại diện của một khu: chính nó, hoặc phần tử path/polygon/rect lớn nhất bên trong nếu là nhóm <g>. */
+function geometryElement(el: SVGElement): SVGElement {
+  const tag = el.tagName.toLowerCase();
+  if (tag === 'path' || tag === 'polygon' || tag === 'rect') return el;
+  let best: SVGElement | null = null;
+  let bestArea = 0;
+  el.querySelectorAll<SVGElement>('path, polygon, rect').forEach((child) => {
+    const r = child.getBoundingClientRect();
+    if (r.width * r.height > bestArea) {
+      best = child;
+      bestArea = r.width * r.height;
+    }
+  });
+  return best ?? el;
+}
+
+/** Hộp bao, đa giác (nếu đọc được) và đặc tả cung (nếu có data-arc) của một khu, theo toạ độ viewBox. */
 function readZoneShape(svg: SVGSVGElement, el: SVGElement): Shape | null {
   const ctm = svg.getScreenCTM();
   if (!ctm) return null;
@@ -98,18 +123,21 @@ function readZoneShape(svg: SVGSVGElement, el: SVGElement): Shape | null {
   const p1 = new DOMPoint(rect.left, rect.top).matrixTransform(inv);
   const p2 = new DOMPoint(rect.right, rect.bottom).matrixTransform(inv);
   const bbox = {x: Math.min(p1.x, p2.x), y: Math.min(p1.y, p2.y), w: Math.abs(p2.x - p1.x), h: Math.abs(p2.y - p1.y)};
+  const arc = parseArcSpec(el.getAttribute('data-arc'));
   let polygon: Point[] | null = null;
-  if (!el.closest('[transform]')) {
-    const tag = el.tagName.toLowerCase();
-    if (tag === 'path') polygon = parsePolygonPath(el.getAttribute('d'));
+  const geo = geometryElement(el);
+  if (!arc && !geo.closest('[transform]')) {
+    const tag = geo.tagName.toLowerCase();
+    if (tag === 'path') polygon = parsePolygonPath(geo.getAttribute('d'));
+    else if (tag === 'polygon') polygon = parsePolygonPoints(geo.getAttribute('points'));
     else if (tag === 'rect') {
-      const [x, y, width, height] = ['x', 'y', 'width', 'height'].map((k) => Number(el.getAttribute(k)));
+      const [x, y, width, height] = ['x', 'y', 'width', 'height'].map((k) => Number(geo.getAttribute(k)));
       if ([x, y, width, height].every(Number.isFinite) && width > 0 && height > 0) {
         polygon = rectToPolygon({x, y, width, height});
       }
     }
   }
-  return {bbox, polygon};
+  return {bbox, polygon, arc};
 }
 
 /** Khung nhìn (cùng tỷ lệ toàn cảnh) bao quanh một hộp, chừa viền cho các khu xung quanh. */
@@ -220,6 +248,8 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
     onSelectZone,
     onInspectSeat,
     onZoomChange,
+    onExitZone,
+    onZonesMeasured,
   },
   ref,
 ) {
@@ -245,6 +275,10 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
   activeRef.current = activeZoneCode;
   const shapesRef = useRef(shapes);
   shapesRef.current = shapes;
+  const onExitZoneRef = useRef(onExitZone);
+  onExitZoneRef.current = onExitZone;
+  const onZonesMeasuredRef = useRef(onZonesMeasured);
+  onZonesMeasuredRef.current = onZonesMeasured;
 
   // ---- Tải SVG ----
   useEffect(() => {
@@ -344,6 +378,11 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
   );
 
   const resetView = useCallback(() => {
+    // Có khu đang mở: thoát khu (bỏ chọn khu, camera tự về toàn cảnh). Không thì chỉ đưa camera về toàn cảnh.
+    if (activeRef.current && onExitZoneRef.current) {
+      onExitZoneRef.current();
+      return;
+    }
     const full = fullRef.current;
     if (full) animateTo(full);
   }, [animateTo]);
@@ -373,6 +412,7 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
         if (code && shape) next.set(code, shape);
       });
       setShapes(next);
+      onZonesMeasuredRef.current?.(new Set(next.keys()));
     });
     return () => {
       window.cancelAnimationFrame(measure);
@@ -434,7 +474,7 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
     const svg = getSvg();
     const el = root.querySelector(`[data-zone-code="${CSS.escape(activeZoneCode)}"]`) as SVGElement | null;
     const shape = shapesRef.current.get(activeZoneCode) ?? (svg && el ? readZoneShape(svg, el) : null);
-    if (shape) animateTo(viewBoxForBox(full, shape.bbox));
+    if (shape) animateTo(viewBoxForBox(full, shape.arc ? arcSectorBBox(shape.arc) : shape.bbox));
   }, [activeZoneCode, svgMarkup, zones, shapes, animateTo, getSvg]);
 
   // Kéo thả, chụm ngón, Ctrl + cuộn, nhấp đúp, bàn phím.
@@ -457,9 +497,18 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
       return {x: p.x, y: p.y};
     };
 
+    const endDragEffects = () => {
+      stage.classList.remove('is-dragging');
+      document.body.classList.remove('et-tm-dragging');
+    };
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
-      if ((e.target as Element).closest?.('.et-tm-controls, .et-tm-mini')) return;
+      if ((e.target as Element).closest?.('.et-tm-controls, .et-tm-mini, .et-tm-exit')) return;
+      // Không để thao tác kéo bắt đầu bôi đen chữ hay kéo thả phần tử khác của trang.
+      if (e.pointerType === 'mouse') {
+        e.preventDefault();
+        if (document.activeElement !== stage) stage.focus({preventScroll: true});
+      }
       pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
       if (pointers.size === 1 && viewRef.current) {
         dragStart = {x: e.clientX, y: e.clientY, view: viewRef.current};
@@ -501,6 +550,8 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
           moved = true;
           stage.setPointerCapture?.(e.pointerId);
           stage.classList.add('is-dragging');
+          document.body.classList.add('et-tm-dragging');
+          window.getSelection?.()?.removeAllRanges();
           if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
         }
         const k = unitsPerPx();
@@ -520,7 +571,7 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
         }
         moved = false;
         dragStart = null;
-        stage.classList.remove('is-dragging');
+        endDragEffects();
       }
     };
     const onClickCapture = (e: MouseEvent) => {
@@ -539,6 +590,13 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
       zoomBy(1.8, toUser(e.clientX, e.clientY) ?? undefined);
     };
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && activeRef.current && onExitZoneRef.current) {
+        // Escape (cả khi đang lấy tiêu điểm ở chấm ghế) thoát khu để xem toàn cảnh.
+        e.preventDefault();
+        e.stopPropagation();
+        onExitZoneRef.current();
+        return;
+      }
       if (e.target !== stage) return;
       const vb = viewRef.current;
       const full = fullRef.current;
@@ -563,8 +621,14 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
     stage.addEventListener('click', onClickCapture, true);
     stage.addEventListener('wheel', onWheel, {passive: false});
     stage.addEventListener('dblclick', onDblClick);
+    const stopSelect = (e: Event) => e.preventDefault();
     stage.addEventListener('keydown', onKey);
+    stage.addEventListener('selectstart', stopSelect);
+    stage.addEventListener('dragstart', stopSelect);
     return () => {
+      stage.removeEventListener('selectstart', stopSelect);
+      stage.removeEventListener('dragstart', stopSelect);
+      document.body.classList.remove('et-tm-dragging');
       stage.removeEventListener('pointerdown', onDown);
       stage.removeEventListener('pointermove', onMove);
       stage.removeEventListener('pointerup', onUp);
@@ -603,7 +667,7 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
     for (const {zone, rows} of groups) {
       const shape = shapes.get(zone.MaKhuVuc);
       if (!shape) continue;
-      for (const p of layoutZoneSeats<SeatRecord>({rows, bbox: shape.bbox, polygon: shape.polygon})) {
+      for (const p of layoutZoneSeats<SeatRecord>({rows, bbox: shape.bbox, polygon: shape.polygon, arc: shape.arc})) {
         out.push({...p, zoneCode: zone.MaKhuVuc});
       }
     }
@@ -630,7 +694,7 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
           className="et-tm-stage"
           tabIndex={0}
           role="application"
-          aria-label={`Sơ đồ chỗ ngồi của ${eventName}. Kéo để di chuyển, Ctrl và cuộn hoặc nút cộng trừ để thu phóng, phím mũi tên để dịch chuyển.`}
+          aria-label={`Sơ đồ chỗ ngồi của ${eventName}. Kéo để di chuyển, Ctrl và cuộn hoặc nút cộng trừ để thu phóng, phím mũi tên để dịch chuyển, Escape để xem toàn cảnh.`}
         >
           <div ref={rootRef} className="et-tm-svg" dangerouslySetInnerHTML={{__html: svgMarkup}} />
           {layerNode
@@ -648,6 +712,11 @@ export const OfficialSeatingMap = forwardRef<OfficialSeatingMapHandle, OfficialS
                 layerNode,
               )
             : null}
+          {activeZoneCode ? (
+            <button type="button" className="et-tm-exit" onClick={() => onExitZoneRef.current?.()}>
+              <span aria-hidden="true">←</span> Xem toàn cảnh
+            </button>
+          ) : null}
           <div className="et-tm-controls" role="group" aria-label="Điều khiển bản đồ">
             <button type="button" onClick={resetView} aria-label="Làm mới: về toàn cảnh" title="Về toàn cảnh">
               ↻

@@ -418,7 +418,9 @@ test('public event detail architecture is unified across generic events and Supe
   assert.match(genericPageTsx, /export function resolveEventTemplateSlots/i, 'Defines caller-level resolveEventTemplateSlots adapter');
   assert.match(genericPageTsx, /slots=\{slots\}/i, 'Passes resolved slots to EventTemplate');
   assert.match(genericPageTsx, /lineup:\s*<ArtistLineup/i, 'Supplies lineup slot for concert');
-  assert.match(genericPageTsx, /seating:\s*<SeatingSection/i, 'Supplies interactive seating slot for concert');
+  // Super Concert không còn khe sơ đồ riêng: dùng SeatMapSection chung với bản đồ SVG của nó.
+  assert.doesNotMatch(genericPageTsx, /seating:\s*<SeatingSection/i, 'Super Concert dùng SeatMapSection chung');
+  assert.match(genericPageTsx, /overlays:\s*<ConcertRuntimeOverlays/i, 'Giữ khe overlays cho toast của trang');
   assert.match(genericPageTsx, /overlays:\s*<ConcertRuntimeOverlays/i, 'Supplies runtime overlays slot for concert');
   assert.match(genericPageTsx, /id="stA"/i, 'Supplies stA starfield hook');
   assert.match(genericPageTsx, /id="stB"/i, 'Supplies stB starfield hook');
