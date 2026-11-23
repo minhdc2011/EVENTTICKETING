@@ -334,12 +334,24 @@ export async function loadOrganizerWorkspace(): Promise<{
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
   const supabase = requireSupabaseClient();
+  // RLS cho thành viên đọc cả dòng của đồng nghiệp cùng tổ chức: chỉ lấy dòng của chính người đăng nhập,
+  // nếu không mỗi tổ chức hiện lặp theo số thành viên và vai trò hiển thị có thể là của người khác.
+  const {data: authData} = await supabase.auth.getUser();
+  const currentUserId = authData.user?.id;
+  if (!currentUserId) return {memberships: [], events: []};
   const {data: memberRows, error: memberError} = await supabase
     .from('THANH_VIEN_TO_CHUC')
-    .select('ToChucID, VaiTro, TO_CHUC(TenToChuc, Slug)');
+    .select('ToChucID, VaiTro, TO_CHUC(TenToChuc, Slug)')
+    .eq('NguoiDungID', currentUserId);
   if (memberError) throw mapDatabaseError(memberError);
 
-  const memberships: OrganizerMembership[] = (memberRows || []).map((row: any) => {
+  const seenOrgs = new Set<string>();
+  const memberships: OrganizerMembership[] = (memberRows || []).filter((row: any) => {
+    const key = String(row.ToChucID);
+    if (seenOrgs.has(key)) return false;
+    seenOrgs.add(key);
+    return true;
+  }).map((row: any) => {
     const toChuc = Array.isArray(row.TO_CHUC) ? row.TO_CHUC[0] : row.TO_CHUC;
     return {
       organizationId: String(row.ToChucID),
