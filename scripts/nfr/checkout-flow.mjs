@@ -21,24 +21,32 @@ const target = process.argv[2];
 if (!target) { console.error('Usage: checkout-flow.mjs <url sự kiện MOCK có sơ đồ BTC, vd .../events/autumn-arena-festival-2026>'); process.exit(2); }
 async function moKhu(page, code) {
   // Chờ SVG và bộ xử lý bấm được gắn xong; thử lại nếu bấm quá sớm.
-  await page.waitForSelector('.et-official-map-interactive svg', {timeout: 15000});
+  await page.waitForSelector('.et-tm-svg svg', {timeout: 15000});
   for (let i = 0; i < 5; i += 1) {
-    await page.locator(`.et-official-map-interactive [data-zone-code="${code}"]`).first().click({force: true});
-    if (await page.waitForSelector('.et-zone-stage', {timeout: 1500}).catch(() => null)) break;
+    await page.locator(`.et-tm-svg [data-zone-code="${code}"]`).first().click({force: true});
+    if (await page.waitForSelector('.et-tm-map[data-focus-zone]', {timeout: 1500}).catch(() => null)) break;
   }
   await page.waitForTimeout(1500);
+}
+async function chonGhe(page, n) {
+  // Bấm một chấm ghế (mở khung thông tin) rồi bấm Thêm vào lựa chọn.
+  for (let i = 0; i < n; i += 1) {
+    await page.locator('.et-tm-dot[data-active=true][data-status=available]').first().click({force: true});
+    await page.locator('.et-ticket-panel__action').click();
+    await page.waitForTimeout(150);
+  }
 }
 const browser = await chromium.launch({executablePath: process.env.CHROME_PATH || undefined});
 const page = await browser.newPage({viewport: {width: 1440, height: 900}});
 let blocked = 0; page.route(/\.supabase\.co/, (r) => { blocked++; r.abort(); });
 const errs = []; page.on('pageerror', (e) => errs.push(e.message));
 let fail = 0; const ok = (n, c, x='') => { if(!c) fail++; console.log((c?'PASS':'FAIL')+' - '+n+' '+x); };
-await page.goto(target, {waitUntil:'networkidle'}); await page.waitForSelector('.et-official-map-interactive svg', {timeout: 15000}); await page.waitForTimeout(500);
-ok('ẩn danh vẫn thấy sơ đồ (không bị chặn bởi cổng OTP)', (await page.locator('.et-official-map-interactive [data-zone-code]').count()) > 5);
+await page.goto(target, {waitUntil:'networkidle'}); await page.waitForSelector('.et-tm-svg svg', {timeout: 15000}); await page.waitForTimeout(500);
+ok('ẩn danh vẫn thấy sơ đồ (không bị chặn bởi cổng OTP)', (await page.locator('.et-tm-svg [data-zone-code]').count()) > 5);
 await moKhu(page, 'SEC_104');
-const seats = page.locator('.et-seat-rows .et-seat'); ok('chọn ghế được khi chưa đăng nhập: ghế hiện trong khu', (await seats.count()) >= 20);
-await seats.nth(0).click(); await seats.nth(1).click(); await page.waitForTimeout(300);
-ok('chọn 2 ghế khi chưa đăng nhập', (await page.locator('.et-seat-rows .et-seat[data-status=selected]').count()) === 2);
+ok('chọn ghế được khi chưa đăng nhập: chấm ghế hiện trong khu', (await page.locator('.et-tm-dot[data-active=true]').count()) >= 20);
+await chonGhe(page, 2); await page.waitForTimeout(300);
+ok('chọn 2 ghế khi chưa đăng nhập', (await page.locator('.et-tm-dot[data-status=selected]').count()) === 2);
 const label = (await page.locator('#hold').innerText()).replace(/\s+/g,' ');
 ok('nút cuối là "Thanh toán 2 vé"', /Thanh toán 2 vé/.test(label), label);
 ok('chưa có đồng hồ khi chưa thanh toán', (await page.locator('[data-testid=dong-ho-giu-cho]').count()) === 0);
@@ -49,7 +57,7 @@ await page.screenshot({path: `${out}/flow-1-dang-nhap.png`});
 await page.getByRole('button', {name: /Đăng nhập nhanh/}).first().click();
 await page.waitForSelector('[data-testid=hop-thoai-otp-thanh-toan]', {timeout: 8000}).catch(()=>{});
 ok('đăng nhập xong: hiện hộp thoại OTP (chưa giữ chỗ)', (await page.locator('[data-testid=hop-thoai-otp-thanh-toan]').count()) === 1);
-ok('lựa chọn ghế vẫn còn sau đăng nhập', (await page.locator('.et-seat-rows .et-seat[data-status=selected]').count()) === 2);
+ok('lựa chọn ghế vẫn còn sau đăng nhập', (await page.locator('.et-tm-dot[data-status=selected]').count()) === 2);
 const desc = (await page.locator('#et-checkout-otp-desc').innerText().catch(()=> '')).replace(/\s+/g,' ');
 ok('hộp thoại nêu email nhận mã (đã che)', /\*+.*@/.test(desc), desc);
 await page.screenshot({path: `${out}/flow-2-otp.png`});

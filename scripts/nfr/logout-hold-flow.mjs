@@ -16,21 +16,28 @@ const out = process.env.OUT || path.join(os.tmpdir(), 'logout-hold-flow-shots');
 mkdirSync(out, {recursive: true});
 async function moKhu(page, code) {
   // Chờ SVG và bộ xử lý bấm được gắn xong; thử lại nếu bấm quá sớm.
-  await page.waitForSelector('.et-official-map-interactive svg', {timeout: 15000});
+  await page.waitForSelector('.et-tm-svg svg', {timeout: 15000});
   for (let i = 0; i < 5; i += 1) {
-    await page.locator(`.et-official-map-interactive [data-zone-code="${code}"]`).first().click({force: true});
-    if (await page.waitForSelector('.et-zone-stage', {timeout: 1500}).catch(() => null)) break;
+    await page.locator(`.et-tm-svg [data-zone-code="${code}"]`).first().click({force: true});
+    if (await page.waitForSelector('.et-tm-map[data-focus-zone]', {timeout: 1500}).catch(() => null)) break;
   }
   await page.waitForTimeout(1500);
+}
+async function chonGhe(page, n) {
+  // Bấm một chấm ghế (mở khung thông tin) rồi bấm Thêm vào lựa chọn.
+  for (let i = 0; i < n; i += 1) {
+    await page.locator('.et-tm-dot[data-active=true][data-status=available]').first().click({force: true});
+    await page.locator('.et-ticket-panel__action').click();
+    await page.waitForTimeout(150);
+  }
 }
 const browser = await chromium.launch({executablePath: process.env.CHROME_PATH || undefined});
 const page = await browser.newPage({viewport: {width: 1440, height: 900}});
 let blocked = 0; page.route(/\.supabase\.co/, (r) => { blocked++; r.abort(); });
 const errs = []; page.on('pageerror', (e) => errs.push(e.message));
 let fail = 0; const ok = (n, c, x='') => { if(!c) fail++; console.log((c?'PASS':'FAIL')+' - '+n+' '+x); };
-async function pay(sel, n) {
-  const seats = page.locator(sel);
-  for (let i = 0; i < n; i++) await seats.nth(i).click();
+async function pay(n) {
+  await chonGhe(page, n);
   await page.locator('#hold').scrollIntoViewIfNeeded(); await page.locator('#hold').click();
   const needLogin = page.locator('[data-testid=hop-thoai-can-dang-nhap]');
   await page.waitForSelector('[data-testid=hop-thoai-can-dang-nhap], [data-testid=hop-thoai-otp-thanh-toan], #dialog-title', {timeout: 8000});
@@ -43,9 +50,9 @@ async function pay(sel, n) {
   await page.waitForSelector('#dialog-title', {timeout: 8000});
 }
 await page.goto('http://localhost:5199/events/autumn-arena-festival-2026', {waitUntil:'networkidle'});
-await page.waitForSelector('.et-official-map-interactive svg'); await page.waitForTimeout(500);
+await page.waitForSelector('.et-tm-svg svg'); await page.waitForTimeout(500);
 await moKhu(page, 'SEC_104');
-await pay('.et-seat-rows .et-seat', 2);
+await pay(2);
 ok('đã giữ chỗ và có đồng hồ', /Xác nhận thanh toán thành công/.test(await page.locator('#dialog-title').innerText()));
 await page.locator('#close-dialog').click(); await page.waitForTimeout(300);
 ok('đang giữ chỗ: đồng hồ trong bảng tóm tắt', (await page.locator('[data-testid=dong-ho-giu-cho]').count()) === 1);
@@ -54,12 +61,12 @@ await page.getByRole('button', {name: /Đăng xuất/}).or(page.getByRole('link'
 await page.waitForTimeout(1200);
 ok('đăng xuất: không còn đồng hồ giữ chỗ', (await page.locator('[data-testid=dong-ho-giu-cho]').count()) === 0);
 ok('đăng xuất: hộp thoại xác nhận đóng', (await page.locator('#dialog-title').count()) === 0);
-ok('đăng xuất: lựa chọn ghế bị xóa, về trạng thái chưa giữ', (await page.locator('.et-seat-rows .et-seat[data-status=selected]').count()) === 0 && /Chọn ghế để tiếp tục/.test(await page.locator('#hold').innerText()));
+ok('đăng xuất: lựa chọn ghế bị xóa, về trạng thái chưa giữ', (await page.locator('.et-tm-dot[data-status=selected]').count()) === 0 && /Chọn ghế để tiếp tục/.test(await page.locator('#hold').innerText()));
 const txt = await page.locator('body').innerText();
 ok('có thông báo đã trả chỗ', /đã đăng xuất nên chỗ đang giữ đã được trả lại/.test(txt));
 await page.screenshot({path: `${out}/dang-xuat-tra-cho.png`});
 // Chỗ đã thật sự được trả: đăng nhập lại và giữ đủ 4 vé thành công (nếu hold cũ chưa trả, 2 + 4 > 4 sẽ bị từ chối)
-await pay('.et-seat-rows .et-seat', 4);
+await pay(4);
 ok('chỗ cũ đã được trả: giữ đủ 4 vé ở lượt mới thành công', /Xác nhận thanh toán thành công/.test(await page.locator('#dialog-title').innerText()));
 ok('không lỗi JavaScript', errs.length === 0, errs.join('|'));
 ok('không gọi Supabase', blocked === 0, String(blocked));

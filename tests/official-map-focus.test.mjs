@@ -14,10 +14,12 @@ test('sơ đồ BTC: khu đang mở sáng lên, khu xung quanh bị làm mờ', 
   assert.match(css, /\[data-zone-code\]\.is-focused\s*\{[^}]*--zone-color/);
 });
 
-test('mở một khu thì vẫn hiện sơ đồ thu nhỏ để thấy các khu xung quanh', () => {
+test('sơ đồ BTC kiểu Ticketmaster: bản đồ + khung thông tin vé trong một thẻ, truyền khu đang mở', () => {
   const section = read('src/components/event-template/SeatMapSection.tsx');
-  assert.match(section, /so-do-lam-mo-khu-xung-quanh/);
-  assert.match(section, /activeZoneCode=\{activeDisplayZone\.MaKhuVuc\}/);
+  assert.match(section, /so-do-kieu-ticketmaster/);
+  assert.match(section, /activeZoneCode=\{activeDisplayZone\?\.MaKhuVuc \?\? null\}/);
+  assert.match(section, /<SeatTicketPanel/);
+  assert.match(section, /const officialMapReady = Boolean\(event\?\.seatingMapUrl\)/);
 });
 
 test('màu trạng thái ghế khớp Super Concert (xanh còn trống, vàng đang chọn, xám sọc đã bán)', () => {
@@ -46,24 +48,31 @@ test('ba sự kiện có sơ đồ trực quan bán đến cuối tháng 12/2026
   assert.ok(ends.length >= 4, 'Super Concert, hai ngày Creative Tech và Arena');
 });
 
-test('mở một khu của sơ đồ BTC: MỘT khung, sơ đồ phóng vừa phải làm nền, bảng ghế gốc nổi giữa khung', () => {
+test('bản đồ kiểu Ticketmaster: ghế là chấm trên bản đồ, kéo/zoom, nút điều khiển, bản đồ nhỏ', () => {
   const map = read('src/components/event-template/OfficialSeatingMap.tsx');
-  assert.match(map, /zoomToActive/);
-  assert.match(map, /setAttribute\('viewBox'/);
-  assert.match(map, /ZOOM_PADDING = 1\.9/);
-  assert.match(map, /MIN_VIEW_FRACTION = 0\.3;/);
+  assert.match(map, /createPortal/, 'chấm ghế vẽ trong chính SVG');
+  assert.match(map, /layoutZoneSeats/, 'xếp chấm theo hình thật của từng khu');
+  assert.match(map, /setAttribute\('viewBox'/, 'camera đổi viewBox');
+  for (const ev of ['pointerdown', 'pointermove', 'wheel', 'dblclick']) assert.match(map, new RegExp(ev), `xử lý ${ev}`);
+  assert.match(map, /!e\.ctrlKey && !e\.metaKey/, 'Ctrl + cuộn để thu phóng');
+  assert.match(map, /et-tm-controls/);
+  assert.match(map, /et-tm-mini/, 'bản đồ nhỏ góc dưới');
   assert.match(map, /prefers-reduced-motion/);
-  assert.doesNotMatch(map, /createPortal|seatLayer/, 'không vẽ ghế trong SVG');
+  assert.match(map, /Làm mới: về toàn cảnh/);
   const css = read('src/components/event-template/SeatMapSection.css');
-  assert.match(css, /\.et-zone-stage\s*\{[^}]*position:\s*relative/s);
-  assert.match(css, /\.et-zone-stage \.et-map-viewport\s*\{[^}]*pointer-events:\s*none/s);
-  assert.match(css, /\.et-zone-stage \.et-detail-layout,[^{]*\{[^}]*pointer-events:\s*auto/s);
-  assert.match(css, /\[data-zone-code\]\.is-focused\s*\{[^}]*stroke:\s*var\(--zone-color/s);
-  const section = read('src/components/event-template/SeatMapSection.tsx');
-  assert.match(section, /officialFocusActive \? 'et-zone-stage'/);
-  assert.match(section, /<OfficialSeatingMap\s+zoomToActive/);
-  assert.doesNotMatch(section, /et-focus-map|<OfficialSeatingMap\s+compact/);
-  assert.match(section, /'Thu nhỏ toàn cảnh'/);
+  assert.match(css, /\.et-tm-dot\[data-status='selected'\]\s*\{[^}]*#0b0f19/);
+  assert.match(css, /\.et-tm-dot\[data-limit='true'\][^}]*#dc2626/);
+  assert.match(css, /\.et-tm-map\[data-dots='on'\] \.et-tm-dot\[data-active='true'\]\s*\{[^}]*pointer-events:\s*auto/);
+  assert.match(css, /\.et-tm-card\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 300px/);
+});
+
+test('khung thông tin vé: khu, hàng, ghế, giá và nút Thêm/Bỏ chọn, nêu lý do khi không chọn được', () => {
+  const panel = read('src/components/event-template/SeatTicketPanel.tsx');
+  for (const text of ['Khu', 'Hàng', 'Ghế', 'Thêm vào lựa chọn', 'Bỏ chọn ghế này', 'Ghế đã bán', 'Ghế đang được giữ', 'Đã chọn đủ vé']) {
+    assert.ok(panel.includes(text), `có chữ "${text}"`);
+  }
+  assert.match(panel, /formatMoneyVND\(seat\.GiaVeNiemYet\)/);
+  assert.match(panel, /onToggle\(seat\)/);
 });
 
 test('chưa đăng nhập: không còn thanh nhắc ở đầu trang, chỉ hộp thoại khi bấm Giữ chỗ', () => {
@@ -108,7 +117,7 @@ test('sự kiện không có sơ đồ chỗ ngồi chỉ hiện phần chọn v
   const section = read('src/components/event-template/SeatMapSection.tsx');
   assert.match(section, /const standingOnly =[\s\S]*every\(\(zone\) => isStandingZone\(zone\)\)[\s\S]*!event\?\.seatingMapUrl/);
   assert.match(section, /\{!standingOnly && \(/);
-  assert.match(section, /\(viewMode === 'interactive' \|\| standingOnly\)/);
+  assert.match(section, /\(viewMode === 'interactive' \|\| standingOnly \|\| officialMapReady\)/);
   assert.match(section, /ticketOnly=\{standingOnly\}/);
   assert.match(read('src/components/event-template/SelectionSummary.tsx'), /ticketOnly \? 'Vé đã chọn' : 'Ghế đã chọn'/);
 });

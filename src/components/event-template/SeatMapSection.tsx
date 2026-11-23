@@ -65,7 +65,8 @@ import {resolveSeatSearch} from '../../domain/seatSearch.js';
 import {SelectionSummary} from './SelectionSummary';
 import {StandingTicketPicker} from './StandingTicketPicker';
 import {HoldConfirmationDialog} from './HoldConfirmationDialog';
-import {OfficialSeatingMap} from './OfficialSeatingMap';
+import {OfficialSeatingMap, type OfficialSeatingMapHandle} from './OfficialSeatingMap';
+import {SeatTicketPanel} from './SeatTicketPanel';
 import {MapPanZoom, usePanZoom} from './MapPanZoom';
 import {
   EVENT_DA_DANG_NHAP,
@@ -96,6 +97,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const panZoom = usePanZoom();
+  const mapRef = useRef<OfficialSeatingMapHandle>(null);
+  const [mapZoom, setMapZoom] = useState(1);
   const {zoomIn: handleZoomIn, zoomOut: handleZoomOut, reset: handleZoomReset} = panZoom;
   const zoom = panZoom.view.zoom;
   const [selectedSeats, setSelectedSeats] = useState<SeatRecord[]>([]);
@@ -442,8 +445,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     return standingZones.find((zone) => zone.KhuVucID === selectedZoneId) || null;
   }, [selectedZoneId, standingZones]);
   const activeDisplayZone = activeZoneGroup?.zone || activeStandingZone;
-  // Sơ đồ BTC đã mở một khu: hiện sơ đồ thu nhỏ tô viền khu đó phía trên lưới ghế.
-  const officialFocusActive = viewMode === 'interactive' && Boolean(event?.seatingMapUrl) && Boolean(activeDisplayZone);
+  // Sơ đồ BTC (SVG) có ghế: bản đồ kiểu Ticketmaster với ghế là chấm trên bản đồ, kéo/zoom tự do, khung thông tin bên cạnh.
+  const officialMapReady = Boolean(event?.seatingMapUrl) && catalogState === 'ready' && !standingOnly;
 
   // Search result is derived from the catalog so every display mode reacts to it.
   const seatSearch = useMemo(
@@ -970,13 +973,14 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               onFilterChange={handleFilterChange}
               searchQuery={searchQuery}
               onSearchChange={handleSearchChange}
-              zoom={zoom}
-              onZoomIn={handleZoomIn}
-              onZoomOut={handleZoomOut}
-              onZoomReset={handleZoomReset}
+              zoom={officialMapReady ? mapZoom : zoom}
+              onZoomIn={officialMapReady ? () => mapRef.current?.zoomIn() : handleZoomIn}
+              onZoomOut={officialMapReady ? () => mapRef.current?.zoomOut() : handleZoomOut}
+              onZoomReset={officialMapReady ? () => mapRef.current?.reset() : handleZoomReset}
               connectionStatus={connectionStatus}
               isMock={isMock}
               saleOpen={saleOpen}
+              hideZoom={officialMapReady}
             />
 
 
@@ -1045,33 +1049,45 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               </div>
             )}
 
-            {/* Mở một khu của sơ đồ BTC: MỘT khung duy nhất. Sơ đồ phóng vừa phải vào khu làm nền (khu đang chọn tô viền,
-                các khu xung quanh mờ), bảng chọn ghế hiện tại nổi ngay giữa khung. */}
-            <div className={officialFocusActive ? 'et-zone-stage' : undefined} data-testid={officialFocusActive ? 'so-do-lam-mo-khu-xung-quanh' : undefined}>
-            {officialFocusActive && (
-              <div className="et-zone-stage__backdrop">
+            {/* Sơ đồ BTC có ghế: bản đồ kiểu Ticketmaster (ghế là chấm trên bản đồ) + khung thông tin vé bên cạnh. */}
+            {officialMapReady && (
+              <div className="et-tm-card" data-testid="so-do-kieu-ticketmaster">
                 <OfficialSeatingMap
-                  zoomToActive
+                  ref={mapRef}
                   src={event.seatingMapUrl}
                   eventName={event.name}
                   zones={catalog?.zones || []}
-                  activeZoneCode={activeDisplayZone.MaKhuVuc}
+                  groups={groupedData}
+                  selectedSeats={selectedSeats}
+                  inspectedSeat={inspectedSeat}
+                  searchQuery={searchQuery}
+                  focusSeatCode={seatSearch.status === 'found' ? seatSearch.seatCode : null}
+                  activeZoneCode={activeDisplayZone?.MaKhuVuc ?? null}
+                  limitReached={selectedSeats.length + standingCount >= limits.maxPerOrder}
                   onSelectZone={handleOfficialZoneSelect}
+                  onInspectSeat={setInspectedSeat}
+                  onZoomChange={(z) => setMapZoom((prev) => (Math.abs(prev - z) < 0.02 ? prev : z))}
+                />
+                <SeatTicketPanel
+                  seat={inspectedSeat}
+                  zone={inspectedSeat ? (catalog?.zones || []).find((z) => z.KhuVucID === inspectedSeat.KhuVucID) ?? null : null}
+                  isSelected={Boolean(inspectedSeat && selectedSeats.some((x) => x.MaGheDayDu === inspectedSeat.MaGheDayDu))}
+                  limitReached={selectedSeats.length + standingCount >= limits.maxPerOrder}
+                  maxPerOrder={limits.maxPerOrder}
+                  saleOpen={saleOpen}
+                  isPending={isPending}
+                  hasActiveHold={Boolean(activeHold)}
+                  onToggle={handleToggleSeat}
+                  onClose={() => setInspectedSeat(null)}
                 />
               </div>
             )}
 
-            {/* Map Viewport / State Panel */}
+            {/* Map Viewport / State Panel (sự kiện không có sơ đồ BTC, hoặc đang tải/lỗi/trống) */}
+            {!officialMapReady && (
             <div className="et-map-viewport" id="map" data-od-id="interactive-map">
               <MapPanZoom controller={panZoom} label="Sơ đồ chỗ ngồi. Giữ Ctrl và cuộn để thu phóng, kéo để di chuyển, hoặc dùng phím + − 0 và các mũi tên.">
-              {viewMode === 'official' && event?.seatingMapUrl ? (
-                <OfficialSeatingMap
-                  src={event.seatingMapUrl}
-                  eventName={event.name}
-                  zones={catalog?.zones || []}
-                  onSelectZone={handleOfficialZoneSelect}
-                />
-              ) : catalogState === 'loading' ? (
+              {catalogState === 'loading' ? (
                 <div className="et-state-panel" role="status">
                   <div className="et-spinner" aria-hidden="true" />
                   <h3>Đang tải sơ đồ</h3>
@@ -1149,12 +1165,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               )}
               </MapPanZoom>
             </div>
-            </div>
+            )}
 
 
 </>
 )}
-            {(viewMode === 'interactive' || standingOnly) && (
+            {(viewMode === 'interactive' || standingOnly || officialMapReady) && (
               <StandingTicketPicker
                 zones={activeStandingZone ? [activeStandingZone] : standingZones}
                 quantities={standing}
@@ -1169,7 +1185,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
             {/* Map Footnote */}
             <div className="et-map-footnote">
               <span id="map-hint">
-                {viewMode === 'official'
+                {officialMapReady
+                  ? 'Bấm một khu để phóng to, bấm chấm ghế để xem giá rồi Thêm. Kéo để di chuyển, Ctrl + cuộn để thu phóng'
+                  : viewMode === 'official'
                   ? 'Bấm một phân khu để mở đúng lưới ghế của phân khu đó'
                   : activeStandingZone
                     ? 'Dùng nút − / + để chọn số lượng vé đứng'
@@ -1177,11 +1195,11 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                       ? 'Nhấn ghế để chọn / bỏ chọn'
                     : 'Nhấn vào phân khu để khám phá'}
               </span>
-              <span id="zoom-label" aria-live="polite">Thu phóng {Math.round(zoom * 100)}%</span>
+              <span id="zoom-label" aria-live="polite">Thu phóng {Math.round((officialMapReady ? mapZoom : zoom) * 100)}%</span>
             </div>
 
             {/* Visible Status Legend */}
-            {viewMode === 'interactive' && <div className="et-legend" aria-label="Chú giải trạng thái ghế" data-od-id="seat-legend">
+            {(viewMode === 'interactive' || officialMapReady) && <div className={`et-legend${officialMapReady ? ' et-legend--tm' : ''}`} aria-label="Chú giải trạng thái ghế" data-od-id="seat-legend">
               <span className="et-legend-item">
                 <i className="et-sample" aria-hidden="true" />
                 <span>Còn trống</span>

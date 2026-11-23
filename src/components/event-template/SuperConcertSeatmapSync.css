@@ -176,3 +176,86 @@
 #seating-section.concert-seatmap-section .seat-limit-mark { pointer-events: none; }
 #seating-section.concert-seatmap-section .seat-limit-mark circle { fill: rgba(15, 23, 42, 0.35); stroke: #ef4444; stroke-width: 2.2; }
 #seating-section.concert-seatmap-section .seat-limit-mark line { stroke: #ef4444; stroke-width: 2.2; stroke-linecap: round; }
+
+/* ==========================================================================
+   Ghế kiểu Ticketmaster: chấm tròn trên sơ đồ, bấm chấm thì khung thông tin vé hiện bên phải (khu, hàng, ghế, giá, nút Thêm).
+   Cùng bảng màu với sơ đồ BTC: còn trống xanh dương, đang chọn đen viền vàng, đã bán / đang giữ xám.
+   ========================================================================== */
+#seating-section.concert-seatmap-section .camera-seat-cell circle {
+  fill: #2f54eb;
+  stroke: #ffffff;
+  stroke-width: 0.8;
+  filter: none;
+  transition: fill 0.12s;
+}
+#seating-section.concert-seatmap-section .camera-seat-cell text,
+#seating-section.concert-seatmap-section .camera-seat-cell .seat-cell-slash { display: none; }
+#seating-section.concert-seatmap-section .camera-seat-cell:hover circle,
+#seating-section.concert-seatmap-section .camera-seat-cell:focus-visible circle { fill: #5d7bff; }
+#seating-section.concert-seatmap-section .camera-seat-cell:focus-visible circle { stroke: #facc15; stroke-width: 2.4; }
+#seating-section.concert-seatmap-section .camera-seat-cell.sold circle { fill: #9aa0ab; }
+#seating-section.concert-seatmap-section .camera-seat-cell.held circle { fill: #c3c7cf; }
+#seating-section.concert-seatmap-section .camera-seat-cell.sold:hover circle,
+#seating-section.concert-seatmap-section .camera-seat-cell.held:hover circle { fill: #b0b5bf; }
+#seating-section.concert-seatmap-section .camera-seat-cell.selected circle { fill: #0b0f19; stroke: #facc15; stroke-width: 2; filter: none; }
+#seating-section.concert-seatmap-section .camera-seat-cell.limit circle { fill: #c3c7cf; }
+
+/* Khung thông tin vé nằm cạnh (góc phải) bản đồ */
+#seating-section.concert-seatmap-section .stadium-vector-shell { position: relative; }
+#seating-section.concert-seatmap-section .map-selection-panel {
+  position: absolute;
+  top: 58px;
+  right: 12px;
+  z-index: 6;
+  width: 270px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  display: block;
+  border: 0;
+  background: transparent;
+}
+#seating-section.concert-seatmap-section .map-selection-panel:not(.is-active) { display: none; }
+#seating-section.concert-seatmap-section .map-selection-panel .et-ticket-panel {
+  --seat-bg: #ffffff;
+  --seat-fg: #1f262d;
+  --seat-muted: #525b6c;
+  --seat-border: #d7dde5;
+  --seat-accent: #0353c2;
+  --seat-font-mono: Consolas, monospace;
+  border: 1px solid var(--seat-border);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1f262d;
+  box-shadow: 0 14px 36px rgba(2, 6, 23, 0.5);
+}
+@media (max-width: 700px) {
+  #seating-section.concert-seatmap-section .map-selection-panel { position: static; width: auto; margin-top: 8px; }
+}
+
+/* Nút trong khung thông tin: thắng các quy tắc nút tối của giao diện cũ */
+#seating-section.concert-seatmap-section .map-selection-panel .et-ticket-panel__action {
+  background: #2f54eb !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  min-height: 46px;
+  font-weight: 700;
+  text-transform: none;
+}
+#seating-section.concert-seatmap-section .map-selection-panel .et-ticket-panel__action.is-remove {
+  background: #ffffff !important;
+  color: #b42318 !important;
+  border: 1.5px solid #b42318 !important;
+}
+#seating-section.concert-seatmap-section .map-selection-panel .et-ticket-panel__action:disabled {
+  background: #e2e8f0 !important;
+  color: #64748b !important;
+}
+#seating-section.concert-seatmap-section .map-selection-panel .et-ticket-panel__back {
+  background: #ffffff !important;
+  color: #0353c2 !important;
+  border: 1.5px solid #1f262d !important;
+  border-radius: 8px !important;
+}
+#seating-section.concert-seatmap-section .map-selection-panel .et-ticket-panel__title { color: #1f262d; }

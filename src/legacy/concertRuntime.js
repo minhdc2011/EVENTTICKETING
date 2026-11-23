@@ -904,13 +904,14 @@ import {
             group.setAttribute('aria-label',`Ghế ${seat.id}, ${seat.sourceStatus}, ${formatVND(seat.price)}`);
             const nativeTitle = document.createElementNS(ns,'title');
             nativeTitle.textContent = `${seat.id} · ${seat.sourceStatus} · ${formatVND(seat.price)}`;
-            const tile = document.createElementNS(ns,'path');
-            tile.setAttribute('d',ellipticalSectorPath(
-              500,470,
-              rowLayout.outer[0],rowLayout.outer[1],
-              rowLayout.inner[0],rowLayout.inner[1],
-              startAngle,endAngle
-            ));
+            // Ghế là chấm tròn (kiểu Ticketmaster); bán kính theo bề dày vành và độ dài cung của ghế.
+            const tile = document.createElementNS(ns,'circle');
+            const thickness = ((rowLayout.outer[0] - rowLayout.inner[0]) + (rowLayout.outer[1] - rowLayout.inner[1])) / 2;
+            const arcLength = ((rowLayout.outer[0] + rowLayout.inner[0] + rowLayout.outer[1] + rowLayout.inner[1]) / 4)
+              * ((endAngle - startAngle) * Math.PI / 180);
+            tile.setAttribute('cx',center[0].toFixed(1));
+            tile.setAttribute('cy',center[1].toFixed(1));
+            tile.setAttribute('r',Math.max(3, Math.min(thickness, arcLength) * 0.36).toFixed(1));
             const label = document.createElementNS(ns,'text');
             label.setAttribute('x',center[0].toFixed(1));
             label.setAttribute('y',center[1].toFixed(1));
@@ -939,9 +940,12 @@ import {
               group.appendChild(mark);
               group.setAttribute('aria-label',`${group.getAttribute('aria-label')}, đã chọn đủ ${currentLimits.maxPerOrder} vé nên không chọn thêm được`);
             }
-            if (seat.status === 'AVAILABLE') {
-              group.addEventListener('click',event => { event.stopPropagation(); handleSeatClick(seat); });
-              group.addEventListener('keydown',event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleSeatClick(seat); } });
+            if (seat.status === 'AVAILABLE' || selected) {
+              group.addEventListener('click',event => { event.stopPropagation(); showSeatSelectionPanel(seat); });
+              group.addEventListener('dblclick',event => { event.stopPropagation(); handleSeatClick(seat); showSeatSelectionPanel(seat); });
+              group.addEventListener('keydown',event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); showSeatSelectionPanel(seat); } });
+            } else {
+              group.addEventListener('click',event => { event.stopPropagation(); showSeatSelectionPanel(seat); });
             }
             group.addEventListener('mouseenter', event => showSeatTooltip(event, seat));
             group.addEventListener('mousemove', moveSeatTooltip);
@@ -1111,27 +1115,43 @@ import {
           const seat = seatsData.find(item => item.id === pendingMapSeat.id) || pendingMapSeat;
           const isSelected = selectedSeatIds.has(seat.id);
           const unavailable = seat.status === 'SOLD' || seat.status === 'HELD';
+          const limitReached = !isSelected && getTotalSelectedCount() >= currentLimits.maxPerOrder;
           const statusLabel = seat.status === 'SOLD'
             ? 'Đã bán'
             : seat.status === 'HELD'
               ? 'Đang được giữ'
               : isSelected ? 'Đang chọn' : 'Còn trống';
-          const actionLabel = unavailable
-            ? statusLabel
-            : isSelected ? 'Bỏ chọn ghế' : 'Chọn ghế này';
+          const actionLabel = isSelected
+            ? 'Bỏ chọn ghế này'
+            : unavailable ? statusLabel : limitReached ? 'Đã chọn đủ vé' : 'Thêm vào lựa chọn';
+          const shortZone = {VVIP_DIAMOND: 'VVIP', VIP_PLATINUM_1: 'VIP 1', VIP_PLATINUM_2: 'VIP 2', ZONE_A_T1: 'A', ZONE_B_T2: 'B', ZONE_CD_UP: 'C–D'}[seat.zoneCode] || seat.zoneName;
+          const reason = unavailable
+            ? (seat.status === 'SOLD' ? 'Ghế này đã có người mua.' : 'Ghế đang được người khác giữ tạm thời.')
+            : limitReached ? `Bạn chỉ được chọn tối đa ${currentLimits.maxPerOrder} vé trong một lượt đặt.${describePurchaseLimits(currentLimits).differ ? ` ${describePurchaseLimits(currentLimits).text}` : ''} Bỏ chọn một ghế để chọn ghế khác.` : '';
           panel.classList.add('is-active');
           panel.innerHTML = `
-            <div>
-              <div class="map-selection-eyebrow">${seat.zoneName} · ${statusLabel}</div>
-              <div class="map-selection-title">Ghế ${seat.id}</div>
-              <div class="map-selection-detail">Giá vé: <span class="map-selection-price">${formatVND(seat.price)}</span></div>
-            </div>
-            <div class="map-selection-actions">
-              <button id="map-seat-action" type="button" class="map-selection-action" ${unavailable ? 'disabled' : ''}>${actionLabel}</button>
+            <div class="et-ticket-panel et-ticket-panel--legacy" data-status="${isSelected ? 'selected' : seat.status.toLowerCase()}">
+              <div class="et-ticket-panel__head">
+                <button id="map-seat-close" type="button" class="et-ticket-panel__back" aria-label="Đóng thông tin ghế">←</button>
+                <h3 class="et-ticket-panel__title">Chọn vé</h3>
+              </div>
+              <dl class="et-ticket-panel__grid">
+                <div><dt>Khu</dt><dd class="${String(shortZone).length > 6 ? 'is-long' : ''}">${shortZone}</dd></div>
+                <div><dt>Hàng</dt><dd>${seat.row}</dd></div>
+                <div><dt>Ghế</dt><dd>${seat.number}</dd></div>
+              </dl>
+              <p class="et-ticket-panel__zone"><span>${seat.zoneName}</span></p>
+              <div class="et-ticket-panel__price"><span>${statusLabel}</span><strong class="et-num">${formatVND(seat.price)}</strong></div>
+              <p class="et-ticket-panel__code">${seat.id}</p>
+              ${reason ? `<p class="et-ticket-panel__reason" role="status">${reason}</p>` : ''}
+              <button id="map-seat-action" type="button" class="et-ticket-panel__action${isSelected ? ' is-remove' : ''}" ${(unavailable || limitReached) && !isSelected ? 'disabled' : ''}>${actionLabel}</button>
             </div>
           `;
+          document.getElementById('map-seat-close')?.addEventListener('click', () => { pendingMapSeat = null; renderMapSelectionPanel(); });
           const action = document.getElementById('map-seat-action');
-          if (action && !unavailable) action.addEventListener('click', () => handleSeatClick(seat));
+          if (action && !((unavailable || limitReached) && !isSelected)) {
+            action.addEventListener('click', () => { handleSeatClick(seat); renderMapSelectionPanel(); });
+          }
           return;
         }
 
