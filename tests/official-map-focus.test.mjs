@@ -131,3 +131,18 @@ test('đăng xuất hoặc đổi tài khoản khi đang giữ chỗ: trả ch�
   assert.match(runtime, /subscribeBuyerAuth\(session =>/);
   assert.match(runtime, /traChoKhiDoiTaiKhoan\(hanhDong\.thongBao\)/);
 });
+
+test('thanh lọc khu vực và hàng ghế có scroll ngang, không tràn viền khung sơ đồ', () => {
+  const seatCss = read('src/components/event-template/SeatMapSection.css');
+  assert.match(seatCss, /\.et-segmented\s*\{[^}]*max-width:\s*100%[^}]*min-width:\s*0[^}]*overflow-x:\s*auto/s);
+  assert.match(seatCss, /\.et-segmented button\s*\{[^}]*white-space:\s*nowrap[^}]*flex:\s*0 0 auto/s);
+  assert.match(seatCss, /\.et-seat-rows\s*\{[^}]*max-width:\s*100%[^}]*overflow-x:\s*auto/s);
+
+  const syncCss = read('src/components/event-template/SuperConcertSeatmapSync.css');
+  assert.match(syncCss, /#seating-toolbar > div:first-child\s*\{[^}]*max-width:\s*100%[^}]*overflow-x:\s*auto/s);
+  assert.match(syncCss, /\.zone-tab\s*\{[^}]*white-space:\s*nowrap[^}]*flex:\s*0 0 auto/s);
+
+  const toolbar = read('src/components/event-template/MapToolbar.tsx');
+  assert.match(toolbar, /container\.scrollBy/);
+  assert.match(toolbar, /container\.addEventListener\('wheel'/);
+});

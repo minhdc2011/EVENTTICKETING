@@ -1,5 +1,5 @@
 import {MAX_ZOOM, MIN_ZOOM} from '../../domain/panZoom.js';
-import {useRef, type KeyboardEvent} from 'react';
+import {useEffect, useRef, type KeyboardEvent} from 'react';
 import type {ZoneRecord} from '../../types/ticketing';
 import type {RealtimeConnectionStatus} from '../../services/seatRealtimeService';
 
@@ -44,6 +44,55 @@ export function MapToolbar({
       label: zone.TenKhuVuc || zone.MaKhuVuc,
     })),
   ];
+
+  // Keep the active zone chip visible inside the horizontal scroll bar without scrolling the page.
+  useEffect(() => {
+    const container = filterGroupRef.current;
+    if (!container || container.scrollWidth <= container.clientWidth + 1) return;
+    const activeButton = container.querySelector<HTMLButtonElement>('[aria-checked="true"]');
+    if (!activeButton) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const buttonRect = activeButton.getBoundingClientRect();
+    const pad = 8;
+    const delta =
+      buttonRect.left < containerRect.left + pad
+        ? buttonRect.left - containerRect.left - pad
+        : buttonRect.right > containerRect.right - pad
+          ? buttonRect.right - containerRect.right + pad
+          : 0;
+    if (delta === 0) return;
+
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const behavior: ScrollBehavior = reduceMotion ? 'auto' : 'smooth';
+    if (typeof container.scrollBy === 'function') {
+      container.scrollBy({left: delta, behavior});
+    } else {
+      container.scrollLeft += delta;
+    }
+  }, [activeFilter, zones.length]);
+
+  // Translate vertical mouse-wheel scrolling into horizontal scrolling when the zone bar overflows.
+  useEffect(() => {
+    const container = filterGroupRef.current;
+    if (!container) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      if (container.scrollWidth <= container.clientWidth + 1) return;
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      const atStart = container.scrollLeft <= 0 && event.deltaY < 0;
+      const atEnd = container.scrollLeft >= maxScrollLeft - 1 && event.deltaY > 0;
+      if (atStart || atEnd) return;
+
+      event.preventDefault();
+      container.scrollLeft += event.deltaY;
+    };
+
+    container.addEventListener('wheel', handleWheel, {passive: false});
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, []);
 
   const handleFilterKeyDown = (e: KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
     let nextIndex = currentIndex;

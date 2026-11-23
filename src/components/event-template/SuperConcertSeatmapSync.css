@@ -32,12 +32,24 @@
 #seating-section.concert-seatmap-section #seating-toolbar .text-slate-400 { color: var(--sc-muted) !important; }
 
 /* Nhóm tab phân khu: dạng segmented như .et-segmented */
+#seating-section.concert-seatmap-section #seating-toolbar {
+  min-width: 0;
+}
 #seating-section.concert-seatmap-section #seating-toolbar > div:first-child {
   border: 1px solid var(--sc-border-strong);
   border-radius: 8px;
   background: var(--sc-card);
   padding: 3px;
   gap: 2px !important;
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sc-border-strong) transparent;
 }
 #seating-section.concert-seatmap-section #seating-toolbar > div:first-child > span { display: none; }
 #seating-section.concert-seatmap-section .zone-tab {
@@ -49,6 +61,8 @@
   font-family: inherit;
   font-weight: 600;
   padding: 7px 12px;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 #seating-section.concert-seatmap-section .zone-tab::after { display: none !important; }
 #seating-section.concert-seatmap-section .zone-tab:hover:not(.active-gold-tab) { background: var(--sc-raised) !important; }
