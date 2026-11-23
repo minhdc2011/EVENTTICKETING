@@ -1,9 +1,14 @@
 import type {SeatRecord, ZoneRecord} from '../../types/ticketing';
 import {formatMoneyVND, mapSeatStatus, STATUS_NAMES} from '../../domain/seatMap.js';
+import {isStandingZone} from '../../domain/standingSelection.js';
 
 export interface SeatTicketPanelProps {
   seat: SeatRecord | null;
   zone: ZoneRecord | null;
+  activeZone?: ZoneRecord | null;
+  standingQuantity?: number;
+  roomLeft?: number;
+  onChangeStanding?: (zoneCode: string, quantity: number) => void;
   isSelected: boolean;
   /** Đã chọn đủ số vé tối đa của một lượt đặt. */
   limitReached: boolean;
@@ -22,6 +27,10 @@ export interface SeatTicketPanelProps {
 export function SeatTicketPanel({
   seat,
   zone,
+  activeZone = null,
+  standingQuantity = 0,
+  roomLeft = 0,
+  onChangeStanding,
   isSelected,
   limitReached,
   maxPerOrder,
@@ -32,12 +41,60 @@ export function SeatTicketPanel({
   onClose,
 }: SeatTicketPanelProps) {
   if (!seat) {
+    if (activeZone && isStandingZone(activeZone) && onChangeStanding) {
+      const zoneLabel = activeZone.TenKhuVuc || activeZone.MaKhuVuc;
+      const disabled = !saleOpen || isPending || hasActiveHold;
+      return (
+        <aside className="et-ticket-panel" aria-label="Thông tin vé" aria-live="polite" data-standing="true">
+          <div className="et-ticket-panel__head">
+            <h3 className="et-ticket-panel__title">Vé đứng tự do</h3>
+          </div>
+          <p className="et-ticket-panel__zone">
+            <span>{zoneLabel}</span>
+          </p>
+          <div className="et-ticket-panel__price">
+            <span>Đơn giá</span>
+            <strong className="et-num">{formatMoneyVND(activeZone.GiaVeNiemYet)}</strong>
+          </div>
+          <p className="et-ticket-panel__hint">
+            Khu vé đứng không xếp ghế cố định. Chọn số lượng vé bên dưới (tối đa {maxPerOrder} vé/lượt).
+          </p>
+          <div className="et-ticket-panel__standing" role="group" aria-label={`Số lượng vé ${zoneLabel}`}>
+            <button
+              type="button"
+              className="et-standing-btn"
+              aria-label={`Giảm số lượng vé ${zoneLabel}`}
+              disabled={disabled || standingQuantity <= 0}
+              onClick={() => onChangeStanding(activeZone.MaKhuVuc, standingQuantity - 1)}
+            >
+              −
+            </button>
+            <output className="et-standing-qty et-num" aria-live="polite">{standingQuantity}</output>
+            <button
+              type="button"
+              className="et-standing-btn"
+              aria-label={`Tăng số lượng vé ${zoneLabel}`}
+              disabled={disabled || roomLeft <= 0}
+              onClick={() => onChangeStanding(activeZone.MaKhuVuc, standingQuantity + 1)}
+            >
+              +
+            </button>
+          </div>
+        </aside>
+      );
+    }
+
     return (
       <aside className="et-ticket-panel" aria-label="Thông tin vé" data-empty="true">
         <h3 className="et-ticket-panel__title">Thông tin vé</h3>
         <p className="et-ticket-panel__hint">
           Bấm một khu để phóng to, rồi bấm một chấm ghế để xem khu, hàng, ghế và giá tại đây.
         </p>
+        <ol className="et-ticket-panel__steps">
+          <li>Chọn phân khu trên sơ đồ hoặc thanh lọc.</li>
+          <li>Bấm chấm ghế còn trống để kiểm tra giá.</li>
+          <li>Nhấn <strong>Thêm vào lựa chọn</strong> để giữ{'\u00A0'}vé.</li>
+        </ol>
       </aside>
     );
   }
@@ -45,7 +102,7 @@ export function SeatTicketPanel({
   const status = mapSeatStatus(seat.TrangThai, isSelected);
   const statusLabel = STATUS_NAMES[status as keyof typeof STATUS_NAMES] ?? 'Không khả dụng';
   const zoneName = zone?.TenKhuVuc || zone?.MaKhuVuc || seat.TenKhuVuc || '';
-  const shortZone = (zone?.MaKhuVuc || '').replace(/^SEC_/, '').replace(/_/g, '–') || zoneName;
+  const shortZone = (zone?.MaKhuVuc || '').replace(/^SEC_/, '').replace(/_/g, ' ') || zoneName;
 
   let action: {label: string; disabled: boolean; reason?: string; tone?: 'remove'};
   if (isSelected) action = {label: 'Bỏ chọn ghế này', disabled: isPending || hasActiveHold, tone: 'remove'};
@@ -60,10 +117,10 @@ export function SeatTicketPanel({
   return (
     <aside className="et-ticket-panel" aria-label="Thông tin vé" aria-live="polite" data-status={status}>
       <div className="et-ticket-panel__head">
-        <button type="button" className="et-ticket-panel__back" onClick={onClose} aria-label="Đóng thông tin ghế">
-          ←
-        </button>
         <h3 className="et-ticket-panel__title">Chọn vé</h3>
+        <button type="button" className="et-ticket-panel__back" onClick={onClose} aria-label="Đóng thông tin ghế" title="Đóng">
+          ×
+        </button>
       </div>
 
       <dl className="et-ticket-panel__grid">

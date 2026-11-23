@@ -1067,6 +1067,10 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                 <SeatTicketPanel
                   seat={inspectedSeat}
                   zone={inspectedSeat ? (catalog?.zones || []).find((z) => z.KhuVucID === inspectedSeat.KhuVucID) ?? null : null}
+                  activeZone={activeDisplayZone}
+                  standingQuantity={activeDisplayZone ? (standing[activeDisplayZone.MaKhuVuc] || 0) : 0}
+                  roomLeft={roomLeft}
+                  onChangeStanding={handleStandingChange}
                   isSelected={Boolean(inspectedSeat && selectedSeats.some((x) => x.MaGheDayDu === inspectedSeat.MaGheDayDu))}
                   limitReached={selectedSeats.length + standingCount >= limits.maxPerOrder}
                   maxPerOrder={limits.maxPerOrder}
