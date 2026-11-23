@@ -117,6 +117,10 @@
   min-width: 0;
 }
 
+.et-seatmap-card {
+  overflow-anchor: none;
+}
+
 /* Toolbar */
 .et-seatmap-toolbar {
   padding: 14px 18px;
@@ -437,6 +441,7 @@
   align-items: center;
   justify-content: center;
   overflow: auto;
+  overflow-anchor: none;
   overscroll-behavior: contain;
   padding: 12px 20px 0;
   background-image: radial-gradient(var(--seat-border) 0.7px, transparent 0.7px);
@@ -1477,6 +1482,7 @@
   width: 100%;
   min-height: 408px;
   overflow: clip;
+  overflow-anchor: none;
   touch-action: pan-y;
   cursor: default;
   border-radius: 8px;
@@ -1692,6 +1698,7 @@
   height: 600px;
   background: #0d1527;
   overflow: hidden;
+  overflow-anchor: none;
   cursor: grab;
   touch-action: none;
   user-select: none;
