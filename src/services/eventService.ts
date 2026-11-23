@@ -240,15 +240,12 @@ const MOCK_TICKETGO_MARATHON: PublicEventRecord = {
   contactEmail: 'run@ticketgo.vn', contactHotline: '024-3788-0059',
 };
 
+// Chỉ giữ 3 sự kiện chính có sơ đồ trực quan. 5 sự kiện Ticketgo bên dưới đã đóng và không còn
+// trong danh sách; định nghĩa được giữ lại để khôi phục khi cần (thêm lại vào mảng này).
 const MOCK_EVENTS = [
   MOCK_EVENT,
   MOCK_GENERIC_EVENT,
   MOCK_ARENA_EVENT,
-  MOCK_TICKETGO_MUSIQUE,
-  MOCK_TICKETGO_MOMANG,
-  MOCK_TICKETGO_GOMSHOW,
-  MOCK_TICKETGO_TRAMHUONG,
-  MOCK_TICKETGO_MARATHON,
 ];
 
 function mapShow(row: Record<string, unknown>): PublicShowRecord {
