@@ -48,10 +48,59 @@ export const LOCATION_MODE_LABELS = {
 };
 
 export const WIZARD_STEP_TITLES = [
-  'Thông tin cơ bản',
-  'Địa điểm & Suất diễn',
-  'Phân khu & Hạng vé',
-  'Hình ảnh & Truyền thông',
-  'Quy định & Liên hệ',
-  'Kiểm tra & Xuất bản',
+  'Thông tin',
+  'Địa điểm',
+  'Hạng vé',
+  'Hình ảnh',
+  'Quy định',
+  'Xuất bản',
 ];
+
+/**
+ * Maps a readiness blocker field key to its originating step (1..5).
+ * @param {string | undefined} field
+ * @returns {number}
+ */
+export function getStepForBlockerField(field) {
+  const key = String(field || '');
+  if (key === 'name' || key === 'slug' || key === 'category' || key === 'description') return 1;
+  if (
+    key === 'location' ||
+    key === 'onlineLink' ||
+    key === 'shows' ||
+    key.endsWith('.time') ||
+    key.startsWith('schedule[')
+  ) {
+    return 2;
+  }
+  if (key.endsWith('.tiers') || key === 'tiers') return 3;
+  if (
+    key === 'bannerUrl' ||
+    key === 'posterUrl' ||
+    key === 'seatingMapUrl' ||
+    key === 'trailerUrl' ||
+    key.startsWith('artists[')
+  ) {
+    return 4;
+  }
+  if (key === 'contactEmail' || key === 'contactHotline' || key === 'refundPolicy') return 5;
+  return 1;
+}
+
+/**
+ * Evaluates actual per-step completion based on readiness blockers rather than active tab index.
+ * @param {{ blockers?: Array<{ field?: string }>, isReady?: boolean } | null | undefined} readiness
+ * @returns {boolean[]}
+ */
+export function evaluateWizardStepsCompletion(readiness) {
+  const blockers = Array.isArray(readiness?.blockers) ? readiness.blockers : [];
+  const brokenSteps = new Set(blockers.map((b) => getStepForBlockerField(b?.field)));
+  return [
+    !brokenSteps.has(1),
+    !brokenSteps.has(2),
+    !brokenSteps.has(3),
+    !brokenSteps.has(4),
+    !brokenSteps.has(5),
+    Boolean(readiness?.isReady),
+  ];
+}

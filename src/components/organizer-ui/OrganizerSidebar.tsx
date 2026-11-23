@@ -1,5 +1,5 @@
 import type {OrganizerMembership} from '../../services/organizerService';
-import {IconBuilding, IconLogout, IconShield} from './OrganizerIcons';
+import {IconBuilding, IconCalendar, IconCheck, IconEdit} from './OrganizerIcons';
 
 const roleLabels: Record<string, string> = {
   CHU_SO_HUU: 'Chủ sở hữu',
@@ -9,12 +9,16 @@ const roleLabels: Record<string, string> = {
   SOAT_VE: 'Soát vé (Chỉ xem)',
 };
 
+export type OrganizerEventFilter = 'ALL' | 'CONG_KHAI' | 'BAN_NHAP';
+
 type OrganizerSidebarProps = {
   memberships: OrganizerMembership[];
   activeOrg: OrganizerMembership | null;
   onSelectOrg: (orgId: string) => void;
   userEmail: string;
-  onLogout: () => Promise<void> | void;
+  activeFilter?: OrganizerEventFilter;
+  onSelectFilter?: (filter: OrganizerEventFilter) => void;
+  counts?: {total: number; published: number; draft: number};
 };
 
 export function OrganizerSidebar({
@@ -22,13 +26,26 @@ export function OrganizerSidebar({
   activeOrg,
   onSelectOrg,
   userEmail,
-  onLogout,
+  activeFilter = 'ALL',
+  onSelectFilter,
+  counts = {total: 0, published: 0, draft: 0},
 }: OrganizerSidebarProps) {
+  const navItems: Array<{
+    key: OrganizerEventFilter;
+    label: string;
+    count: number;
+    icon: typeof IconCalendar;
+  }> = [
+    {key: 'ALL', label: 'Tất cả sự kiện', count: counts.total, icon: IconCalendar},
+    {key: 'CONG_KHAI', label: 'Đã công bố', count: counts.published, icon: IconCheck},
+    {key: 'BAN_NHAP', label: 'Bản nháp', count: counts.draft, icon: IconEdit},
+  ];
+
   return (
     <aside className="org-sidebar" aria-label="Bảng điều khiển không gian làm việc">
       <div className="org-sidebar-mobile-top">
         <div className="org-sidebar-org-block">
-          <div className="org-sidebar-section-title">KHÔNG GIAN LÀM VIỆC</div>
+          <div className="org-sidebar-section-title">TỔ CHỨC ĐANG QUẢN LÝ</div>
 
           <div style={{marginTop: '10px'}}>
             {memberships.length > 1 ? (
@@ -80,45 +97,35 @@ export function OrganizerSidebar({
           </div>
         </div>
 
-        <nav className="org-sidebar-nav" aria-label="Menu chức năng">
-          <a className="org-sidebar-nav-item is-active" href="#overview">
-            <span style={{width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--org-lime)'}} />
-            <span>Tổng quan</span>
-          </a>
-          <a className="org-sidebar-nav-item" href="#events">
-            <span style={{width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--org-text-muted)'}} />
-            <span>Danh sách Sự kiện</span>
-          </a>
+        <nav className="org-sidebar-nav" aria-label="Lọc sự kiện theo trạng thái">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeFilter === item.key;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                className={`org-sidebar-nav-item ${isActive ? 'is-active' : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+                onClick={() => onSelectFilter?.(item.key)}
+              >
+                <Icon size={15} />
+                <span className="org-sidebar-nav-label">{item.label}</span>
+                <span className="org-sidebar-nav-count">{item.count}</span>
+              </button>
+            );
+          })}
         </nav>
       </div>
 
       <div className="org-sidebar-mobile-bottom">
-        <div className="org-sidebar-security-note">
-          <div style={{display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: '#e2e8f0', marginBottom: '4px'}}>
-            <IconShield size={14} style={{color: 'var(--org-lime)'}} />
-            <span>Bảo mật dữ liệu (RLS)</span>
-          </div>
-          Phân quyền quản lý được cô lập nghiêm ngặt theo tổ chức bằng Postgres Row Level Security.
-        </div>
-
         <div className="org-sidebar-footer">
           <div className="org-sidebar-user-info">
-            <span style={{fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--org-text-muted)'}}>
-              Tài khoản hiện tại
-            </span>
+            <span className="org-sidebar-user-label">Tài khoản đang dùng</span>
             <span className="org-sidebar-user-email" title={userEmail}>
               {userEmail}
             </span>
           </div>
-
-          <button
-            type="button"
-            className="org-sidebar-logout-btn"
-            onClick={onLogout}
-          >
-            <IconLogout size={16} />
-            <span>Đăng xuất Studio</span>
-          </button>
         </div>
       </div>
     </aside>

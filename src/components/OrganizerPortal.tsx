@@ -37,6 +37,7 @@ import {
   OrganizerTopBar,
   getDefaultDraftDates,
   IconPlus,
+  type OrganizerEventFilter,
 } from './organizer-ui';
 import {canManagePricing} from './organizer-ui/pricingFormLogic.js';
 import {canManagePurchaseConfig} from '../services/purchaseConfigService';
@@ -204,6 +205,10 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   const [busyOrg, setBusyOrg] = useState(false);
   const [busyDemo, setBusyDemo] = useState(false);
   const [wizardAggregate, setWizardAggregate] = useState<FullEventAggregateInput | null>(null);
+  const wizardOpenerRef = useRef<HTMLElement | null>(null);
+  const wasWizardOpenRef = useRef(false);
+  const [statusFilter, setStatusFilter] = useState<OrganizerEventFilter>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
   const [pricingEvent, setPricingEvent] = useState<OrganizerEvent | null>(null);
   const pricingOpenerRef = useRef<HTMLElement | null>(null);
   const wasPricingOpenRef = useRef(false);
@@ -303,8 +308,30 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     () => filterEventsByOrganization(events, activeOrg?.organizationId),
     [events, activeOrg?.organizationId],
   );
+  const publishedCount = useMemo(
+    () => orgEvents.filter((e) => e.status === 'CONG_KHAI').length,
+    [orgEvents],
+  );
+  const draftCount = useMemo(
+    () => orgEvents.filter((e) => e.status === 'BAN_NHAP').length,
+    [orgEvents],
+  );
+  const filteredOrgEvents = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return orgEvents.filter((item) => {
+      if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
+      if (!query) return true;
+      return (
+        item.name.toLowerCase().includes(query) ||
+        item.slug.toLowerCase().includes(query) ||
+        `#${item.id}`.includes(query)
+      );
+    });
+  }, [orgEvents, statusFilter, searchQuery]);
 
-  // Khôi phục focus về nút mở panel sau khi nền thoát trạng thái inert.
+  const isWizardOpen = Boolean(wizardAggregate);
+
+  // Khôi phục focus về nút mở panel sau khi dialog/overlay đóng lại.
   useEffect(() => {
     if (wasPricingOpenRef.current && !isPricingOpen) {
       const opener = pricingOpenerRef.current;
@@ -327,10 +354,23 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     wasPurchaseConfigOpenRef.current = isPurchaseConfigOpen;
   }, [isPurchaseConfigOpen]);
 
-  // Đổi tổ chức: đóng ngay màn hình cấu hình giá và cấu hình mua vé của tổ chức trước.
+  useEffect(() => {
+    if (wasWizardOpenRef.current && !isWizardOpen) {
+      const opener = wizardOpenerRef.current;
+      wizardOpenerRef.current = null;
+      if (opener && opener.isConnected) {
+        opener.focus();
+      }
+    }
+    wasWizardOpenRef.current = isWizardOpen;
+  }, [isWizardOpen]);
+
+  // Đổi tổ chức: reset bộ lọc & đóng panel đang mở của tổ chức trước.
   useEffect(() => {
     setPricingEvent(null);
     setPurchaseConfigEvent(null);
+    setStatusFilter('ALL');
+    setSearchQuery('');
   }, [activeOrg?.organizationId]);
 
   // Nếu mất quyền hoặc sự kiện không còn thuộc tổ chức đang chọn, đóng/đặt lại panel.
@@ -385,12 +425,16 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
 
   function handleStartCreate() {
     if (!activeOrg || !canEdit) return;
+    wizardOpenerRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setMessage('');
     setWizardAggregate(createDefaultAggregate(activeOrg.organizationId, session.email, defaultDates));
   }
 
   async function handleStartEdit(eventId: number) {
     if (!activeOrg || !canEdit) return;
+    wizardOpenerRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setMessage('Đang nạp dữ liệu sự kiện…');
     setMessageType('status');
     try {
@@ -430,11 +474,18 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     }
   }
 
+  const activeFilterTitle =
+    statusFilter === 'CONG_KHAI'
+      ? 'Sự kiện đã công bố'
+      : statusFilter === 'BAN_NHAP'
+      ? 'Sự kiện bản nháp'
+      : 'Sự kiện của bạn';
+
   return (
     <OrganizerFrame
       userEmail={session.email}
       onSignOut={logout}
-      backgroundInert={isPricingOpen || isPurchaseConfigOpen}
+      backgroundInert={isPricingOpen || isPurchaseConfigOpen || isWizardOpen}
       overlay={
         isPricingOpen && pricingEvent ? (
           <OrganizerPricingPanel
@@ -448,6 +499,21 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
             activeOrg={activeOrg}
             onClose={() => setPurchaseConfigEvent(null)}
           />
+        ) : wizardAggregate ? (
+          <OrganizerEventWizard
+            initialAggregate={wizardAggregate}
+            canEdit={canEdit}
+            onClose={() => setWizardAggregate(null)}
+            saveDraftAction={saveFullEventDraft}
+            publishEventAction={publishEvent}
+            onSaved={async (_res, isPublished) => {
+              await refresh();
+              if (isPublished) {
+                setMessage('Sự kiện đã được công bố thành công lên marketplace!');
+                setMessageType('status');
+              }
+            }}
+          />
         ) : null
       }
     >
@@ -457,48 +523,58 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
           activeOrg={activeOrg}
           onSelectOrg={handleSelectOrg}
           userEmail={session.email}
-          onLogout={logout}
+          activeFilter={statusFilter}
+          onSelectFilter={setStatusFilter}
+          counts={{
+            total: orgEvents.length,
+            published: publishedCount,
+            draft: draftCount,
+          }}
         />
 
         <main className="org-main organizer-main" id="overview">
           <header className="org-main-header">
-            <div>
-              <div className="org-main-eyebrow">PRODUCT FOUNDATION · COMMAND CENTER</div>
-              <h1 className="org-main-title">
-                {activeOrg?.organizationName || 'Trung tâm Ban tổ chức'}
-              </h1>
+            <div className="org-main-heading-group">
+              <h1 className="org-main-title">{activeFilterTitle}</h1>
+              {activeOrg && (
+                <p className="org-main-subtitle">
+                  Quản lý lịch diễn, sơ đồ phân khu và xuất bản vé cho <strong>{activeOrg.organizationName}</strong>.
+                </p>
+              )}
             </div>
 
-            <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center'}}>
-              {runtimeConfig.useMockData && (
+            {orgEvents.length > 0 && (
+              <div className="org-main-header-actions">
+                {runtimeConfig.useMockData && (
+                  <button
+                    type="button"
+                    className="org-btn org-btn-secondary"
+                    onClick={handleInitDemoPricing}
+                    disabled={busyDemo}
+                    title="Khởi tạo hoặc khôi phục bộ dữ liệu mô phỏng định giá dùng chung (không xóa sự kiện khác)"
+                  >
+                    {busyDemo ? 'Đang khôi phục…' : 'Khôi phục dữ liệu mẫu'}
+                  </button>
+                )}
+
                 <button
                   type="button"
-                  className="org-btn org-btn-secondary"
-                  onClick={handleInitDemoPricing}
-                  disabled={busyDemo}
-                  title="Khởi tạo hoặc khôi phục bộ dữ liệu mô phỏng định giá dùng chung (không xóa sự kiện khác)"
+                  className="org-btn org-btn-primary organizer-primary"
+                  onClick={handleStartCreate}
+                  disabled={!memberships.length || !canEdit || !activeOrg}
+                  title={
+                    !memberships.length
+                      ? 'Vui lòng tạo tổ chức trước'
+                      : !canEdit
+                      ? 'Chỉ chủ sở hữu, quản trị viên hoặc biên tập viên mới có thể tạo sự kiện'
+                      : undefined
+                  }
                 >
-                  {busyDemo ? 'Đang khởi tạo…' : '[MÔ PHỎNG] Khởi tạo / khôi phục dữ liệu demo định giá'}
+                  <IconPlus size={16} />
+                  <span>Tạo sự kiện</span>
                 </button>
-              )}
-
-              <button
-                type="button"
-                className="org-btn org-btn-primary organizer-primary"
-                onClick={handleStartCreate}
-                disabled={!memberships.length || !canEdit || !activeOrg}
-                title={
-                  !memberships.length
-                    ? 'Vui lòng tạo tổ chức trước'
-                    : !canEdit
-                    ? 'Chỉ chủ sở hữu, quản trị viên hoặc biên tập viên mới có thể tạo sự kiện'
-                    : undefined
-                }
-              >
-                <IconPlus size={16} />
-                <span>Tạo sự kiện</span>
-              </button>
-            </div>
+              </div>
+            )}
           </header>
 
           {message && (
@@ -529,73 +605,106 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
             <>
               <OrganizerStatsCards
                 totalCount={orgEvents.length}
-                publishedCount={orgEvents.filter((e) => e.status === 'CONG_KHAI').length}
-                draftCount={orgEvents.filter((e) => e.status === 'BAN_NHAP').length}
+                publishedCount={publishedCount}
+                draftCount={draftCount}
               />
 
               <section id="events" className="org-events-section organizer-events">
-                <div className="org-events-header">
-                  <div>
-                    <div className="org-main-eyebrow">QUẢN LÝ XUẤT BẢN</div>
-                    <h2 className="org-events-title">Danh sách Sự kiện ({orgEvents.length})</h2>
-                  </div>
-                </div>
-
                 {orgEvents.length === 0 ? (
                   <OrganizerEmptyState
                     type="no-events"
                     canEdit={canEdit}
                     onCreateEvent={handleStartCreate}
+                    onInitDemo={runtimeConfig.useMockData ? handleInitDemoPricing : undefined}
+                    busyDemo={busyDemo}
                   />
                 ) : (
-                  <div className="org-events-list">
-                    {orgEvents.map((item) => (
-                      <OrganizerEventCard
-                        key={item.id}
-                        event={item}
-                        canEdit={canEdit}
-                        isPublishing={publishingId === item.id}
-                        onEdit={handleStartEdit}
-                        onPublish={publish}
-                        canManagePricing={canManagePricing(activeOrg, item.organizationId)}
-                        onOpenPricing={(target) => {
-                          if (canManagePricing(activeOrg, target.organizationId)) {
-                            pricingOpenerRef.current =
-                              document.activeElement instanceof HTMLElement ? document.activeElement : null;
-                            setPricingEvent(target);
-                          }
-                        }}
-                        canManagePurchaseConfig={canManagePurchaseConfig(activeOrg, item.organizationId)}
-                        onOpenPurchaseConfig={(target) => {
-                          if (canManagePurchaseConfig(activeOrg, target.organizationId)) {
-                            purchaseConfigOpenerRef.current =
-                              document.activeElement instanceof HTMLElement ? document.activeElement : null;
-                            setPurchaseConfigEvent(target);
-                          }
+                  <>
+                    <div className="org-events-toolbar">
+                      <div className="org-events-heading-wrap">
+                        <h2 className="org-events-title">
+                          {activeFilterTitle} ({filteredOrgEvents.length})
+                        </h2>
+                      </div>
+
+                      <div className="org-events-controls">
+                        <input
+                          type="search"
+                          className="org-input org-events-search"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Tìm sự kiện theo tên, slug hoặc #ID…"
+                          aria-label="Tìm sự kiện"
+                        />
+
+                        <div className="org-events-filter-pills" role="group" aria-label="Lọc trạng thái sự kiện">
+                          <button
+                            type="button"
+                            className={`org-filter-pill ${statusFilter === 'ALL' ? 'is-active' : ''}`}
+                            onClick={() => setStatusFilter('ALL')}
+                          >
+                            Tất cả ({orgEvents.length})
+                          </button>
+                          <button
+                            type="button"
+                            className={`org-filter-pill ${statusFilter === 'CONG_KHAI' ? 'is-active' : ''}`}
+                            onClick={() => setStatusFilter('CONG_KHAI')}
+                          >
+                            Đã công bố ({publishedCount})
+                          </button>
+                          <button
+                            type="button"
+                            className={`org-filter-pill ${statusFilter === 'BAN_NHAP' ? 'is-active' : ''}`}
+                            onClick={() => setStatusFilter('BAN_NHAP')}
+                          >
+                            Bản nháp ({draftCount})
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {filteredOrgEvents.length === 0 ? (
+                      <OrganizerEmptyState
+                        type="no-match"
+                        onResetFilter={() => {
+                          setStatusFilter('ALL');
+                          setSearchQuery('');
                         }}
                       />
-                    ))}
-                  </div>
+                    ) : (
+                      <div className="org-events-list">
+                        {filteredOrgEvents.map((item) => (
+                          <OrganizerEventCard
+                            key={item.id}
+                            event={item}
+                            canEdit={canEdit}
+                            isPublishing={publishingId === item.id}
+                            onEdit={handleStartEdit}
+                            onPublish={publish}
+                            canManagePricing={canManagePricing(activeOrg, item.organizationId)}
+                            onOpenPricing={(target) => {
+                              if (canManagePricing(activeOrg, target.organizationId)) {
+                                pricingOpenerRef.current =
+                                  document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                                setPricingEvent(target);
+                              }
+                            }}
+                            canManagePurchaseConfig={canManagePurchaseConfig(activeOrg, item.organizationId)}
+                            onOpenPurchaseConfig={(target) => {
+                              if (canManagePurchaseConfig(activeOrg, target.organizationId)) {
+                                purchaseConfigOpenerRef.current =
+                                  document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                                setPurchaseConfigEvent(target);
+                              }
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </section>
             </>
-          )}
-
-          {wizardAggregate && (
-            <OrganizerEventWizard
-              initialAggregate={wizardAggregate}
-              canEdit={canEdit}
-              onClose={() => setWizardAggregate(null)}
-              saveDraftAction={saveFullEventDraft}
-              publishEventAction={publishEvent}
-              onSaved={async (_res, isPublished) => {
-                await refresh();
-                if (isPublished) {
-                  setMessage('Sự kiện đã được công bố thành công lên marketplace!');
-                  setMessageType('status');
-                }
-              }}
-            />
           )}
         </main>
       </div>

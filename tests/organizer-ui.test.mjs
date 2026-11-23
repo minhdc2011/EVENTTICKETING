@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
-import {getDefaultDraftDates} from '../src/components/organizer-ui/organizerLogic.js';
+import {
+  evaluateWizardStepsCompletion,
+  getDefaultDraftDates,
+  getStepForBlockerField,
+  WIZARD_STEP_TITLES,
+} from '../src/components/organizer-ui/organizerLogic.js';
 
 test('organizer-ui.css adheres to tokenized graphite design system, accessible touch targets, and contrast rules', async () => {
   const css = await readFile(
@@ -167,4 +172,27 @@ test('organizer-price-proposals.css adheres to >= 11px font-size, 44px controls,
   for (const size of fontSizes) {
     assert.ok(size >= 11, `Disallowed sub-11px font size found in organizer-price-proposals.css: ${size}px`);
   }
+});
+
+test('wizard step completion derives from readiness blockers and maps blocker fields to exact steps', () => {
+  assert.equal(WIZARD_STEP_TITLES.length, 6);
+  for (const title of WIZARD_STEP_TITLES) {
+    assert.ok(title.length <= 16, `Step title too wide for stepper tab: ${title}`);
+  }
+
+  assert.equal(getStepForBlockerField('name'), 1);
+  assert.equal(getStepForBlockerField('location'), 2);
+  assert.equal(getStepForBlockerField('shows[0].time'), 2);
+  assert.equal(getStepForBlockerField('schedule[0].title'), 2);
+  assert.equal(getStepForBlockerField('shows[0].tiers'), 3);
+  assert.equal(getStepForBlockerField('bannerUrl'), 4);
+  assert.equal(getStepForBlockerField('artists[0].name'), 4);
+  assert.equal(getStepForBlockerField('contactHotline'), 5);
+
+  const emptyDraftReadiness = {
+    isReady: false,
+    blockers: [{field: 'name'}, {field: 'location'}, {field: 'bannerUrl'}, {field: 'contactHotline'}],
+  };
+  assert.deepEqual(evaluateWizardStepsCompletion(emptyDraftReadiness), [false, false, true, false, false, false]);
+  assert.deepEqual(evaluateWizardStepsCompletion({isReady: true, blockers: []}), [true, true, true, true, true, true]);
 });

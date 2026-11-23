@@ -341,11 +341,9 @@
 
 /* Nút đăng nhập nhanh tài khoản demo (VITE_DEMO_QUICK_LOGIN). */
 .demo-quick-login {
-  margin: 16px 0 0;
-  padding: 12px 14px;
-  border: 1px dashed #b45309;
-  border-radius: 10px;
-  background: #fffbeb;
+  margin: 18px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px dashed #d97706;
   color: #422006;
   font-size: 14px;
   line-height: 1.5;

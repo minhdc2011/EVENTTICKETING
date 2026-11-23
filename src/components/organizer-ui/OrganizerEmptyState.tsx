@@ -1,11 +1,14 @@
 import {IconAlertTriangle, IconCalendar, IconPlus, IconSpinner} from './OrganizerIcons';
 
 type OrganizerEmptyStateProps = {
-  type: 'no-events' | 'loading' | 'error';
+  type: 'no-events' | 'no-match' | 'loading' | 'error';
   message?: string;
   canEdit?: boolean;
   onCreateEvent?: () => void;
   onRetry?: () => void;
+  onResetFilter?: () => void;
+  onInitDemo?: () => void;
+  busyDemo?: boolean;
 };
 
 export function OrganizerEmptyState({
@@ -14,6 +17,9 @@ export function OrganizerEmptyState({
   canEdit,
   onCreateEvent,
   onRetry,
+  onResetFilter,
+  onInitDemo,
+  busyDemo = false,
 }: OrganizerEmptyStateProps) {
   if (type === 'loading') {
     return (
@@ -48,26 +54,57 @@ export function OrganizerEmptyState({
     );
   }
 
+  if (type === 'no-match') {
+    return (
+      <div className="org-empty-card organizer-empty">
+        <div className="org-empty-icon">
+          <IconCalendar size={24} />
+        </div>
+        <h3 className="org-empty-title">Không có sự kiện nào khớp bộ lọc</h3>
+        <p className="org-empty-desc">
+          Thử xóa từ khóa tìm kiếm hoặc chuyển về xem tất cả sự kiện trong tổ chức.
+        </p>
+        {onResetFilter && (
+          <button type="button" className="org-btn org-btn-secondary" onClick={onResetFilter}>
+            Xem tất cả sự kiện
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="org-empty-card organizer-empty">
       <div className="org-empty-icon">
         <IconCalendar size={24} />
       </div>
-      <h3 className="org-empty-title">Chưa có sự kiện nào trong tổ chức</h3>
+      <h3 className="org-empty-title">Bắt đầu tạo sự kiện đầu tiên</h3>
       <p className="org-empty-desc">
-        Bắt đầu bằng cách tạo bản nháp sự kiện đầu tiên. Bạn có thể cấu hình lịch trình biểu diễn, sơ đồ giá vé và kiểm tra trước khi công bố.
+        Thiết lập suất diễn, phân khu hạng vé (đứng hoặc có sơ đồ ghế ngồi) và xem trước trang bán vé trước khi công bố.
       </p>
-      {canEdit && onCreateEvent && (
-        <button
-          type="button"
-          className="org-btn org-btn-primary"
-          onClick={onCreateEvent}
-          style={{marginTop: '8px'}}
-        >
-          <IconPlus size={16} />
-          <span>Tạo sự kiện đầu tiên</span>
-        </button>
-      )}
+      <div className="org-empty-actions">
+        {canEdit && onCreateEvent && (
+          <button
+            type="button"
+            className="org-btn org-btn-primary"
+            onClick={onCreateEvent}
+          >
+            <IconPlus size={16} />
+            <span>Tạo sự kiện đầu tiên</span>
+          </button>
+        )}
+        {onInitDemo && (
+          <button
+            type="button"
+            className="org-btn org-btn-secondary"
+            onClick={onInitDemo}
+            disabled={busyDemo}
+            title="Khởi tạo dữ liệu mẫu để thử nghiệm luồng cấu hình giá và danh sách sự kiện"
+          >
+            {busyDemo ? 'Đang nạp dữ liệu mẫu…' : 'Nạp dữ liệu mẫu (Demo)'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

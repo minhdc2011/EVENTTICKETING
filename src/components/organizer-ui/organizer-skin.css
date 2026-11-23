@@ -612,4 +612,411 @@
 .organizer-shell .org-sidebar-org-block > * {
   min-width: 0;
   max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Impeccable Redesign Enhancements: IA, Wizard Polish, Contrast & Mobile
+   ========================================================================== */
+
+/* Sidebar filter buttons & count badges */
+.organizer-shell .org-sidebar-nav-item {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.organizer-shell .org-sidebar-nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.organizer-shell .org-sidebar-nav-count {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+}
+.organizer-shell .org-sidebar-nav-item.is-active .org-sidebar-nav-count {
+  background: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+.organizer-shell .org-sidebar-user-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #c4d0e4;
+}
+
+/* Main header & subtitle */
+.organizer-shell .org-main {
+  padding: 36px 40px 48px;
+}
+.organizer-shell .org-main-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.organizer-shell .org-main-heading-group {
+  min-width: 0;
+  flex: 1 1 280px;
+}
+.organizer-shell .org-main-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--org-text-secondary);
+  line-height: 1.5;
+}
+.organizer-shell .org-main-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Compact metrics strip when events exist */
+.organizer-shell .org-stats-grid {
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.organizer-shell .org-stat-card {
+  padding: 16px 18px;
+}
+.organizer-shell .org-stat-value {
+  font-size: 26px;
+}
+
+/* Events search + status filter toolbar */
+.organizer-shell .org-events-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+.organizer-shell .org-events-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 360px;
+  justify-content: flex-end;
+}
+.organizer-shell .org-events-search {
+  min-width: 220px;
+  max-width: 320px;
+  min-height: 44px;
+  flex: 1 1 220px;
+  background: #ffffff;
+  color: var(--org-text-primary);
+  border: 1px solid #cbd5e1;
+  border-radius: var(--org-radius-sm);
+  padding: 0 12px;
+  font-size: 14px;
+}
+.organizer-shell .org-events-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.organizer-shell .org-filter-pill {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--org-border-default);
+  background: #ffffff;
+  color: var(--org-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.organizer-shell .org-filter-pill:hover {
+  background: var(--org-surface-hover);
+  border-color: var(--et-blue, #0353c2);
+  color: var(--et-blue, #0353c2);
+}
+.organizer-shell .org-filter-pill.is-active {
+  background: #e3edfb;
+  border-color: var(--et-blue, #0353c2);
+  color: #0b3f91;
+}
+
+.organizer-shell .org-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* Wizard light backdrop, wider modal (no 4/6 step truncation), contrast fixes */
+.organizer-shell .org-wizard-backdrop,
+.organizer-shell .wizard-modal-backdrop {
+  background: rgba(15, 23, 42, 0.56);
+  backdrop-filter: blur(4px);
+}
+.organizer-shell .org-wizard-window,
+.organizer-shell .wizard-modal-window {
+  width: min(1120px, calc(100vw - 24px));
+  max-height: min(880px, calc(100vh - 24px));
+}
+.organizer-shell .org-wizard-header-tag,
+.organizer-shell .wizard-header-tag {
+  white-space: nowrap;
+}
+.organizer-shell .org-wizard-save-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--org-status-success-bg);
+  color: var(--org-status-success);
+  border: 1px solid var(--org-status-success-border);
+  white-space: nowrap;
+}
+.organizer-shell .org-wizard-save-pill.is-dirty {
+  background: var(--org-status-warning-bg);
+  color: var(--org-status-warning);
+  border-color: var(--org-status-warning-border);
+}
+
+.organizer-shell .org-wizard-confirm-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 12px 24px;
+  background: var(--org-status-warning-bg);
+  border-bottom: 1px solid var(--org-status-warning-border);
+  color: var(--org-status-warning);
+  font-size: 13px;
+  font-weight: 600;
+}
+.organizer-shell .org-wizard-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Wizard Stepper: full un-truncated labels across desktop */
+.organizer-shell :is(.org-wizard-stepper, .wizard-step-bar) {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  padding: 0 16px;
+  gap: 4px;
+}
+.organizer-shell :is(.wizard-step-item, .org-wizard-step-item) {
+  min-width: 0;
+  justify-content: center;
+  padding: 10px 8px;
+  gap: 6px;
+}
+.organizer-shell .wizard-step-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+
+/* Error & dark-mode remnants fixed cleanly */
+.organizer-shell .org-field-error {
+  color: var(--org-status-danger);
+  font-weight: 600;
+}
+.organizer-shell .org-reorder-btn {
+  background: #ffffff;
+  color: var(--org-text-secondary);
+  border-color: var(--org-border-default);
+}
+.organizer-shell .org-reorder-btn:hover:not(:disabled) {
+  background: var(--org-surface-hover);
+  border-color: var(--et-blue, #0353c2);
+  color: var(--et-blue, #0353c2);
+}
+.organizer-shell .org-wizard-empty-box {
+  background: #f8fafc;
+}
+
+/* Collapsible disclosures & seat map presets */
+.organizer-shell .org-wizard-disclosure {
+  border: 1px solid var(--org-border-subtle);
+  border-radius: var(--org-radius-sm);
+  background: #f8fafc;
+}
+.organizer-shell .org-wizard-disclosure--section {
+  background: #ffffff;
+  border-color: var(--org-border-default);
+  border-radius: var(--org-radius-md);
+}
+.organizer-shell .org-wizard-disclosure-summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--org-text-primary);
+  cursor: pointer;
+  list-style: none;
+}
+.organizer-shell .org-wizard-disclosure-summary::before {
+  content: '+';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 10px;
+  border-radius: 6px;
+  background: #e3edfb;
+  color: var(--et-blue, #0353c2);
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.organizer-shell .org-wizard-disclosure[open] > .org-wizard-disclosure-summary::before {
+  content: '−';
+}
+.organizer-shell .org-wizard-disclosure-body {
+  padding: 4px 14px 14px;
+}
+.organizer-shell .org-wizard-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.organizer-shell .org-checklist-item-row {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+.organizer-shell .org-checklist-jump-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .organizer-shell .org-topbar {
+    padding: 0 12px;
+    gap: 8px;
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  .organizer-shell .org-topbar-actions {
+    gap: 6px;
+    min-width: 0;
+  }
+  .organizer-shell .org-topbar-back-link {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .organizer-shell .org-topbar-actions .org-btn {
+    padding: 0 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .organizer-shell .org-layout,
+  .organizer-shell .org-sidebar-mobile-top,
+  .organizer-shell .org-sidebar-mobile-bottom,
+  .organizer-shell .org-main,
+  .organizer-shell .org-events-section,
+  .organizer-shell .org-events-toolbar,
+  .organizer-shell .org-events-controls {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .organizer-shell .org-main {
+    padding: 20px 16px 32px;
+    width: 100%;
+  }
+  .organizer-shell .org-main-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .organizer-shell .org-main-heading-group {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .organizer-shell .org-main-header-actions {
+    width: 100%;
+  }
+  .organizer-shell .org-main-header-actions .org-btn {
+    flex: 1 1 140px;
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+  }
+  .organizer-shell .org-sidebar-nav {
+    overflow-x: auto;
+    max-width: 100%;
+    padding-bottom: 2px !important;
+  }
+  .organizer-shell .org-sidebar-nav-item {
+    width: auto;
+    flex-shrink: 0;
+    color: #c4d0e4 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+  .organizer-shell .org-sidebar-nav-item.is-active {
+    color: #ffffff !important;
+    background: rgba(3, 83, 194, 0.55) !important;
+    border-color: #9ec7ff !important;
+  }
+  .organizer-shell .org-events-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .organizer-shell .org-events-controls {
+    flex: 0 0 auto;
+    width: 100%;
+    justify-content: stretch;
+  }
+  .organizer-shell .org-events-search {
+    max-width: none;
+    width: 100%;
+    min-width: 0;
+  }
+  .organizer-shell .org-wizard-window,
+  .organizer-shell .wizard-modal-window {
+    width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+  }
+  .organizer-shell .org-wizard-header {
+    padding: 12px 14px;
+  }
+  .organizer-shell :is(.org-wizard-stepper, .wizard-step-bar) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 6px 10px;
+    min-height: auto;
+    gap: 4px;
+    overflow-x: visible;
+  }
+  .organizer-shell :is(.wizard-step-item, .org-wizard-step-item) {
+    min-height: 44px;
+    padding: 6px 6px;
+    border-bottom-width: 2px;
+  }
+  .organizer-shell .wizard-step-label {
+    font-size: 12px;
+  }
 }
