@@ -923,6 +923,20 @@ import {
               slash.setAttribute('y2',(center[1]-5).toFixed(1));
               group.appendChild(slash);
             }
+            // Đủ số vé tối đa: ghế còn trống chưa chọn hiện dấu cấm (tròn gạch đỏ), ghế đã chọn vẫn bấm được để bỏ chọn.
+            if (seat.status === 'AVAILABLE' && !selected && getTotalSelectedCount() >= currentLimits.maxPerOrder) {
+              group.classList.add('limit');
+              const mark = document.createElementNS(ns,'g');
+              mark.setAttribute('class','seat-limit-mark');
+              const ring = document.createElementNS(ns,'circle');
+              ring.setAttribute('cx',center[0].toFixed(1)); ring.setAttribute('cy',center[1].toFixed(1)); ring.setAttribute('r','11');
+              const bar = document.createElementNS(ns,'line');
+              bar.setAttribute('x1',(center[0]-7.8).toFixed(1)); bar.setAttribute('y1',(center[1]+7.8).toFixed(1));
+              bar.setAttribute('x2',(center[0]+7.8).toFixed(1)); bar.setAttribute('y2',(center[1]-7.8).toFixed(1));
+              mark.append(ring,bar);
+              group.appendChild(mark);
+              group.setAttribute('aria-label',`${group.getAttribute('aria-label')}, đã chọn đủ ${currentLimits.maxPerOrder} vé nên không chọn thêm được`);
+            }
             if (seat.status === 'AVAILABLE') {
               group.addEventListener('click',event => { event.stopPropagation(); handleSeatClick(seat); });
               group.addEventListener('keydown',event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleSeatClick(seat); } });

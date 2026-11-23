@@ -12,6 +12,7 @@ import {
 } from '../domain/accountAccess';
 import {ghepSuKienWorkspaceDemo} from '../domain/pricingMockDemo.js';
 import {khoiTaoDemoDinhGia, type DichVuMeta} from './pricingService';
+import {luuCauHinhMuaVe} from './purchaseConfigService';
 import type {PublicEventRecord, PublicShowRecord} from './eventService';
 import type {Json} from '../types/database.types';
 
@@ -432,8 +433,9 @@ export async function createEventDraft(input: CreateDraftInput): Promise<void> {
     }
     const rows = JSON.parse(localStorage.getItem(MOCK_EVENTS) || '[]') as any[];
     const cleanSlug = deduplicateSlug(input.slug).trim().toLowerCase();
+    const mockEventId = Date.now();
     rows.unshift({
-      id: Date.now(),
+      id: mockEventId,
       organizationId: input.organizationId,
       name: input.name.trim(),
       slug: cleanSlug,
@@ -451,12 +453,13 @@ export async function createEventDraft(input: CreateDraftInput): Promise<void> {
       showCount: 1,
     });
     localStorage.setItem(MOCK_EVENTS, JSON.stringify(rows));
+    await batOtpMacDinhChoSuKienMoi(mockEventId);
     return;
   }
 
   const {requireSupabaseClient} = await import('./supabaseClient');
   const cleanSlug = deduplicateSlug(input.slug).trim().toLowerCase();
-  const {error} = await (requireSupabaseClient() as any).rpc('tao_ban_nhap_su_kien', {
+  const {data: created, error} = await (requireSupabaseClient() as any).rpc('tao_ban_nhap_su_kien', {
     p_to_chuc_id: input.organizationId,
     p_ten_su_kien: input.name.trim(),
     p_slug: cleanSlug,
@@ -472,6 +475,22 @@ export async function createEventDraft(input: CreateDraftInput): Promise<void> {
     p_suc_chua: input.capacity,
   });
   if (error) throw mapDatabaseError(error);
+  await batOtpMacDinhChoSuKienMoi((created as {eventId?: number} | null)?.eventId);
+}
+
+/**
+ * Sự kiện mới mặc định bật xác minh OTP khi thanh toán. Dùng RPC lưu cấu hình hiện có (có kiểm quyền và nhật ký):
+ * chỉ chủ sở hữu hoặc quản trị tổ chức ghi được. Biên tập viên không đủ quyền thì bỏ qua êm, sự kiện giữ mặc định cũ
+ * (tắt OTP) cho tới khi chủ sở hữu bật ở màn Cấu hình mua vé. Không làm hỏng việc tạo bản nháp.
+ */
+async function batOtpMacDinhChoSuKienMoi(eventId: unknown): Promise<void> {
+  const id = Number(eventId);
+  if (!Number.isInteger(id) || id <= 0) return;
+  try {
+    await luuCauHinhMuaVe(id, {soVeToiDaMoiDon: 4, yeuCauXacMinhOtp: true});
+  } catch (error) {
+    console.warn('Không bật được OTP mặc định cho sự kiện mới (cần quyền chủ sở hữu hoặc quản trị):', error);
+  }
 }
 
 export async function saveFullEventDraft(
