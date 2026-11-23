@@ -1,7 +1,8 @@
 import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../config/runtime';
 import type {Json} from '../types/database.types';
 import type {ApiEnvelope, CreateHoldRequest, HoldRecord} from '../types/ticketing';
-import {chuanHoaLoiGiuCho} from '../domain/purchaseLimitError';
+import {chuanHoaLoiGiuCho, laLoiChuaDangNhap} from '../domain/purchaseLimitError';
+import {LoginRequiredError} from '../domain/loginRequired.js';
 import {GIOI_HAN_MAC_DINH, taoKhoGiuChoMoPhong} from '../domain/mockBooking';
 import {laSuKienDemo} from '../domain/pricingMockDemo.js';
 import {apiRequest} from './apiClient';
@@ -38,6 +39,9 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
   if (!runtimeConfig.useMockData && isSupabaseConfigured()) {
     const active = getActiveEventContext();
     const supabase = requireSupabaseClient();
+    // Giữ chỗ cần tài khoản đăng nhập: báo sớm bằng lỗi riêng để giao diện hiện hộp thoại đăng nhập (thay vì lỗi chung).
+    const {data: phien} = await supabase.auth.getSession();
+    if (!phien.session) throw new LoginRequiredError();
     let {data, error} = await supabase.rpc('tao_giu_cho_theo_suat', {
       p_suat_dien_id: active.showId,
       p_phien_id: getBrowserSessionId(),
@@ -60,7 +64,10 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
       data = legacyResult.data;
       error = legacyResult.error;
     }
-    if (error) throw chuanHoaLoiGiuCho(error);
+    if (error) {
+      if (laLoiChuaDangNhap(error)) throw new LoginRequiredError(undefined, {cause: error});
+      throw chuanHoaLoiGiuCho(error);
+    }
     return data as unknown as HoldRecord;
   }
 
@@ -75,7 +82,7 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
   // Đọc lại phiên người mua ở mỗi lần giữ chỗ (không cache) để đăng xuất/đổi tài khoản có hiệu lực ngay.
   const buyer = await getBuyerSession();
   if (!buyer?.userId) {
-    throw new Error('Vui lòng đăng nhập tài khoản người mua để giữ chỗ.');
+    throw new LoginRequiredError('Vui lòng đăng nhập tài khoản người mua để giữ chỗ.');
   }
 
   const active = getActiveEventContext();
