@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Sinh tệp public/maps/super-concert-stadium.svg: sơ đồ sân vận động Mỹ Đình của Super Concert dùng bản đồ chung
- * (OfficialSeatingMap). Hình học lấy đúng từ bộ chạy cũ (concertRuntime.js: buildOvalStadiumSectors): các khu hình vành
- * elip quanh tâm (500, 470), khu vé đứng ở lòng sân, sân khấu và đường dẫn ra giữa sân.
+ * Sinh tệp public/maps/super-concert-stadium.svg: sơ đồ sân vận động Mỹ Đình của Super Concert
+ * theo đúng ngôn ngữ hình ảnh Ticketmaster dùng chung với các sơ đồ BTC khác
+ * (ticketmaster-arena-endstage.svg / ticketmaster-theater-proscenium.svg).
  *
  * Mỗi khu là MỘT phần tử có data-zone-code trùng mã khu trong cơ sở dữ liệu. Khu vành cung có thêm data-arc
  * ("cx cy bánKínhNgoàiX bánKínhNgoàiY bánKínhTrongX bánKínhTrongY gócĐầu gócCuối") để bản đồ chung xếp ghế theo vành.
@@ -18,7 +18,7 @@ import {pointOnEllipse} from '../src/domain/zoneSeatLayout.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const out = path.join(here, '../public/maps/super-concert-stadium.svg');
 const CX = 500;
-const CY = 470;
+const CY = 415;
 const f = (n) => n.toFixed(2);
 
 function sectorPath(oRx, oRy, iRx, iRy, start, end) {
@@ -36,20 +36,113 @@ function radialLine(oRx, oRy, iRx, iRy, angle) {
   return `M ${f(a.x)} ${f(a.y)} L ${f(b.x)} ${f(b.y)}`;
 }
 
-// code, tên, màu, bán kính [outerRx, outerRy, innerRx, innerRy], khoảng góc của khu, khoảng góc dùng để xếp ghế, số múi chia
+// Đường viền đứt nét bao quanh sân vận động (cùng phong cách Arena)
+const perimeterStart = pointOnEllipse(CX, CY, 472, 420, -34);
+const perimeterEnd = pointOnEllipse(CX, CY, 472, 420, 214);
+const perimeterPath = `M ${f(perimeterStart.x)} ${f(perimeterStart.y)} A 472 420 0 1 1 ${f(perimeterEnd.x)} ${f(perimeterEnd.y)}`;
+
 const zones = [
-  {code: 'ZONE_CD_UP', name: 'Khán đài C-D Tầng cao (Upper Tier)', color: '#a9cb73', radii: [455, 405, 365, 325], range: [150, 390], seats: [225, 315], slices: 10},
-  {code: 'ZONE_A_T1', name: 'Khán đài A Tầng 1 (Tribune A)', color: '#f0b44e', radii: [350, 315, 280, 247], range: [150, 234], seats: [150, 234], slices: 3},
-  {code: 'ZONE_B_T2', name: 'Khán đài B Tầng 2 (Tribune B)', color: '#9b7af0', radii: [350, 315, 280, 247], range: [306, 390], seats: [306, 390], slices: 3},
-  {code: 'VIP_PLATINUM_1', name: 'VIP Platinum 1', color: '#6f95ed', radii: [350, 315, 280, 247], range: [234, 306], seats: [234, 306], slices: 3},
-  {code: 'VVIP_DIAMOND', name: 'VVIP Diamond Lounge', color: '#e5bc38', radii: [272, 240, 224, 196], range: [234, 306], seats: [234, 306], slices: 3},
+  {
+    code: 'ZONE_CD_UP',
+    name: 'Khán đài C-D Tầng cao (Upper Tier)',
+    fill: 'url(#sc-upper)',
+    stroke: '#ffffff',
+    strokeWidth: '1',
+    radii: [452, 400, 352, 310],
+    range: [-32, 212],
+    seats: [-29, 209],
+    slices: 10,
+    label: 'KHÁN ĐÀI C-D · UPPER TIER (TẦNG CAO)',
+    sublabel: 'Tầm nhìn bao quát toàn sân vận động',
+    subColor: '#ddd6fe',
+    labelAngle: 90,
+    fontSize: 13,
+  },
+  {
+    code: 'ZONE_A_T1',
+    name: 'Khán đài A Tầng 1 (Tribune A)',
+    fill: 'url(#sc-bowl)',
+    stroke: '#ffffff',
+    strokeWidth: '1.2',
+    radii: [326, 286, 242, 210],
+    range: [134, 212],
+    seats: [137, 209],
+    slices: 3,
+    label: 'KHÁN ĐÀI A',
+    sublabel: 'Tầng 1',
+    subColor: '#fef3c7',
+    labelAngle: 173,
+    fontSize: 11,
+  },
+  {
+    code: 'ZONE_B_T2',
+    name: 'Khán đài B Tầng 2 (Tribune B)',
+    fill: 'url(#sc-bowl)',
+    stroke: '#ffffff',
+    strokeWidth: '1.2',
+    radii: [326, 286, 242, 210],
+    range: [-32, 46],
+    seats: [-29, 43],
+    slices: 3,
+    label: 'KHÁN ĐÀI B',
+    sublabel: 'Tầng 2',
+    subColor: '#fef3c7',
+    labelAngle: 7,
+    fontSize: 11,
+  },
+  {
+    code: 'VIP_PLATINUM_1',
+    name: 'VIP Platinum 1',
+    fill: 'url(#sc-vip)',
+    stroke: '#ffffff',
+    strokeWidth: '1.5',
+    radii: [326, 286, 242, 210],
+    range: [50, 130],
+    seats: [52, 128],
+    slices: 3,
+    label: 'VIP PLATINUM 1',
+    sublabel: 'Trung tâm tầng 1',
+    subColor: '#bfdbfe',
+    labelAngle: 90,
+    fontSize: 13,
+  },
+  {
+    code: 'VVIP_DIAMOND',
+    name: 'VVIP Diamond Lounge',
+    fill: '#2563eb',
+    stroke: '#fbbf24',
+    strokeWidth: '2',
+    radii: [222, 192, 162, 138],
+    range: [48, 132],
+    seats: [51, 129],
+    slices: 3,
+    label: 'VVIP DIAMOND',
+    sublabel: 'Trung tâm hạng nhất',
+    subColor: '#fef08a',
+    labelAngle: 90,
+    fontSize: 13,
+  },
 ];
 
 const zoneSvg = zones
   .map((z) => {
     const [oRx, oRy, iRx, iRy] = z.radii;
     const arc = `${CX} ${CY} ${oRx} ${oRy} ${iRx} ${iRy} ${z.seats[0]} ${z.seats[1]}`;
-    return `    <path data-zone-code="${z.code}" role="button" tabindex="0" aria-label="${z.name}" data-arc="${arc}" d="${sectorPath(oRx, oRy, iRx, iRy, z.range[0], z.range[1])}" fill="${z.color}" stroke="#0c100e" stroke-width="2"/>`;
+    return `    <path data-zone-code="${z.code}" role="button" tabindex="0" aria-label="${z.name}" data-arc="${arc}" d="${sectorPath(oRx, oRy, iRx, iRy, z.range[0], z.range[1])}" fill="${z.fill}" stroke="${z.stroke}" stroke-width="${z.strokeWidth}"/>`;
+  })
+  .join('\n');
+
+const labelSvg = zones
+  .map((z) => {
+    const [oRx, oRy, iRx, iRy] = z.radii;
+    const midRx = (oRx + iRx) / 2;
+    const midRy = (oRy + iRy) / 2;
+    const p = pointOnEllipse(CX, CY, midRx, midRy, z.labelAngle);
+    const titleY = z.sublabel ? f(p.y - 4) : f(p.y + 4);
+    const sub = z.sublabel
+      ? `\n    <text x="${f(p.x)}" y="${f(p.y + 13)}" fill="${z.subColor}" font-size="10" font-weight="600" text-anchor="middle">${z.sublabel}</text>`
+      : '';
+    return `    <text x="${f(p.x)}" y="${titleY}" fill="#ffffff" font-size="${z.fontSize}" font-weight="800" text-anchor="middle">${z.label}</text>${sub}`;
   })
   .join('\n');
 
@@ -65,61 +158,89 @@ const separators = zones
   .filter(Boolean)
   .join(' ');
 
-const blocked = [[30, 70], [70, 110], [110, 150]]
-  .map(([s, e]) => `    <path d="${sectorPath(455, 405, 365, 325, s, e)}" fill="url(#blockedPattern)" stroke="rgba(255,255,255,0.09)" stroke-width="1.5"/>`)
-  .join('\n');
-
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 930" width="100%" height="100%" role="img" aria-label="Sơ đồ mặt bằng sân vận động Mỹ Đình" style="background:#0d1527;font-family:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 930" width="100%" height="100%" role="img" aria-label="Sơ đồ mặt bằng sân vận động Mỹ Đình" style="background:#0b1326;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <title>Sơ đồ mặt bằng sân vận động Mỹ Đình</title>
-  <desc>Sơ đồ dạng móng ngựa với sân khấu ở phía dưới, khu vé đứng trong lòng sân và các tầng khán đài bao quanh. Sinh bởi scripts/build-super-concert-map.mjs.</desc>
+  <desc>Sơ đồ sân vận động tiêu chuẩn Ticketmaster End-Stage với sân khấu ở phía trên, khu Fanzone đứng trước sân khấu và các tầng khán đài VVIP, VIP Platinum, Khán đài A-B, Upper Tier bao quanh. Sinh bởi scripts/build-super-concert-map.mjs.</desc>
+  <style>text { pointer-events: none; }</style>
   <defs>
-    <linearGradient id="sc-stage" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ecff70"/>
-      <stop offset="1" stop-color="#b9df22"/>
+    <linearGradient id="sc-stage-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
     </linearGradient>
-    <pattern id="pitchGrid" width="64" height="64" patternUnits="userSpaceOnUse">
-      <rect width="64" height="64" fill="#111812"/>
-      <rect width="32" height="64" fill="#151e16"/>
-    </pattern>
-    <pattern id="blockedPattern" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
-      <rect width="18" height="18" fill="#151719"/>
-      <rect width="7" height="18" fill="#292c30"/>
-    </pattern>
-    <path id="sc-arc-vvip" d="M354.23 293.63 A248 218 0 0 1 645.77 293.63"/>
-    <path id="sc-arc-vip" d="M314.85 242.67 A315 281 0 0 1 685.15 242.67"/>
-    <path id="sc-arc-a" d="M227.20 610.50 A315 281 0 0 1 314.85 242.67"/>
-    <path id="sc-arc-b" d="M685.15 242.67 A315 281 0 0 1 772.80 610.50"/>
-    <path id="sc-arc-upper" d="M128.46 315.73 A410 365 0 0 1 871.54 315.73"/>
+    <linearGradient id="sc-floor-ga" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#059669" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="sc-vip" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="sc-bowl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.82"/>
+      <stop offset="100%" stop-color="#d97706" stop-opacity="0.92"/>
+    </linearGradient>
+    <linearGradient id="sc-upper" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.78"/>
+      <stop offset="100%" stop-color="#6d28d9" stop-opacity="0.88"/>
+    </linearGradient>
+    <filter id="sc-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
   </defs>
 
-  <ellipse cx="500" cy="470" rx="455" ry="405" fill="#0c100e" stroke="rgba(255,255,255,0.17)" stroke-width="3"/>
-  <g aria-hidden="true">
-${blocked}
+  <!-- Title & Header Bar -->
+  <rect x="0" y="0" width="1000" height="60" fill="#070d1a"/>
+  <text x="40" y="38" fill="#ffffff" font-size="18" font-weight="700" letter-spacing="1">EVENTTICKETING STADIUM SEATING CHART</text>
+  <text x="960" y="38" fill="#94a3b8" font-size="13" font-weight="500" text-anchor="end">SƠ ĐỒ SÂN VẬN ĐỘNG MỸ ĐÌNH</text>
+
+  <!-- Stadium Outer Perimeter Ring -->
+  <path d="${perimeterPath}" fill="none" stroke="#1e293b" stroke-width="3" stroke-dasharray="6 6"/>
+
+  <!-- Stage Complex -->
+  <g id="stage-complex" filter="url(#sc-glow)">
+    <rect x="330" y="84" width="340" height="84" rx="8" fill="url(#sc-stage-grad)" stroke="#38bdf8" stroke-width="2"/>
+    <text x="500" y="124" fill="#f8fafc" font-size="20" font-weight="800" text-anchor="middle" letter-spacing="3">SÂN KHẤU · STAGE</text>
+    <text x="500" y="148" fill="#38bdf8" font-size="11" font-weight="600" text-anchor="middle" letter-spacing="1">MAIN STADIUM END-STAGE</text>
+    <polygon points="460,168 540,168 522,222 478,222" fill="#334155" stroke="#38bdf8" stroke-width="1.5"/>
+    <circle cx="500" cy="222" r="22" fill="#0284c7" stroke="#e0f2fe" stroke-width="2"/>
+    <text x="500" y="225" fill="#ffffff" font-size="8" font-weight="700" text-anchor="middle">B-STAGE</text>
   </g>
 
-  <g id="sc-zones">
+  <!-- Floor GA Standing -->
+  <g id="floor-ga" filter="url(#sc-glow)">
+    <rect data-zone-code="GA_STAND_1" role="button" tabindex="0" aria-label="GA Fanzone Standing 1 (Khu A)" x="340" y="256" width="320" height="114" rx="8" fill="url(#sc-floor-ga)" stroke="#ffffff" stroke-width="1.5" opacity="0.95"/>
+    <text x="500" y="308" fill="#ffffff" font-size="15" font-weight="800" text-anchor="middle">STANDING · FANZONE</text>
+    <text x="500" y="328" fill="#d1fae5" font-size="11" font-weight="600" text-anchor="middle">Khu vé đứng tự do sát sân khấu</text>
+  </g>
+
+  <!-- Sound & Lighting Mix (FOH) -->
+  <rect x="440" y="424" width="120" height="36" rx="4" fill="#0f172a" stroke="#64748b" stroke-width="1"/>
+  <text x="500" y="446" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="middle">SOUND MIX / FOH</text>
+
+  <!-- Seated Stadium Bowls -->
+  <g id="sc-zones" filter="url(#sc-glow)">
 ${zoneSvg}
   </g>
-  <path d="${separators}" fill="none" stroke="#0c100e" stroke-width="3" pointer-events="none" aria-hidden="true"/>
+  <path d="${separators}" fill="none" stroke="rgba(11, 19, 38, 0.55)" stroke-width="1.6" pointer-events="none" aria-hidden="true"/>
 
-  <ellipse cx="500" cy="475" rx="258" ry="246" fill="url(#pitchGrid)" stroke="rgba(216,255,62,0.2)" stroke-width="2" pointer-events="none"/>
-
-  <g>
-    <rect data-zone-code="GA_STAND_1" role="button" tabindex="0" aria-label="GA Fanzone Standing 1 (Khu A)" x="330" y="330" width="340" height="160" rx="14" fill="#78d683" stroke="#c8ffb6" stroke-width="3"/>
-    <text x="500" y="410" fill="#071008" font-size="23" font-weight="800" letter-spacing="0.6" text-anchor="middle" dominant-baseline="middle" pointer-events="none">STANDING · FANZONE</text>
+  <!-- Zone Labels -->
+  <g id="sc-labels" pointer-events="none" aria-hidden="true">
+${labelSvg}
   </g>
 
-  <path d="M475 540 Q475 520 500 520 Q525 520 525 540 L525 670 L475 670 Z" fill="url(#sc-stage)" stroke="#f4ff9b" stroke-width="1.5" pointer-events="none"/>
-  <rect x="380" y="670" width="240" height="70" rx="12" fill="url(#sc-stage)" stroke="#f4ff9b" stroke-width="1.5" pointer-events="none"/>
-  <text x="500" y="705" fill="#0b1204" font-size="26" font-weight="800" letter-spacing="1.5" text-anchor="middle" dominant-baseline="middle" pointer-events="none">STAGE</text>
+  <!-- Legend Bar -->
+  <g id="sc-legend" transform="translate(70, 875)">
+    <rect x="0" y="0" width="16" height="16" rx="3" fill="#10b981"/>
+    <text x="22" y="13" fill="#cbd5e1" font-size="11">GA Fanzone Standing</text>
 
-  <g fill="rgba(255,255,255,0.9)" font-size="16" font-weight="800" letter-spacing="1" pointer-events="none" aria-hidden="true">
-    <text><textPath href="#sc-arc-vvip" startOffset="50%" text-anchor="middle">VVIP LOUNGE</textPath></text>
-    <text><textPath href="#sc-arc-vip" startOffset="50%" text-anchor="middle">VIP PLATINUM 1</textPath></text>
-    <text><textPath href="#sc-arc-a" startOffset="50%" text-anchor="middle">KHÁN ĐÀI A</textPath></text>
-    <text><textPath href="#sc-arc-b" startOffset="50%" text-anchor="middle">KHÁN ĐÀI B</textPath></text>
-    <text><textPath href="#sc-arc-upper" startOffset="50%" text-anchor="middle">KHÁN ĐÀI C · UPPER TIER</textPath></text>
-    <text x="500" y="902" fill="rgba(255,255,255,0.4)" font-size="14" text-anchor="middle">KHUẤT TẦM NHÌN · KHÔNG BÁN</text>
+    <rect x="165" y="0" width="16" height="16" rx="3" fill="#3b82f6"/>
+    <text x="187" y="13" fill="#cbd5e1" font-size="11">VVIP &amp; VIP Platinum</text>
+
+    <rect x="325" y="0" width="16" height="16" rx="3" fill="#f59e0b"/>
+    <text x="347" y="13" fill="#cbd5e1" font-size="11">Khán đài A – B</text>
+
+    <rect x="465" y="0" width="16" height="16" rx="3" fill="#8b5cf6"/>
+    <text x="487" y="13" fill="#cbd5e1" font-size="11">Upper Tier (Khán đài C-D)</text>
   </g>
 </svg>
 `;

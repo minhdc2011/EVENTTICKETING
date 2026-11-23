@@ -594,7 +594,7 @@ const SUPER_CONCERT_TIERS: PublicTicketTier[] = [
   {id: 5, code: 'GA_STAND_2', name: 'GA Fanzone Standing 2 (Khu B)', price: 1800000, color: '#2dd4bf', description: 'Khu vực vé đứng tự do không gian mở.', capacity: 200, available: 160},
   {id: 6, code: 'ZONE_A_T1', name: 'Khán đài A Tầng 1 (Tribune A)', price: 1500000, color: '#ffb454', description: 'Ghế đệm ngồi trung tâm đối diện sân khấu.', capacity: 12, available: 5},
   {id: 7, code: 'ZONE_B_T2', name: 'Khán đài B Tầng 2 (Tribune B)', price: 1200000, color: '#b98cff', description: 'Tầm nhìn cao toàn diện bao quát sân vận động.', capacity: 12, available: 8},
-  {id: 8, code: 'ZONE_CD_UP', name: 'Khán đài C-D Tầng cao (Upper Tier)', price: 800000, color: '#b9e986', description: 'Không gian sôi động phù hợp cho đông đảo khán giả trẻ.', capacity: 12, available: 9},
+  {id: 8, code: 'ZONE_CD_UP', name: 'Khán đài C-D Tầng cao (Upper Tier)', price: 800000, color: '#b9e986', description: 'Không gian sôi động phù hợp cho đông đảo khán giả trẻ.', capacity: 72, available: 64},
 ];
 const EVENT_SPECIFIC_TIERS: Record<string, PublicTicketTier[]> = {
   'super-concert-2026': SUPER_CONCERT_TIERS,

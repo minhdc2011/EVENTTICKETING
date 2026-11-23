@@ -74,9 +74,9 @@ test('dead code and unrendered fragments are gone', async () => {
 test('small data mismatches are fixed', async () => {
   const meta = JSON.parse(await read('../metadata.json'));
   assert.doesNotMatch(meta.description, /96 ghế/);
-  assert.match(meta.description, /48 ghế/);
+  assert.match(meta.description, /120 ghế/);
   const seats = JSON.parse(await read('../public/data_seats.json'));
-  assert.equal(seats.length, 48);
+  assert.equal(seats.length, 120);
   const zones = JSON.parse(await read('../public/data_zones.json'));
   for (const zone of zones) {
     for (const key of ['SoGheMauDemo', 'SoGheTrong', 'SoGheDaBan', 'SoGheDangGiu', 'TyLeLapDayPhanTram']) {
