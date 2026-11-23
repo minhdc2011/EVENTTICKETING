@@ -163,3 +163,17 @@ test('bấm chọn phân khu trên sơ đồ không gọi scrollIntoView hay foc
   assert.match(css, /\.et-pz\s*\{[^}]*overflow-anchor:\s*none/);
   assert.match(css, /\.et-tm-stage\s*\{[^}]*overflow-anchor:\s*none/);
 });
+
+test('sơ đồ dùng bảng màu sáng thống nhất, tách rõ trạng thái ghế và ẩn tiêu đề SVG khi phóng khu', () => {
+  const css = read('src/components/event-template/SeatMapSection.css');
+  assert.match(css, /\.et-tm-stage\s*\{[^}]*background:\s*#f3f6fa/);
+  assert.match(css, /\.et-tm-dot\s*\{[^}]*fill:\s*#0353c2/);
+  assert.match(css, /\.et-tm-dot\[data-status='held'\]\s*\{[^}]*#d97706/);
+  assert.match(css, /\.et-tm-dot\[data-status='blocked'\]\s*\{[^}]*#64748b/);
+  assert.match(css, /\[data-focus-zone\][\s\S]*\[data-map-chrome='true'\]\s*\{[^}]*opacity:\s*0/);
+  assert.match(css, /\.et-ticket-panel__back\s*\{[^}]*width:\s*44px[^}]*height:\s*44px/s);
+
+  const panel = read('src/components/event-template/SeatTicketPanel.tsx');
+  assert.match(panel, /isStandingZone\(activeZone\)/);
+  assert.match(panel, /Vé đứng tự do/);
+});
