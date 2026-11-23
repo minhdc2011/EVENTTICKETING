@@ -8,7 +8,7 @@
  */
 
 const ROW_MARGIN_RATIO = 0.12;
-const SIDE_MARGIN_RATIO = 0.1;
+const SIDE_MARGIN_RATIO = 0.06;
 const MIN_SEAT_RADIUS = 2.5;
 const MAX_SEAT_RADIUS = 14;
 

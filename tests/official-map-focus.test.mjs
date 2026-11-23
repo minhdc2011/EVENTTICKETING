@@ -22,7 +22,7 @@ test('mở một khu thì vẫn hiện sơ đồ thu nhỏ để thấy các khu
 
 test('màu trạng thái ghế khớp Super Concert (xanh còn trống, vàng đang chọn, xám sọc đã bán)', () => {
   const css = read('src/components/event-template/SeatMapSection.css');
-  assert.match(css, /\.et-seat-rows \.et-seat \.et-seat-shape\s*\{[^}]*#22c55e/);
+  assert.match(css, /:is\(\.et-seat-rows, \.et-map-seat-overlay\) \.et-seat \.et-seat-shape\s*\{[^}]*#22c55e/);
   assert.match(css, /data-status='selected'\] \.et-seat-shape\s*\{[^}]*#eab308/);
   assert.match(css, /data-status='sold'\] \.et-seat-shape\s*\{[^}]*#334155/);
 });
