@@ -23,21 +23,24 @@ Giới hạn cần nói thẳng khi trình bày:
 | 4 | Nhập giới hạn 0, 21, 2,5 hoặc để trống | Lỗi hiện cạnh trường, không lưu |
 | 5 | Bấm **Cấu hình giá**, chọn suất và khu, đặt giá gốc/sàn/trần; thử sàn lớn hơn gốc | Lưu được khi hợp lệ; sàn > gốc báo lỗi theo từng trường |
 
-## Phần 1B. Khán giả: OTP và giới hạn 4 vé
+## Phần 1B. Khán giả: đăng nhập, OTP, giới hạn 4 vé và trả chỗ khi đăng xuất
 
-Mở **tab ẩn danh hoặc trình duyệt khác** cho khán giả để phiên BTC không lẫn vào.
+Mở **tab ẩn danh hoặc trình duyệt khác** cho khán giả để phiên BTC không lẫn vào. Luồng hiện tại: chọn ghế tự do, chỉ đăng nhập và xác minh OTP khi bấm **Thanh toán**. "Thanh toán" là mô phỏng: máy chủ chỉ giữ chỗ 5 phút.
 
 | # | Thao tác | Kết quả mong đợi |
 |---|---|---|
-| 1 | Mở `/events/demo-dinh-gia-mo-phong/shows/suat-demo` khi chưa đăng nhập | Phần chọn ghế không hiện; có cổng yêu cầu đăng nhập |
-| 2 | Đăng nhập `buyer@demo.vn` (mật khẩu bất kỳ 6 ký tự trở lên) | Quay về đúng sự kiện và suất; hiện cổng OTP |
-| 3 | Bấm gửi mã | Thấy hiệu lực 300 giây; nút gửi lại bị vô hiệu 60 giây |
-| 4 | Nhập `000000` | Báo sai, nêu số lần còn lại |
-| 5 | Nhập `123456` | Cổng mở, thấy sơ đồ chọn ghế |
-| 6 | Chọn 4 ghế rồi thử chọn ghế thứ 5 | Bộ đếm `Đã chọn 4/4`; không chọn thêm được |
-| 7 | Giữ chỗ 3 ghế, sau đó xin thêm 2 ghế | Thông báo nêu giới hạn 4, đang giữ 3, còn chọn thêm 1; tồn tại ít nhất 5 giây; lựa chọn được giữ |
-| 8 | Hủy giữ chỗ | Số đếm giảm; chọn lại được |
-| 9 | Ở BTC tắt OTP rồi tải lại trang khán giả | Vào thẳng bước chọn ghế, không có cổng OTP |
+| 1 | Mở trang một sự kiện có sơ đồ khi chưa đăng nhập, bấm một khu rồi chọn ghế | Chọn được ghế, không có cổng chặn, không có đồng hồ (chưa giữ chỗ) |
+| 2 | Bấm **Thanh toán N vé** | Hộp thoại đăng nhập hiện lên, nền phía sau làm mờ, lựa chọn ghế được giữ nguyên |
+| 3 | Đăng nhập `buyer@demo.vn` (mật khẩu bất kỳ 6 ký tự trở lên) | Hộp thoại đóng, hệ thống tự tiếp tục; sự kiện bật OTP thì hiện hộp thoại OTP, nêu email nhận mã đã che |
+| 4 | Bấm gửi mã | Thấy hiệu lực 300 giây; nút gửi lại bị vô hiệu 60 giây |
+| 5 | Nhập `000000` | Báo sai, nêu số lần còn lại, ở lại hộp thoại, lựa chọn giữ nguyên |
+| 6 | Nhập `123456` | Hộp thoại đóng, hiện **Xác nhận thanh toán thành công** kèm đồng hồ 5 phút; hộp thoại nói rõ đây là mô phỏng |
+| 7 | Chọn đủ 4 ghế | Ghế còn trống hiện dấu cấm (vòng tròn viền đỏ gạch chéo), không chọn thêm được |
+| 8 | Giữ chỗ 3 ghế, sau đó xin thêm 2 ghế | Thông báo nêu giới hạn 4, đang giữ 3, còn chọn thêm 1; tồn tại ít nhất 5 giây; lựa chọn được giữ |
+| 9 | Đang giữ chỗ, bấm **Đăng xuất** | Chỗ được trả lại ngay, đồng hồ tắt, lựa chọn bị xóa, hiện thông báo đã trả chỗ |
+| 10 | Ở BTC tắt OTP rồi thanh toán lại bằng tài khoản đã đăng nhập | Không hiện hộp thoại OTP, giữ chỗ thành công ngay |
+
+Ghi chú: mã OTP cố định `123456` chỉ có ở chế độ mô phỏng. Trên môi trường thật, mã 6 số gửi qua email của tài khoản đang đăng nhập.
 
 ## Phần 1C. Demand Simulator và duyệt giá
 
@@ -63,7 +66,7 @@ npm run db:start
 npm run db:reset
 npm run db:test
 ```
-Mong đợi: `Result: PASS`, 14 file, 820 test (số liệu 22/11/2026). Gồm `sprint2_integration.sql` (OTP gate, giới hạn theo tài khoản và sự kiện, giá chốt `DonGiaChot`, duyệt đề xuất) và các file của W1–W4.
+Mong đợi: `Result: PASS`, 15 file, 834 test (số liệu 23/11/2026). Gồm `sprint2_integration.sql` (OTP gate, giới hạn theo tài khoản và sự kiện, giá chốt `DonGiaChot`, duyệt đề xuất) và các file của W1–W4.
 
 **Hai BTC duyệt cùng một đề xuất:**
 
@@ -81,7 +84,9 @@ Dọn dẹp: `npm run db:stop`.
 
 ## Việc chưa kiểm chứng (không được báo là đạt)
 
-- Mọi thao tác Phần 1 trên trình duyệt thật: bàn phím, màn hình 360 px, ảnh chụp.
-- OTP thật qua Supabase hosted (mẫu email dùng `{{ .Token }}`, hiệu lực 300 giây, khoảng gửi lại 60 giây).
-- Độ trễ giá ≤ 5 giây và Realtime trên Supabase hosted.
-- Chưa áp migration Sprint 2 lên Supabase staging `qxkgkbayxxaakkwtepss`.
+- Thao tác bàn phím đầy đủ và cảm ứng trên điện thoại thật.
+- Độ trễ giá ≤ 5 giây trên staging và thời gian vẽ lại màn hình (đã đo 522 ms cục bộ và 529 ms trên một project hosted riêng).
+- Luồng giữ chỗ và thanh toán mới với nhiều tài khoản và email thật trên bản triển khai công khai (máy chủ và SMTP đã kiểm bằng API ở bước trước).
+- pgTAP trực tiếp trên staging (tài khoản CLI thiếu quyền schema auth); đã bù bằng pgTAP trên bản sao đã nâng cấp và trên project hosted riêng.
+
+Staging `qxkgkbayxxaakkwtepss` đã được nâng lên V2 ngày 23/11/2026 (27 migration); xem `docs/sprint2-supabase/NANG-CAP-STAGING-LEN-V2.md`.
