@@ -146,3 +146,13 @@ test('thanh lọc khu vực và hàng ghế có scroll ngang, không tràn viề
   assert.match(toolbar, /container\.scrollBy/);
   assert.match(toolbar, /container\.addEventListener\('wheel'/);
 });
+
+test('bấm chọn phân khu trên sơ đồ không gọi scrollIntoView hay focus làm giật trang', () => {
+  const section = read('src/components/event-template/SeatMapSection.tsx');
+  const handlerMatch = section.match(/const handleOfficialZoneSelect = useCallback\([\s\S]*?\}, \[\]\);/);
+  assert.ok(handlerMatch, 'tìm thấy handleOfficialZoneSelect');
+  assert.doesNotMatch(handlerMatch[0], /scrollIntoView/);
+
+  const grid = read('src/components/event-template/ZoneSeatGrid.tsx');
+  assert.match(grid, /backButtonRef\.current\?\.focus\(\{preventScroll:\s*true\}\)/);
+});
