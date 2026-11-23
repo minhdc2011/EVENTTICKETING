@@ -30,7 +30,7 @@ CROSS JOIN (
 CROSS JOIN generate_series(1, 18) AS n
 WHERE z."SuKienID" = 1
   AND z."MaKhuVuc" = 'ZONE_CD_UP'
-ON CONFLICT ("MaGheDayDu") DO NOTHING;
+ON CONFLICT ("KhuVucID", "MaGheDayDu") DO NOTHING;
 
 SELECT setval(
   pg_get_serial_sequence('public."GHE"', 'GheID'),
