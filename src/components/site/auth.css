@@ -338,3 +338,54 @@
     padding: var(--et-space-5) var(--et-space-4);
   }
 }
+
+/* Nút đăng nhập nhanh tài khoản demo (VITE_DEMO_QUICK_LOGIN). */
+.demo-quick-login {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px dashed #b45309;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #422006;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.demo-quick-login__label {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.demo-quick-login__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.demo-quick-login__btn {
+  flex: 1 1 200px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #1d4ed8;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.demo-quick-login__btn--org {
+  border-color: #166534;
+  background: #166534;
+}
+
+.demo-quick-login__btn:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.demo-quick-login__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

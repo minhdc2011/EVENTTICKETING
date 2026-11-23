@@ -12,6 +12,9 @@ import {
 import {IconBuilding, IconEye, IconEyeOff, IconUser} from './common/Icons';
 import {BUYER_RETURN_TO_KEY} from './event-template/PurchaseAccessGate';
 import {GlobalHeader} from './site/GlobalHeader';
+import {DemoQuickLogin} from './site/DemoQuickLogin';
+import {DEMO_BUYER, DEMO_ORGANIZER} from '../config/demoAccounts';
+import {signInOrganizer} from '../services/organizerService';
 import './site/auth.css';
 
 const SAFE_EVENT_RETURN_RE = /^events\/[a-z0-9._-]+(?:\/shows\/[a-z0-9._-]+)?(?:#seating-section)?$/i;
@@ -112,6 +115,39 @@ export function BuyerAuth({page}: {page?: string}) {
     if (busy || submittingRef.current) return;
     switchMode(next);
     (next === 'login' ? loginTabRef : registerTabRef).current?.focus();
+  }
+
+  async function dangNhapNhanh(loai: 'buyer' | 'organizer') {
+    if (busy || submittingRef.current) return;
+    setMessage(null);
+    const isCurrent = attemptGuard.current.begin();
+    submittingRef.current = true;
+    setBusy(true);
+    try {
+      if (loai === 'buyer') {
+        await signInBuyer(DEMO_BUYER.email, DEMO_BUYER.password);
+        if (!isCurrent()) return;
+        await refreshBuyerSession();
+        if (!isCurrent()) return;
+        setMessage({type: 'success', text: 'Đăng nhập nhanh (người dùng demo) thành công! Đang chuyển hướng…'});
+        setTimeout(() => {
+          if (isCurrent()) navigatePublicRoute(consumeBuyerReturnTarget());
+        }, 600);
+      } else {
+        await signInOrganizer(DEMO_ORGANIZER.email, DEMO_ORGANIZER.password);
+        if (!isCurrent()) return;
+        setMessage({type: 'success', text: 'Đăng nhập nhanh (Ban tổ chức demo) thành công! Đang mở cổng Ban tổ chức…'});
+        setTimeout(() => {
+          if (isCurrent()) navigatePublicRoute('organizer/dashboard');
+        }, 600);
+      }
+    } catch (error) {
+      if (!isCurrent()) return;
+      setMessage({type: 'error', text: error instanceof Error ? error.message : 'Không thể đăng nhập nhanh bằng tài khoản demo.'});
+    } finally {
+      submittingRef.current = false;
+      setBusy(false);
+    }
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -430,6 +466,9 @@ export function BuyerAuth({page}: {page?: string}) {
                   {busy ? 'Đang xử lý…' : mode === 'login' ? 'Đăng nhập' : 'Đăng ký tài khoản'}
                 </button>
               </form>
+              {mode === 'login' && (
+                <DemoQuickLogin busy={busy} onBuyer={() => void dangNhapNhanh('buyer')} onOrganizer={() => void dangNhapNhanh('organizer')} />
+              )}
 
               <p className="et-auth__switch">
                 {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}{' '}
