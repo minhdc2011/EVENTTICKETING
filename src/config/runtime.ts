@@ -8,6 +8,8 @@ export const runtimeConfig = {
   eventId: import.meta.env.VITE_EVENT_ID?.trim() || 'SUPER_CONCERT_2026',
   eventDatabaseId: Number(import.meta.env.VITE_EVENT_DATABASE_ID || 1),
   useMockData: import.meta.env.VITE_USE_MOCK_DATA !== 'false',
+  // Hiện nút "Đăng nhập nhanh" (tài khoản demo) ở hai trang đăng nhập. Chỉ bật cho môi trường demo.
+  demoQuickLogin: import.meta.env.VITE_DEMO_QUICK_LOGIN === 'true',
 } as const;
 
 export type ActiveEventContext = {

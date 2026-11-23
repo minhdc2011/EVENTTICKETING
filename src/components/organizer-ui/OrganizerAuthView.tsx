@@ -1,5 +1,9 @@
 import {useEffect, useRef, useState, type FormEvent} from 'react';
 import {canAccessPortal, createAuthAttemptGuard} from '../../domain/accountAccess';
+import {navigatePublicRoute} from '../../domain/publicRoute';
+import {DEMO_BUYER, DEMO_ORGANIZER} from '../../config/demoAccounts';
+import {signInBuyer} from '../../services/buyerAuthService';
+import {DemoQuickLogin} from '../site/DemoQuickLogin';
 import {
   signInOrganizer,
   signUpOrganizer,
@@ -45,6 +49,34 @@ export function OrganizerAuthView({
     setMode(next);
     setMessage('');
     setIsSuccess(false);
+  }
+
+  async function dangNhapNhanh(loai: 'buyer' | 'organizer') {
+    if (busy || submittingRef.current) return;
+    const isCurrent = attemptGuard.current.begin();
+    submittingRef.current = true;
+    setBusy(true);
+    setMessage('');
+    setIsSuccess(false);
+    try {
+      if (loai === 'organizer') {
+        await signInOrganizer(DEMO_ORGANIZER.email, DEMO_ORGANIZER.password);
+        if (!isCurrent()) return;
+        await onChanged();
+        if (!isCurrent()) return;
+        onLoginSuccess();
+      } else {
+        await signInBuyer(DEMO_BUYER.email, DEMO_BUYER.password);
+        if (!isCurrent()) return;
+        navigatePublicRoute('events');
+      }
+    } catch (error) {
+      if (!isCurrent()) return;
+      setMessage(error instanceof Error ? error.message : 'Không thể đăng nhập nhanh bằng tài khoản demo.');
+    } finally {
+      submittingRef.current = false;
+      setBusy(false);
+    }
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -257,6 +289,9 @@ export function OrganizerAuthView({
             Quyền xem và cập nhật sự kiện được phân tách an toàn theo từng tổ chức bằng Postgres Row Level Security.
           </div>
         </form>
+        {mode === 'login' && (
+          <DemoQuickLogin busy={busy} onBuyer={() => void dangNhapNhanh('buyer')} onOrganizer={() => void dangNhapNhanh('organizer')} />
+        )}
       </div>
     </main>
   );
