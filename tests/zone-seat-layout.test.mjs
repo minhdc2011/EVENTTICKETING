@@ -59,17 +59,21 @@ test('bán kính ghế giữ trong khoảng cho phép', () => {
   assert.ok(few[0].r <= 14);
 });
 
-test('ghế nằm ngay trong sơ đồ BTC: có lớp ghế, cổng portal, và không còn lưới ghế riêng khi đã phóng vào khu', async () => {
+test('nút ghế GỐC nằm ngay trong khu của sơ đồ BTC (lớp phủ HTML), không còn lưới ghế riêng khi đã phóng vào khu', async () => {
   const {readFileSync} = await import('node:fs');
   const r = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
   const map = r('src/components/event-template/OfficialSeatingMap.tsx');
-  assert.match(map, /createPortal/);
-  assert.match(map, /et-map-seat-layer/);
+  assert.match(map, /<ZoneSeatsOverlay/);
+  assert.match(map, /getScreenCTM/);
+  assert.match(map, /ResizeObserver/);
+  assert.doesNotMatch(map, /createPortal/, 'không còn vẽ dấu chấm trong SVG');
+  const overlay = r('src/components/event-template/ZoneSeatsOverlay.tsx');
+  assert.match(overlay, /<SeatButton/, 'dùng đúng nút ghế gốc (SeatButton)');
+  assert.match(overlay, /isSeatSelectable/);
   const section = r('src/components/event-template/SeatMapSection.tsx');
   assert.match(section, /officialZoomActive/);
   assert.match(section, /\{!officialZoomActive && \(/);
-  const layer = r('src/components/event-template/ZoneSeatsLayer.tsx');
-  assert.match(layer, /role="button"/);
-  assert.match(layer, /aria-pressed/);
-  assert.match(layer, /event\.key !== 'Enter' && event\.key !== ' '/);
+  const css = r('src/components/event-template/SeatMapSection.css');
+  assert.match(css, /\.et-map-seat-slot\s*\{[^}]*translate\(-50%, -50%\) scale\(var\(--seat-scale/s);
+  assert.match(css, /:is\(\.et-seat-rows, \.et-map-seat-overlay\) \.et-seat \.et-seat-shape/);
 });
