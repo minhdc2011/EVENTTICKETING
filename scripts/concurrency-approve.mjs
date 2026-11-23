@@ -3,18 +3,18 @@
  * Two-organizer approval race: TWO organizer accounts (CHU_SO_HUU + QUAN_TRI of the same
  * organization), TWO real Auth sessions, two parallel `duyet_de_xuat_gia` calls on the SAME
  * PENDING price proposal, released by a barrier.
- * Expected: exactly one call succeeds; the other fails with SQLSTATE 40001 (the loser sees a
- * non-PENDING proposal, normally DE_XUAT_DA_XU_LY; GIA_DA_THAY_DOI / DE_XUAT_XUNG_DOT are also
- * 40001 and accepted by code, but the message is recorded in the report). The database must show
- * the proposal APPROVED by the winner, the zone price equal to the proposed price and exactly
- * one NHAT_KY_GIA row for the proposal written by the winner.
+ * Expected: exactly one call succeeds; the other fails with PT409 (HTTP 409): the loser sees a
+ * non-PENDING proposal, normally DE_XUAT_DA_XU_LY (GIA_DA_THAY_DOI / DE_XUAT_XUNG_DOT also use PT409; the
+ * message is recorded in the report). The database must show the proposal APPROVED by the winner, the zone
+ * price equal to the proposed price and exactly one NHAT_KY_GIA row for the proposal written by the winner.
  *
  *   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/concurrency-approve.mjs
  *
- * STATUS (22/11/2026): the first local run passed (loser got 40001 DE_XUAT_DA_XU_LY) but was NOT reproducible:
- * since then PostgREST v14.5 retries any 40001 until Kong returns 504 after 60 s, so the loser sees 504 and this
- * script reports pass=false (data stays consistent: one winner, one audit row). See docs/sprint2-supabase/. Run only against a local Supabase that can be reset (`npm run db:reset`), never production.
- *
+ * HISTORY (23/11/2026): the RPCs used SQLSTATE 40001, which PostgREST retries until the gateway times out
+ * (about 60 s local, 130 s hosted), so the loser never got an answer. Migration
+ * 20261123090000_sprint2_pt409_va_khoa_gia_truc_tiep.sql switched them to PT409. Against a database WITHOUT that
+ * migration this script reports pass=false with an upstream timeout for the loser (data stays consistent).
+ * Run only against a local Supabase or a throw-away project (`npm run db:reset`), never production. *
  * Only SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are read from the environment. The service role
  * prepares, observes and cleans fixtures only; the approvals use each organizer's own user JWT
  * (the RPC rejects service_role with 42501). Fixture rows are inserted directly (no config or
@@ -93,7 +93,7 @@ export function evaluate({calls, observed, expected}) {
   if (winners.length !== 1) failures.push(`expected exactly 1 success, got ${winners.length}`);
   if (losers.length !== 1) failures.push(`expected exactly 1 failure, got ${losers.length}`);
   for (const l of losers) {
-    if (l.code !== '40001') failures.push(`loser code ${l.code ?? 'null'} is not 40001`);
+    if (l.code !== 'PT409') failures.push(`loser code ${l.code ?? 'null'} is not PT409`);
   }
   if (!observed) {
     failures.push('no database observation');
@@ -138,7 +138,7 @@ export async function runConcurrencyApprove({env, createClient, log = () => {}})
     ruleId: null,
     proposalId: null,
   };
-  const expected = {successes: 1, failures: 1, failureCode: '40001', giaCu: PRICE_LISTED, giaDeXuat: PRICE_PROPOSED};
+  const expected = {successes: 1, failures: 1, failureCode: 'PT409', giaCu: PRICE_LISTED, giaDeXuat: PRICE_PROPOSED};
   const report = {
     runId,
     expected,

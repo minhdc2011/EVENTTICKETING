@@ -467,7 +467,7 @@ function parseKhungGiaChiTiet(details) {
 /**
  * Chuẩn hóa lỗi RPC T1 / mạng thành PricingServiceError:
  *   42501 → status 403, ma 'KHONG_CO_QUYEN'
- *   40001 → status 409, ma = message (DE_XUAT_DA_XU_LY kèm chiTiet.trangThai)
+ *   PT409 (và 40001 của CSDL cũ) → status 409, ma = message (DE_XUAT_DA_XU_LY kèm chiTiet.trangThai)
  *   22023 → status 422, ma = message (NGOAI_KHUNG_GIA kèm chiTiet {giaSan, giaTran})
  *   Khác / lỗi mạng → giữ code, status null
  */
@@ -486,7 +486,7 @@ export function chuanHoaLoiRpc(error) {
       chiTiet: null,
     });
   }
-  if (code === '40001') {
+  if (code === 'PT409' || code === '40001') {
     const ma = rawMsg !== '' ? rawMsg : 'XUNG_DOT';
     const chiTiet =
       ma === 'DE_XUAT_DA_XU_LY' && typeof details === 'string' && details.trim() !== ''

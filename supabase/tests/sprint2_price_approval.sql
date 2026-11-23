@@ -7,7 +7,7 @@
 -- this file needs `npm run db:test` (`supabase test db`) on a migrated database.
 -- Nothing here has been shown to pass until that command is run.
 --
--- CONCURRENCY: every call is sequential inside ONE session. The 40001 cases
+-- CONCURRENCY: every call is sequential inside ONE session. The PT409 cases
 -- (GIA_DA_THAY_DOI, DE_XUAT_DA_XU_LY) prove the guard predicates only, NOT behaviour
 -- under real concurrent sessions. A true two-session race test (parallel approve of
 -- the same proposal, approve vs. price edit) is a post-merge acceptance step.
@@ -18,7 +18,7 @@
 -- Sections:
 --   A. (sonnet)   business path: normal/adjusted approve, frame edges, reject,
 --                 TTL boundary and expiry.
---   B. (hydrogen) 40001 (price changed / replay), role matrix, log-failure
+--   B. (hydrogen) PT409 (price changed / replay), role matrix, log-failure
 --                 rollback, ACL and catalog checks.
 --
 -- Fixture map (IDs 9965xx/9966xx/9967xx; slugs t3dg-):
@@ -41,7 +41,7 @@
 --     A: P01 approve, P02 adjust floor, P03 adjust ceiling (QUAN_TRI), P04 failing validation,
 --        P05/P06 reject, P07 approve at TTL edge, P10 reject at TTL edge,
 --        P08 approve expired, P09 reject expired.
---     B: P11 (price changed 40001), P12 (role matrix), P13 (log-failure rollback).
+--     B: P11 (price changed PT409), P12 (role matrix), P13 (log-failure rollback).
 --   now() is constant within the test transaction, so TTL edges are deterministic.
 --   Temp table t3_res captures JSONB results of mutating RPCs so each is called once.
 
@@ -470,10 +470,10 @@ SELECT is(
 -- Section B must append its own count; the finalizer replaces plan(0) with the exact total.
 
 -- ============================================================================
--- B. HYDROGEN SECTION: 40001 guards, role matrix, rollback, ACL & catalog
+-- B. HYDROGEN SECTION: PT409 guards, role matrix, rollback, ACL & catalog
 -- ============================================================================
 
--- B1. 40001 (GIA_DA_THAY_DOI & DE_XUAT_DA_XU_LY) and replay protection
+-- B1. PT409 (GIA_DA_THAY_DOI & DE_XUAT_DA_XU_LY) and replay protection
 UPDATE public."KHU_VUC"
    SET "GiaVeNiemYet" = 210000
  WHERE "KhuVucID" = 996511;
@@ -483,8 +483,8 @@ SET LOCAL "request.jwt.claim.role" = 'authenticated';
 SET LOCAL "request.jwt.claim.sub" = '77777777-7777-7777-7777-777777777701';
 SELECT throws_ok(
   $$ SELECT public.duyet_de_xuat_gia(996611, NULL) $$,
-  '40001', 'GIA_DA_THAY_DOI',
-  'P11 approve fails with 40001 GIA_DA_THAY_DOI after zone price changed');
+  'PT409', 'GIA_DA_THAY_DOI',
+  'P11 approve fails with PT409 GIA_DA_THAY_DOI after zone price changed');
 RESET ROLE;
 
 SELECT is(
@@ -501,20 +501,20 @@ SET LOCAL "request.jwt.claim.role" = 'authenticated';
 SET LOCAL "request.jwt.claim.sub" = '77777777-7777-7777-7777-777777777701';
 SELECT throws_ok(
   $$ SELECT public.duyet_de_xuat_gia(996601, 'Duyet lai') $$,
-  '40001', 'DE_XUAT_DA_XU_LY',
-  'Replay duyet on APPROVED P01 gives 40001 DE_XUAT_DA_XU_LY');
+  'PT409', 'DE_XUAT_DA_XU_LY',
+  'Replay duyet on APPROVED P01 gives PT409 DE_XUAT_DA_XU_LY');
 SELECT throws_ok(
   $$ SELECT public.tu_choi_de_xuat_gia(996601, 'Tu choi lai') $$,
-  '40001', 'DE_XUAT_DA_XU_LY',
-  'Replay tu_choi on APPROVED P01 gives 40001 DE_XUAT_DA_XU_LY');
+  'PT409', 'DE_XUAT_DA_XU_LY',
+  'Replay tu_choi on APPROVED P01 gives PT409 DE_XUAT_DA_XU_LY');
 SELECT throws_ok(
   $$ SELECT public.duyet_de_xuat_gia(996605, 'Duyet lai') $$,
-  '40001', 'DE_XUAT_DA_XU_LY',
-  'Replay duyet on REJECTED P05 gives 40001 DE_XUAT_DA_XU_LY');
+  'PT409', 'DE_XUAT_DA_XU_LY',
+  'Replay duyet on REJECTED P05 gives PT409 DE_XUAT_DA_XU_LY');
 SELECT throws_ok(
   $$ SELECT public.duyet_de_xuat_gia(996608, 'Duyet lai') $$,
-  '40001', 'DE_XUAT_DA_XU_LY',
-  'Replay duyet on EXPIRED P08 gives 40001 DE_XUAT_DA_XU_LY');
+  'PT409', 'DE_XUAT_DA_XU_LY',
+  'Replay duyet on EXPIRED P08 gives PT409 DE_XUAT_DA_XU_LY');
 RESET ROLE;
 
 SELECT is(

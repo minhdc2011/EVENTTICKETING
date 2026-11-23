@@ -237,7 +237,7 @@ function createFakeSupabase(options = {}) {
       return {data: null, error: {code: '42501', message: 'Khong co quyen duyet de xuat gia'}};
     }
     if (proposal.TrangThaiDuyet !== 'PENDING') {
-      return {data: null, error: {code: '40001', message: 'DE_XUAT_DA_XU_LY'}};
+      return {data: null, error: {code: 'PT409', message: 'DE_XUAT_DA_XU_LY'}};
     }
     const zone = state.tables.KHU_VUC.find((k) => k.KhuVucID === proposal.KhuVucID);
     const oldPrice = zone.GiaVeNiemYet;
@@ -401,10 +401,10 @@ test('scripts/concurrency-approve.mjs satisfies static security and contract inv
   assert.doesNotMatch(src, /DISABLE\s+TRIGGER/i, 'Must never DISABLE TRIGGER');
   assert.doesNotMatch(src, /session_replication_role/i, 'Must never touch session_replication_role');
 
-  // Real auth sessions, approval RPC, 40001 conflict, and finally cleanup.
+  // Real auth sessions, approval RPC, PT409 conflict, and finally cleanup.
   assert.match(src, /signInWithPassword/, 'Must sign in real Auth sessions');
   assert.match(src, /duyet_de_xuat_gia/, 'Must call duyet_de_xuat_gia RPC');
-  assert.match(src, /\b40001\b/, 'Must check SQLSTATE 40001');
+  assert.match(src, /\bPT409\b/, 'Must check SQLSTATE PT409');
   assert.match(src, /\bfinally\s*\{/, 'Must clean up fixtures inside a finally block');
 });
 
@@ -506,7 +506,7 @@ test('raceApprovals and runConcurrencyApprove dispatch both RPC calls concurrent
   assert.equal(report.pass, true);
   assert.equal(report.calls.length, 2);
   assert.equal(report.calls.filter((c) => c.ok).length, 1);
-  assert.equal(report.calls.filter((c) => !c.ok && c.code === '40001').length, 1);
+  assert.equal(report.calls.filter((c) => !c.ok && c.code === 'PT409').length, 1);
   assert.ok(report.winnerId);
   assert.equal(report.observed.trangThai, 'APPROVED');
   assert.equal(report.observed.nguoiDuyetId, report.winnerId);
@@ -537,7 +537,7 @@ test('raceApprovals directly dispatches both clients before either settles', asy
       inFlight -= 1;
       return win
         ? {data: {ketQua: 'DA_DUYET'}, error: null}
-        : {data: null, error: {code: '40001', message: 'DE_XUAT_DA_XU_LY'}};
+        : {data: null, error: {code: 'PT409', message: 'DE_XUAT_DA_XU_LY'}};
     },
   });
 
@@ -550,7 +550,7 @@ test('raceApprovals directly dispatches both clients before either settles', asy
   );
   assert.equal(maxInFlight, 2);
   assert.equal(calls[0].ok, true);
-  assert.equal(calls[1].code, '40001');
+  assert.equal(calls[1].code, 'PT409');
 });
 
 // ---------------------------------------------------------------------------
@@ -566,7 +566,7 @@ test('evaluate rejects abnormal concurrency and DB outcomes', () => {
   };
   const goodCalls = [
     {call: 0, userId: 'u1', ok: true, code: null, message: null, rejected: false},
-    {call: 1, userId: 'u2', ok: false, code: '40001', message: 'DE_XUAT_DA_XU_LY', rejected: false},
+    {call: 1, userId: 'u2', ok: false, code: 'PT409', message: 'DE_XUAT_DA_XU_LY', rejected: false},
   ];
 
   assert.equal(evaluate({calls: goodCalls, observed: goodObserved, expected: baseExpected}).pass, true);
@@ -588,8 +588,8 @@ test('evaluate rejects abnormal concurrency and DB outcomes', () => {
   assert.equal(
     evaluate({
       calls: [
-        {call: 0, userId: 'u1', ok: false, code: '40001', message: 'DE_XUAT_DA_XU_LY', rejected: false},
-        {call: 1, userId: 'u2', ok: false, code: '40001', message: 'DE_XUAT_DA_XU_LY', rejected: false},
+        {call: 0, userId: 'u1', ok: false, code: 'PT409', message: 'DE_XUAT_DA_XU_LY', rejected: false},
+        {call: 1, userId: 'u2', ok: false, code: 'PT409', message: 'DE_XUAT_DA_XU_LY', rejected: false},
       ],
       observed: goodObserved,
       expected: baseExpected,
@@ -597,7 +597,7 @@ test('evaluate rejects abnormal concurrency and DB outcomes', () => {
     false,
   );
 
-  // Error code other than 40001 (e.g. 42501)
+  // Error code other than PT409 (e.g. 42501)
   assert.equal(
     evaluate({
       calls: [
@@ -781,7 +781,7 @@ test('cleanup reports ok=true when no NHAT_KY_GIA row blocks deletion and all cr
     simulateRestrict: true,
     onApproveRpc() {
       // Neither call writes NHAT_KY_GIA, so all created fixture rows & both users can be removed.
-      return {data: null, error: {code: '40001', message: 'DE_XUAT_XUNG_DOT'}};
+      return {data: null, error: {code: 'PT409', message: 'DE_XUAT_XUNG_DOT'}};
     },
   });
 
