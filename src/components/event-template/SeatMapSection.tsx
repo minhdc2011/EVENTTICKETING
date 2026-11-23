@@ -489,18 +489,6 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     setViewMode('interactive');
     setFilter(String(zone.KhuVucID));
     setAnnouncement(`Đã mở khu ${zone.TenKhuVuc || zone.MaKhuVuc}.`);
-
-    if (isStandingZone(zone)) {
-      setSelectedZoneId(zone.KhuVucID);
-      window.requestAnimationFrame(() => {
-        document.querySelector(`[data-standing-zone="${zone.MaKhuVuc}"]`)?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        });
-      });
-      return;
-    }
-
     setSelectedZoneId(zone.KhuVucID);
   }, []);
 

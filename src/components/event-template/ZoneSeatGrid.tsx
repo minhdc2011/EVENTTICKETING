@@ -66,9 +66,9 @@ export function ZoneSeatGrid({
 }: ZoneSeatGridProps) {
   const backButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Auto-focus the back button when entering zone drill-down
+  // Auto-focus the back button when entering zone drill-down without jumping the page scroll
   useEffect(() => {
-    backButtonRef.current?.focus();
+    backButtonRef.current?.focus({preventScroll: true});
   }, [zone.KhuVucID]);
 
   // Bring the searched seat into view (declared after the focus effect so it wins)

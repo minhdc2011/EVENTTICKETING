@@ -114,9 +114,9 @@ export function MapToolbar({
     const nextOption = filterOptions[nextIndex];
     onFilterChange(nextOption.value);
 
-    // Focus the new button
+    // Focus the new button without jumping vertical page scroll
     const buttons = filterGroupRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
-    buttons?.[nextIndex]?.focus();
+    buttons?.[nextIndex]?.focus({preventScroll: true});
   };
 
   const getLiveStatusText = () => {
