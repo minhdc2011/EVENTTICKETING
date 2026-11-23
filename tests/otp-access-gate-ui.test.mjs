@@ -58,7 +58,8 @@ test('T3 AC1: EventTemplate wraps both SeatMapSection and slots.seating in Purch
     /<PurchaseAccessGate\s+event=\{event\}\s+onAccessChange=\{handlePurchaseAccessChange\}>\s*\{slots\?\.seating\s*!==\s*undefined\s*\?\s*\(?\s*slots\.seating\s*\)?\s*:\s*\(?\s*<SeatMapSection\s+event=\{event\}\s*\/>\s*\)?\s*\}\s*<\/PurchaseAccessGate>/s,
     'EventTemplate must wrap both slots.seating and default SeatMapSection inside PurchaseAccessGate',
   );
-  assert.match(genericSrc, /seating:\s*<SeatingSection\s+event=\{event\}\s*\/>/);
+  // Super Concert dùng SeatMapSection chung (không còn khe seating riêng), nên cũng nằm trong PurchaseAccessGate.
+  assert.doesNotMatch(genericSrc, /seating:\s*<SeatingSection/);
   assert.match(concertSectionsSrc, /seatingHtml/);
 
   // Export tại index.ts

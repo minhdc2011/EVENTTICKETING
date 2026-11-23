@@ -96,3 +96,22 @@ Ghế đổi từ ô cung sang chấm tròn cùng bảng màu; bấm chấm thì
 - Thu phóng bằng cuộn chuột cần giữ Ctrl để không cướp thao tác cuộn trang.
 - Mới kiểm tra ở chế độ mô phỏng (mỗi khu 40 ghế); chưa kiểm với dữ liệu staging cho hai sơ đồ BTC vì staging chỉ có sơ đồ Super Concert.
 - Ghế trên điện thoại vẫn nhỏ (chấm), nhưng có thể phóng to bằng chụm hai ngón hoặc nút ＋.
+
+## Bổ sung (23/11/2026, đợt 4): Super Concert dùng bản đồ chung, sửa ghế tràn, xem toàn cảnh, kéo chuột
+
+### Super Concert chuyển sang bản đồ chung
+
+Ba sơ đồ (Super Concert, nhà hát, arena) nay cùng dùng `OfficialSeatingMap` và `SeatMapSection`, nên cùng một trải nghiệm kiểu Ticketmaster và cùng một luồng chọn vé, giữ chỗ, giới hạn vé, giá thời gian thực, OTP, đăng xuất.
+
+- Hình sân vận động được sinh ra thành `public/maps/super-concert-stadium.svg` bằng `scripts/build-super-concert-map.mjs`, lấy đúng hình học của bộ chạy cũ (các khu hình vành elip, khu vé đứng, sân khấu). Mỗi khu có `data-zone-code` trùng mã khu trong cơ sở dữ liệu; khu hình vành có `data-arc` để xếp ghế theo vành.
+- Super Concert luôn dùng sơ đồ này, bỏ qua địa chỉ ảnh cũ trong cột `SoDoTongQuanURL` của staging (đang trỏ tới một tệp ảnh ở máy chủ khác).
+- Danh sách chọn khu chỉ gồm khu có hình trên bản đồ, nên không hiện VIP Platinum 2 và Standing 2 (cũng không hiện ở bản cũ); vé đứng vẫn chọn ở bảng "Vé đứng".
+- Bộ chạy cũ (`src/legacy/concertRuntime.js`, `seating.html`) **không còn được dùng cho sơ đồ**. Phần còn lại của nó chỉ là hiệu ứng nền sao, làm mờ các mục khi cuộn và đồng hồ lật số mà HTML của đồng hồ đó đã không còn trên trang. Tệp và test của nó vẫn được giữ trong kho để đối chiếu, chưa xóa.
+
+### Sửa các lỗi người dùng báo
+
+| Lỗi | Nguyên nhân | Sửa |
+|---|---|---|
+| Ghế tràn ra ngoài khu hình bình hành (Orchestra Right) | Khu là nhóm `<g>` nên bản đồ chỉ biết hộp bao chữ nhật, không biết cạnh nghiêng | Dùng hình thật của `path` con; bề ngang mỗi hàng là giao của ba độ cao (trên, giữa, dưới hàng) và chừa lề theo bán kính ghế |
+| Vào một khu rồi không xem lại được toàn cảnh | Nút làm mới chỉ đưa camera về, khu vẫn đang chọn nên các khu khác vẫn mờ; không có nút rõ ràng | Nút "← Xem toàn cảnh" (góc trên trái, chữ rõ ràng), nút làm mới và phím Escape đều thoát khu (bỏ chọn khu, camera về toàn cảnh) |
+| Kéo chuột trong sơ đồ ảnh hưởng giao diện khác | Nhấn chuột trên bản đồ bắt đầu bôi đen chữ, kéo thả phần tử, và cờ "đã kéo" không được xóa nên cú bấm sau bị nuốt | Chặn bôi đen và kéo thả khi nhấn chuột trên bản đồ, lớp `et-tm-dragging` chặn bôi đen toàn trang khi đang kéo và được dọn khi thả, xóa cờ kéo |

@@ -58,6 +58,8 @@ const MOCK_SHOW: PublicShowRecord = {
   timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 
+const SUPER_CONCERT_MAP = '/maps/super-concert-stadium.svg';
+
 const MOCK_EVENT: PublicEventRecord = {
   id: 1, code: 'SUPER_CONCERT_2026', slug: 'super-concert-2026',
   name: 'SUPER CONCERT 2026 — ĐẠI NHẠC HỘI NGOẠI THƯƠNG',
@@ -65,6 +67,7 @@ const MOCK_EVENT: PublicEventRecord = {
   description: 'Đêm đại nhạc hội quy mô 40.000 khán giả tại SVĐ Quốc gia Mỹ Đình.',
   templateKey: 'SUPER_CONCERT_2026', category: 'AM_NHAC',
   ...resolveCuratedEventMedia('super-concert-2026'),
+  seatingMapUrl: resolveAssetUrl(SUPER_CONCERT_MAP),
   startsAt: MOCK_SHOW.startsAt, endsAt: MOCK_SHOW.endsAt,
   saleStartsAt: MOCK_SHOW.saleStartsAt, saleEndsAt: MOCK_SHOW.saleEndsAt,
   venueName: 'SVĐ Quốc gia Mỹ Đình', address: 'Đường Lê Đức Thọ, Nam Từ Liêm, Hà Nội',
@@ -271,7 +274,11 @@ function mapEvent(row: Record<string, unknown>, shows: PublicShowRecord[], reque
     bannerUrl: row.BannerURL ? String(row.BannerURL) : undefined,
     posterUrl: row.PosterURL ? String(row.PosterURL) : undefined,
     trailerUrl: row.TrailerURL ? String(row.TrailerURL) : undefined,
-    seatingMapUrl: row.SoDoTongQuanURL ? resolveAssetUrl(String(row.SoDoTongQuanURL)) : undefined,
+    // Super Concert luôn dùng sơ đồ sân vận động đi kèm mã nguồn (hình khu gắn với mã khu), bỏ qua địa chỉ ảnh cũ trong cột
+    // SoDoTongQuanURL; sự kiện khác lấy từ cột SoDoTongQuanURL.
+    seatingMapUrl: resolveTemplateKey(row) === 'SUPER_CONCERT_2026'
+      ? resolveAssetUrl(SUPER_CONCERT_MAP)
+      : row.SoDoTongQuanURL ? resolveAssetUrl(String(row.SoDoTongQuanURL)) : undefined,
     ageRestriction: row.QuyDinhDoTuoi ? String(row.QuyDinhDoTuoi) : undefined,
     refundPolicy: row.ChinhSachHoanHuy ? String(row.ChinhSachHoanHuy) : undefined,
     termsAndConditions: row.QuyDinhThamGia ? String(row.QuyDinhThamGia) : undefined,

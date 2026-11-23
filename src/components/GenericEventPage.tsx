@@ -3,7 +3,7 @@ import {loadPublicTicketTiers, type PublicEventRecord, type PublicTicketTier} fr
 import {subscribeToPriceUpdates, type PriceConnectionStatus} from '../services/priceRealtimeService';
 import {applyPriceSnapshotToTiers, applyPriceUpdateToTiers} from '../domain/pricePresentation.js';
 import {isValidPrice, khopMaPhamViNghiemNgat} from '../domain/priceRealtime.js';
-import {ArtistLineup, ConcertRuntimeOverlays, SeatingSection} from './ConcertSections';
+import {ArtistLineup, ConcertRuntimeOverlays} from './ConcertSections';
 import {EventTemplate, type EventTemplateSlots} from './event-template';
 
 /**
@@ -23,7 +23,8 @@ export function resolveEventTemplateSlots(event: PublicEventRecord): EventTempla
       </>
     ),
     lineup: <ArtistLineup event={event} />,
-    seating: <SeatingSection event={event} />,
+    // Sơ đồ chỗ ngồi: dùng SeatMapSection chung (bản đồ kiểu Ticketmaster) như mọi sự kiện, không còn sơ đồ riêng.
+    // Khe overlays giữ lại để hiện thông báo nổi (toast) và hộp thoại giữ chỗ cũ của trang Super Concert.
     overlays: <ConcertRuntimeOverlays />,
   };
 }

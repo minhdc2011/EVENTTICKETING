@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {horizontalSpanAt, layoutZoneSeats, parsePolygonPath, rectToPolygon} from '../src/domain/zoneSeatLayout.js';
+import {arcSectorBBox, horizontalSpanAt, layoutZoneSeats, parseArcSpec, parsePolygonPath, parsePolygonPoints, rectToPolygon} from '../src/domain/zoneSeatLayout.js';
 
 const hang = (nhan, n) => ({rowLabel: nhan, seats: Array.from({length: n}, (_, i) => ({GheID: i + 1, MaGheDayDu: `${nhan}-${i + 1}`}))});
 
@@ -59,3 +59,58 @@ test('bán kính ghế giữ trong khoảng cho phép', () => {
   assert.ok(few[0].r <= 14);
 });
 
+
+test('khu hình bình hành nghiêng: ghế không tràn ra cạnh nghiêng (cả mép trên và mép dưới của chấm)', () => {
+  // Orchestra Right của nhà hát: cạnh phải nghiêng mạnh.
+  const poly = parsePolygonPath('M 680 220 L 790 220 L 820 440 L 700 440 Z');
+  const bbox = {x: 680, y: 220, w: 140, h: 220};
+  const rows = [hang('A', 10), hang('B', 10), hang('C', 10), hang('D', 10)];
+  const placed = layoutZoneSeats({rows, bbox, polygon: poly});
+  assert.equal(placed.length, 40);
+  for (const p of placed) {
+    for (const dy of [-p.r, 0, p.r]) {
+      const span = horizontalSpanAt(poly, p.y + dy);
+      assert.ok(span, 'điểm nằm trong chiều cao khu');
+      assert.ok(p.x - p.r >= span.xmin - 0.01, `${p.seat.MaGheDayDu} không tràn cạnh trái ở dy=${dy}`);
+      assert.ok(p.x + p.r <= span.xmax + 0.01, `${p.seat.MaGheDayDu} không tràn cạnh phải ở dy=${dy}`);
+    }
+  }
+});
+
+test('parsePolygonPoints đọc thuộc tính points của polygon', () => {
+  assert.deepEqual(parsePolygonPoints('0,0 10,0 10,5'), [{x: 0, y: 0}, {x: 10, y: 0}, {x: 10, y: 5}]);
+  assert.equal(parsePolygonPoints('0,0 10,0'), null);
+  assert.equal(parsePolygonPoints(undefined), null);
+});
+
+test('parseArcSpec đọc đặc tả cung và từ chối đặc tả sai', () => {
+  assert.deepEqual(parseArcSpec('500 470 350 315 280 247 150 234'), {cx: 500, cy: 470, outerRx: 350, outerRy: 315, innerRx: 280, innerRy: 247, start: 150, end: 234});
+  assert.equal(parseArcSpec('500 470 280 247 350 315 150 234'), null, 'vành ngoài phải lớn hơn vành trong');
+  assert.equal(parseArcSpec('1 2 3'), null);
+});
+
+test('layoutZoneSeats theo cung: ghế nằm trong vành, hàng đầu ở ngoài, hàng cuối ở trong', () => {
+  const arc = parseArcSpec('500 470 350 315 280 247 150 234');
+  const placed = layoutZoneSeats({rows: [hang('E', 6), hang('F', 6)], bbox: arcSectorBBox(arc), arc});
+  assert.equal(placed.length, 12);
+  const dist = (p) => Math.hypot((p.x - 500) / 1, (p.y - 470) / 1);
+  const outer = placed.filter((p) => p.rowLabel === 'E');
+  const inner = placed.filter((p) => p.rowLabel === 'F');
+  assert.ok(Math.min(...outer.map(dist)) > Math.max(...inner.map(dist)) - 1, 'hàng E nằm ngoài hàng F');
+  for (const p of placed) {
+    const nx = (p.x - 500) / 350;
+    const ny = (p.y - 470) / 315;
+    assert.ok(Math.hypot(nx, ny) <= 1.001, 'nằm trong vành ngoài');
+    const mx = (p.x - 500) / 280;
+    const my = (p.y - 470) / 247;
+    assert.ok(Math.hypot(mx, my) >= 0.999, 'nằm ngoài vành trong');
+  }
+});
+
+test('arcSectorBBox bao trọn hình quạt', () => {
+  const arc = parseArcSpec('500 470 350 315 280 247 234 306');
+  const box = arcSectorBBox(arc);
+  assert.ok(box.w > 0 && box.h > 0);
+  const p = layoutZoneSeats({rows: [hang('A', 5)], bbox: box, arc})[0];
+  assert.ok(p.x >= box.x && p.x <= box.x + box.w && p.y >= box.y && p.y <= box.y + box.h);
+});
