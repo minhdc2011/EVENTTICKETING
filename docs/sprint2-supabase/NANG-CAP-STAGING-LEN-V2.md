@@ -1,4 +1,4 @@
-KẾT LUẬN: Diễn tập nâng cấp Supabase staging (`qxkgkbayxxaakkwtepss`) lên V2 trên **bản sao cục bộ** đã thành công. Chưa ghi gì lên staging thật. Chờ bạn duyệt trước khi chạy bước 5.
+KẾT LUẬN: Đã nâng cấp Supabase staging (`qxkgkbayxxaakkwtepss`) lên V2 thật ngày 23/11/2026 (mục 7). Diễn tập trên bản sao cục bộ (mục 4) đã đạt trước đó.
 
 # Nâng cấp database cũ (staging) lên V2: kết quả diễn tập và kế hoạch
 
@@ -73,3 +73,21 @@ Rủi ro và lưu ý:
 ## 6. Việc cần bạn duyệt
 
 Bạn đồng ý áp thật (bước 5) lên staging cũ. Tôi sẽ chạy từng bước 1 đến 8 và báo kết quả; bước 10 (xóa sandbox) để bạn tự làm.
+
+## 7. Kết quả áp thật lên staging (23/11/2026, 17:06 đến 17:15)
+
+| Bước | Kết quả |
+|---|---|
+| 1. Sao lưu mới | `D:ackup-supabase\staging-truoc-ap-that-20261123-170649\`; lược đồ cùng giá trị băm với trước đó nên cấu trúc không đổi |
+| 2. `migration repair` 15 migration cũ | Đạt |
+| 3. `db push --dry-run` | Đúng 12 migration như diễn tập |
+| 4. `db push` | **Đạt trong 7 giây**, không lỗi; lịch sử migration 27/27, mới nhất `20261123100000` |
+| 5. Dấu vân tay cấu trúc staging thật so với DB dựng mới từ đầu | **Giống hệt** (0 dòng khác sau khi bỏ nhiễu pgTAP và Realtime) |
+| Dữ liệu sau nâng cấp | Nguyên vẹn: 6 sự kiện, 6 suất, 16 khu, 48 ghế, 8 giữ chỗ, 5 hồ sơ, 3 tổ chức; 6 cấu hình sự kiện tắt OTP; 20 bảng; cron dọn giữ chỗ đang chạy |
+| 6. Kiểm chứng bằng API trên staging thật | `anon` KHÔNG còn ghi được bảng `GHE` (`42501`, lỗ hổng cũ đã đóng); đọc cấu hình mua vé bằng đúng truy vấn của giao diện trả đúng (có cột OTP); khách ẩn danh giữ chỗ nhận `401 permission denied` (cần đăng nhập); giữ vé đồng thời 2/2 đạt và tự dọn sạch |
+| pgTAP trên staging thật | **Không chạy được**: tài khoản đăng nhập tạm của CLI trên staging thiếu quyền schema `auth` (`permission denied for schema auth`). Bù lại pgTAP đã đạt trên bản sao đã nâng cấp (14/15 file, 833/834 test; file lỗi duy nhất do cron không được khôi phục ở bản sao) và cấu trúc staging giống hệt DB dựng mới |
+| Các script tạo dữ liệu bất biến (duyệt đồng thời, ghi trực tiếp, OTP) | Không chạy trên staging để không làm bẩn môi trường demo (chúng để lại tổ chức và dòng nhật ký không xóa được); đã đạt trên bản sao đã nâng cấp và trên project sandbox có cùng cấu trúc |
+| 7. Cấu hình Auth | `otp_expiry` 300 giây, `otp_length` 6, bỏ xác nhận email, `site_url` đặt về trang demo; các mục khác giữ giá trị cũ. Mẫu email không đẩy được (gói Free dùng email mặc định) |
+| 8. Trỏ bản triển khai | `deploy.yml`, `.env.production`, `.env.local` về `https://qxkgkbayxxaakkwtepss.supabase.co` với khóa publishable của staging |
+
+Còn lại: tạo tài khoản demo nếu cần nút đăng nhập nhanh (`scripts/seed-demo-accounts.mjs`), xóa project `eventticketing-s2-sandbox` (bạn tự làm trên dashboard), SMTP riêng để OTP qua email hoạt động.
