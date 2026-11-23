@@ -170,3 +170,9 @@
   color: var(--sc-ink) !important;
 }
 #seating-section.concert-seatmap-section .seating-data-message span { color: var(--sc-muted) !important; }
+
+/* Đủ số vé tối đa: dấu cấm (tròn gạch đỏ) trên ghế còn trống chưa chọn */
+#seating-section.concert-seatmap-section .camera-seat-cell.limit { cursor: not-allowed; opacity: 0.6; }
+#seating-section.concert-seatmap-section .seat-limit-mark { pointer-events: none; }
+#seating-section.concert-seatmap-section .seat-limit-mark circle { fill: rgba(15, 23, 42, 0.35); stroke: #ef4444; stroke-width: 2.2; }
+#seating-section.concert-seatmap-section .seat-limit-mark line { stroke: #ef4444; stroke-width: 2.2; stroke-linecap: round; }

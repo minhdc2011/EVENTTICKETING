@@ -13,6 +13,8 @@ export interface SeatButtonProps {
   isSelectable: boolean;
   isSearchMatch?: boolean;
   isSearchHit?: boolean;
+  /** Đã chọn đủ số vé tối đa: ghế còn trống chưa chọn hiện dấu cấm (tròn gạch đỏ) và không thao tác thêm. */
+  limitReached?: boolean;
   onInspect: (seat: SeatRecord) => void;
   onToggle: (seat: SeatRecord) => void;
 }
@@ -23,6 +25,7 @@ export function SeatButton({
   isSelectable,
   isSearchMatch = true,
   isSearchHit = false,
+  limitReached = false,
   onInspect,
   onToggle,
 }: SeatButtonProps) {
@@ -30,6 +33,7 @@ export function SeatButton({
   const statusLabel = STATUS_NAMES[uiStatus] || 'Không khả dụng';
   const priceFormatted = formatMoneyVND(seat.GiaVeNiemYet);
   const glyph = STATUS_GLYPHS[uiStatus] || seat.SoGhe || '';
+  const blockedByLimit = limitReached && !isSelected && uiStatus === 'available';
 
   return (
     <button
@@ -38,10 +42,11 @@ export function SeatButton({
       data-status={uiStatus}
       data-code={seat.MaGheDayDu}
       data-search-hit={isSearchHit ? 'true' : undefined}
+      data-limit={blockedByLimit ? 'true' : undefined}
       data-od-id={`seat-${seat.MaGheDayDu.toLowerCase()}`}
-      aria-label={`${seat.MaGheDayDu}, ${statusLabel}, ${priceFormatted}`}
+      aria-label={`${seat.MaGheDayDu}, ${statusLabel}, ${priceFormatted}${blockedByLimit ? ', đã chọn đủ số vé tối đa nên không chọn thêm được' : ''}`}
       aria-pressed={isSelected}
-      aria-disabled={!isSelectable}
+      aria-disabled={!isSelectable || blockedByLimit}
       aria-describedby="seat-info"
       style={{
         opacity: isSearchMatch ? 1 : 0.18,

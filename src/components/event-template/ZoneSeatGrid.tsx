@@ -19,6 +19,8 @@ export interface ZoneSeatGridProps {
   saleOpen: boolean;
   isPending: boolean;
   hasActiveHold: boolean;
+  /** Đã chọn đủ số vé tối đa của một lượt đặt. */
+  limitReached?: boolean;
   /** Pans the map so the searched seat is visible (pan/zoom camera). */
   onRevealSeat?: (el: Element | null) => void;
   inspectedSeat: SeatRecord | null;
@@ -54,6 +56,7 @@ export function ZoneSeatGrid({
   saleOpen,
   isPending,
   hasActiveHold,
+  limitReached = false,
   onRevealSeat,
   inspectedSeat,
   onInspectSeat,
@@ -156,6 +159,7 @@ export function ZoneSeatGrid({
                     isSelectable={isSelectable}
                     isSearchMatch={isSearchMatch}
                     isSearchHit={focusSeatCode != null && seat.MaGheDayDu === focusSeatCode}
+                    limitReached={limitReached}
                     onInspect={onInspectSeat}
                     onToggle={onToggleSeat}
                   />

@@ -1505,45 +1505,24 @@
 }
 .et-official-map-interactive [data-zone-code].is-focused {
   opacity: 1;
-  stroke: var(--zone-color, #eab308);
-  stroke-width: 4;
-  filter: drop-shadow(0 0 8px var(--zone-color, #eab308));
+  stroke: var(--zone-color, #8b5cf6);
+  stroke-width: 5;
+  stroke-linejoin: round;
+  filter: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .et-official-map-interactive [data-zone-code] { transition: none; }
 }
 
-/* Camera phóng vào khu đang mở (sơ đồ BTC) */
+/* Sơ đồ BTC thu nhỏ phía trên lưới ghế: khu đang mở được tô viền, các khu xung quanh mờ đi */
 .et-focus-map {
   padding: 12px 16px 0;
 }
-.et-official-map--zoom {
-  position: relative;
-  width: min(100%, 760px);
+.et-official-map--compact {
+  max-width: 520px;
   margin: 0 auto;
 }
-.et-official-map--zoom .et-official-map-interactive svg {
-  max-height: none;
-}
-.et-official-map__reset {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--seat-border);
-  border-radius: 8px;
-  background: var(--seat-bg);
-  color: var(--seat-fg);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
-}
-.et-official-map__reset:hover { background: var(--seat-raised); }
-.et-official-map__reset:focus-visible { outline: 2px solid var(--seat-accent); outline-offset: 2px; }
-.et-official-map--zoom figcaption { font-size: 12px; }
+.et-official-map--compact figcaption { font-size: 12px; }
 
 /* Đồng hồ giữ chỗ 5 phút trong bảng tóm tắt (chỉ hiện khi đã giữ chỗ thật) */
 .et-hold-timer {
@@ -1575,36 +1554,36 @@
 }
 
 /* Màu trạng thái ghế (giống Super Concert) */
-:is(.et-seat-rows, .et-map-seat-overlay) .et-seat .et-seat-shape {
+.et-seat-rows .et-seat .et-seat-shape {
   background: #22c55e;
   border-color: #16a34a;
   color: #052e16;
   font-weight: 700;
   box-shadow: 0 3px 0 #15803d;
 }
-:is(.et-seat-rows, .et-map-seat-overlay) .et-seat:hover:not([data-status='sold']):not([data-status='held']):not([data-status='blocked']) .et-seat-shape {
+.et-seat-rows .et-seat:hover:not([data-status='sold']):not([data-status='held']):not([data-status='blocked']):not([data-status='selected']) .et-seat-shape {
   background: #4ade80;
   border-color: #15803d;
 }
-:is(.et-seat-rows, .et-map-seat-overlay) .et-seat[data-status='sold'] .et-seat-shape {
+.et-seat-rows .et-seat[data-status='sold'] .et-seat-shape {
   background: repeating-linear-gradient(135deg, #334155 0 5px, #1e293b 5px 10px);
   border-color: #64748b;
   color: #e2e8f0;
   box-shadow: none;
 }
-:is(.et-seat-rows, .et-map-seat-overlay) .et-seat[data-status='held'] .et-seat-shape {
+.et-seat-rows .et-seat[data-status='held'] .et-seat-shape {
   background: #fff7e0;
   border-color: #d97706;
   color: #92400e;
   box-shadow: none;
 }
-:is(.et-seat-rows, .et-map-seat-overlay) .et-seat[data-status='blocked'] .et-seat-shape {
+.et-seat-rows .et-seat[data-status='blocked'] .et-seat-shape {
   background: repeating-linear-gradient(135deg, #30343a 0 3px, #17191d 3px 6px);
   border-color: #6b7280;
   color: #e5e7eb;
   box-shadow: none;
 }
-:is(.et-seat-rows, .et-map-seat-overlay) .et-seat[data-status='selected'] .et-seat-shape {
+.et-seat-rows .et-seat[data-status='selected'] .et-seat-shape {
   background: #eab308;
   border-color: #854d0e;
   color: #1f1300;
@@ -1631,39 +1610,33 @@
 }
 
 /* Nhãn chữ trên bản vẽ SVG thu nhỏ: thêm viền tối để đọc được trên khu đang sáng */
-.et-official-map--zoom .et-official-map-interactive text {
+.et-official-map--compact .et-official-map-interactive text {
   paint-order: stroke fill;
   stroke: rgba(13, 21, 39, 0.9);
   stroke-width: 2.6px;
   stroke-linejoin: round;
 }
 
-/* ==========================================================================
-   Nút ghế GỐC đặt ngay trong phân khu đã phóng to của sơ đồ BTC (cùng kiểu dáng với lưới ghế).
-   ========================================================================== */
-.et-official-map-stage { position: relative; }
-.et-map-seat-overlay {
+/* Đủ số vé tối đa: ghế còn trống chưa chọn hiện dấu cấm (tròn gạch đỏ), mờ đi và không thao tác thêm.
+   Ghế đã chọn vẫn bấm được để bỏ chọn. */
+.et-seat[data-limit='true'] { cursor: not-allowed; }
+.et-seat[data-limit='true'] .et-seat-shape { opacity: 0.45; filter: saturate(0.4); }
+.et-seat[data-limit='true']::after {
+  content: '';
   position: absolute;
-  inset: 0;
-  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  border: 2.5px solid #dc2626;
+  border-radius: 50%;
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 1.5px),
+    #dc2626 calc(50% - 1.5px),
+    #dc2626 calc(50% + 1.5px),
+    transparent calc(50% + 1.5px)
+  );
   pointer-events: none;
-}
-.et-map-seat-slot {
-  position: absolute;
-  transform: translate(-50%, -50%) scale(var(--seat-scale, 1));
-  pointer-events: auto;
-}
-.et-official-map--zoom .et-seat-info-box { margin: 12px auto 4px; }
-
-/* Nhãn chữ trong khu đang mở bị làm mờ khi ghế đã hiện, để không đè lên ghế */
-.et-official-map-interactive text.is-covered-by-seats {
-  opacity: 0.08;
-  transition: opacity 0.2s ease;
-}
-
-/* Màn hình hẹp: khung sơ đồ đã phóng rộng tối thiểu 640 px và cuộn ngang bên trong thẻ (trang không cuộn ngang)
-   để nút ghế giữ đủ lớn, dễ chạm. */
-@media (max-width: 700px) {
-  .et-official-map--zoom[data-zoomed='true'] { overflow-x: auto; }
-  .et-official-map--zoom[data-zoomed='true'] .et-official-map-stage { min-width: 640px; }
 }

@@ -33,3 +33,9 @@
 - `scripts/nfr/checkout-flow.mjs` (sơ đồ BTC) và `scripts/nfr/checkout-flow-super-concert.mjs` (Super Concert), Chrome thật, chế độ mock: tất cả bước đạt.
 - `tests/sprint2-integration.test.mjs` (T1 và xuyên suốt) đã đổi theo luồng mới.
 - Chưa kiểm trên staging thật với email thật cho luồng mới; máy chủ và SMTP đã kiểm ở bước trước (`PHUONG-AN-OTP-VA-SMTP.md`, mục 5).
+
+## Bổ sung (23/11/2026): OTP mặc định cho sự kiện mới, dấu cấm khi đủ vé, sơ đồ viền tím
+
+- **OTP mặc định cho sự kiện mới.** Khi chủ sở hữu hoặc quản trị tổ chức tạo bản nháp sự kiện, ứng dụng gọi RPC `luu_cau_hinh_mua_ve` để bật OTP ngay (có kiểm quyền và nhật ký như mọi lần lưu). Biên tập viên không đủ quyền ghi cấu hình nên sự kiện của họ giữ mặc định cũ (tắt OTP) cho tới khi chủ sở hữu bật ở màn Cấu hình mua vé. Không đổi hàm máy chủ nào: sự kiện chưa có dòng cấu hình vẫn được coi là không yêu cầu OTP (giữ nguyên hành vi và bộ pgTAP hiện có). Mọi sự kiện đang có trên staging (6) và dữ liệu mô phỏng (3) đã bật OTP.
+- **Đủ số vé tối đa.** Ghế còn trống chưa chọn hiện dấu cấm (vòng tròn viền đỏ gạch chéo), mờ đi và không chọn thêm được; ghế đã chọn vẫn bấm được để bỏ chọn. Áp dụng cho lưới ghế (nhà hát, arena) và Super Concert.
+- **Sơ đồ BTC.** Bấm một khu thì khu đó được tô viền bằng màu của nó, các khu xung quanh mờ đi (không phóng to); lưới ghế gốc nằm ngay bên dưới.
