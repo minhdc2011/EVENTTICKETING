@@ -6,6 +6,10 @@ export interface OfficialSeatingMapProps {
   eventName: string;
   zones: ZoneRecord[];
   onSelectZone: (zone: ZoneRecord) => void;
+  /** Mã phân khu đang mở: khu này sáng lên bằng màu của nó, các khu xung quanh bị làm mờ. */
+  activeZoneCode?: string | null;
+  /** Bản thu nhỏ đặt phía trên lưới ghế để vẫn thấy vị trí khu trên toàn sơ đồ. */
+  compact?: boolean;
 }
 
 const INTERACTIVE_MAP_FILES = new Set([
@@ -25,7 +29,7 @@ function getInteractiveMapUrl(src: string): URL | null {
   }
 }
 
-export function OfficialSeatingMap({src, eventName, zones, onSelectZone}: OfficialSeatingMapProps) {
+export function OfficialSeatingMap({src, eventName, zones, onSelectZone, activeZoneCode = null, compact = false}: OfficialSeatingMapProps) {
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const interactiveRootRef = useRef<HTMLDivElement>(null);
@@ -87,8 +91,32 @@ export function OfficialSeatingMap({src, eventName, zones, onSelectZone}: Offici
     };
   }, [onSelectZone, svgMarkup, zones]);
 
+  // Làm mờ khu xung quanh và tô sáng khu đang chọn (cùng ý nghĩa với sơ đồ Super Concert).
+  useEffect(() => {
+    const root = interactiveRootRef.current;
+    if (!root || !svgMarkup) return;
+    const hitAreas = Array.from(root.querySelectorAll('[data-zone-code]')) as SVGElement[];
+    hitAreas.forEach((hitArea) => {
+      const code = hitArea.dataset.zoneCode;
+      const isActive = Boolean(activeZoneCode) && code === activeZoneCode;
+      hitArea.classList.toggle('is-focused', isActive);
+      hitArea.classList.toggle('is-dimmed', Boolean(activeZoneCode) && !isActive);
+      if (activeZoneCode) hitArea.setAttribute('aria-current', isActive ? 'true' : 'false');
+      else hitArea.removeAttribute('aria-current');
+      if (isActive) {
+        const zone = zones.find((item) => item.MaKhuVuc === code);
+        hitArea.style.setProperty('--zone-color', zone?.MauSacHex || '#eab308');
+      } else {
+        hitArea.style.removeProperty('--zone-color');
+      }
+    });
+  }, [activeZoneCode, svgMarkup, zones]);
+
   return (
-    <figure className="et-official-map">
+    <figure
+      className={`et-official-map${compact ? ' et-official-map--compact' : ''}`}
+      data-focus-zone={activeZoneCode || undefined}
+    >
       {svgMarkup ? (
         <div
           ref={interactiveRootRef}
@@ -101,7 +129,9 @@ export function OfficialSeatingMap({src, eventName, zones, onSelectZone}: Offici
         <img src={src} alt={`Sơ đồ mặt bằng tổ chức của ${eventName}`} loading="eager" />
       )}
       <figcaption>
-        {svgMarkup
+        {svgMarkup && compact
+          ? 'Khu đang chọn được tô sáng, các khu xung quanh được làm mờ. Bấm khu khác để chuyển nhanh.'
+          : svgMarkup
           ? 'Bấm trực tiếp vào một phân khu để mở ghế hoặc chọn số lượng vé của khu đó.'
           : loadFailed
           ? 'Chưa thể bật vùng chọn trực tiếp. Chuyển về sơ đồ trực quan để chọn ghế.'

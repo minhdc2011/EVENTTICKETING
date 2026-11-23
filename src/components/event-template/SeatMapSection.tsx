@@ -971,6 +971,20 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
               </div>
             )}
 
+            {/* Khi đã mở một khu của sơ đồ BTC: vẫn hiện sơ đồ thu nhỏ, khu đang chọn sáng và các khu xung quanh bị làm mờ */}
+            {viewMode === 'interactive' && event?.seatingMapUrl && activeDisplayZone && (
+              <div className="et-focus-map" data-testid="so-do-lam-mo-khu-xung-quanh">
+                <OfficialSeatingMap
+                  compact
+                  src={event.seatingMapUrl}
+                  eventName={event.name}
+                  zones={catalog?.zones || []}
+                  activeZoneCode={activeDisplayZone.MaKhuVuc}
+                  onSelectZone={handleOfficialZoneSelect}
+                />
+              </div>
+            )}
+
             {/* Map Viewport / State Panel */}
             <div className="et-map-viewport" id="map" data-od-id="interactive-map">
               <MapPanZoom controller={panZoom} label="Sơ đồ chỗ ngồi. Giữ Ctrl và cuộn để thu phóng, kéo để di chuyển, hoặc dùng phím + − 0 và các mũi tên.">

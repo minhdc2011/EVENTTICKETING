@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import {useEffect, useRef, type CSSProperties} from 'react';
 import type {ZoneRecord, SeatRecord} from '../../types/ticketing';
 import type {ZoneRowGroup} from '../../domain/seatMap.js';
 import {
@@ -118,7 +118,11 @@ export function ZoneSeatGrid({
       </div>
 
       {/* 3. Seat Rows */}
-      <div className={`et-sector-seat-shell et-sector-seat-shell--${geometry}`} data-sector-code={zone.MaKhuVuc}>
+      <div
+        className={`et-sector-seat-shell et-sector-seat-shell--${geometry}`}
+        data-sector-code={zone.MaKhuVuc}
+        style={{'--zone-color': zone.MauSacHex || '#3b82f6'} as CSSProperties}
+      >
         <strong className="et-sector-seat-name">{zoneName}</strong>
         <div
           className="et-seat-rows"
