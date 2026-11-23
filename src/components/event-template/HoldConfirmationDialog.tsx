@@ -153,7 +153,7 @@ export function HoldConfirmationDialog({
         className="et-hold-dialog"
       >
         <div className="et-dialog-top">
-          <h2 id="dialog-title">Đã giữ ghế tạm</h2>
+          <h2 id="dialog-title">Xác nhận thanh toán thành công</h2>
           <button
             ref={closeButtonRef}
             type="button"
@@ -169,17 +169,17 @@ export function HoldConfirmationDialog({
         <p id="hold-result" style={{margin: '8px 0', fontSize: '13px', color: 'var(--seat-muted)', overflowWrap: 'anywhere'}}>
           {seatLines.length > 0 && standingCount > 0 ? (
             <>
-              Đã giữ {seatLines.length} ghế (<strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>) và{' '}
+              Đã xác nhận {seatLines.length} ghế (<strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>) và{' '}
               {standingCount} vé đứng. Tổng <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
             </>
           ) : seatLines.length > 0 ? (
             <>
-              Đã giữ {seatLines.length} ghế: <strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>. Tổng{' '}
+              Đã xác nhận {seatLines.length} ghế: <strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>. Tổng{' '}
               <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
             </>
           ) : (
             <>
-              Đã giữ {standingCount} vé đứng. Tổng{' '}
+              Đã xác nhận {standingCount} vé đứng. Tổng{' '}
               <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
             </>
           )}
@@ -221,7 +221,7 @@ export function HoldConfirmationDialog({
         </div>
 
         <p style={{margin: '12px 0 16px', fontSize: '12px', color: 'var(--seat-muted)', lineHeight: 1.5}}>
-          Ghế sẽ được trả lại khi hết thời gian. Chưa có giao dịch thanh toán nào được thực hiện.
+          Thanh toán mô phỏng: hệ thống chưa kết nối cổng thanh toán nên chưa phát hành vé. Chỗ được giữ cho bạn trong thời gian đếm ngược và sẽ được trả lại khi hết giờ.
         </p>
 
         <button
@@ -233,7 +233,7 @@ export function HoldConfirmationDialog({
           disabled={isReleasing}
           onClick={onRelease}
         >
-          {isReleasing ? 'Đang hủy giữ ghế…' : 'Hủy giữ ghế'}
+          {isReleasing ? 'Đang hủy…' : 'Hủy đơn và trả ghế'}
         </button>
 
         {holdId && (

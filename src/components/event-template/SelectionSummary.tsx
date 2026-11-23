@@ -80,7 +80,7 @@ export function SelectionSummary({
     if (!saleOpen) return 'Đã đóng bán';
     if (isPending) return 'Đang kiểm tra ghế…';
     if (hasActiveHold) return 'Xem thời gian giữ ghế';
-    if (count > 0) return `Giữ ${count} vé tạm · ${holdLabel} →`;
+    if (count > 0) return `Thanh toán ${count} vé →`;
     return 'Chọn ghế để tiếp tục →';
   };
 
@@ -242,7 +242,7 @@ export function SelectionSummary({
           <p className="et-hold-note" id="hold-note">
             {hasActiveHold
               ? 'Đang giữ ghế trong phiên tạm thời. Nhấn để xem thời gian còn lại hoặc hủy giữ.'
-              : `Ghế chỉ được giữ khi bạn bấm Giữ chỗ (cần đăng nhập). ${holdLabel} đếm ngược từ lúc giữ thành công; trước đó người khác vẫn có thể chọn ghế bạn đang xem.`}
+              : `Bạn xem và chọn ghế tự do. Khi bấm Thanh toán, hệ thống yêu cầu đăng nhập và mã OTP gửi về email; ${holdLabel} đếm ngược bắt đầu sau khi xác nhận. Trước đó người khác vẫn có thể chọn ghế bạn đang xem.`}
           </p>
 
           {!isConnectionTrusted && (
@@ -262,7 +262,7 @@ export function SelectionSummary({
         <p>
           <strong>Bạn vẫn nắm quyền lựa chọn.</strong>
           <br />
-          Giữ ghế tạm không phải là mua vé và chưa phát sinh thanh toán.
+          Thanh toán ở giai đoạn này là mô phỏng: hệ thống chưa kết nối cổng thanh toán nên chưa phát hành vé.
         </p>
       </div>
     </aside>

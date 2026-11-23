@@ -67,6 +67,13 @@ export const THONG_BAO_CAN_DANG_NHAP =
  * Lỗi giữ chỗ do chưa đăng nhập: RPC báo 28000 (không có tài khoản) hoặc PostgREST trả 401/permission denied vì
  * khách ẩn danh không có quyền gọi hàm giữ chỗ. Không gồm lỗi thiếu xác minh OTP (cũng 42501 nhưng nói về OTP).
  */
+/** Lỗi 42501 nói về OTP: đã đăng nhập nhưng chưa xác minh OTP trong 24 giờ (sự kiện bật OTP). */
+export function laLoiThieuOtp(err) {
+  if (!err || typeof err !== 'object') return false;
+  const message = typeof err.message === 'string' ? err.message.toLowerCase() : '';
+  return String(err.code ?? '') === '42501' && message.includes('otp');
+}
+
 export function laLoiChuaDangNhap(err) {
   if (!err || typeof err !== 'object') return false;
   const code = String(err.code ?? '');

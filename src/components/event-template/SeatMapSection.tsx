@@ -67,6 +67,9 @@ import {OfficialSeatingMap} from './OfficialSeatingMap';
 import {MapPanZoom, usePanZoom} from './MapPanZoom';
 import {
   EVENT_DA_DANG_NHAP,
+  EVENT_DA_XAC_MINH_OTP,
+  laLoiCanOtp,
+  phatYeuCauOtp,
   KHOA_GIU_CHO_DANG_CHO,
   docYDinhGiuCho,
   laLoiCanDangNhap,
@@ -119,6 +122,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const holdButtonRef = useRef<HTMLButtonElement>(null);
   // Đang chờ đăng nhập tại chỗ (hộp thoại "Cần đăng nhập"): khi đăng nhập xong thì tự thử giữ chỗ lại.
   const dangChoDangNhapRef = useRef(false);
+  const dangChoOtpRef = useRef(false);
   const [resumeHold, setResumeHold] = useState(false);
   const pendingHoldSeatCodesRef = useRef<Set<string> | null>(null);
   const latestPriceSnapshotRef = useRef<ReadonlyMap<number, number> | null>(null);
@@ -644,8 +648,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       const secs = calculateRemainingSeconds(holdResult.expiresAt);
       setRemainingSeconds(secs);
       setIsHoldDialogOpen(true);
-      setRealtimeBanner(`Đã giữ chỗ tạm trong ${holdLabel} · Chưa phát sinh thanh toán`);
-      setAnnouncement(`Đã giữ ${requestedSeats.length + requestedStandingCount} vé thành công.`);
+      setRealtimeBanner(`Đã xác nhận thanh toán (mô phỏng) · chỗ được giữ ${holdLabel}`);
+      setAnnouncement(`Đã xác nhận thanh toán (mô phỏng) ${requestedSeats.length + requestedStandingCount} vé.`);
     } catch (err: any) {
       if (!isCurrent()) return;
       if (laLoiCanDangNhap(err)) {
@@ -664,6 +668,12 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         }
         dangChoDangNhapRef.current = true;
         phatYeuCauDangNhap();
+        return;
+      }
+      if (laLoiCanOtp(err)) {
+        // Đã đăng nhập nhưng chưa xác minh OTP: hiện hộp thoại nhập mã, giữ nguyên lựa chọn, xác minh xong tự tiếp tục.
+        dangChoOtpRef.current = true;
+        phatYeuCauOtp();
         return;
       }
       const normalizedErr = chuanHoaLoiGiuCho(err);
@@ -743,8 +753,17 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       }
       void proceedHoldRef.current();
     };
+    const onXacMinhOtp = () => {
+      if (!dangChoOtpRef.current) return;
+      dangChoOtpRef.current = false;
+      void proceedHoldRef.current();
+    };
     window.addEventListener(EVENT_DA_DANG_NHAP, onDangNhap);
-    return () => window.removeEventListener(EVENT_DA_DANG_NHAP, onDangNhap);
+    window.addEventListener(EVENT_DA_XAC_MINH_OTP, onXacMinhOtp);
+    return () => {
+      window.removeEventListener(EVENT_DA_DANG_NHAP, onDangNhap);
+      window.removeEventListener(EVENT_DA_XAC_MINH_OTP, onXacMinhOtp);
+    };
   }, []);
 
   // Quay lại trang sau khi đăng nhập ở trang riêng: khôi phục lựa chọn đã lưu rồi tự tiếp tục giữ chỗ.

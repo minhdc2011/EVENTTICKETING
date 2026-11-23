@@ -39,3 +39,5 @@ export function chuanHoaLoiGiuCho<T>(err: T): T | PurchaseLimitError;
 
 export const THONG_BAO_CAN_DANG_NHAP: string;
 export function laLoiChuaDangNhap(err: unknown): boolean;
+
+export function laLoiThieuOtp(err: unknown): boolean;

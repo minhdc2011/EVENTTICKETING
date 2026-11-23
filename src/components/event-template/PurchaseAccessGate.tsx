@@ -1,21 +1,17 @@
-import {useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode} from 'react';
+import {useCallback, useEffect, useRef, useState, type ReactNode} from 'react';
 import {runtimeConfig} from '../../config/runtime';
 import {canAccessPortal} from '../../domain/accountAccess';
-import {buildPublicPath, navigatePublicRoute} from '../../domain/publicRoute';
+import {EVENT_CAN_OTP, phatDaXacMinhOtp, phatYeuCauDangNhap} from '../../domain/loginRequired.js';
 import type {PublicEventRecord} from '../../services/eventService';
 import {subscribeBuyerAuth, type BuyerSession} from '../../services/buyerAuthService';
 import {docCauHinhMuaVe} from '../../services/purchaseConfigService';
 import {
-  TRANG_THAI_CONG,
   dangKyThuHoiBangChungMock,
   khoTrangThaiOtpPhien,
-  taoCongOtpNguoiMua,
-  type BoDieuPhoiCongOtp,
   type KetQuaXacMinhMaOtp,
   type KhoTrangThaiOtpPhien,
-  type TrangThaiCongOtp,
 } from '../../services/otpService';
-import {OtpVerificationPanel} from './OtpVerificationPanel';
+import {CheckoutOtpDialog} from './CheckoutOtpDialog';
 import {buildPurchaseGateContextKey} from './eventTemplateLogic.js';
 import './OtpVerificationPanel.css';
 
@@ -28,6 +24,15 @@ import './OtpVerificationPanel.css';
  * - Bước nghiệm thu này HIỆN CHƯA được thực hiện.
  * - Các test mã nguồn (gồm tests/otp-access-gate-ui.test.mjs) và `npm run check` KHÔNG thay thế
  *   bước nghiệm thu thủ công này.
+ */
+
+/*
+ * Luồng mua vé (Sprint 2, cập nhật 23/11/2026):
+ *   1) Ai cũng xem và chọn ghế/vé tự do (cổng này KHÔNG chặn phần chọn vé).
+ *   2) Bấm "Thanh toán": chưa đăng nhập -> hộp thoại đăng nhập (LoginRequiredHost), đăng nhập xong tự tiếp tục.
+ *   3) Đã đăng nhập và sự kiện bật OTP: mã OTP gửi về email của tài khoản, hộp thoại nhập mã hiện ở đây (CheckoutOtpDialog).
+ *   4) Xác minh xong tự tiếp tục: máy chủ kiểm tra lại OTP (da_xac_minh_otp) rồi giữ chỗ, giao diện báo đã xác nhận.
+ * Máy chủ vẫn là nơi cưỡng chế: tao_giu_cho_theo_suat từ chối khi thiếu đăng nhập hoặc thiếu OTP.
  */
 
 /** Khóa sessionStorage lưu đích quay lại (đường dẫn công khai, vd. `events/<slug>/shows/<show>`) sau khi đăng nhập. */
@@ -49,14 +54,6 @@ type ConfigState =
 export function buildEventReturnTarget(event: Pick<PublicEventRecord, 'slug' | 'selectedShow'>): string {
   const showSlug = event.selectedShow?.slug;
   return `events/${event.slug}${showSlug ? `/shows/${showSlug}` : ''}#seating-section`;
-}
-
-function luuDichQuayLai(target: string) {
-  try {
-    window.sessionStorage.setItem(BUYER_RETURN_TO_KEY, target);
-  } catch {
-    // sessionStorage bị chặn: sau đăng nhập quay về danh sách sự kiện.
-  }
 }
 
 function GateFrame({title, children}: {title: string; children: ReactNode}) {
@@ -85,12 +82,11 @@ export function PurchaseAccessGate({
   const [config, setConfig] = useState<ConfigState>({eventId: eventKey, kind: 'loading'});
   const [reloadKey, setReloadKey] = useState(0);
   const [session, setSession] = useState<BuyerSession | null>(null);
-  const [gateEntry, setGateEntry] = useState<{contextKey: string; state: TrangThaiCongOtp} | null>(null);
-  const congRef = useRef<BoDieuPhoiCongOtp | null>(null);
-  // Kho OTP cấp phiên người mua (module): giữ cooldown, bộ đếm và request đang chờ qua unmount/remount cả cổng (không giữ mã nhập).
+  const [otpOpen, setOtpOpen] = useState(false);
+  // Kho OTP cấp phiên người mua (module): giữ cooldown, bộ đếm và request đang chờ qua unmount/remount (không giữ mã nhập).
   useEffect(() => dangKyThuHoiBangChungMock(() => khoOtp.xoa()), [khoOtp]);
 
-  // 1) Đọc cấu hình mua vé (fail-closed: lỗi đọc không bao giờ mở cổng).
+  // 1) Đọc cấu hình mua vé (fail-closed: lỗi đọc không mở phần chọn vé).
   useEffect(() => {
     let obsolete = false;
     setConfig({eventId: eventKey, kind: 'loading'});
@@ -114,49 +110,41 @@ export function PurchaseAccessGate({
   const configReady = config.eventId === eventKey && config.kind === 'ready';
   const requireOtp = configReady && config.kind === 'ready' ? config.requireOtp : false;
 
-  // 2) Chỉ khi sự kiện bật OTP: theo dõi phiên người mua và điều phối cổng T2.
+  // 2) Sự kiện bật OTP: theo dõi phiên người mua để biết gửi mã tới email nào.
   useEffect(() => {
-    setGateEntry(null);
     setSession(null);
+    setOtpOpen(false);
     if (!requireOtp) return;
     let active = true;
-    let lastUserId: string | null = null;
-    const effectContextKey = gateContextKey;
-    const cong = taoCongOtpNguoiMua({
-      emit: (st) => {
-        if (active) setGateEntry({contextKey: effectContextKey, state: st});
-      },
-      isActive: () => active,
-    });
-    congRef.current = cong;
     const unsubscribe = subscribeBuyerAuth((s) => {
       if (!active) return;
       const buyer = s && canAccessPortal(s.accountKind, 'BUYER') ? s : null;
       setSession(buyer);
-      // Gọi lay(buyer) ngay khi phiên đổi để tăng thế hệ khi đăng xuất hoặc đổi tài khoản/email, loại bỏ request đang chờ.
+      // Đổi tài khoản/email: loại bỏ trạng thái OTP và request đang chờ của tài khoản trước.
       khoOtp.lay(buyer);
-      // Làm mới token cùng tài khoản không được dỡ phần chọn vé đang mở; bằng chứng vẫn được hẹn kiểm tra lại.
-      if (buyer && lastUserId === buyer.userId && cong.layTrangThai().status === TRANG_THAI_CONG.DUOC_VAO) return;
-      lastUserId = buyer?.userId ?? null;
-      void cong.kiemTraLai(buyer, eventKey);
+      if (!buyer) setOtpOpen(false);
     });
     return () => {
       active = false;
       unsubscribe();
-      cong.huy();
-      if (congRef.current === cong) congRef.current = null;
     };
   }, [requireOtp, eventKey, showId, gateContextKey, khoOtp]);
 
-  // Sự kiện không bật OTP: không chặn cổng và không hiện thanh nhắc đăng nhập. Người dùng chọn chỗ tự do;
-  // đến khi bấm Giữ chỗ mà chưa đăng nhập thì hiện hộp thoại làm mờ nền (LoginRequiredHost).
+  // 3) Bước Thanh toán báo cần OTP -> hiện hộp thoại nhập mã (cần phiên đã đăng nhập).
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
+  useEffect(() => {
+    if (!requireOtp) return undefined;
+    const onNeedOtp = () => {
+      if (sessionRef.current) setOtpOpen(true);
+      else phatYeuCauDangNhap();
+    };
+    window.addEventListener(EVENT_CAN_OTP, onNeedOtp);
+    return () => window.removeEventListener(EVENT_CAN_OTP, onNeedOtp);
+  }, [requireOtp, eventKey]);
 
-  const gateCurrent =
-    gateEntry && gateEntry.contextKey === gateContextKey && gateEntry.state.suKienId === eventKey
-      ? gateEntry.state
-      : null;
-  const allowed =
-    configReady && (!requireOtp || gateCurrent?.status === TRANG_THAI_CONG.DUOC_VAO);
+  // Phần chọn vé luôn mở khi đã biết cấu hình; OTP được kiểm tra ở bước Thanh toán, không chặn việc xem/chọn.
+  const allowed = configReady;
 
   const onAccessChangeRef = useRef(onAccessChange);
   onAccessChangeRef.current = onAccessChange;
@@ -165,21 +153,31 @@ export function PurchaseAccessGate({
   }, [allowed, gateContextKey]);
   useEffect(() => () => onAccessChangeRef.current?.(false), []);
 
-  const handleVerified = useCallback(async (ketQua: KetQuaXacMinhMaOtp) => {
-    khoOtp.xoa();
-    await congRef.current?.apDungXacMinh(ketQua);
-  }, [khoOtp]);
-
-  const goAuth = (page: 'login' | 'register') => (e: MouseEvent<HTMLAnchorElement>) => {
-    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-    e.preventDefault();
-    luuDichQuayLai(buildEventReturnTarget(event));
-    navigatePublicRoute(page);
-  };
-  const authHref = (page: 'login' | 'register') => buildPublicPath(window.location.pathname, page);
+  const handleVerified = useCallback(
+    async (_ketQua: KetQuaXacMinhMaOtp) => {
+      khoOtp.xoa();
+      setOtpOpen(false);
+      phatDaXacMinhOtp();
+    },
+    [khoOtp],
+  );
 
   if (allowed) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        {otpOpen && session ? (
+          <CheckoutOtpDialog
+            session={session}
+            eventId={event.id}
+            isMock={runtimeConfig.useMockData}
+            khoOtp={khoOtp}
+            onVerified={handleVerified}
+            onClose={() => setOtpOpen(false)}
+          />
+        ) : null}
+      </>
+    );
   }
 
   if (config.eventId !== eventKey || config.kind === 'loading') {
@@ -207,70 +205,5 @@ export function PurchaseAccessGate({
     );
   }
 
-  const status = gateCurrent?.status ?? TRANG_THAI_CONG.DANG_KIEM_TRA;
-
-  if (status === TRANG_THAI_CONG.CAN_DANG_NHAP) {
-    return (
-      <GateFrame title="Đăng nhập để chọn vé">
-        {runtimeConfig.useMockData ? (
-          <p className="et-otp-badge">Chế độ mô phỏng: không gửi email thật.</p>
-        ) : null}
-        <p className="et-otp-text">
-          Sự kiện này yêu cầu xác minh OTP qua email trước khi chọn ghế hoặc vé đứng. Hãy đăng nhập bằng tài khoản
-          người mua vé; sau khi đăng nhập bạn sẽ quay lại đúng sự kiện và suất diễn này.
-        </p>
-        <div className="et-otp-actions">
-          <a className="et-otp-btn et-otp-btn--primary" href={authHref('login')} onClick={goAuth('login')}>
-            Đăng nhập
-          </a>
-          <a className="et-otp-btn" href={authHref('register')} onClick={goAuth('register')}>
-            Đăng ký
-          </a>
-        </div>
-      </GateFrame>
-    );
-  }
-
-  if (status === TRANG_THAI_CONG.CAN_OTP && session) {
-    return (
-      <GateFrame title="Xác minh OTP để chọn vé">
-        <OtpVerificationPanel
-          session={session}
-          eventId={event.id}
-          isMock={runtimeConfig.useMockData}
-          onVerified={handleVerified}
-          khoOtp={khoOtp}
-        />
-      </GateFrame>
-    );
-  }
-
-  if (status === TRANG_THAI_CONG.LOI) {
-    return (
-      <GateFrame title="Chưa thể xác nhận quyền chọn vé">
-        <p className="et-otp-message et-otp-message--error" role="alert" aria-live="assertive">
-          <strong>Lỗi:</strong> {gateCurrent?.loi?.thongBao ?? 'Không thể xác nhận trạng thái xác minh OTP.'}
-        </p>
-        {gateCurrent?.coTheThuLai ? (
-          <div className="et-otp-actions">
-            <button
-              type="button"
-              className="et-otp-btn et-otp-btn--primary"
-              onClick={() => void congRef.current?.thuLai()}
-            >
-              Thử lại
-            </button>
-          </div>
-        ) : null}
-      </GateFrame>
-    );
-  }
-
-  return (
-    <GateFrame title="Đang kiểm tra xác minh OTP">
-      <p className="et-otp-message" role="status" aria-live="polite">
-        <strong>Đang kiểm tra:</strong> Đang xác nhận phiên đăng nhập và trạng thái xác minh OTP…
-      </p>
-    </GateFrame>
-  );
+  return null;
 }

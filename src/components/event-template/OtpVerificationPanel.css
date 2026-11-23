@@ -246,3 +246,11 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
+
+/* Hộp thoại OTP lúc thanh toán: thẻ rộng vừa đủ, cuộn được khi màn hình thấp */
+.et-checkout-otp__card {
+  max-width: 480px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+.et-checkout-otp__card .et-login-modal__row { margin-top: 12px; }

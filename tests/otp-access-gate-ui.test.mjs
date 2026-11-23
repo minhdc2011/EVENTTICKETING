@@ -71,7 +71,10 @@ test('T3 AC1: EventTemplate wraps both SeatMapSection and slots.seating in Purch
   const allowedExpr = gateSrc.match(/const allowed\s*=\s*([^;]+);/);
   assert.ok(allowedExpr, 'PurchaseAccessGate defines allowed condition');
   assert.match(allowedExpr[1], /configReady/);
-  assert.match(allowedExpr[1], /!requireOtp\s*\|\|\s*gateCurrent\?\.status\s*===\s*TRANG_THAI_CONG\.DUOC_VAO/);
+  // Luồng mới: OTP không chặn việc xem/chọn vé; máy chủ kiểm OTP ở bước Thanh toán (xem EVENT_CAN_OTP bên dưới).
+  assert.doesNotMatch(allowedExpr[1], /requireOtp|DUOC_VAO/);
+  assert.match(gateSrc, /EVENT_CAN_OTP/);
+  assert.match(gateSrc, /<CheckoutOtpDialog/);
 
   const childrenIdx = gateSrc.indexOf('if (allowed) {');
   const loadingIdx = gateSrc.indexOf("config.kind === 'loading'");
@@ -94,11 +97,8 @@ test('T3 AC2: Login/register return flow preserves event + show context and hand
   assert.match(gateSrc, /canAccessPortal\(s\.accountKind,\s*'BUYER'\)/);
   assert.match(gateSrc, /docCauHinhMuaVe\(event\.id\)/);
   assert.match(gateSrc, /subscribeBuyerAuth/);
-  assert.match(gateSrc, /taoCongOtpNguoiMua/);
   assert.match(gateSrc, /export function buildEventReturnTarget/);
   assert.match(gateSrc, /events\/\$\{event\.slug\}\$\{showSlug \? `\/shows\/\$\{showSlug\}` : ''\}#seating-section/);
-  assert.match(gateSrc, /luuDichQuayLai\(buildEventReturnTarget\(event\)\)/);
-  assert.match(gateSrc, /navigatePublicRoute\(page\)/);
 
   // Round-trip route resolution cho sự kiện có suất diễn và không có suất diễn
   const showPath = buildPublicPath('/EVENTTICKETING/', 'events/super-concert/shows/night-1#seating-section');
@@ -128,7 +128,6 @@ test('T3 AC2: Login/register return flow preserves event + show context and hand
   assert.match(gateSrc, /Đang đọc cấu hình mua vé của sự kiện/);
   assert.match(gateSrc, /Không đọc được cấu hình mua vé/);
   assert.match(gateSrc, /setReloadKey\(\(k\) => k \+ 1\)/);
-  assert.match(gateSrc, /gateCurrent\?\.coTheThuLai[\s\S]*congRef\.current\?\.thuLai\(\)/);
   assert.match(panelSrc, /session\.email/);
   assert.doesNotMatch(panelSrc, /type="email"/, 'OTP panel uses current buyer session email rather than editable email input');
 });
@@ -235,7 +234,7 @@ test('T3 AC4: OTP input is masked, ephemeral, never logged or leaked with sample
   }
 
   assert.match(panelSrc, /isMock[\s\S]*data-nguon=\{NHAN_MO_PHONG\}[\s\S]*Chế độ mô phỏng/);
-  assert.match(gateSrc, /runtimeConfig\.useMockData[\s\S]*Chế độ mô phỏng/);
+  assert.match(gateSrc, /isMock=\{runtimeConfig\.useMockData\}/);
 });
 
 test('T3 AC5: OTP form accessibility attributes and 360px responsive CSS constraints', async () => {

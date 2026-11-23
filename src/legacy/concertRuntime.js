@@ -9,7 +9,7 @@ import {buildHeldPriceSnapshot, describePriceConnectionStatus} from '../domain/p
 import {isValidPrice, khopMaPhamViNghiemNgat} from '../domain/priceRealtime.js';
 import {resolvePurchaseLimits, formatHoldLabel, DEFAULT_HOLD_MINUTES} from '../domain/purchaseLimits.js';
 import {chuanHoaLoiGiuCho, laLoiVuotGioiHan} from '../domain/purchaseLimitError.js';
-import {EVENT_DA_DANG_NHAP, laLoiCanDangNhap, phatYeuCauDangNhap} from '../domain/loginRequired.js';
+import {EVENT_DA_DANG_NHAP, EVENT_DA_XAC_MINH_OTP, laLoiCanDangNhap, laLoiCanOtp, phatYeuCauDangNhap, phatYeuCauOtp} from '../domain/loginRequired.js';
 import {
   createPurchaseLimitNotice,
   describePurchaseLimits,
@@ -182,7 +182,7 @@ import {
         }
         const holdNote = document.getElementById('concert-hold-note');
         if (holdNote) {
-          holdNote.textContent = `Ghế chỉ được giữ khi bạn bấm Giữ chỗ (cần đăng nhập). ${formatHoldLabel(currentLimits.holdMinutes || DEFAULT_HOLD_MINUTES)} đếm ngược từ lúc giữ thành công; trước đó người khác vẫn có thể chọn ghế bạn đang xem.`;
+          holdNote.textContent = `Bạn xem và chọn ghế tự do. Khi bấm Thanh toán, hệ thống yêu cầu đăng nhập và mã OTP gửi về email; ${formatHoldLabel(currentLimits.holdMinutes || DEFAULT_HOLD_MINUTES)} đếm ngược bắt đầu sau khi xác nhận. Trước đó người khác vẫn có thể chọn ghế bạn đang xem.`;
         }
         if (activeDetailZoneCode) {
           renderZoneDetailPanel();
@@ -1405,7 +1405,7 @@ import {
         summaryCount.innerText = formatSelectionCounter(totalSelectedCount, currentLimits);
         summaryTotal.innerText = formatVND(totalAmount);
         proceedBtn.disabled = !isTicketSelectionEnabled() || isHoldRequestPending;
-        if (proceedLabel) proceedLabel.textContent = `Giữ ${totalSelectedCount} vé tạm · ${formatHoldLabel(currentLimits.holdMinutes || DEFAULT_HOLD_MINUTES)} →`;
+        if (proceedLabel) proceedLabel.textContent = `Thanh toán ${totalSelectedCount} vé →`;
       }
 
       function removeSingleSeat(ticketId) {
@@ -1786,9 +1786,15 @@ import {
       if (btnProceedBooking) {
         // Chưa đăng nhập: hộp thoại toàn trang hiện lên; đăng nhập nhanh xong thì bấm lại nút giữ chỗ, lựa chọn vẫn còn.
         let dangChoDangNhap = false;
+        let dangChoOtp = false;
         listen(window, EVENT_DA_DANG_NHAP, () => {
           if (!dangChoDangNhap) return;
           dangChoDangNhap = false;
+          if (!btnProceedBooking.disabled) btnProceedBooking.click();
+        });
+        listen(window, EVENT_DA_XAC_MINH_OTP, () => {
+          if (!dangChoOtp) return;
+          dangChoOtp = false;
           if (!btnProceedBooking.disabled) btnProceedBooking.click();
         });
         listen(btnProceedBooking, 'click', async () => {
@@ -1863,6 +1869,11 @@ import {
             if (laLoiCanDangNhap(error)) {
               dangChoDangNhap = true;
               phatYeuCauDangNhap();
+              return;
+            }
+            if (laLoiCanOtp(error)) {
+              dangChoOtp = true;
+              phatYeuCauOtp();
               return;
             }
             const normalizedError = chuanHoaLoiGiuCho(error);
