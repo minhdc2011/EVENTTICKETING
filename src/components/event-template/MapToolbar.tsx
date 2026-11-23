@@ -16,6 +16,8 @@ export interface MapToolbarProps {
   connectionStatus: RealtimeConnectionStatus;
   isMock: boolean;
   saleOpen: boolean;
+  /** Ẩn cụm nút thu phóng (bản đồ kiểu Ticketmaster đã có nút ngay trên bản đồ). */
+  hideZoom?: boolean;
 }
 
 export function MapToolbar({
@@ -31,6 +33,7 @@ export function MapToolbar({
   connectionStatus,
   isMock,
   saleOpen,
+  hideZoom = false,
 }: MapToolbarProps) {
   const filterGroupRef = useRef<HTMLDivElement>(null);
 
@@ -138,6 +141,7 @@ export function MapToolbar({
       </label>
 
       {/* 3. Zoom Controls */}
+      {!hideZoom && (
       <div className="et-zoom" role="group" aria-label="Thu phóng sơ đồ">
         <button
           type="button"
@@ -171,6 +175,7 @@ export function MapToolbar({
           </svg>
         </button>
       </div>
+      )}
 
       {/* 4. Realtime Connection Status Badge */}
       <span className="et-live-badge" id="live-status" data-od-id="live-status" role="status" aria-live="polite">

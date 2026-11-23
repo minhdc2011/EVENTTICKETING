@@ -1053,6 +1053,7 @@ test('lựa chọn chưa giữ theo giá mới; giữ chỗ đóng băng snapsho
         dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
         dom.flushTimeouts();
         dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+        dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
         dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="GA_STAND_1"]'));
         dom.flushTimeouts();
         dom.click(dom.doc.getElementById('map-standing-plus'));
@@ -1133,6 +1134,7 @@ test('lựa chọn chưa giữ theo giá mới; giữ chỗ đóng băng snapsho
         dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
         dom.flushTimeouts();
         dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+        dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
         dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="GA_STAND_1"]'));
         dom.flushTimeouts();
         dom.click(dom.doc.getElementById('map-standing-plus'));
@@ -1392,6 +1394,7 @@ test('deferred RPC createSeatHold: giữ nút disabled & aria-busy khi nhận sn
         dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
         dom.flushTimeouts();
         dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+        dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
         dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="GA_STAND_1"]'));
         dom.flushTimeouts();
         dom.click(dom.doc.getElementById('map-standing-plus'));
@@ -1500,6 +1503,7 @@ test('deferred RPC createSeatHold: giữ nút disabled & aria-busy khi nhận sn
         dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
         dom.flushTimeouts();
         dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+        dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
 
         const btnProceed = dom.doc.getElementById('btn-proceed-booking');
         dom.click(btnProceed);
@@ -1525,6 +1529,7 @@ test('deferred RPC createSeatHold: giữ nút disabled & aria-busy khi nhận sn
 
         // Bấm giữ chỗ lần 2 (deferred #2) rồi teardown + remount trong lúc RPC đang chờ
         dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+        dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
         dom.click(btnProceed);
         assert.equal(holdCalls, 2);
         assert.equal(btnProceed.getAttribute('aria-busy'), 'true');
@@ -1544,6 +1549,7 @@ test('deferred RPC createSeatHold: giữ nút disabled & aria-busy khi nhận sn
         dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
         dom.flushTimeouts();
         dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+        dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
         assert.equal(remountedProceed.disabled, false);
         assert.equal(remountedProceed.getAttribute('aria-busy'), null);
 

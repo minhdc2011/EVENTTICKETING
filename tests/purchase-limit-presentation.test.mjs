@@ -831,6 +831,7 @@ test('Super Concert: counter tracks seated + standing against configuredMax whil
     dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
     dom.advanceTime(400);
     dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-01"]'));
+    dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
     assert.equal(summaryCount.textContent, 'Đã chọn 1/6 vé');
 
     // Add 2 standing tickets (must not double-count standingTickets inside selectedSeatIds)
@@ -849,13 +850,17 @@ test('Super Concert: counter tracks seated + standing against configuredMax whil
     dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
     dom.advanceTime(400);
     dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-02"]'));
+    dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
     dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+    dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
     assert.equal(summaryCount.textContent, 'Đã chọn 4/6 vé');
 
     // 5th seat is blocked by min(4, 6) = 4 and explains both limits
     dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-04"]'));
     assert.equal(summaryCount.textContent, 'Đã chọn 4/6 vé');
-    assert.match(toasts.at(-1).message, /tối đa 4 vé.*6 vé/);
+    // Khung thông tin vé giải thích cả hai giới hạn và khóa nút Thêm (thay cho thông báo nổi trước đây).
+    assert.equal(dom.doc.getElementById('map-seat-action').disabled, true);
+    assert.match(dom.doc.getElementById('map-selection-panel').textContent, /tối đa 4 vé.*6 vé/);
 
     // Clear all resets counter
     dom.click(dom.doc.getElementById('btn-clear-all-seats'));
@@ -875,8 +880,12 @@ test('Super Concert: counter tracks seated + standing against configuredMax whil
     dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
     dom.advanceTime(400);
     dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-01"]'));
+    dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
     dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-02"]'));
+    dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
     dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+    // Ghế thứ 3 vượt giới hạn 2: khung thông tin vé khóa nút Thêm, lựa chọn giữ nguyên.
+    assert.equal(dom.doc.getElementById('map-seat-action').disabled, true);
     assert.equal(dom.doc.getElementById('summary-count').textContent, 'Đã chọn 2/2 vé');
   });
 });
@@ -895,7 +904,9 @@ test('Super Concert: VUOT_GIOI_HAN_VE shows server numbers in dedicated alert fo
       dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
       dom.advanceTime(400);
       dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-01"]'));
+      dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
       dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-02"]'));
+      dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
       dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="GA_STAND_1"]'));
       dom.advanceTime(400);
       dom.click(dom.doc.getElementById('map-standing-plus'));
@@ -940,6 +951,7 @@ test('Super Concert: VUOT_GIOI_HAN_VE shows server numbers in dedicated alert fo
       dom.click(dom.doc.querySelector('#oval-stadium-root .stadium-svg-zone[data-zone-code="VVIP_DIAMOND"]'));
       dom.advanceTime(400);
       dom.click(dom.doc.querySelector('#stadium-seat-layer [data-seat-id="VVIP-A-03"]'));
+      dom.click(dom.doc.getElementById('map-seat-action')); // bấm chấm mở khung thông tin vé, bấm Thêm/Bỏ chọn mới thay đổi lựa chọn
       assert.match(toasts.at(-1).message, /Đã chọn ghế VVIP-A-03/);
       assert.equal(alertEl.classList.contains('hidden'), false);
       assert.match(alertEl.textContent, /còn có thể chọn thêm 1 vé/);

@@ -68,3 +68,31 @@ Một khung duy nhất: sơ đồ phóng vừa phải vào khu (khoảng 30% to�
 ### OTP
 
 Mọi sự kiện đang mở bán trên staging (Super Concert, Hanou) và trong dữ liệu mô phỏng đã bật OTP; hai sự kiện UAT đã đóng cũng giữ cờ bật (không ảnh hưởng vì không mua được).
+
+## Bổ sung (23/11/2026, đợt 3): sơ đồ chỗ ngồi kiểu Ticketmaster
+
+Mục tiêu: người mua nhìn thấy ghế ngay trên bản đồ, phóng to/di chuyển tự do, bấm một chỗ thì thông tin và giá hiện bên cạnh.
+
+### Sơ đồ BTC (nhà hát, arena) và mọi sự kiện sau này dùng sơ đồ SVG của BTC
+
+| Thành phần | Hành vi |
+|---|---|
+| Ghế | Chấm tròn vẽ ngay trong chính SVG, xếp theo hình thật của từng khu (`src/domain/zoneSeatLayout.js`). Còn trống = xanh dương, đang chọn = đen viền vàng, đã bán / đang giữ = xám |
+| Camera | Bấm một khu thì phóng vào khu đó; kéo thả để di chuyển; chụm hai ngón hoặc Ctrl + cuộn hoặc nút ＋ − để thu phóng; nhấp đúp phóng nhanh; phím +, −, 0 và mũi tên khi bản đồ đang được lấy tiêu điểm; nút làm mới về toàn cảnh |
+| Bản đồ nhỏ | Góc dưới bên phải, có khung vàng cho vùng đang xem, bấm để dịch camera |
+| Khung thông tin vé | Cạnh bản đồ (dưới bản đồ trên điện thoại): Khu, Hàng, Ghế, giá, nút Thêm vào lựa chọn / Bỏ chọn. Bấm chấm chỉ mở khung này, ghế chỉ vào lựa chọn khi bấm Thêm. Ghế đã bán, đang giữ, đủ vé hoặc chưa mở bán thì nút bị khóa và nêu lý do |
+| Đủ số vé tối đa | Mọi chấm còn trống chưa chọn đổi sang xám viền đỏ; bỏ chọn một ghế thì trở lại bình thường |
+
+Chấm ghế chỉ hiện khi đã phóng to hoặc có khu đang mở; ở toàn cảnh bản đồ giữ nguyên bản vẽ của BTC. Chỉ chấm của khu đang mở bấm được (chọn khu trước, rồi chọn ghế).
+
+### Super Concert (sơ đồ riêng, giữ camera theo khu)
+
+Ghế đổi từ ô cung sang chấm tròn cùng bảng màu; bấm chấm thì khung thông tin vé hiện ở góc phải bản đồ (Khu, Hàng, Ghế, giá, nút Thêm / Bỏ chọn); nhấp đúp chọn nhanh. Đủ số vé thì chấm còn trống hiện dấu cấm đỏ và khung thông tin nêu cả hai giới hạn.
+
+### Giới hạn trung thực
+
+- Super Concert **chưa có** kéo thả tự do và bản đồ nhỏ: sơ đồ này vẫn là camera theo khu của bản cũ (phóng vào khu, nút Thu nhỏ toàn cảnh). Muốn có đủ như hai sơ đồ kia phải chuyển Super Concert sang bản đồ SVG chung, kéo theo việc bỏ bộ chạy riêng (`concertRuntime.js`) đang điều khiển cả đồng hồ đếm ngược trang chủ, nên chưa làm.
+- Chưa có bộ lọc giá, loại vé, ghế dành cho người khuyết tật như Ticketmaster.
+- Thu phóng bằng cuộn chuột cần giữ Ctrl để không cướp thao tác cuộn trang.
+- Mới kiểm tra ở chế độ mô phỏng (mỗi khu 40 ghế); chưa kiểm với dữ liệu staging cho hai sơ đồ BTC vì staging chỉ có sơ đồ Super Concert.
+- Ghế trên điện thoại vẫn nhỏ (chấm), nhưng có thể phóng to bằng chụm hai ngón hoặc nút ＋.

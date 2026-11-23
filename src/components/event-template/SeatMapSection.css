@@ -425,28 +425,28 @@
   object-fit: contain;
 }
 
-.et-official-map-interactive svg {
+.et-tm-svg svg {
   display: block;
   width: 100%;
   height: auto;
   max-height: 620px;
 }
 
-.et-official-map-interactive [data-zone-code] {
+.et-tm-svg [data-zone-code] {
   cursor: pointer;
   transform-box: fill-box;
   transform-origin: center;
   transition: filter 160ms ease-out, transform 160ms ease-out;
 }
 
-.et-official-map-interactive [data-zone-code]:hover,
-.et-official-map-interactive [data-zone-code]:focus {
+.et-tm-svg [data-zone-code]:hover,
+.et-tm-svg [data-zone-code]:focus {
   filter: brightness(1.2) drop-shadow(0 5px 7px rgba(0, 0, 0, 0.38));
   transform: scale(1.012);
   outline: none;
 }
 
-.et-official-map-interactive [data-zone-code]:focus-visible {
+.et-tm-svg [data-zone-code]:focus-visible {
   filter: brightness(1.22) drop-shadow(0 0 5px var(--seat-accent));
 }
 
@@ -1496,14 +1496,14 @@
    ========================================================================== */
 
 /* Làm mờ khu xung quanh trên sơ đồ BTC (SVG) */
-.et-official-map-interactive [data-zone-code] {
+.et-tm-svg [data-zone-code] {
   transition: opacity 0.25s ease, filter 0.25s ease, stroke-width 0.2s ease;
 }
-.et-official-map-interactive [data-zone-code].is-dimmed {
+.et-tm-svg [data-zone-code].is-dimmed {
   opacity: 0.2;
   filter: saturate(0.3);
 }
-.et-official-map-interactive [data-zone-code].is-focused {
+.et-tm-svg [data-zone-code].is-focused {
   opacity: 1;
   stroke: var(--zone-color, #8b5cf6);
   stroke-width: 5;
@@ -1511,70 +1511,7 @@
   filter: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  .et-official-map-interactive [data-zone-code] { transition: none; }
-}
-
-/* Khung gộp: sơ đồ BTC phóng vừa phải vào khu đang mở làm nền, bảng chọn ghế hiện tại nổi giữa khung. */
-.et-zone-stage {
-  position: relative;
-  margin: 8px 16px 0;
-  border: 1px solid var(--seat-border);
-  border-radius: 12px;
-  overflow: hidden;
-  background: #0d1527;
-  isolation: isolate;
-}
-.et-zone-stage__backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-.et-zone-stage .et-official-map--stage {
-  position: absolute;
-  inset: 0;
-  width: auto;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-.et-zone-stage .et-official-map--stage figcaption { display: none; }
-.et-zone-stage .et-official-map-interactive,
-.et-zone-stage .et-official-map-interactive svg {
-  width: 100%;
-  height: 100%;
-  max-height: none;
-}
-/* Lớp trước: vùng chứa bảng ghế trong suốt, không chặn bấm vào các khu bên cạnh ở mép sơ đồ */
-.et-zone-stage .et-map-viewport {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 600px;
-  padding: 48px 24px;
-  background: transparent !important;
-  background-image: none !important;
-  border: 0;
-  pointer-events: none;
-}
-.et-zone-stage .et-map-viewport .et-pz,
-.et-zone-stage .et-map-viewport .et-pz__content { pointer-events: none; background: transparent; }
-.et-zone-stage .et-detail-layout,
-.et-zone-stage .et-standing-zone-detail {
-  pointer-events: auto;
-  width: min(100%, 700px);
-  padding: 6px 12px 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(2px);
-  box-shadow: 0 18px 48px rgba(2, 6, 23, 0.5);
-}
-@media (max-width: 700px) {
-  .et-zone-stage { margin: 8px 0 0; border-radius: 8px; }
-  .et-zone-stage .et-map-viewport { padding: 36px 6px; min-height: 0; }
-  .et-zone-stage .et-detail-layout { padding: 6px 6px 12px; overflow-x: auto; }
+  .et-tm-svg [data-zone-code] { transition: none; }
 }
 
 /* Đồng hồ giữ chỗ 5 phút trong bảng tóm tắt (chỉ hiện khi đã giữ chỗ thật) */
@@ -1663,7 +1600,7 @@
 }
 
 /* Nhãn chữ trên bản vẽ SVG thu nhỏ: thêm viền tối để đọc được trên khu đang sáng */
-.et-official-map--stage .et-official-map-interactive text {
+.et-tm-svg text {
   paint-order: stroke fill;
   stroke: rgba(13, 21, 39, 0.9);
   stroke-width: 2.6px;
@@ -1693,3 +1630,213 @@
   );
   pointer-events: none;
 }
+
+
+/* ==========================================================================
+   Bản đồ kiểu Ticketmaster (sơ đồ BTC): ghế là chấm trên bản đồ, kéo/zoom tự do, khung thông tin vé bên cạnh.
+   ========================================================================== */
+.et-tm-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 0;
+  margin: 8px 16px 0;
+  border: 1px solid var(--seat-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--seat-bg);
+}
+.et-tm-map { margin: 0; min-width: 0; }
+.et-tm-stage {
+  position: relative;
+  height: 600px;
+  background: #0d1527;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  outline: none;
+}
+.et-tm-stage.is-dragging { cursor: grabbing; }
+.et-tm-stage:focus-visible { box-shadow: inset 0 0 0 3px var(--seat-accent); }
+.et-tm-svg,
+.et-tm-svg svg { width: 100%; height: 100%; display: block; max-height: none; }
+.et-tm-fallback { padding: 40px 20px; text-align: center; color: var(--seat-muted); }
+
+/* Khu trên bản đồ */
+.et-tm-svg [data-zone-code] { cursor: pointer; transition: opacity 0.25s ease, filter 0.25s ease; }
+.et-tm-svg [data-zone-code]:hover { filter: brightness(1.18); }
+.et-tm-svg [data-zone-code]:focus-visible { outline: none; filter: brightness(1.25) drop-shadow(0 0 4px var(--seat-accent)); }
+.et-tm-svg [data-zone-code].is-dimmed { opacity: 0.22; filter: saturate(0.3); }
+.et-tm-svg [data-zone-code].is-focused {
+  opacity: 1;
+  stroke: var(--zone-color, #8b5cf6);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  filter: none;
+}
+
+/* Chấm ghế: chỉ hiện khi đã phóng to hoặc có khu đang mở */
+.et-tm-seat-layer { pointer-events: none; }
+.et-tm-dots { opacity: 0; transition: opacity 0.2s ease; }
+.et-tm-map[data-dots='on'] .et-tm-dots { opacity: 1; }
+.et-tm-dot {
+  fill: #2f54eb;
+  stroke: #ffffff;
+  stroke-width: 0.6;
+  pointer-events: none;
+  outline: none;
+  transition: fill 0.12s;
+}
+.et-tm-map[data-dots='on'] .et-tm-dot[data-active='true'] { pointer-events: auto; cursor: pointer; }
+.et-tm-dot[data-active='false'] { opacity: 0.35; }
+.et-tm-dot[data-status='sold'],
+.et-tm-dot[data-status='held'],
+.et-tm-dot[data-status='blocked'] { fill: #c3c7cf; stroke: #ffffff; cursor: not-allowed; }
+.et-tm-dot[data-status='sold'] { fill: #9aa0ab; }
+.et-tm-dot[data-status='selected'] { fill: #0b0f19; stroke: #facc15; stroke-width: 1.6; }
+.et-tm-dot[data-inspected='true'] { stroke: #ffffff; stroke-width: 2.2; filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.95)); }
+.et-tm-dot[data-search-hit='true'] { stroke: #facc15; stroke-width: 2.2; }
+.et-tm-dot[data-limit='true'] { fill: #c3c7cf; stroke: #dc2626; stroke-width: 1; cursor: not-allowed; }
+.et-tm-dot:focus-visible { stroke: #facc15; stroke-width: 2.4; }
+.et-tm-map[data-dots='on'] .et-tm-dot[data-active='true'][data-status='available']:hover { fill: #5d7bff; }
+
+/* Nút điều khiển (làm mới, phóng to, thu nhỏ) */
+.et-tm-controls {
+  position: absolute;
+  right: 12px;
+  bottom: 98px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(2, 6, 23, 0.45);
+  z-index: 3;
+}
+.et-tm-controls button {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: #ffffff;
+  color: #1f262d;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.et-tm-controls button + button { border-top: 1px solid #e2e8f0; }
+.et-tm-controls button:hover { background: #f4f6f8; }
+.et-tm-controls button:focus-visible { outline: 2px solid var(--seat-accent); outline-offset: -2px; }
+
+/* Bản đồ nhỏ góc dưới bên phải */
+.et-tm-mini {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 132px;
+  height: 78px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.78);
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 3;
+}
+.et-tm-mini__svg,
+.et-tm-mini__svg svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+.et-tm-mini__svg [data-zone-code] { opacity: 0.9; }
+.et-tm-mini__view {
+  position: absolute;
+  border: 2px solid #facc15;
+  background: rgba(250, 204, 21, 0.16);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* Khung thông tin vé bên cạnh bản đồ */
+.et-ticket-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+  border-left: 1px solid var(--seat-border);
+  background: var(--seat-bg);
+  min-width: 0;
+}
+.et-ticket-panel__head { display: flex; align-items: center; gap: 12px; }
+.et-ticket-panel__title { margin: 0; font-size: 18px; font-weight: 700; }
+.et-ticket-panel__back {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--seat-fg);
+  border-radius: 8px;
+  background: var(--seat-bg);
+  color: var(--seat-accent);
+  font-size: 18px;
+  cursor: pointer;
+}
+.et-ticket-panel__hint { margin: 0; color: var(--seat-muted); font-size: 13px; line-height: 1.6; }
+.et-ticket-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0 0;
+}
+.et-ticket-panel__grid dt { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--seat-muted); }
+.et-ticket-panel__grid dd { margin: 2px 0 0; font-size: 24px; font-weight: 700; overflow-wrap: anywhere; }
+.et-ticket-panel__zone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--seat-muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.et-ticket-panel__zone::before,
+.et-ticket-panel__zone::after { content: ''; flex: 1; height: 1px; background: var(--seat-border); }
+.et-ticket-panel__price { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 15px; }
+.et-ticket-panel__price strong { font-size: 18px; }
+.et-ticket-panel__code { margin: 0; font: 12px var(--seat-font-mono); color: var(--seat-muted); overflow-wrap: anywhere; }
+.et-ticket-panel__reason { margin: 0; padding: 8px 10px; border-radius: 8px; background: #fff7e0; color: #7c4a03; font-size: 12px; line-height: 1.5; }
+.et-ticket-panel__action {
+  margin-top: auto;
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: #2f54eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.et-ticket-panel__action:hover:not(:disabled) { background: #1d3fd1; }
+.et-ticket-panel__action.is-remove { background: #ffffff; color: #b42318; border: 1.5px solid #b42318; }
+.et-ticket-panel__action:disabled { background: #e2e8f0; color: #64748b; cursor: not-allowed; }
+.et-ticket-panel__action:focus-visible { outline: 3px solid var(--seat-accent); outline-offset: 2px; }
+
+/* Chú giải kiểu chấm cho sơ đồ BTC */
+.et-legend--tm .et-sample { border-radius: 50%; border-color: #ffffff; box-shadow: 0 0 0 1px #cbd5e1; font-size: 0; }
+.et-legend--tm .et-sample:not(.sold):not(.held):not(.selected):not(.blocked) { background: #2f54eb; }
+.et-legend--tm .et-sample.sold { background: #9aa0ab; }
+.et-legend--tm .et-sample.held { background: #c3c7cf; }
+.et-legend--tm .et-sample.selected { background: #0b0f19; box-shadow: 0 0 0 2px #facc15; }
+.et-legend--tm .et-sample.blocked { background: #c3c7cf; border-style: solid; }
+
+@media (max-width: 900px) {
+  .et-tm-card { grid-template-columns: minmax(0, 1fr); margin: 8px 0 0; }
+  .et-tm-stage { height: 460px; }
+  .et-ticket-panel { border-left: 0; border-top: 1px solid var(--seat-border); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .et-tm-dots, .et-tm-svg [data-zone-code] { transition: none; }
+}
+
+/* Khu trên bản đồ không dịch chuyển khi rê chuột/lấy tiêu điểm (giữ đúng vị trí chấm ghế) */
+.et-tm-svg [data-zone-code],
+.et-tm-svg [data-zone-code]:hover,
+.et-tm-svg [data-zone-code]:focus { transform: none; }
+
+.et-tm-svg text.is-covered { opacity: 0.06; transition: opacity 0.2s ease; }
+.et-ticket-panel__grid { grid-template-columns: minmax(0, 1.7fr) minmax(0, 0.7fr) minmax(0, 0.7fr); }
+.et-ticket-panel__grid dd.is-long { font-size: 15px; line-height: 1.25; overflow-wrap: break-word; word-break: normal; }
