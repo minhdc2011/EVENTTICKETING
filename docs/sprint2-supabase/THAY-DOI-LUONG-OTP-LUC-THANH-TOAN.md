@@ -169,3 +169,30 @@ Hệ quả khác: số ghế bán (`DA_BAN`) nay tăng khi người mua xác nh�
 - **Áp lên staging `qxkgkbayxxaakkwtepss`:** `db push --remote=qxkgkbayxxaakkwtepss` (chạy thử trước), áp 2 migration: `20261123120000_seed_super_concert_upper_tier_seats.sql` (seed ghế Upper Tier đã có sẵn trên main, idempotent) và `20261124090000_...`. Các bước tự kiểm tra trong migration đạt; chạy lại chạy thử cho kết quả "Remote database is up to date".
 - **Kiểm chỉ đọc bằng khóa công khai:** `xac_nhan_thanh_toan` và `gia_han_giu_cho` tồn tại và `anon` bị từ chối 42501 (permission denied for function).
 - **Chưa kiểm:** luồng đầy đủ với tài khoản và email thật trên bản triển khai công khai.
+
+## Bổ sung (24/11/2026): mã demo thay OTP cho tài khoản @demo.vn
+
+Tài khoản đăng nhập nhanh (`buyer@demo.vn`) không có hộp thư thật nên không nhận được OTP. Để demo, có **mã demo thay OTP** (migration `20261124100000_sprint2_ma_demo_bo_qua_otp.sql`):
+
+| Ràng buộc | Cách thực hiện |
+|---|---|
+| Kiểm ở máy chủ | `xac_nhan_thanh_toan(p_giu_cho_id, p_phien_id, p_ma_demo DEFAULT NULL)`; trình duyệt chỉ gửi mã người dùng nhập |
+| Mã không nằm trong mã nguồn | Chỉ lưu SHA-256 trong bảng riêng `CAU_HINH_DEMO` (khóa `MA_DEMO_BO_QUA_OTP`); `authenticated` và `anon` không đọc được; migration không chứa mã nào |
+| Chỉ tài khoản demo | Email kết thúc `@demo.vn` (không phân biệt hoa thường); người dùng thật nhập đúng mã vẫn bị từ chối |
+| Không lộ thông tin | Sai mã, mã quá ngắn, chưa cấu hình mã, tài khoản không phải demo: đều trả cùng lỗi 42501 như thiếu OTP |
+
+**Đặt hoặc đổi mã** (người quản trị làm trên Supabase Dashboard, SQL Editor; thay `<MA>` bằng mã riêng của nhóm, **không ghi mã vào repo hay tài liệu**):
+
+```sql
+INSERT INTO public."CAU_HINH_DEMO" ("Khoa", "GiaTri")
+VALUES ('MA_DEMO_BO_QUA_OTP', encode(sha256(convert_to('<MA>', 'UTF8')), 'hex'))
+ON CONFLICT ("Khoa") DO UPDATE SET "GiaTri" = EXCLUDED."GiaTri", "NgayCapNhat" = NOW();
+```
+
+**Tắt mã demo:** `DELETE FROM public."CAU_HINH_DEMO" WHERE "Khoa" = 'MA_DEMO_BO_QUA_OTP';` (làm sau buổi bảo vệ).
+
+Giao diện: ô OTP của tài khoản `@demo.vn` nhận thêm chữ; mã có chữ được gửi lên máy chủ thay vì qua Supabase Auth, không cần bấm Gửi mã. Sai mã thì báo "Mã không đúng" và mở lại hộp thoại OTP, ghế vẫn được giữ. Ở chế độ mô phỏng không có máy chủ nên mã demo bị từ chối (dùng mã mô phỏng 123456).
+
+Kiểm thử: pgTAP `sprint2_ma_demo_otp.sql` (14 ca: chưa cấu hình, sai mã, mã ngắn, thiếu mã, tài khoản thật, đúng mã thành công và ghế đã bán, email viết hoa, OTP thật vẫn chạy, xóa cấu hình thì ngừng, ACL, định nghĩa hàm không chứa mã); `scripts/nfr/demo-code-flow.mjs` (giao diện, Chrome thật, chế độ mô phỏng). Tổng pgTAP: 17 file, 874 test đạt.
+
+Giới hạn: chưa giới hạn số lần thử mã; mã là cửa sau có chủ đích chỉ cho tài khoản demo, nên xóa dòng cấu hình sau buổi bảo vệ.

@@ -72,6 +72,7 @@ import {MapPanZoom, usePanZoom} from './MapPanZoom';
 import {
   EVENT_DA_DANG_NHAP,
   EVENT_DA_XAC_MINH_OTP,
+  EVENT_MA_DEMO,
   laLoiCanOtp,
   laLoiGiuChoHetHan,
   phatYeuCauOtp,
@@ -787,8 +788,17 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       void confirmPaymentRef.current();
     };
     window.addEventListener(EVENT_DA_DANG_NHAP, onDangNhap);
+    const onMaDemo = (event: Event) => {
+      if (!dangChoOtpRef.current) return;
+      const ma = (event as CustomEvent<{ma?: string}>).detail?.ma;
+      if (!ma) return;
+      dangChoOtpRef.current = false;
+      void confirmPaymentRef.current(ma);
+    };
     window.addEventListener(EVENT_DA_XAC_MINH_OTP, onXacMinhOtp);
+    window.addEventListener(EVENT_MA_DEMO, onMaDemo);
     return () => {
+      window.removeEventListener(EVENT_MA_DEMO, onMaDemo);
       window.removeEventListener(EVENT_DA_DANG_NHAP, onDangNhap);
       window.removeEventListener(EVENT_DA_XAC_MINH_OTP, onXacMinhOtp);
     };
@@ -845,13 +855,13 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   }, []);
 
   // Xác nhận thanh toán (mô phỏng). Sự kiện bật OTP: máy chủ yêu cầu OTP -> gia hạn giữ chỗ một lần -> hộp thoại OTP -> thử lại.
-  const handleConfirmPayment = useCallback(async () => {
+  const handleConfirmPayment = useCallback(async (maDemo?: string) => {
     const hold = activeHoldRef.current;
     if (!hold || isConfirming) return;
     const holdId = hold.holdId;
     setIsConfirming(true);
     try {
-      await confirmSeatPayment(holdId);
+      await confirmSeatPayment(holdId, maDemo);
       if (activeHoldRef.current?.holdId !== holdId) return;
       dangChoOtpRef.current = false;
       setActiveHold(null);
@@ -868,6 +878,15 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       if (activeHoldRef.current?.holdId !== holdId) return;
       if (laLoiGiuChoHetHan(err)) {
         resetSauKhiHetGiuCho('Thời gian giữ ghế đã hết. Vui lòng chọn lại ghế để tiếp tục.');
+        return;
+      }
+      if (laLoiCanOtp(err) && maDemo) {
+        // Mã demo không được chấp nhận (sai mã, hoặc không phải tài khoản demo): báo và mở lại hộp thoại OTP, ghế vẫn được giữ.
+        dangChoOtpRef.current = true;
+        const loi = 'Mã không đúng. Vui lòng nhập mã OTP gửi về email.';
+        setRealtimeBanner(loi);
+        dispatchToast({message: loi, type: 'error'});
+        phatYeuCauOtp();
         return;
       }
       if (laLoiCanOtp(err)) {

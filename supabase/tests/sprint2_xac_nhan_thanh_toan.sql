@@ -346,9 +346,9 @@ RESET ROLE;
 
 -- [25]
 SELECT is((SELECT ROW(
-     has_function_privilege('authenticated', 'public.xac_nhan_thanh_toan(uuid, uuid)', 'EXECUTE'),
+     has_function_privilege('authenticated', 'public.xac_nhan_thanh_toan(uuid, uuid, text)', 'EXECUTE'),
      has_function_privilege('authenticated', 'public.gia_han_giu_cho(uuid, uuid)', 'EXECUTE'),
-     has_function_privilege('anon', 'public.xac_nhan_thanh_toan(uuid, uuid)', 'EXECUTE')
+     has_function_privilege('anon', 'public.xac_nhan_thanh_toan(uuid, uuid, text)', 'EXECUTE')
        OR has_function_privilege('anon', 'public.gia_han_giu_cho(uuid, uuid)', 'EXECUTE'))),
   ROW(TRUE, TRUE, FALSE),
   'EXECUTE: authenticated duoc goi, anon bi thu hoi tren hai ham moi');

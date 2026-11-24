@@ -181,7 +181,7 @@ export type SeatPaymentConfirmation = {holdId: string; status: 'CONVERTED'; soVe
  * Xác nhận thanh toán (mô phỏng, chưa có cổng thanh toán): giữ chỗ còn hạn chuyển thành đã mua.
  * Sự kiện bật OTP mà phiên chưa xác minh thì ném OtpRequiredError; giữ chỗ hết hạn thì ném HoldExpiredError.
  */
-export async function confirmSeatPayment(holdId: string): Promise<SeatPaymentConfirmation> {
+export async function confirmSeatPayment(holdId: string, maDemo?: string): Promise<SeatPaymentConfirmation> {
   if (runtimeConfig.useMockData || holdId.startsWith('mock-')) {
     const buyer = await getBuyerSession();
     if (!buyer?.userId) throw new LoginRequiredError('Vui lòng đăng nhập tài khoản người mua để thanh toán.');
@@ -214,6 +214,8 @@ export async function confirmSeatPayment(holdId: string): Promise<SeatPaymentCon
     const {data, error} = await supabase.rpc('xac_nhan_thanh_toan', {
       p_giu_cho_id: holdId,
       p_phien_id: getBrowserSessionId(),
+      // Mã demo thay OTP: chỉ gửi khi người dùng nhập; máy chủ chỉ chấp nhận cho tài khoản @demo.vn.
+      ...(maDemo ? {p_ma_demo: maDemo} : {}),
     });
     if (error) throw chuanHoaLoiThanhToan(error);
     return data as unknown as SeatPaymentConfirmation;
