@@ -91,4 +91,4 @@ Dọn dẹp: `npm run db:stop`.
 - Luồng giữ chỗ và thanh toán mới với nhiều tài khoản và email thật trên bản triển khai công khai (máy chủ và SMTP đã kiểm bằng API ở bước trước).
 - pgTAP trực tiếp trên staging (tài khoản CLI thiếu quyền schema auth); đã bù bằng pgTAP trên bản sao đã nâng cấp và trên project hosted riêng.
 
-Staging `qxkgkbayxxaakkwtepss` đã được nâng lên V2 ngày 23/11/2026 và hiện ở 35/35 migration (24/11/2026); xem `docs/sprint2-supabase/NANG-CAP-STAGING-LEN-V2.md`. Staging có 8 sự kiện, tất cả thuộc tổ chức BTC demo (`organizer@demo.vn`); Creative Tech Summit và Autumn Arena cũng nằm trong cơ sở dữ liệu (không còn chỉ là dữ liệu mô phỏng).
+Staging `qxkgkbayxxaakkwtepss` đã được nâng lên V2 ngày 23/11/2026 và hiện ở 36/36 migration (24/11/2026); xem `docs/sprint2-supabase/NANG-CAP-STAGING-LEN-V2.md`. Staging có 8 sự kiện, tất cả thuộc tổ chức BTC demo (`organizer@demo.vn`); Creative Tech Summit và Autumn Arena cũng nằm trong cơ sở dữ liệu (không còn chỉ là dữ liệu mô phỏng).
