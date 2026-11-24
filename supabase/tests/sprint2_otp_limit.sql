@@ -354,19 +354,25 @@ RESET ROLE;
 -- Section 2: OTP enforcement in tao_giu_cho_theo_suat (15..23)
 -- ============================================================================
 
--- Missing amr -> 42501 on OTP-required event 997101
+-- Luong moi (24/11/2026): giu cho chi can dang nhap; OTP duoc kiem o buoc xac nhan thanh toan.
+-- [15] Giu cho tren su kien bat OTP KHONG can OTP (JWT khong co amr).
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claim.role', 'authenticated', true),
        set_config('request.jwt.claim.sub', '88888888-8888-4888-8888-000000000011', true),
        set_config('request.jwt.claims', '{"role":"authenticated","sub":"88888888-8888-4888-8888-000000000011"}', true);
+INSERT INTO t3_otp_res SELECT 'b1_ev1_c1', public.tao_giu_cho_theo_suat(
+  997101,
+  '11111111-0000-0000-0000-000000000005'::uuid,
+  '[{"ticketCode":"T3S1-A-01","zoneCode":"T3_SEAT_S1"}]'::jsonb
+);
 -- [15]
-SELECT throws_ok(
-  $$ SELECT public.tao_giu_cho_theo_suat(997101, '11111111-0000-0000-0000-000000000001'::uuid, '[{"ticketCode":"T3S1-A-01","zoneCode":"T3_SEAT_S1"}]'::jsonb) $$,
-  '42501', 'Can xac minh OTP de giu cho',
-  'OTP-required event rejects authenticated caller without OTP (42501)'
+SELECT is(
+  (SELECT res->>'status' FROM t3_otp_res WHERE step = 'b1_ev1_c1'),
+  'ACTIVE',
+  'Su kien bat OTP: giu cho thanh cong khi da dang nhap, chua can OTP'
 );
 
--- Expired OTP (> 24h) -> 42501
+-- Expired OTP (> 24h) -> xac nhan thanh toan bi 42501
 SELECT set_config(
   'request.jwt.claims',
   jsonb_build_object(
@@ -378,9 +384,10 @@ SELECT set_config(
 );
 -- [16]
 SELECT throws_ok(
-  $$ SELECT public.tao_giu_cho_theo_suat(997101, '11111111-0000-0000-0000-000000000002'::uuid, '[{"ticketCode":"T3S1-A-01","zoneCode":"T3_SEAT_S1"}]'::jsonb) $$,
-  '42501', 'Can xac minh OTP de giu cho',
-  'OTP-required event rejects expired OTP (>24h) with 42501'
+  format($$ SELECT public.xac_nhan_thanh_toan(%L::uuid, '11111111-0000-0000-0000-000000000005'::uuid) $$,
+         (SELECT res->>'holdId' FROM t3_otp_res WHERE step = 'b1_ev1_c1')),
+  '42501', 'Can xac minh OTP de xac nhan thanh toan',
+  'Xac nhan thanh toan tu choi OTP cu hon 24 gio (42501)'
 );
 
 -- Missing timestamp -> 42501
@@ -391,9 +398,10 @@ SELECT set_config(
 );
 -- [17]
 SELECT throws_ok(
-  $$ SELECT public.tao_giu_cho_theo_suat(997101, '11111111-0000-0000-0000-000000000003'::uuid, '[{"ticketCode":"T3S1-A-01","zoneCode":"T3_SEAT_S1"}]'::jsonb) $$,
-  '42501', 'Can xac minh OTP de giu cho',
-  'OTP-required event rejects OTP without timestamp with 42501'
+  format($$ SELECT public.xac_nhan_thanh_toan(%L::uuid, '11111111-0000-0000-0000-000000000005'::uuid) $$,
+         (SELECT res->>'holdId' FROM t3_otp_res WHERE step = 'b1_ev1_c1')),
+  '42501', 'Can xac minh OTP de xac nhan thanh toan',
+  'Xac nhan thanh toan tu choi OTP khong co timestamp (42501)'
 );
 
 -- Future timestamp -> 42501
@@ -408,47 +416,46 @@ SELECT set_config(
 );
 -- [18]
 SELECT throws_ok(
-  $$ SELECT public.tao_giu_cho_theo_suat(997101, '11111111-0000-0000-0000-000000000004'::uuid, '[{"ticketCode":"T3S1-A-01","zoneCode":"T3_SEAT_S1"}]'::jsonb) $$,
-  '42501', 'Can xac minh OTP de giu cho',
-  'OTP-required event rejects future OTP timestamp with 42501'
+  format($$ SELECT public.xac_nhan_thanh_toan(%L::uuid, '11111111-0000-0000-0000-000000000005'::uuid) $$,
+         (SELECT res->>'holdId' FROM t3_otp_res WHERE step = 'b1_ev1_c1')),
+  '42501', 'Can xac minh OTP de xac nhan thanh toan',
+  'Xac nhan thanh toan tu choi OTP co timestamp o tuong lai (42501)'
 );
 RESET ROLE;
 
--- [19]
+-- [19] Cac lan xac nhan that bai khong doi giu cho: van 1 giu cho ACTIVE, 1 chi tiet, ghe DANG_GIU
 SELECT is(
   (SELECT ROW(
      (SELECT count(*)::int FROM public."GIU_CHO" WHERE "SuKienID" = 997101),
      (SELECT count(*)::int FROM public."CHI_TIET_GIU_CHO" ct JOIN public."GIU_CHO" gc ON gc."GiuChoID" = ct."GiuChoID" WHERE gc."SuKienID" = 997101),
      (SELECT "TrangThai"::text FROM public."GHE" WHERE "KhuVucID" = 997101 AND "MaGheDayDu" = 'T3S1-A-01')
    )),
-  ROW(0, 0, 'TRONG'::text),
-  'Failed OTP attempts leave 0 holds, 0 details, and seat T3S1-A-01 TRONG'
+  ROW(1, 1, 'DANG_GIU'::text),
+  'Xac nhan thanh toan that bai (OTP sai) khong doi giu cho: 1 giu cho, 1 chi tiet, ghe DANG_GIU'
 );
 
--- Valid OTP succeeds on event 997101
+-- [20] gia_han_giu_cho: gia han mot lan roi khong gia han them
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claim.role', 'authenticated', true),
        set_config('request.jwt.claim.sub', '88888888-8888-4888-8888-000000000011', true),
-       set_config(
-         'request.jwt.claims',
-         jsonb_build_object(
-           'role', 'authenticated',
-           'sub', '88888888-8888-4888-8888-000000000011',
-           'amr', jsonb_build_array(jsonb_build_object('method', 'otp', 'timestamp', floor(extract(epoch FROM now()))::BIGINT - 300))
-         )::text,
-         true
-       );
-INSERT INTO t3_otp_res SELECT 'b1_ev1_c1', public.tao_giu_cho_theo_suat(
-  997101,
-  '11111111-0000-0000-0000-000000000005'::uuid,
-  '[{"ticketCode":"T3S1-A-01","zoneCode":"T3_SEAT_S1"}]'::jsonb
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"88888888-8888-4888-8888-000000000011"}', true);
+INSERT INTO t3_otp_res SELECT 'b1_gia_han_1', public.gia_han_giu_cho(
+  (SELECT (res->>'holdId')::uuid FROM t3_otp_res WHERE step = 'b1_ev1_c1'),
+  '11111111-0000-0000-0000-000000000005'::uuid
+);
+INSERT INTO t3_otp_res SELECT 'b1_gia_han_2', public.gia_han_giu_cho(
+  (SELECT (res->>'holdId')::uuid FROM t3_otp_res WHERE step = 'b1_ev1_c1'),
+  '11111111-0000-0000-0000-000000000005'::uuid
 );
 RESET ROLE;
--- [20]
 SELECT is(
-  (SELECT res->>'status' FROM t3_otp_res WHERE step = 'b1_ev1_c1'),
-  'ACTIVE',
-  'Valid OTP allows holding on OTP-required event 997101'
+  (SELECT ROW(
+     (SELECT res->>'giaHanMoi' FROM t3_otp_res WHERE step = 'b1_gia_han_1'),
+     (SELECT res->>'giaHanMoi' FROM t3_otp_res WHERE step = 'b1_gia_han_2'),
+     (SELECT res->>'expiresAt' FROM t3_otp_res WHERE step = 'b1_gia_han_1') = (SELECT res->>'expiresAt' FROM t3_otp_res WHERE step = 'b1_gia_han_2')
+   )),
+  ROW('true'::text, 'false'::text, TRUE),
+  'gia_han_giu_cho gia han dung mot lan; lan hai tra lai han da gia han'
 );
 
 -- Event 997102 (YeuCauXacMinhOTP = FALSE): buyer 4 WITHOUT OTP succeeds (1 seated + 2 standing)
@@ -939,11 +946,16 @@ SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claim.role', 'authenticated', true),
        set_config('request.jwt.claim.sub', '88888888-8888-4888-8888-000000000014', true),
        set_config('request.jwt.claims', '{"role":"authenticated","sub":"88888888-8888-4888-8888-000000000014"}', true);
+INSERT INTO t3_otp_res SELECT 'b4_adapter_ev1', public.tao_giu_cho(
+  997101,
+  '11111111-0000-0000-0000-000000000031'::uuid,
+  '[{"ticketCode":"T3S1-A-05","zoneCode":"T3_SEAT_S1"}]'::jsonb
+);
 -- [52]
-SELECT throws_ok(
-  $$ SELECT public.tao_giu_cho(997101, '11111111-0000-0000-0000-000000000031'::uuid, '[{"ticketCode":"T3S1-A-05","zoneCode":"T3_SEAT_S1"}]'::jsonb) $$,
-  '42501', 'Can xac minh OTP de giu cho',
-  'Adapter tao_giu_cho does not bypass OTP requirement (42501)'
+SELECT is(
+  (SELECT res->>'status' FROM t3_otp_res WHERE step = 'b4_adapter_ev1'),
+  'ACTIVE',
+  'Adapter tao_giu_cho giu cho khong can OTP (OTP duoc kiem o buoc xac nhan thanh toan)'
 );
 
 -- buyer_2 is at 4/4 on event 997101
@@ -964,30 +976,18 @@ SELECT throws_ok(
   'Adapter tao_giu_cho does not bypass per-account/event limit (22023)'
 );
 
--- buyer_4 with valid OTP succeeds via adapter tao_giu_cho
+-- buyer_4 khong co OTP: giu cho qua adapter da thanh cong nhung xac nhan thanh toan bi tu choi
 SELECT set_config('request.jwt.claim.sub', '88888888-8888-4888-8888-000000000014', true),
-       set_config(
-         'request.jwt.claims',
-         jsonb_build_object(
-           'role', 'authenticated',
-           'sub', '88888888-8888-4888-8888-000000000014',
-           'amr', jsonb_build_array(jsonb_build_object('method', 'otp', 'timestamp', floor(extract(epoch FROM now()))::BIGINT - 60))
-         )::text,
-         true
-       );
-INSERT INTO t3_otp_res SELECT 'b4_adapter_ev1', public.tao_giu_cho(
-  997101,
-  '11111111-0000-0000-0000-000000000033'::uuid,
-  '[{"ticketCode":"T3S1-A-05","zoneCode":"T3_SEAT_S1"}]'::jsonb
+       set_config('request.jwt.claims', '{"role":"authenticated","sub":"88888888-8888-4888-8888-000000000014"}', true);
+-- [54]
+SELECT throws_ok(
+  format($$ SELECT public.xac_nhan_thanh_toan(%L::uuid, '11111111-0000-0000-0000-000000000031'::uuid) $$,
+         (SELECT res->>'holdId' FROM t3_otp_res WHERE step = 'b4_adapter_ev1')),
+  '42501', 'Can xac minh OTP de xac nhan thanh toan',
+  'Giu cho qua adapter khong the xac nhan thanh toan khi chua xac minh OTP (42501)'
 );
 RESET ROLE;
 
--- [54]
-SELECT is(
-  (SELECT res->>'status' FROM t3_otp_res WHERE step = 'b4_adapter_ev1'),
-  'ACTIVE',
-  'Adapter tao_giu_cho succeeds with valid OTP under limit'
-);
 -- [55]
 SELECT is(
   (SELECT ROW(

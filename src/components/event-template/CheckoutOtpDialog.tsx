@@ -89,8 +89,8 @@ export function CheckoutOtpDialog({session, eventId, isMock, khoOtp, onVerified,
           Xác minh OTP để thanh toán
         </h2>
         <p id="et-checkout-otp-desc" className="et-login-modal__text">
-          Mã xác minh 6 số sẽ được gửi tới email <strong>{maskEmail(session.email)}</strong>. Lựa chọn ghế của bạn được giữ nguyên;
-          nhập đúng mã để hoàn tất thanh toán.
+          Mã xác minh 6 số sẽ được gửi tới email <strong>{maskEmail(session.email)}</strong>. Ghế của bạn đang được giữ (đã gia hạn thêm để
+          bạn kịp nhập mã); nhập đúng mã để hoàn tất thanh toán.
         </p>
         <OtpVerificationPanel session={session} eventId={eventId} isMock={isMock} onVerified={onVerified} khoOtp={khoOtp} />
         <div className="et-login-modal__row">

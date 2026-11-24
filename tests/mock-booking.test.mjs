@@ -469,3 +469,68 @@ test('gioiHan không hợp lệ fallback về 4 và demVeDangGiu thuần hoạt 
   ];
   assert.equal(demVeDangGiu(sampleHolds, 'u1', 1, 1000), 3);
 });
+
+// ---------------------------------------------------------------------------
+// Luồng giữ chỗ trước, OTP xác nhận thanh toán sau: gia hạn một lần và xác nhận thanh toán
+// ---------------------------------------------------------------------------
+
+function giuMotVe(kho, taiKhoanId = 'u1') {
+  return kho.giuCho({taiKhoanId, suKienId: 1, suatDienId: 10, eventId: 'sk-1', items: [ghe('A-01')], gioiHan: 4});
+}
+
+test('giaHan thêm đúng một lần thời gian giữ; gọi lại trả hạn đã gia hạn và không gia hạn thêm', () => {
+  const dongHo = taoDongHo();
+  const kho = taoKhoGiuChoMoPhong({now: dongHo.now, taoId: taoBoDemId()});
+  const hold = giuMotVe(kho);
+  dongHo.advance(290_000); // sắp hết hạn (còn 10 giây)
+  const lan1 = kho.giaHan(hold.holdId);
+  assert.equal(lan1.giaHanMoi, true);
+  assert.equal(Date.parse(lan1.expiresAt), dongHo.now() + THOI_GIAN_GIU_MS);
+  dongHo.advance(60_000);
+  const lan2 = kho.giaHan(hold.holdId);
+  assert.equal(lan2.giaHanMoi, false);
+  assert.equal(lan2.expiresAt, lan1.expiresAt, 'không gia hạn thêm lần hai');
+});
+
+test('đã gia hạn thì quá hạn gốc vẫn xác nhận thanh toán được; quá hạn mới thì GIU_CHO_HET_HAN', () => {
+  const dongHo = taoDongHo();
+  const kho = taoKhoGiuChoMoPhong({now: dongHo.now, taoId: taoBoDemId()});
+  const hold = giuMotVe(kho);
+  dongHo.advance(290_000);
+  kho.giaHan(hold.holdId);
+  dongHo.advance(100_000); // đã quá hạn gốc 300 giây nhưng nằm trong hạn gia hạn
+  assert.equal(kho.xacNhan(hold.holdId).status, 'CONVERTED');
+
+  const hold2 = giuMotVe(kho, 'u2');
+  dongHo.advance(290_000);
+  kho.giaHan(hold2.holdId);
+  dongHo.advance(THOI_GIAN_GIU_MS + 1_000); // quá cả hạn gia hạn
+  assert.throws(() => kho.xacNhan(hold2.holdId), (err) => err.ma === 'GIU_CHO_HET_HAN');
+});
+
+test('không gia hạn hoặc xác nhận được giữ chỗ đã hết hạn, đã hủy hoặc không tồn tại', () => {
+  const dongHo = taoDongHo();
+  const kho = taoKhoGiuChoMoPhong({now: dongHo.now, taoId: taoBoDemId()});
+  const hold = giuMotVe(kho);
+  dongHo.advance(THOI_GIAN_GIU_MS + 1);
+  assert.throws(() => kho.giaHan(hold.holdId), (err) => err.ma === 'GIU_CHO_HET_HAN');
+  assert.throws(() => kho.xacNhan(hold.holdId), (err) => err.ma === 'GIU_CHO_HET_HAN');
+  const hold2 = giuMotVe(kho, 'u2');
+  kho.huy(hold2.holdId);
+  assert.throws(() => kho.xacNhan(hold2.holdId), (err) => err.ma === 'GIU_CHO_HET_HAN');
+  assert.throws(() => kho.giaHan('khong-co'), (err) => err.ma === 'GIU_CHO_HET_HAN');
+});
+
+test('xacNhan lặp lại thành công (idempotent) và vé đã xác nhận vẫn tính vào giới hạn sau khi hết hạn gốc', () => {
+  const dongHo = taoDongHo();
+  const kho = taoKhoGiuChoMoPhong({now: dongHo.now, taoId: taoBoDemId()});
+  const hold = kho.giuCho({taiKhoanId: 'u1', suKienId: 1, suatDienId: 10, eventId: 'sk-1', items: [ghe('A-01'), ghe('A-02'), ghe('A-03')], gioiHan: 4});
+  assert.equal(kho.xacNhan(hold.holdId).status, 'CONVERTED');
+  assert.equal(kho.xacNhan(hold.holdId).daXacNhanTruoc, true);
+  dongHo.advance(THOI_GIAN_GIU_MS * 3);
+  assert.equal(kho.dangGiu('u1', 1), 3, 'vé đã mua không tự hết hạn');
+  assert.throws(
+    () => kho.giuCho({taiKhoanId: 'u1', suKienId: 1, suatDienId: 10, eventId: 'sk-1', items: [ghe('B-01'), ghe('B-02')], gioiHan: 4}),
+    (err) => err instanceof PurchaseLimitError,
+  );
+});

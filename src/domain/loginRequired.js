@@ -49,6 +49,24 @@ export function laLoiCanOtp(err) {
   return err.ma === 'CAN_XAC_MINH_OTP' || laLoiThieuOtp(err);
 }
 
+/** Giữ chỗ đã hết hạn (hoặc đã bị trả) nên không xác nhận thanh toán hoặc gia hạn được. */
+export class HoldExpiredError extends Error {
+  constructor(message = 'Giữ chỗ đã hết hạn. Vui lòng chọn lại ghế để tiếp tục.', {cause} = {}) {
+    super(message);
+    this.name = 'HoldExpiredError';
+    this.ma = 'GIU_CHO_HET_HAN';
+    if (cause !== undefined) this.cause = cause;
+  }
+}
+
+/** Máy chủ báo GIU_CHO_HET_HAN (P0001) hoặc lớp mô phỏng báo hết hạn. */
+export function laLoiGiuChoHetHan(err) {
+  if (!err || typeof err !== 'object') return false;
+  if (err.ma === 'GIU_CHO_HET_HAN') return true;
+  const message = typeof err.message === 'string' ? err.message : '';
+  return String(err.code ?? '') === 'P0001' && message.includes('GIU_CHO_HET_HAN');
+}
+
 function phat(name, target) {
   const w = target ?? (typeof window === 'undefined' ? null : window);
   if (!w || typeof w.dispatchEvent !== 'function' || typeof CustomEvent === 'undefined') return false;

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Kiểm chứng OTP THẬT qua Supabase Auth (GoTrue) cục bộ: email OTP gửi thật tới hộp thư Inbucket/Mailpit của
- * Supabase CLI, người mua nhập mã đọc từ email, rồi gọi da_xac_minh_otp() và tao_giu_cho_theo_suat.
+ * Supabase CLI, người mua nhập mã đọc từ email, rồi gọi da_xac_minh_otp(), tao_giu_cho_theo_suat và xac_nhan_thanh_toan (luồng 24/11/2026: giữ chỗ trước, OTP xác nhận thanh toán sau).
  * Phục vụ AC-T2-01.1, .2, .3 (phần Auth có khóa hay không), .4, .5 (60 giây, mã mới vô hiệu mã cũ), .7.
  *
  *   SUPABASE_URL=... SUPABASE_ANON_KEY=... SUPABASE_SERVICE_ROLE_KEY=... [MAIL_URL=http://127.0.0.1:54324 (bắt buộc khi chạy cục bộ; bỏ trống ở hosted)] \
@@ -98,7 +98,13 @@ async function main() {
   }
   const on = await makeEvent('on', true);
   const off = await makeEvent('off', false);
-  const hold = async (c, e) => c.rpc('tao_giu_cho_theo_suat', {p_suat_dien_id: e.show, p_phien_id: crypto.randomUUID(), p_items: [{zoneCode: e.zoneCode, quantity: 1}]});
+  const hold = async (c, e) => {
+    const phien = crypto.randomUUID();
+    const r = await c.rpc('tao_giu_cho_theo_suat', {p_suat_dien_id: e.show, p_phien_id: phien, p_items: [{zoneCode: e.zoneCode, quantity: 1}]});
+    return {...r, phien};
+  };
+  // Luồng mới (24/11/2026): giữ chỗ chỉ cần đăng nhập; OTP được kiểm ở bước xác nhận thanh toán.
+  const confirmPay = async (c, h) => c.rpc('xac_nhan_thanh_toan', {p_giu_cho_id: h.data?.holdId, p_phien_id: h.phien});
 
   // S1 — đăng nhập mật khẩu, chưa OTP
   const {c: pw, session: pwSession} = await signedIn(buyer);
@@ -106,7 +112,9 @@ async function main() {
   const dx0 = await pw.rpc('da_xac_minh_otp');
   note('S1a', 'AC-T2-01.7', `phiên mật khẩu: amr=[${amrPw}], da_xac_minh_otp()`, dx0.data === false ? 'DAT' : 'KHONG_DAT', `data=${dx0.data} ${dx0.error ? errText(dx0.error) : ''}`);
   const h1 = await hold(pw, on);
-  note('S1b', 'AC-T2-01.7', 'giữ chỗ sự kiện BẬT OTP khi chưa OTP phải bị từ chối 42501', h1.error?.code === '42501' ? 'DAT' : 'KHONG_DAT', h1.error ? `${h1.error.code} ${h1.error.message}` : 'thành công ngoài mong đợi');
+  note('S1b', 'AC-T2-01.7', 'giữ chỗ sự kiện BẬT OTP chỉ cần đăng nhập (chưa cần OTP)', !h1.error ? 'DAT' : 'KHONG_DAT', h1.error ? `${h1.error.code} ${h1.error.message}` : 'thành công');
+  const c1 = h1.error ? {error: {code: 'KHONG_CO_GIU_CHO', message: ''}} : await confirmPay(pw, h1);
+  note('S1b2', 'AC-T2-01.7', 'xác nhận thanh toán sự kiện BẬT OTP khi chưa OTP phải bị từ chối 42501', c1.error?.code === '42501' ? 'DAT' : 'KHONG_DAT', c1.error ? `${c1.error.code} ${c1.error.message}` : 'thành công ngoài mong đợi');
   const h1off = await hold(pw, off);
   note('S1c', 'AC-T2-01.8', 'giữ chỗ sự kiện TẮT OTP không cần OTP', !h1off.error ? 'DAT' : 'KHONG_DAT', h1off.error ? `${h1off.error.code} ${h1off.error.message}` : 'thành công');
   const anon = createClient(url, anonKey, opts);
@@ -158,6 +166,8 @@ async function main() {
     note('S6b', 'AC-T2-01.1', `JWT sau OTP có amr=[${amr}] và da_xac_minh_otp() = true`, amr.includes('otp') && dx.data === true ? 'DAT' : 'KHONG_DAT', `da_xac_minh_otp=${dx.data}`);
     const h2 = await hold(authB, on);
     note('S6c', 'AC-T2-01.1/.7', 'giữ chỗ sự kiện BẬT OTP sau khi xác minh thành công', !h2.error ? 'DAT' : 'KHONG_DAT', h2.error ? `${h2.error.code} ${h2.error.message}` : 'thành công');
+    const c2 = h2.error ? {error: {code: 'KHONG_CO_GIU_CHO', message: ''}} : await confirmPay(authB, h2);
+    note('S6d', 'AC-T2-01.1/.7', 'xác nhận thanh toán sự kiện BẬT OTP sau khi xác minh OTP thật thành công', !c2.error && c2.data?.status === 'CONVERTED' ? 'DAT' : 'KHONG_DAT', c2.error ? `${c2.error.code} ${c2.error.message}` : `status=${c2.data?.status}`);
   }
 
   // S7 — hết hạn 300 giây

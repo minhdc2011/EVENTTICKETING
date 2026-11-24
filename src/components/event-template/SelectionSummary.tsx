@@ -82,8 +82,8 @@ export function SelectionSummary({
   const getCtaText = () => {
     if (!saleOpen) return 'Đã đóng bán';
     if (isPending) return 'Đang kiểm tra ghế…';
-    if (hasActiveHold) return 'Xem thời gian giữ ghế';
-    if (count > 0) return `Thanh toán ${count} vé →`;
+    if (hasActiveHold) return 'Xem giữ chỗ và thanh toán';
+    if (count > 0) return `Giữ chỗ ${count} vé →`;
     return ticketOnly ? 'Chọn vé để tiếp tục →' : 'Chọn ghế để tiếp tục →';
   };
 
@@ -248,8 +248,8 @@ export function SelectionSummary({
 
           <p className="et-hold-note" id="hold-note">
             {hasActiveHold
-              ? 'Đang giữ ghế trong phiên tạm thời. Nhấn để xem thời gian còn lại hoặc hủy giữ.'
-              : `Bạn xem và chọn ghế tự do. Khi bấm Thanh toán, hệ thống yêu cầu đăng nhập và mã OTP gửi về email; ${holdLabel} đếm ngược bắt đầu sau khi xác nhận. Trước đó người khác vẫn có thể chọn ghế bạn đang xem.`}
+              ? 'Đang giữ chỗ cho bạn. Nhấn để xem thời gian còn lại, xác nhận thanh toán hoặc hủy giữ.'
+              : `Bạn xem và chọn ghế tự do. Khi bấm Giữ chỗ, hệ thống yêu cầu đăng nhập rồi giữ ghế ${holdLabel} cho bạn; sau đó bấm Xác nhận thanh toán (sự kiện bật OTP sẽ gửi mã về email). Trước khi giữ chỗ, người khác vẫn có thể chọn ghế bạn đang xem.`}
           </p>
 
           {!isConnectionTrusted && (

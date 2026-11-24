@@ -177,14 +177,13 @@ SELECT is(
 
 -- [5]
 SELECT throws_ok(
-  $$ SELECT public.tao_giu_cho_theo_suat(
-       996101,
-       '66666666-0000-0000-0000-000000000001'::uuid,
-       '[{"ticketCode":"T3-INT-NOOTP","zoneCode":"T3_INT_STAND","quantity":1}]'::jsonb
+  $$ SELECT public.xac_nhan_thanh_toan(
+       gen_random_uuid(),
+       '66666666-0000-0000-0000-000000000001'::uuid
      ) $$,
-  '42501',
-  'Can xac minh OTP de giu cho',
-  'Hold without OTP amr rejects with 42501'
+  'P0002',
+  'Khong tim thay giu cho',
+  'Xac nhan thanh toan mot giu cho khong ton tai bi tu choi (P0002); OTP duoc kiem o buoc xac nhan, khong o buoc giu cho'
 );
 
 SELECT set_config(
@@ -211,7 +210,7 @@ RESET ROLE;
 SELECT is(
   (SELECT count(*)::int FROM public."GIU_CHO" WHERE "SuKienID" = 996101),
   0,
-  'Rejected OTP hold leaves 0 GIU_CHO rows for event 996101'
+  'Chua giu cho nao tren su kien 996101 truoc lan giu cho dau tien'
 );
 
 -- ============================================================================

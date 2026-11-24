@@ -123,7 +123,7 @@ async function loadStoryModules() {
           docCauHinhMuaVe,
           luuCauHinhMuaVe,
         } from './src/services/purchaseConfigService.ts';
-        export {createSeatHold, releaseSeatHold} from './src/services/bookingService.ts';
+        export {confirmSeatPayment, createSeatHold, extendSeatHold, releaseSeatHold} from './src/services/bookingService.ts';
         export {
           DEMO_NGUOI_DUNG,
           chayDinhGiaNgay,
@@ -733,11 +733,19 @@ test('T1: sự kiện bật OTP vẫn cho xem và chọn vé; OTP chỉ được
       assert.equal(accessChanges.at(-1), true, 'onAccessChange(true) khi cấu hình đã đọc, không đợi OTP');
       assert.equal(container.textContent.includes('Xác minh OTP để thanh toán'), false, 'chưa bấm Thanh toán thì chưa hiện hộp thoại OTP');
 
-      // Bấm Thanh toán khi đã đăng nhập nhưng chưa có OTP: dịch vụ giữ chỗ từ chối bằng OtpRequiredError.
+      // Giữ chỗ chỉ cần đăng nhập (không cần OTP); OTP được yêu cầu ở bước xác nhận thanh toán.
+      const holdTruocOtp = await svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17)]});
+      assert.equal(holdTruocOtp.status, 'ACTIVE', 'giữ chỗ thành công khi đã đăng nhập, chưa cần OTP');
       await assert.rejects(
-        () => svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17)]}),
+        () => svc.confirmSeatPayment(holdTruocOtp.holdId),
         (err) => err.ma === 'CAN_XAC_MINH_OTP',
       );
+      // Gia hạn một lần khi bắt đầu bước OTP; gọi lại không gia hạn thêm.
+      const giaHan1 = await svc.extendSeatHold(holdTruocOtp.holdId);
+      assert.equal(giaHan1.giaHanMoi, true);
+      const giaHan2 = await svc.extendSeatHold(holdTruocOtp.holdId);
+      assert.equal(giaHan2.giaHanMoi, false);
+      assert.equal(giaHan2.expiresAt, giaHan1.expiresAt, 'lần gọi thứ hai trả đúng hạn đã gia hạn');
 
       // Giao diện nhận yêu cầu OTP -> hộp thoại nhập mã hiện, phần chọn vé vẫn còn phía sau.
       await act(async () => {
@@ -766,8 +774,8 @@ test('T1: sự kiện bật OTP vẫn cho xem và chọn vé; OTP chỉ được
         await kho.thucHienXacMinh(current, svc.MA_MO_PHONG, {xacMinhMaOtp: svc.xacMinhMaOtp});
       });
       assert.equal((await svc.kiemTraDaXacMinhOtp({userId: current.userId})).daXacMinh, true);
-      const hold = await svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17)]});
-      assert.equal(hold.status, 'ACTIVE', 'sau OTP đúng thì thanh toán (giữ chỗ) thành công');
+      const xacNhan = await svc.confirmSeatPayment(holdTruocOtp.holdId);
+      assert.equal(xacNhan.status, 'CONVERTED', 'sau OTP đúng thì xác nhận thanh toán thành công');
     } finally {
       await act(async () => {
         root.unmount();
@@ -1004,11 +1012,14 @@ test('xuyên suốt: đăng nhập -> OTP -> mở cổng -> giữ 3 vé -> xin t
       await waitForReact(() => container.querySelector(`#${SENTINEL_ID}`) !== null, 'phần chọn vé mở ngay, không chặn trước OTP');
       assert.equal(accessChanges.at(-1), true, 'onAccessChange(true) khi cấu hình đã đọc');
 
-      // 3. Bấm Thanh toán chưa có OTP: bị từ chối, hộp thoại OTP hiện; gửi mã, nhập sai một lần, rồi mã mô phỏng.
+      // 3. Giữ chỗ chỉ cần đăng nhập; xác nhận thanh toán chưa có OTP bị từ chối, hộp thoại OTP hiện;
+      //    gửi mã, nhập sai một lần, rồi mã mô phỏng. Sau đó trả chỗ thử để các bước sau đếm đúng giới hạn.
+      const holdThu = await svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17)]});
       await assert.rejects(
-        () => svc.createSeatHold({eventId: DEMO_SLUG, items: [vipItem(17)]}),
+        () => svc.confirmSeatPayment(holdThu.holdId),
         (err) => err.ma === 'CAN_XAC_MINH_OTP',
       );
+      await svc.releaseSeatHold(holdThu.holdId);
       await act(async () => {
         dom.win.dispatchEvent(new CustomEvent('eventticketing:otp-required'));
       });

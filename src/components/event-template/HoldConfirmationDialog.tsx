@@ -15,6 +15,10 @@ export interface HoldConfirmationDialogProps {
   heldPriceSnapshot?: HeldPriceSnapshot | null;
   remainingSeconds: number;
   openerRef?: RefObject<HTMLElement | null>;
+  /** held: đã giữ chỗ, chờ xác nhận thanh toán; paid: đã xác nhận thanh toán (mô phỏng). */
+  phase?: 'held' | 'paid';
+  onConfirmPayment?: () => void;
+  isConfirming?: boolean;
 }
 
 export function HoldConfirmationDialog({
@@ -28,7 +32,12 @@ export function HoldConfirmationDialog({
   heldPriceSnapshot = null,
   remainingSeconds,
   openerRef,
+  phase = 'held',
+  onConfirmPayment,
+  isConfirming = false,
 }: HoldConfirmationDialogProps) {
+  const paid = phase === 'paid';
+  const verb = paid ? 'Đã thanh toán' : 'Đã giữ';
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const releaseButtonRef = useRef<HTMLButtonElement>(null);
@@ -153,7 +162,7 @@ export function HoldConfirmationDialog({
         className="et-hold-dialog"
       >
         <div className="et-dialog-top">
-          <h2 id="dialog-title">Xác nhận thanh toán thành công</h2>
+          <h2 id="dialog-title">{paid ? 'Thanh toán thành công (mô phỏng)' : 'Đã giữ chỗ thành công'}</h2>
           <button
             ref={closeButtonRef}
             type="button"
@@ -169,17 +178,17 @@ export function HoldConfirmationDialog({
         <p id="hold-result" style={{margin: '8px 0', fontSize: '13px', color: 'var(--seat-muted)', overflowWrap: 'anywhere'}}>
           {seatLines.length > 0 && standingCount > 0 ? (
             <>
-              Đã xác nhận {seatLines.length} ghế (<strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>) và{' '}
+              {verb} {seatLines.length} ghế (<strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>) và{' '}
               {standingCount} vé đứng. Tổng <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
             </>
           ) : seatLines.length > 0 ? (
             <>
-              Đã xác nhận {seatLines.length} ghế: <strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>. Tổng{' '}
+              {verb} {seatLines.length} ghế: <strong style={{color: 'var(--seat-fg)'}}>{seatCodes}</strong>. Tổng{' '}
               <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
             </>
           ) : (
             <>
-              Đã xác nhận {standingCount} vé đứng. Tổng{' '}
+              {verb} {standingCount} vé đứng. Tổng{' '}
               <strong className="et-num" style={{color: 'var(--seat-fg)'}}>{totalFormatted}</strong>.
             </>
           )}
@@ -212,29 +221,57 @@ export function HoldConfirmationDialog({
           {priceNote}
         </p>
 
-        <div
-          id="countdown"
-          className="et-countdown-display et-num"
-          aria-label="Thời gian giữ còn lại"
-        >
-          {countdownText}
-        </div>
+        {paid ? null : (
+          <>
+            <p className="et-countdown-caption" id="countdown-caption">
+              Hoàn tất thanh toán trong
+            </p>
+            <div
+              id="countdown"
+              className="et-countdown-display et-num"
+              aria-label="Thời gian giữ còn lại"
+            >
+              {countdownText}
+            </div>
+          </>
+        )}
 
         <p style={{margin: '12px 0 16px', fontSize: '12px', color: 'var(--seat-muted)', lineHeight: 1.5}}>
-          Thanh toán mô phỏng: hệ thống chưa kết nối cổng thanh toán nên chưa phát hành vé. Chỗ được giữ cho bạn trong thời gian đếm ngược và sẽ được trả lại khi hết giờ.
+          {paid
+            ? 'Thanh toán mô phỏng: hệ thống chưa kết nối cổng thanh toán nên chưa phát hành vé. Ghế của bạn đã được ghi nhận là đã bán.'
+            : 'Chỗ đang được giữ cho bạn. Bấm Xác nhận thanh toán để hoàn tất; sự kiện bật OTP sẽ gửi mã về email của tài khoản đang đăng nhập. Hết giờ mà chưa xác nhận thì chỗ được trả lại. Thanh toán là mô phỏng, chưa phát hành vé.'}
         </p>
 
-        <button
-          ref={releaseButtonRef}
-          type="button"
-          id="release"
-          className="et-release-btn"
-          data-od-id="release-hold"
-          disabled={isReleasing}
-          onClick={onRelease}
-        >
-          {isReleasing ? 'Đang hủy…' : 'Hủy đơn và trả ghế'}
-        </button>
+        {paid ? (
+          <button type="button" id="close-paid" className="et-confirm-btn" onClick={onClose}>
+            Đóng
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              id="confirm-payment"
+              className="et-confirm-btn"
+              data-od-id="confirm-payment"
+              disabled={isConfirming || isReleasing}
+              onClick={onConfirmPayment}
+            >
+              {isConfirming ? 'Đang xác nhận…' : 'Xác nhận thanh toán'}
+            </button>
+            <button
+              ref={releaseButtonRef}
+              type="button"
+              id="release"
+              className="et-release-btn"
+              style={{marginTop: '10px'}}
+              data-od-id="release-hold"
+              disabled={isReleasing || isConfirming}
+              onClick={onRelease}
+            >
+              {isReleasing ? 'Đang hủy…' : 'Hủy giữ chỗ và trả ghế'}
+            </button>
+          </>
+        )}
 
         {holdId && (
           <p className="et-dialog-foot font-mono">

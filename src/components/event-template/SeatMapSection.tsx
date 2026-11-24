@@ -2,7 +2,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {PublicEventRecord} from '../../services/eventService';
 import type {TicketingCatalog, SeatRecord, ZoneRecord} from '../../types/ticketing';
 import {loadTicketingCatalog} from '../../services/ticketDataService';
-import {createSeatHold, releaseSeatHold} from '../../services/bookingService';
+import {confirmSeatPayment, createSeatHold, extendSeatHold, releaseSeatHold} from '../../services/bookingService';
 import {
   subscribeToSeatUpdates,
   type RealtimeConnectionStatus,
@@ -73,6 +73,7 @@ import {
   EVENT_DA_DANG_NHAP,
   EVENT_DA_XAC_MINH_OTP,
   laLoiCanOtp,
+  laLoiGiuChoHetHan,
   phatYeuCauOtp,
   KHOA_GIU_CHO_DANG_CHO,
   docYDinhGiuCho,
@@ -132,6 +133,9 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const dangChoDangNhapRef = useRef(false);
   const dangChoOtpRef = useRef(false);
   const [resumeHold, setResumeHold] = useState(false);
+  // Xác nhận thanh toán: đang gọi máy chủ; và đã thanh toán xong (mô phỏng) để hộp thoại hiện pha "đã thanh toán".
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [paymentDone, setPaymentDone] = useState(false);
   const pendingHoldSeatCodesRef = useRef<Set<string> | null>(null);
   const latestPriceSnapshotRef = useRef<ReadonlyMap<number, number> | null>(null);
 
@@ -650,8 +654,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
       const secs = calculateRemainingSeconds(holdResult.expiresAt);
       setRemainingSeconds(secs);
       setIsHoldDialogOpen(true);
-      setRealtimeBanner(`Đã xác nhận thanh toán (mô phỏng) · chỗ được giữ ${holdLabel}`);
-      setAnnouncement(`Đã xác nhận thanh toán (mô phỏng) ${requestedSeats.length + requestedStandingCount} vé.`);
+      setRealtimeBanner(`Đã giữ chỗ · hoàn tất thanh toán trong ${holdLabel}`);
+      setAnnouncement(`Đã giữ chỗ ${requestedSeats.length + requestedStandingCount} vé. Hoàn tất thanh toán trong ${holdLabel}.`);
     } catch (err: any) {
       if (!isCurrent()) return;
       if (laLoiCanDangNhap(err)) {
@@ -670,12 +674,6 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         }
         dangChoDangNhapRef.current = true;
         phatYeuCauDangNhap();
-        return;
-      }
-      if (laLoiCanOtp(err)) {
-        // Đã đăng nhập nhưng chưa xác minh OTP: hiện hộp thoại nhập mã, giữ nguyên lựa chọn, xác minh xong tự tiếp tục.
-        dangChoOtpRef.current = true;
-        phatYeuCauOtp();
         return;
       }
       const normalizedErr = chuanHoaLoiGiuCho(err);
@@ -786,7 +784,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     const onXacMinhOtp = () => {
       if (!dangChoOtpRef.current) return;
       dangChoOtpRef.current = false;
-      void proceedHoldRef.current();
+      void confirmPaymentRef.current();
     };
     window.addEventListener(EVENT_DA_DANG_NHAP, onDangNhap);
     window.addEventListener(EVENT_DA_XAC_MINH_OTP, onXacMinhOtp);
@@ -830,6 +828,81 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
     setResumeHold(false);
     void proceedHoldRef.current();
   }, [isConnectionTrusted, isPending, resumeHold, selectedSeats, standingCount]);
+
+  // Giữ chỗ đã hết hạn hoặc không còn: về trạng thái "chưa giữ" và báo người dùng.
+  const resetSauKhiHetGiuCho = useCallback((message: string) => {
+    setActiveHold(null);
+    setSelectedSeats([]);
+    setStanding({});
+    setHeldSeatsSnapshot([]);
+    setHeldPriceSnapshot(null);
+    setIsHoldDialogOpen(false);
+    setIsReleasePending(false);
+    dangChoOtpRef.current = false;
+    setRealtimeBanner(message);
+    setAnnouncement(message);
+    dispatchToast({message, type: 'warning'});
+  }, []);
+
+  // Xác nhận thanh toán (mô phỏng). Sự kiện bật OTP: máy chủ yêu cầu OTP -> gia hạn giữ chỗ một lần -> hộp thoại OTP -> thử lại.
+  const handleConfirmPayment = useCallback(async () => {
+    const hold = activeHoldRef.current;
+    if (!hold || isConfirming) return;
+    const holdId = hold.holdId;
+    setIsConfirming(true);
+    try {
+      await confirmSeatPayment(holdId);
+      if (activeHoldRef.current?.holdId !== holdId) return;
+      dangChoOtpRef.current = false;
+      setActiveHold(null);
+      setPaymentDone(true);
+      setSelectedSeats([]);
+      setStanding({});
+      setIsHoldDialogOpen(true);
+      const msg = 'Thanh toán thành công (mô phỏng). Ghế của bạn đã được ghi nhận.';
+      setRealtimeBanner(null);
+      setAnnouncement(msg);
+      dispatchToast({message: msg, type: 'success'});
+      void fetchCatalog();
+    } catch (err: any) {
+      if (activeHoldRef.current?.holdId !== holdId) return;
+      if (laLoiGiuChoHetHan(err)) {
+        resetSauKhiHetGiuCho('Thời gian giữ ghế đã hết. Vui lòng chọn lại ghế để tiếp tục.');
+        return;
+      }
+      if (laLoiCanOtp(err)) {
+        // Cần OTP: gia hạn giữ chỗ một lần để kịp nhập mã (mã OTP hiệu lực 5 phút), rồi mở hộp thoại OTP.
+        try {
+          const gia = await extendSeatHold(holdId);
+          if (activeHoldRef.current?.holdId === holdId) {
+            setActiveHold((prev) => (prev && prev.holdId === holdId ? {...prev, expiresAt: gia.expiresAt} : prev));
+            setRemainingSeconds(calculateRemainingSeconds(gia.expiresAt));
+          }
+        } catch (extErr: any) {
+          if (laLoiGiuChoHetHan(extErr)) {
+            resetSauKhiHetGiuCho('Thời gian giữ ghế đã hết. Vui lòng chọn lại ghế để tiếp tục.');
+            return;
+          }
+          console.warn('Không gia hạn được giữ chỗ trước bước OTP:', extErr);
+        }
+        dangChoOtpRef.current = true;
+        setIsHoldDialogOpen(false);
+        phatYeuCauOtp();
+        return;
+      }
+      console.error('Lỗi xác nhận thanh toán:', err);
+      const errText = laLoiCanDangNhap(err)
+        ? 'Phiên đăng nhập đã hết. Vui lòng đăng nhập lại; chỗ đang giữ sẽ được trả khi hết giờ.'
+        : 'Không thể xác nhận thanh toán lúc này. Vui lòng thử lại.';
+      setRealtimeBanner(errText);
+      dispatchToast({message: errText, type: 'error'});
+    } finally {
+      setIsConfirming(false);
+    }
+  }, [fetchCatalog, isConfirming, resetSauKhiHetGiuCho]);
+
+  const confirmPaymentRef = useRef(handleConfirmPayment);
+  confirmPaymentRef.current = handleConfirmPayment;
 
   // Release Hold (only clears state and announces success on confirmed release)
   const handleReleaseHold = useCallback(async () => {
@@ -1261,8 +1334,19 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
         {/* Hold Confirmation Modal */}
         <HoldConfirmationDialog
           isOpen={isHoldDialogOpen}
-          onClose={() => setIsHoldDialogOpen(false)}
+          onClose={() => {
+            setIsHoldDialogOpen(false);
+            if (paymentDone) {
+              setPaymentDone(false);
+              setHeldSeatsSnapshot([]);
+              setHeldPriceSnapshot(null);
+              setRealtimeBanner(null);
+            }
+          }}
           onRelease={handleReleaseHold}
+          phase={paymentDone ? 'paid' : 'held'}
+          onConfirmPayment={() => void handleConfirmPayment()}
+          isConfirming={isConfirming}
           holdId={activeHold?.holdId}
           selectedSeats={heldSeatsSnapshot.length > 0 ? heldSeatsSnapshot : selectedSeats}
           standingLines={standingLines}

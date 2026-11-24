@@ -23,24 +23,25 @@ Giới hạn cần nói thẳng khi trình bày:
 | 4 | Nhập giới hạn 0, 21, 2,5 hoặc để trống | Lỗi hiện cạnh trường, không lưu |
 | 5 | Bấm **Cấu hình giá**, chọn suất và khu, đặt giá gốc/sàn/trần; thử sàn lớn hơn gốc | Lưu được khi hợp lệ; sàn > gốc báo lỗi theo từng trường |
 
-## Phần 1B. Khán giả: đăng nhập, OTP, giới hạn 4 vé và trả chỗ khi đăng xuất
+## Phần 1B. Khán giả: giữ chỗ, OTP xác nhận thanh toán, giới hạn 4 vé và trả chỗ khi đăng xuất
 
-Mở **tab ẩn danh hoặc trình duyệt khác** cho khán giả để phiên BTC không lẫn vào. Luồng hiện tại: chọn ghế tự do, chỉ đăng nhập và xác minh OTP khi bấm **Thanh toán**. "Thanh toán" là mô phỏng: máy chủ chỉ giữ chỗ 5 phút.
+Mở **tab ẩn danh hoặc trình duyệt khác** cho khán giả để phiên BTC không lẫn vào. Luồng: chọn ghế tự do, **bấm Giữ chỗ** (cần đăng nhập, đồng hồ 5 phút bắt đầu), **bấm Xác nhận thanh toán** (sự kiện bật OTP thì nhập OTP). "Thanh toán" là mô phỏng: chưa có cổng thanh toán, chưa phát hành vé.
 
 | # | Thao tác | Kết quả mong đợi |
 |---|---|---|
 | 1 | Mở trang một sự kiện có sơ đồ khi chưa đăng nhập, bấm một khu rồi chọn ghế | Chọn được ghế, không có cổng chặn, không có đồng hồ (chưa giữ chỗ) |
-| 2 | Bấm **Thanh toán N vé** | Hộp thoại đăng nhập hiện lên, nền phía sau làm mờ, lựa chọn ghế được giữ nguyên |
-| 3 | Đăng nhập `buyer@demo.vn` (mật khẩu bất kỳ 6 ký tự trở lên) | Hộp thoại đóng, hệ thống tự tiếp tục; sự kiện bật OTP thì hiện hộp thoại OTP, nêu email nhận mã đã che |
-| 4 | Bấm gửi mã | Thấy hiệu lực 300 giây; nút gửi lại bị vô hiệu 60 giây |
-| 5 | Nhập `000000` | Báo sai, nêu số lần còn lại, ở lại hộp thoại, lựa chọn giữ nguyên |
-| 6 | Nhập `123456` | Hộp thoại đóng, hiện **Xác nhận thanh toán thành công** kèm đồng hồ 5 phút; hộp thoại nói rõ đây là mô phỏng |
-| 7 | Chọn đủ 4 ghế | Ghế còn trống hiện dấu cấm (vòng tròn viền đỏ gạch chéo), không chọn thêm được |
-| 8 | Giữ chỗ 3 ghế, sau đó xin thêm 2 ghế | Thông báo nêu giới hạn 4, đang giữ 3, còn chọn thêm 1; tồn tại ít nhất 5 giây; lựa chọn được giữ |
-| 9 | Đang giữ chỗ, bấm **Đăng xuất** | Chỗ được trả lại ngay, đồng hồ tắt, lựa chọn bị xóa, hiện thông báo đã trả chỗ |
-| 10 | Ở BTC tắt OTP rồi thanh toán lại bằng tài khoản đã đăng nhập | Không hiện hộp thoại OTP, giữ chỗ thành công ngay |
+| 2 | Bấm **Giữ chỗ N vé** | Hộp thoại đăng nhập hiện lên, nền phía sau làm mờ, lựa chọn ghế được giữ nguyên |
+| 3 | Đăng nhập `buyer@demo.vn` (mật khẩu bất kỳ 6 ký tự trở lên) | Hộp thoại đóng, hệ thống tự giữ chỗ; hiện "Đã giữ chỗ thành công" kèm đồng hồ 05:00, nút Xác nhận thanh toán và Hủy giữ chỗ. **Chưa hỏi OTP** |
+| 4 | Bấm **Xác nhận thanh toán** | Sự kiện bật OTP: hộp thoại OTP hiện lên (nền làm mờ), nêu email nhận mã đã che; ghế vẫn đang được giữ (giữ chỗ được gia hạn một lần) |
+| 5 | Bấm Gửi mã | Thấy hiệu lực 5:00 đếm ngược; nút gửi lại bị vô hiệu 60 giây |
+| 6 | Nhập `000000` | Báo sai, nêu số lần còn lại, ở lại hộp thoại, ghế vẫn giữ |
+| 7 | Nhập `123456` | Hộp thoại đóng, hiện **Thanh toán thành công (mô phỏng)**, đồng hồ tắt, lựa chọn bị xóa |
+| 8 | Chọn đủ 4 ghế | Ghế còn trống hiện dấu cấm (vòng tròn viền đỏ gạch chéo), không chọn thêm được |
+| 9 | Giữ chỗ 3 ghế, sau đó xin thêm 2 ghế | Thông báo nêu giới hạn 4, đang giữ 3, còn chọn thêm 1; tồn tại ít nhất 5 giây; lựa chọn được giữ |
+| 10 | Đang giữ chỗ, bấm **Đăng xuất** | Chỗ được trả lại ngay, đồng hồ tắt, lựa chọn bị xóa, hiện thông báo đã trả chỗ |
+| 11 | Ở BTC tắt OTP rồi giữ chỗ và bấm Xác nhận thanh toán bằng tài khoản đã đăng nhập | Không hiện hộp thoại OTP, thanh toán thành công ngay |
 
-Ghi chú: mã OTP cố định `123456` chỉ có ở chế độ mô phỏng. Trên môi trường thật, mã 6 số gửi qua email của tài khoản đang đăng nhập.
+Ghi chú: mã OTP cố định `123456` chỉ có ở chế độ mô phỏng (hộp thoại OTP có dòng gợi ý mã). Trên môi trường thật, mã 6 số gửi qua email của tài khoản đang đăng nhập; tài khoản đăng nhập nhanh `buyer@demo.vn` không có hộp thư thật nên không qua được OTP của sự kiện bật OTP, dùng tài khoản có email thật cho buổi demo.
 
 ## Phần 1C. Demand Simulator và duyệt giá
 
@@ -66,7 +67,7 @@ npm run db:start
 npm run db:reset
 npm run db:test
 ```
-Mong đợi: `Result: PASS`, 15 file, 834 test (số liệu 23/11/2026). Gồm `sprint2_integration.sql` (OTP gate, giới hạn theo tài khoản và sự kiện, giá chốt `DonGiaChot`, duyệt đề xuất) và các file của W1–W4.
+Mong đợi: `Result: PASS`, 16 file, 860 test (số liệu 24/11/2026, gồm `sprint2_xac_nhan_thanh_toan.sql`). Gồm `sprint2_integration.sql` (OTP gate, giới hạn theo tài khoản và sự kiện, giá chốt `DonGiaChot`, duyệt đề xuất) và các file của W1–W4.
 
 **Hai BTC duyệt cùng một đề xuất:**
 

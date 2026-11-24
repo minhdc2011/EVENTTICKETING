@@ -566,7 +566,7 @@ test('round 3 hold request uses backend zone codes and protects async races', as
   assert.match(seatMapSectionTsx, /setHeldSeatsSnapshot\(\[\]\)/);
   assert.match(seatMapSectionTsx, /if\s*\(!activeHold\s*\|\|\s*isReleasePending\)\s*return/);
   assert.match(seatMapSectionTsx, /isReleasing=\{isReleasePending\}/);
-  assert.match(holdDialogTsx, /disabled=\{isReleasing\}/);
+  assert.match(holdDialogTsx, /disabled=\{isReleasing \|\| isConfirming\}/);
 });
 
 test('official venue maps drill into exact visual sectors and return to the BTC overview', async () => {

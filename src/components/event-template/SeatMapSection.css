@@ -1968,3 +1968,28 @@ body.et-tm-dragging, body.et-tm-dragging * { user-select: none !important; curso
   .et-map-hint { flex-direction: column; }
   .et-map-hint__close { align-self: stretch; }
 }
+
+/* Hộp thoại giữ chỗ: nút Xác nhận thanh toán và chú thích đồng hồ */
+.et-confirm-btn {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid #0353c2;
+  border-radius: 8px;
+  background: #0353c2;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.et-confirm-btn:hover:not(:disabled) { background: #02439c; }
+.et-confirm-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.et-confirm-btn:focus-visible { outline: 3px solid var(--seat-accent); outline-offset: 3px; }
+.et-countdown-caption {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--seat-muted);
+}
+.et-countdown-caption + .et-countdown-display { margin-top: 6px; }
