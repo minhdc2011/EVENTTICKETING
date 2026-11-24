@@ -3,6 +3,7 @@ import type {BuyerSession} from '../../services/buyerAuthService';
 import {
   CHO_GUI_LAI_GIAY,
   HIEU_LUC_GIAY,
+  MA_MO_PHONG,
   NHAN_MO_PHONG,
   OtpServiceError,
   SO_LAN_GUI_LAI_TOI_DA,
@@ -263,6 +264,11 @@ export function OtpVerificationPanel({
       {isMock ? (
         <p className="et-otp-badge" data-nguon={NHAN_MO_PHONG}>
           Chế độ mô phỏng: không gửi email thật, kết quả không phải xác minh thật.
+        </p>
+      ) : null}
+      {isMock ? (
+        <p className="et-otp-note" data-testid="goi-y-ma-mo-phong">
+          Mã OTP mô phỏng để thử: <strong>{MA_MO_PHONG}</strong> (bấm Gửi mã trước; chỉ có ở chế độ mô phỏng).
         </p>
       ) : null}
       <p className="et-otp-text">
