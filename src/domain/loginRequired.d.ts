@@ -10,6 +10,11 @@ export class OtpRequiredError extends Error {
   constructor(message?: string, options?: {cause?: unknown});
 }
 export function laLoiCanOtp(err: unknown): boolean;
+export class HoldExpiredError extends Error {
+  ma: 'GIU_CHO_HET_HAN';
+  constructor(message?: string, options?: {cause?: unknown});
+}
+export function laLoiGiuChoHetHan(err: unknown): boolean;
 export function phatYeuCauOtp(target?: unknown): boolean;
 export function phatDaXacMinhOtp(target?: unknown): boolean;
 export class LoginRequiredError extends Error {

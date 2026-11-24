@@ -10,6 +10,13 @@ function normalizeId(value) {
   return null;
 }
 
+function taoLoiHetHan() {
+  const err = new Error('GIU_CHO_HET_HAN');
+  err.code = 'P0001';
+  err.ma = 'GIU_CHO_HET_HAN';
+  return err;
+}
+
 function taoLoi22023(message) {
   const err = new Error(message);
   err.code = '22023';
@@ -59,12 +66,15 @@ export function demVeDangGiu(holds, taiKhoanId, suKienId, nowMs = Date.now()) {
   let total = 0;
   for (const hold of holds) {
     if (!hold || typeof hold !== 'object') continue;
-    if (hold.status !== 'ACTIVE') continue;
+    if (hold.status !== 'ACTIVE' && hold.status !== 'CONVERTED') continue;
     if (normalizeId(hold.taiKhoanId) !== targetAccount) continue;
     if (normalizeId(hold.suKienId) !== targetEvent) continue;
 
-    const expMs = typeof hold.expiresAtMs === 'number' ? hold.expiresAtMs : Date.parse(hold.expiresAt);
-    if (!Number.isFinite(expMs) || expMs <= nowMs) continue;
+    // Vé đã xác nhận thanh toán luôn được tính; giữ chỗ chỉ tính khi còn hạn (giống máy chủ).
+    if (hold.status === 'ACTIVE') {
+      const expMs = typeof hold.expiresAtMs === 'number' ? hold.expiresAtMs : Date.parse(hold.expiresAt);
+      if (!Number.isFinite(expMs) || expMs <= nowMs) continue;
+    }
 
     const qty =
       typeof hold.soLuong === 'number' && Number.isInteger(hold.soLuong) && hold.soLuong > 0
@@ -154,6 +164,38 @@ export function taoKhoGiuChoMoPhong(options = {}) {
       if (idx === -1) return;
       if (holds[idx].status === 'RELEASED') return;
       holds[idx] = Object.freeze({...holds[idx], status: 'RELEASED'});
+    },
+
+    /** Gia hạn một lần (thêm ttl) khi bắt đầu bước OTP; trả hạn hiện tại nếu đã gia hạn. */
+    giaHan(holdId) {
+      const idx = holds.findIndex((h) => h.holdId === holdId);
+      const nowMs = getNow();
+      if (idx === -1) throw taoLoiHetHan();
+      const hold = holds[idx];
+      if (hold.status !== 'ACTIVE' || hold.expiresAtMs <= nowMs) throw taoLoiHetHan();
+      if (hold.daGiaHan) {
+        return {holdId, expiresAt: hold.expiresAt, daGiaHan: true, giaHanMoi: false};
+      }
+      const expiresAtMs = Math.max(hold.expiresAtMs, nowMs + ttlMs);
+      const expiresAt = new Date(expiresAtMs).toISOString();
+      holds[idx] = Object.freeze({...hold, expiresAt, expiresAtMs, daGiaHan: true});
+      return {holdId, expiresAt, daGiaHan: true, giaHanMoi: true};
+    },
+
+    /** Xác nhận thanh toán (mô phỏng): giữ chỗ còn hạn chuyển sang CONVERTED. */
+    xacNhan(holdId) {
+      const idx = holds.findIndex((h) => h.holdId === holdId);
+      if (idx === -1) throw taoLoiHetHan();
+      const hold = holds[idx];
+      if (hold.status === 'CONVERTED') return {holdId, status: 'CONVERTED', daXacNhanTruoc: true};
+      if (hold.status !== 'ACTIVE' || hold.expiresAtMs <= getNow()) throw taoLoiHetHan();
+      holds[idx] = Object.freeze({...hold, status: 'CONVERTED'});
+      return {holdId, status: 'CONVERTED', soVe: hold.soLuong};
+    },
+
+    /** Tài khoản sở hữu giữ chỗ (để dịch vụ kiểm đúng chủ). */
+    layGiuCho(holdId) {
+      return holds.find((h) => h.holdId === holdId) ?? null;
     },
 
     dangGiu(taiKhoanId, suKienId) {

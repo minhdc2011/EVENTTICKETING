@@ -2,7 +2,13 @@ import {getActiveEventContext, isSupabaseConfigured, runtimeConfig} from '../con
 import type {Json} from '../types/database.types';
 import type {ApiEnvelope, CreateHoldRequest, HoldRecord} from '../types/ticketing';
 import {chuanHoaLoiGiuCho, laLoiChuaDangNhap} from '../domain/purchaseLimitError';
-import {LoginRequiredError, OtpRequiredError, laLoiCanOtp} from '../domain/loginRequired.js';
+import {
+  HoldExpiredError,
+  LoginRequiredError,
+  OtpRequiredError,
+  laLoiCanOtp,
+  laLoiGiuChoHetHan,
+} from '../domain/loginRequired.js';
 import {GIOI_HAN_MAC_DINH, taoKhoGiuChoMoPhong} from '../domain/mockBooking';
 import {laSuKienDemo} from '../domain/pricingMockDemo.js';
 import {apiRequest} from './apiClient';
@@ -66,8 +72,7 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
       error = legacyResult.error;
     }
     if (error) {
-      // Đã đăng nhập nhưng sự kiện bật OTP mà chưa xác minh: giao diện hiện hộp thoại nhập mã rồi thử lại.
-      if (laLoiCanOtp(error)) throw new OtpRequiredError(undefined, {cause: error});
+      // Giữ chỗ chỉ cần đăng nhập; OTP được kiểm ở bước xác nhận thanh toán (confirmSeatPayment).
       if (laLoiChuaDangNhap(error)) throw new LoginRequiredError(undefined, {cause: error});
       throw chuanHoaLoiGiuCho(error);
     }
@@ -91,18 +96,11 @@ export async function createSeatHold(rawRequest: CreateHoldRequest): Promise<Hol
   const active = getActiveEventContext();
   const suKienId = active.eventDatabaseId;
   let gioiHan: number = GIOI_HAN_MAC_DINH;
-  let yeuCauOtp = false;
   try {
     const config = await docCauHinhMuaVe(suKienId);
     gioiHan = config.soVeToiDaMoiDon;
-    yeuCauOtp = config.yeuCauXacMinhOtp === true;
   } catch {
     gioiHan = GIOI_HAN_MAC_DINH;
-  }
-  // Sự kiện bật OTP: phải có bằng chứng xác minh (mô phỏng) trước khi giữ chỗ/thanh toán, giống máy chủ thật.
-  if (yeuCauOtp) {
-    const daXacMinh = await kiemTraDaXacMinhOtp({userId: buyer.userId});
-    if (!daXacMinh.daXacMinh) throw new OtpRequiredError();
   }
 
   // Sự kiện demo: chốt giá theo GiaVeNiemYet hiện hành, đọc ngay trước khi tạo giữ chỗ.
@@ -138,4 +136,91 @@ export async function releaseSeatHold(holdId: string): Promise<void> {
   }
 
   await apiRequest(`/api/v1/holds/${encodeURIComponent(holdId)}`, {method: 'DELETE'});
+}
+
+/** Lỗi gia hạn/xác nhận từ máy chủ -> lỗi nghiệp vụ mà giao diện hiểu. */
+function chuanHoaLoiThanhToan(error: unknown): unknown {
+  if (laLoiGiuChoHetHan(error)) return new HoldExpiredError(undefined, {cause: error});
+  if (laLoiCanOtp(error)) return new OtpRequiredError(undefined, {cause: error});
+  if (laLoiChuaDangNhap(error)) return new LoginRequiredError(undefined, {cause: error});
+  return chuanHoaLoiGiuCho(error);
+}
+
+export type SeatHoldExtension = {holdId: string; expiresAt: string; daGiaHan: boolean; giaHanMoi: boolean};
+
+/**
+ * Gia hạn giữ chỗ MỘT lần (thêm 5 phút) khi người dùng bắt đầu bước OTP, để ghế không bị trả lúc đang nhập mã.
+ * Gọi lại sau khi đã gia hạn thì trả hạn hiện tại, không gia hạn thêm.
+ */
+export async function extendSeatHold(holdId: string): Promise<SeatHoldExtension> {
+  if (runtimeConfig.useMockData || holdId.startsWith('mock-')) {
+    try {
+      return khoGiuChoMoPhong.giaHan(holdId);
+    } catch (err) {
+      throw chuanHoaLoiThanhToan(err);
+    }
+  }
+  if (isSupabaseConfigured()) {
+    const supabase = requireSupabaseClient();
+    const {data, error} = await supabase.rpc('gia_han_giu_cho', {
+      p_giu_cho_id: holdId,
+      p_phien_id: getBrowserSessionId(),
+    });
+    if (error) throw chuanHoaLoiThanhToan(error);
+    return data as unknown as SeatHoldExtension;
+  }
+  const result = await apiRequest<ApiEnvelope<SeatHoldExtension>>(`/api/v1/holds/${encodeURIComponent(holdId)}/extend`, {
+    method: 'POST',
+  });
+  return result.data;
+}
+
+export type SeatPaymentConfirmation = {holdId: string; status: 'CONVERTED'; soVe?: number; daXacNhanTruoc?: boolean};
+
+/**
+ * Xác nhận thanh toán (mô phỏng, chưa có cổng thanh toán): giữ chỗ còn hạn chuyển thành đã mua.
+ * Sự kiện bật OTP mà phiên chưa xác minh thì ném OtpRequiredError; giữ chỗ hết hạn thì ném HoldExpiredError.
+ */
+export async function confirmSeatPayment(holdId: string): Promise<SeatPaymentConfirmation> {
+  if (runtimeConfig.useMockData || holdId.startsWith('mock-')) {
+    const buyer = await getBuyerSession();
+    if (!buyer?.userId) throw new LoginRequiredError('Vui lòng đăng nhập tài khoản người mua để thanh toán.');
+    const hold = khoGiuChoMoPhong.layGiuCho(holdId);
+    if (!hold || String(hold.taiKhoanId) !== String(buyer.userId)) throw new HoldExpiredError();
+    if (hold.status === 'ACTIVE' && hold.expiresAtMs <= Date.now()) throw new HoldExpiredError();
+    if (hold.status === 'ACTIVE') {
+      let yeuCauOtp = false;
+      try {
+        yeuCauOtp = (await docCauHinhMuaVe(getActiveEventContext().eventDatabaseId)).yeuCauXacMinhOtp === true;
+      } catch {
+        yeuCauOtp = false;
+      }
+      // Sự kiện bật OTP: phải có bằng chứng xác minh (mô phỏng) trước khi xác nhận thanh toán, giống máy chủ thật.
+      if (yeuCauOtp) {
+        const daXacMinh = await kiemTraDaXacMinhOtp({userId: buyer.userId});
+        if (!daXacMinh.daXacMinh) throw new OtpRequiredError();
+      }
+    }
+    try {
+      return khoGiuChoMoPhong.xacNhan(holdId);
+    } catch (err) {
+      throw chuanHoaLoiThanhToan(err);
+    }
+  }
+  if (isSupabaseConfigured()) {
+    const supabase = requireSupabaseClient();
+    const {data: phien} = await supabase.auth.getSession();
+    if (!phien.session) throw new LoginRequiredError();
+    const {data, error} = await supabase.rpc('xac_nhan_thanh_toan', {
+      p_giu_cho_id: holdId,
+      p_phien_id: getBrowserSessionId(),
+    });
+    if (error) throw chuanHoaLoiThanhToan(error);
+    return data as unknown as SeatPaymentConfirmation;
+  }
+  const result = await apiRequest<ApiEnvelope<SeatPaymentConfirmation>>(
+    `/api/v1/holds/${encodeURIComponent(holdId)}/confirm`,
+    {method: 'POST'},
+  );
+  return result.data;
 }

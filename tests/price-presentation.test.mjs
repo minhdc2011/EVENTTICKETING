@@ -1140,6 +1140,8 @@ async function loadSeatMapSectionWithHarness() {
                 contents: `
                   export const createSeatHold = (...args) => globalThis.__SEATMAP_TEST_MOCK__.createSeatHold(...args);
                   export const releaseSeatHold = (...args) => globalThis.__SEATMAP_TEST_MOCK__.releaseSeatHold(...args);
+                  export const confirmSeatPayment = (...args) => (globalThis.__SEATMAP_TEST_MOCK__.confirmSeatPayment ?? (async () => ({status: 'CONVERTED'})))(...args);
+                  export const extendSeatHold = (...args) => (globalThis.__SEATMAP_TEST_MOCK__.extendSeatHold ?? (async () => ({})))(...args);
                 `,
                 loader: 'js',
               }));
@@ -1619,7 +1621,7 @@ test('SeatMapSection hành vi: releaseSeatHold cũ hoàn tất muộn sau khi đ
       const dialog = container.querySelector('[data-od-id="hold-dialog"]');
       assert.ok(dialog);
       assert.match(dialog.textContent, /hold-show-20/);
-      assert.match(container.querySelector('[data-od-id="realtime-banner"]').textContent, /Đã xác nhận thanh toán \(mô phỏng\)/);
+      assert.match(container.querySelector('[data-od-id="realtime-banner"]').textContent, /Đã giữ chỗ/);
       assert.ok(container.querySelector('[data-od-id="ticket-vip-a2"]'));
     },
   );

@@ -1,5 +1,7 @@
 # Thay đổi luồng: OTP ở bước Thanh toán (23/11/2026)
 
+> **Đã thay thế một phần ngày 24/11/2026:** luồng đúng là **giữ chỗ trước, OTP xác nhận thanh toán sau** (xem mục cuối "Bổ sung (24/11/2026)"). Mục "Luồng mới" và "Máy chủ vẫn là nơi cưỡng chế" bên dưới mô tả bản 23/11, nơi OTP chặn ở bước giữ chỗ; chỉ giữ để đối chiếu lịch sử.
+
 ## Luồng mới
 
 1. Ai cũng xem và chọn ghế/vé đứng tự do, không cần đăng nhập. Không có thanh nhắc, không có cổng OTP chặn.
@@ -115,3 +117,47 @@ Ba sơ đồ (Super Concert, nhà hát, arena) nay cùng dùng `OfficialSeatingM
 | Ghế tràn ra ngoài khu hình bình hành (Orchestra Right) | Khu là nhóm `<g>` nên bản đồ chỉ biết hộp bao chữ nhật, không biết cạnh nghiêng | Dùng hình thật của `path` con; bề ngang mỗi hàng là giao của ba độ cao (trên, giữa, dưới hàng) và chừa lề theo bán kính ghế |
 | Vào một khu rồi không xem lại được toàn cảnh | Nút làm mới chỉ đưa camera về, khu vẫn đang chọn nên các khu khác vẫn mờ; không có nút rõ ràng | Nút "← Xem toàn cảnh" (góc trên trái, chữ rõ ràng), nút làm mới và phím Escape đều thoát khu (bỏ chọn khu, camera về toàn cảnh) |
 | Kéo chuột trong sơ đồ ảnh hưởng giao diện khác | Nhấn chuột trên bản đồ bắt đầu bôi đen chữ, kéo thả phần tử, và cờ "đã kéo" không được xóa nên cú bấm sau bị nuốt | Chặn bôi đen và kéo thả khi nhấn chuột trên bản đồ, lớp `et-tm-dragging` chặn bôi đen toàn trang khi đang kéo và được dọn khi thả, xóa cờ kéo |
+
+## Bổ sung (24/11/2026): giữ chỗ trước, OTP xác nhận thanh toán sau, gia hạn một lần
+
+### Vì sao đổi
+
+Bản 23/11 hiện "Xác nhận thanh toán thành công" kèm đồng hồ 5 phút ngay sau OTP. Nghĩa của giữ chỗ là tạm khóa ghế trong lúc người mua hoàn tất thanh toán, nên hiện "thanh toán thành công" kèm đồng hồ là mâu thuẫn (và máy chủ chưa hề có thanh toán). Luồng đúng:
+
+| Bước | Hành vi |
+|---|---|
+| 1. Chọn ghế | Ai cũng chọn tự do; chưa giữ chỗ, chưa có đồng hồ; người khác vẫn chọn được ghế đó |
+| 2. Bấm **Giữ chỗ N vé** | Cần đăng nhập (chưa đăng nhập thì hộp thoại đăng nhập làm mờ nền, đăng nhập xong tự tiếp tục). **Không cần OTP.** Máy chủ giữ ghế 5 phút, đồng hồ bắt đầu; hộp thoại "Đã giữ chỗ thành công" có hai nút: Xác nhận thanh toán, Hủy giữ chỗ |
+| 3. Bấm **Xác nhận thanh toán** | Sự kiện tắt OTP: xác nhận ngay. Sự kiện bật OTP: máy chủ yêu cầu OTP; giao diện **gia hạn giữ chỗ một lần** (thêm 5 phút, đúng hiệu lực mã OTP) rồi mở hộp thoại OTP (mã gửi về email của tài khoản đang đăng nhập) |
+| 4. Nhập đúng OTP | Tự gọi lại xác nhận: giữ chỗ thành `CONVERTED`, ghế thành `DA_BAN`; hộp thoại "Thanh toán thành công (mô phỏng)", đồng hồ tắt, lựa chọn bị xóa |
+| 5. "Để sau" ở hộp thoại OTP | Giữ chỗ vẫn còn, đồng hồ vẫn chạy; bấm "Xem giữ chỗ và thanh toán" để quay lại |
+
+Quy tắc giữ ghế khi đang nhập OTP: gia hạn đúng **một lần**, +5 phút tính từ lúc bấm Xác nhận thanh toán mà cần OTP. Hết cả thời gian đó mà chưa nhập đúng thì ghế được trả. Không gia hạn nhiều lần để không giữ ghế vô hạn bằng cách mở OTP liên tục. "Thanh toán" vẫn là mô phỏng (chưa có cổng thanh toán, chưa phát hành vé); hàm xác nhận chỉ chuyển giữ chỗ thành đã mua.
+
+### Máy chủ (migration `20261124090000_sprint2_giu_cho_truoc_otp_xac_nhan_thanh_toan.sql`)
+
+| Thay đổi | Nội dung |
+|---|---|
+| `tao_giu_cho_theo_suat` | Bỏ kiểm OTP (chỉ còn bắt buộc đăng nhập). Vé đã xác nhận (`CONVERTED`) được tính vào hạn mức 4 vé và tồn kho vé đứng |
+| `gia_han_giu_cho(giu_cho_id, phien_id)` (mới) | Chỉ chủ giữ chỗ; còn hạn; gia hạn một lần (+5 phút, cột mới `GIU_CHO.DaGiaHan`); gọi lại trả hạn đã gia hạn; hết hạn thì `GIU_CHO_HET_HAN` (P0001) |
+| `xac_nhan_thanh_toan(giu_cho_id, phien_id)` (mới) | Chỉ chủ giữ chỗ; còn hạn; sự kiện bật OTP thì cần OTP (42501 "Can xac minh OTP de xac nhan thanh toan"); thành công: `GIU_CHO` → `CONVERTED`, `GHE` `DANG_GIU` → `DA_BAN`; gọi lại thành công (idempotent) |
+| ACL | Hai hàm mới: `authenticated` được gọi, `anon` bị thu hồi |
+| `huy_giu_cho`, `expire_seat_holds` | Không đổi: không đụng giữ chỗ đã `CONVERTED` (ghế đã bán không bị trả) |
+
+Hệ quả khác: số ghế bán (`DA_BAN`) nay tăng khi người mua xác nhận, nên tỷ lệ lấp đầy mà định giá động đọc phản ánh cả giao dịch xác nhận.
+
+### Giao diện
+
+`SeatMapSection` (nút "Giữ chỗ N vé" → hộp thoại giữ chỗ → "Xác nhận thanh toán" → OTP → "Thanh toán thành công (mô phỏng)"), `HoldConfirmationDialog` (hai pha `held` và `paid`), `bookingService` (`createSeatHold` chỉ cần đăng nhập; `extendSeatHold`; `confirmSeatPayment`), lớp mô phỏng `mockBooking` (`giaHan`, `xacNhan`, vé đã xác nhận tính vào hạn mức).
+
+### Kiểm thử
+
+- `npm run check`: 997 test đạt (thêm bốn test gia hạn một lần, xác nhận trong hạn gia hạn, hết hạn, idempotent, hạn mức tính vé đã xác nhận).
+- Chrome thật, chế độ mô phỏng: `scripts/nfr/checkout-flow.mjs` (cả arena và Super Concert), `logout-hold-flow.mjs`, `tm-map-flow.mjs`: đạt.
+- pgTAP: `sprint2_otp_limit.sql` và `sprint2_integration.sql` đã sửa theo luồng mới; thêm `sprint2_xac_nhan_thanh_toan.sql` (26 ca: giữ chỗ không cần OTP, xác nhận cần OTP, đúng chủ và đúng phiên, idempotent, `huy_giu_cho` không trả ghế đã bán, vé đã xác nhận tính vào hạn mức và tồn kho vé đứng, gia hạn một lần, hết hạn, ACL). Kết quả chạy xem phần cuối file này.
+
+### Chưa làm hoặc giới hạn
+
+- Gia hạn chỉ xảy ra khi người dùng bấm Xác nhận thanh toán và cần OTP; mã OTP gửi lại muộn có thể còn hiệu lực lâu hơn hạn giữ chỗ (khi đó phải giữ chỗ lại).
+- Tải lại trang khi đang giữ chỗ vẫn mất trạng thái giữ trên giao diện (máy chủ tự trả sau khi hết hạn).
+- Chưa kiểm trên staging với email thật cho luồng mới (xem mục kết quả triển khai nếu đã áp migration).

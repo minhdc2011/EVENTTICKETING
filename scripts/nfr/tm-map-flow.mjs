@@ -62,7 +62,7 @@ ok('bấm chấm chỉ xem thông tin, chưa chọn ghế', (await count('.et-tm
 await page.screenshot({path: `${out}/tm-2-thong-tin-ve.png`});
 await page.locator('.et-ticket-panel__action').click();
 await page.waitForTimeout(250);
-ok('bấm Thêm: ghế thành chấm đen viền vàng, bảng tóm tắt cập nhật', (await count('.et-tm-dot[data-status=selected]')) === 1 && /Thanh toán 1 vé/.test(await page.locator('#hold').innerText()));
+ok('bấm Thêm: ghế thành chấm đen viền vàng, bảng tóm tắt cập nhật', (await count('.et-tm-dot[data-status=selected]')) === 1 && /Giữ chỗ 1 vé/.test(await page.locator('#hold').innerText()));
 ok('khung thông tin đổi thành nút Bỏ chọn', /Bỏ chọn ghế này/.test(await page.locator('.et-ticket-panel__action').innerText()));
 
 // Đủ vé -> dấu hiệu không chọn thêm
@@ -127,7 +127,7 @@ await page.getByRole('button', {name: /Làm mới/}).click();
 await page.waitForTimeout(1100);
 const vb5 = await vb();
 ok('nút làm mới về toàn cảnh', Math.abs(vb5[2] - full[2]) < 2 && Math.abs(vb5[0] - full[0]) < 2);
-ok('về toàn cảnh: lựa chọn ghế giữ nguyên', (await count('.et-tm-dot[data-status=selected]')) === maxTickets - 1 && new RegExp(`Thanh toán ${maxTickets - 1} vé`).test(await page.locator('#hold').innerText()));
+ok('về toàn cảnh: lựa chọn ghế giữ nguyên', (await count('.et-tm-dot[data-status=selected]')) === maxTickets - 1 && new RegExp(`Giữ chỗ ${maxTickets - 1} vé`).test(await page.locator('#hold').innerText()));
 
 // Thoát khu để xem toàn cảnh: nút làm mới, nút "Xem toàn cảnh", phím Escape
 ok('nút làm mới khi đang ở trong khu: thoát khu, không còn khu tô viền/mờ và nút Xem toàn cảnh', (await count('.et-tm-svg .is-focused')) === 0 && (await count('.et-tm-svg .is-dimmed')) === 0 && (await count('.et-tm-exit')) === 0 && (await count('.et-tm-map[data-focus-zone]')) === 0);
@@ -165,7 +165,7 @@ await page.waitForTimeout(200);
 const sel = await page.evaluate(() => (window.getSelection()?.toString() ?? '').length);
 ok('đang kéo: có lớp chặn bôi đen chữ trên toàn trang', dragging);
 ok('kéo ra ngoài bản đồ rồi thả: không bôi đen chữ ở phần khác của trang', sel === 0, `độ dài chọn = ${sel}`);
-ok('thả chuột lên nút Thanh toán không bấm nhầm (không mở hộp thoại)', (await count('[data-testid=hop-thoai-can-dang-nhap]')) === 0 && (await count('[data-testid=hop-thoai-otp-thanh-toan]')) === 0);
+ok('thả chuột lên nút Giữ chỗ không bấm nhầm (không mở hộp thoại)', (await count('[data-testid=hop-thoai-can-dang-nhap]')) === 0 && (await count('[data-testid=hop-thoai-otp-thanh-toan]')) === 0);
 ok('kéo xong: lớp chặn bôi đen được dọn, lựa chọn và vị trí trang không đổi', !(await page.evaluate(() => document.body.classList.contains('et-tm-dragging'))) && (await count('.et-tm-dot[data-status=selected]')) === selBefore2 && Math.abs((await page.evaluate(() => window.scrollY)) - scrollBefore) < 3);
 await page.locator('.et-tm-exit').click();
 await page.waitForTimeout(900);

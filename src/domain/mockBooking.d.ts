@@ -15,6 +15,7 @@ export interface MockHoldEntry {
   readonly expiresAtMs: number;
   readonly soLuong: number;
   readonly gioiHan: number;
+  readonly daGiaHan?: boolean;
   readonly items: readonly HoldItem[];
 }
 
@@ -31,6 +32,9 @@ export interface MockHoldCreateParams {
 export interface MockHoldStore {
   giuCho(params: MockHoldCreateParams): HoldRecord;
   huy(holdId: string): void;
+  giaHan(holdId: string): {holdId: string; expiresAt: string; daGiaHan: boolean; giaHanMoi: boolean};
+  xacNhan(holdId: string): {holdId: string; status: 'CONVERTED'; soVe?: number; daXacNhanTruoc?: boolean};
+  layGiuCho(holdId: string): MockHoldEntry | null;
   dangGiu(taiKhoanId: string | number | null | undefined, suKienId: string | number | null | undefined): number;
   layDanhSach(): readonly MockHoldEntry[];
 }
