@@ -1,0 +1,437 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2210" height="1395" viewBox="0 0 2210 1395" font-family="Arial, Liberation Sans, sans-serif">
+<defs>
+  <marker id="arrow-dep" viewBox="0 0 12 10" refX="11" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+    <path d="M 1 1 L 11 5 L 1 9" fill="none" stroke="#1E293B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrow-dep-s2" viewBox="0 0 12 10" refX="11" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+    <path d="M 1 1 L 11 5 L 1 9" fill="none" stroke="#B45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrow-assoc" viewBox="0 0 12 10" refX="11" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+    <path d="M 0 1 L 11 5 L 0 9 z" fill="#1E293B"/>
+  </marker>
+  <marker id="arrow-assoc-s2" viewBox="0 0 12 10" refX="11" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+    <path d="M 0 1 L 11 5 L 0 9 z" fill="#B45309"/>
+  </marker>
+  <filter id="card-shadow" x="-3%" y="-3%" width="106%" height="108%">
+    <feDropShadow dx="1.5" dy="2" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.14"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="2210" height="1395" fill="#F8FAFC"/>
+<rect x="24" y="18" width="2162" height="122" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+<text x="44" y="54" font-size="20.5" font-weight="700" fill="#1B4F72">EVENTTICKETING — SƠ ĐỒ LỚP B-C-E TRỌNG TÂM SPRINT 2</text>
+<text x="44" y="80" font-size="13" fill="#475569">25 lớp Sprint 2 (6 Boundary, 7 Control, 12 Entity: 7 bảng mới + 5 bảng mở rộng từ Sprint 1/3)</text>
+<text x="44" y="106" font-size="12" fill="#64748B">Đường nét đứt (..▶): Giao tiếp B→C→E   |   Đường nét liền (▶): Quan hệ Entity + Bội số (1, 0..N)   |   Đường cam: Luồng Sprint 2</text>
+<rect x="75" y="154" width="310" height="32" rx="5" fill="#2B8A8E" opacity="0.95"/>
+<text x="230.0" y="175" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">CỘT 1: «Boundary» (Giao diện UI)</text>
+<rect x="585" y="154" width="325" height="32" rx="5" fill="#3E5258" opacity="0.95"/>
+<text x="747.5" y="175" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">CỘT 2: «Control» (Dịch vụ, Engine &amp; RPC)</text>
+<rect x="1155" y="154" width="325" height="32" rx="5" fill="#659179" opacity="0.95"/>
+<text x="1317.5" y="175" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">CỘT 3: «Entity» (Auth, Ghế, Giữ chỗ, Quy tắc)</text>
+<rect x="1725" y="154" width="335" height="32" rx="5" fill="#709D84" opacity="0.95"/>
+<text x="1892.5" y="175" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">CỘT 4: «Entity» (Sự kiện, Khu, Đề xuất, Audit)</text>
+<rect x="1070" y="28" width="1098" height="102" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+<text x="1084" y="48" font-size="12" font-weight="700" fill="#1E293B">CHÚ GIẢI MÀU B-C-E &amp; SPRINT INDICATOR:</text>
+<rect x="1084" y="58" width="16" height="14" rx="2" fill="#2B8A8E" stroke="#1E293B" stroke-width="1"/>
+<text x="1106" y="69" font-size="11.5" font-weight="600" fill="#1E293B">«Boundary» (UI)</text>
+<rect x="1280" y="58" width="16" height="14" rx="2" fill="#3E5258" stroke="#1E293B" stroke-width="1"/>
+<text x="1302" y="69" font-size="11.5" font-weight="600" fill="#1E293B">«Control» (Service/RPC)</text>
+<rect x="1525" y="58" width="16" height="14" rx="2" fill="#659179" stroke="#1E293B" stroke-width="1"/>
+<text x="1547" y="69" font-size="11.5" font-weight="600" fill="#1E293B">«Entity» (12 Bảng S2)</text>
+<rect x="1805" y="58" width="16" height="14" rx="2" fill="#FDE68A" stroke="#1E293B" stroke-width="1"/>
+<text x="1827" y="69" font-size="11.5" font-weight="600" fill="#1E293B">[S2] Mới ở Sprint 2</text>
+<rect x="1084" y="88" width="20" height="16" rx="3" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.6" />
+<rect x="1110" y="88" width="27.0" height="16" rx="3" fill="#1E293B"/>
+<text x="1123.5" y="99.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#E2E8F0">S1</text>
+<text x="1145.0" y="100" font-size="11" fill="#1E293B">Sprint 1</text>
+<rect x="1245" y="88" width="20" height="16" rx="3" fill="#FFFFFF" stroke="#0F172A" stroke-width="1.8" stroke-dasharray="5,3"/>
+<rect x="1271" y="88" width="59.5" height="16" rx="3" fill="#475569"/>
+<text x="1300.75" y="99.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#F8FAFC">S3 base</text>
+<text x="1338.5" y="100" font-size="11" fill="#1E293B">Nền tảng S3</text>
+<rect x="1460" y="88" width="20" height="16" rx="3" fill="#FFFFFF" stroke="#F59E0B" stroke-width="2.4" />
+<rect x="1486" y="88" width="59.5" height="16" rx="3" fill="#D97706"/>
+<text x="1515.75" y="99.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S1 + S2</text>
+<text x="1553.5" y="100" font-size="11" fill="#1E293B">S1/S3 mở rộng ở S2</text>
+<rect x="1745" y="88" width="20" height="16" rx="3" fill="#FFFFFF" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3"/>
+<rect x="1771" y="88" width="92.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="1817.0" y="99.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="1871.0" y="100" font-size="11" fill="#1E293B">Lớp MỚI Sprint 2</text>
+<polyline points="385.0,242.0 405.0,242.0 405.0,242.0 585.0,242.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="385.0,358.0 414.0,358.0 414.0,739.5 585.0,739.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="385.0,490.5 423.0,490.5 423.0,308.5 585.0,308.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="75.0,490.5 52.0,490.5 52.0,689.5 75.0,689.5" fill="none" stroke="#B45309" stroke-width="1.5"  marker-end="url(#arrow-assoc-s2)"/>
+<rect x="45" y="477.5" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="47" y="487.5" font-size="10.5" font-weight="700" fill="#B45309">1</text>
+<rect x="41" y="676.5" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="43" y="686.5" font-size="10.5" font-weight="700" fill="#B45309">0..1</text>
+<polyline points="385.0,623.0 432.0,623.0 432.0,480.5 585.0,480.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="385.0,756.0 441.0,756.0 441.0,375.0 585.0,375.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="385.0,871.5 450.0,871.5 450.0,618.5 585.0,618.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="385.0,987.0 459.0,987.0 459.0,1049.5 585.0,1049.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="385.0,1120.0 468.0,1120.0 468.0,877.5 585.0,877.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="385.0,1235.5 477.0,1235.5 477.0,1213.0 585.0,1213.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,242.0 932.0,242.0 932.0,242.0 1155.0,242.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,275.2 940.0,275.2 940.0,440.0 1155.0,440.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,308.5 948.0,308.5 948.0,621.0 1155.0,621.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,341.8 956.0,341.8 956.0,206.0 1502.0,206.0 1502.0,242.0 1725.0,242.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,375.0 964.0,375.0 964.0,413.0 1510.0,413.0 1510.0,452.5 1725.0,452.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,586.0 972.0,586.0 972.0,314.0 1155.0,314.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,651.0 980.0,651.0 980.0,482.3 1155.0,482.3" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,739.5 988.0,739.5 988.0,594.0 1518.0,594.0 1518.0,553.0 1725.0,553.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,983.0 996.0,983.0 996.0,874.0 1155.0,874.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,1016.2 1004.0,1016.2 1004.0,973.0 1526.0,973.0 1526.0,734.0 1725.0,734.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,1049.5 1012.0,1049.5 1012.0,969.0 1534.0,969.0 1534.0,1004.0 1725.0,1004.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,1082.8 1020.0,1082.8 1020.0,1063.5 1155.0,1063.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,1116.0 1028.0,1116.0 1028.0,1236.0 1155.0,1236.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,1172.0 1036.0,1172.0 1036.0,775.0 1542.0,775.0 1542.0,352.0 1725.0,352.0" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="910.0,1254.0 1044.0,1254.0 1044.0,1154.0 1550.0,1154.0 1550.0,1193.5 1725.0,1193.5" fill="none" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow-dep-s2)"/>
+<polyline points="1155.0,386.0 1119.0,386.0 1119.0,524.7 1155.0,524.7" fill="none" stroke="#B45309" stroke-width="1.5"  marker-end="url(#arrow-assoc-s2)"/>
+<rect x="1125" y="373.0" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1127" y="383.0" font-size="10.5" font-weight="700" fill="#B45309">1</text>
+<rect x="1121" y="511.66666666666663" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1123" y="521.6666666666666" font-size="10.5" font-weight="700" fill="#B45309">1..N</text>
+<polyline points="1725.0,595.3 1558.0,595.3 1558.0,503.5 1480.0,503.5" fill="none" stroke="#B45309" stroke-width="1.5"  marker-end="url(#arrow-assoc-s2)"/>
+<rect x="1695" y="582.3333333333334" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1697" y="592.3333333333334" font-size="10.5" font-weight="700" fill="#B45309">1</text>
+<rect x="1490" y="490.5" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1492" y="500.5" font-size="10.5" font-weight="700" fill="#B45309">0..N</text>
+<polyline points="1155.0,748.0 1140.0,748.0 1140.0,567.0 1155.0,567.0" fill="none" stroke="#B45309" stroke-width="1.5"  marker-end="url(#arrow-assoc-s2)"/>
+<rect x="1125" y="735.0" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1127" y="745.0" font-size="10.5" font-weight="700" fill="#B45309">0..1</text>
+<rect x="1121" y="554.0" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1123" y="564.0" font-size="10.5" font-weight="700" fill="#B45309">0..N</text>
+<polyline points="1725.0,637.7 1566.0,637.7 1566.0,684.5 1480.0,684.5" fill="none" stroke="#1E293B" stroke-width="1.5"  marker-end="url(#arrow-assoc)"/>
+<rect x="1695" y="624.6666666666666" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1697" y="634.6666666666666" font-size="10.5" font-weight="700" fill="#1E293B">1</text>
+<rect x="1490" y="671.5" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1492" y="681.5" font-size="10.5" font-weight="700" fill="#1E293B">0..N</text>
+<polyline points="1725.0,680.0 1574.0,680.0 1574.0,802.0 1480.0,802.0" fill="none" stroke="#B45309" stroke-width="1.5"  marker-start="url(#arrow-dep-s2)" marker-end="url(#arrow-dep-s2)"/>
+<rect x="1695" y="667.0" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1697" y="677.0" font-size="10.5" font-weight="700" fill="#B45309">1</text>
+<rect x="1490" y="789.0" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1492" y="799.0" font-size="10.5" font-weight="700" fill="#B45309">1</text>
+<polyline points="1480.0,946.0 1582.0,946.0 1582.0,878.0 1725.0,878.0" fill="none" stroke="#B45309" stroke-width="1.5"  marker-end="url(#arrow-assoc-s2)"/>
+<rect x="1492" y="933.0" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1494" y="943.0" font-size="10.5" font-weight="700" fill="#B45309">1</text>
+<rect x="1691" y="865.0" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="1693" y="875.0" font-size="10.5" font-weight="700" fill="#B45309">0..N</text>
+<polyline points="2060.0,553.0 2082.0,553.0 2082.0,734.0 2060.0,734.0" fill="none" stroke="#B45309" stroke-width="1.5"  marker-end="url(#arrow-assoc-s2)"/>
+<rect x="2072" y="540.0" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="2074" y="550.0" font-size="10.5" font-weight="700" fill="#B45309">1</text>
+<rect x="2070" y="721.0" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="2072" y="731.0" font-size="10.5" font-weight="700" fill="#B45309">0..N</text>
+<polyline points="2060.0,680.0 2092.0,680.0 2092.0,932.0 2060.0,932.0" fill="none" stroke="#B45309" stroke-width="1.5"  marker-end="url(#arrow-assoc-s2)"/>
+<rect x="2072" y="667.0" width="13" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="2074" y="677.0" font-size="10.5" font-weight="700" fill="#B45309">1</text>
+<rect x="2070" y="919.0" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="2072" y="929.0" font-size="10.5" font-weight="700" fill="#B45309">0..N</text>
+<polyline points="2060.0,878.0 2102.0,878.0 2102.0,1076.0 2060.0,1076.0" fill="none" stroke="#B45309" stroke-width="1.5"  marker-start="url(#arrow-dep-s2)" marker-end="url(#arrow-dep-s2)"/>
+<rect x="2072" y="865.0" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="2074" y="875.0" font-size="10.5" font-weight="700" fill="#B45309">0..1</text>
+<rect x="2070" y="1063.0" width="34" height="13" rx="2" fill="#F8FAFC" opacity="0.9"/>
+<text x="2072" y="1073.0" font-size="10.5" font-weight="700" fill="#B45309">0..1</text>
+<rect x="75" y="228" width="310" height="144" rx="3" fill="#2B8A8E" stroke="#F59E0B" stroke-width="2.4"  filter="url(#card-shadow)"/>
+<rect x="76" y="229" width="308" height="45" rx="2" fill="#237377"/>
+<text x="85" y="245" font-size="10.5" fill="#E2E8F0">&lt;&lt;Boundary&gt;&gt;</text>
+<rect x="319.5" y="233" width="57.5" height="16" rx="3" fill="#D97706"/>
+<text x="348.25" y="244.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S1 + S2</text>
+<text x="230.0" y="265" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">OfficialSeatingMap</text>
+<line x1="75" y1="274" x2="385" y2="274" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="75" y1="292" x2="385" y2="292" stroke="#0F172A" stroke-width="1.2"/>
+<text x="85" y="308" font-size="11" font-weight="400" fill="#F8FAFC">+onSelectSeats() (không cần login)</text>
+<text x="85" y="325" font-size="11" font-weight="400" fill="#F8FAFC">+onHoldSeats() (yêu cầu login)</text>
+<text x="85" y="342" font-size="11" font-weight="700" fill="#FDE68A">[S2] +renderPriceDeltaBadge()</text>
+<text x="85" y="359" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onRealtimePriceUpdate()</text>
+<rect x="75" y="410" width="310" height="161" rx="3" fill="#2B8A8E" stroke="#F59E0B" stroke-width="2.4" stroke-dasharray="5,3" filter="url(#card-shadow)"/>
+<rect x="76" y="411" width="308" height="45" rx="2" fill="#237377"/>
+<text x="85" y="427" font-size="10.5" fill="#E2E8F0">&lt;&lt;Boundary&gt;&gt;</text>
+<rect x="319.5" y="415" width="57.5" height="16" rx="3" fill="#D97706"/>
+<text x="348.25" y="426.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S3 + S2</text>
+<text x="230.0" y="447" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">HoldConfirmationDialog</text>
+<line x1="75" y1="456" x2="385" y2="456" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="75" y1="474" x2="385" y2="474" stroke="#0F172A" stroke-width="1.2"/>
+<text x="85" y="490" font-size="11" font-weight="400" fill="#F8FAFC">+renderCountdown5m()</text>
+<text x="85" y="507" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onConfirmPayment()</text>
+<text x="85" y="524" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onExtendHoldOnce(+5p)</text>
+<text x="85" y="541" font-size="11" font-weight="400" fill="#F8FAFC">+onReleaseHold(holdId)</text>
+<text x="85" y="558" font-size="11" font-weight="700" fill="#FDE68A">[S2] +renderPhase(held|paid)</text>
+<rect x="75" y="609" width="310" height="161" rx="3" fill="#2B8A8E" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="76" y="610" width="308" height="45" rx="2" fill="#237377"/>
+<text x="85" y="626" font-size="10.5" fill="#E2E8F0">&lt;&lt;Boundary&gt;&gt;</text>
+<rect x="287.0" y="614" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="332.0" y="625.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="230.0" y="646" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">CheckoutOtpDialog</text>
+<line x1="75" y1="655" x2="385" y2="655" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="75" y1="673" x2="385" y2="673" stroke="#0F172A" stroke-width="1.2"/>
+<text x="85" y="689" font-size="11" font-weight="700" fill="#FDE68A">[S2] +openForHold(holdId)</text>
+<text x="85" y="706" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onSendOtp6Digits(email)</text>
+<text x="85" y="723" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onVerifyOtp(token)</text>
+<text x="85" y="740" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onSubmitDemoCode(code)</text>
+<text x="85" y="757" font-size="11" font-weight="700" fill="#FDE68A">[S2] +showCooldown60s()</text>
+<rect x="75" y="808" width="310" height="127" rx="3" fill="#2B8A8E" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="76" y="809" width="308" height="45" rx="2" fill="#237377"/>
+<text x="85" y="825" font-size="10.5" fill="#E2E8F0">&lt;&lt;Boundary&gt;&gt;</text>
+<rect x="287.0" y="813" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="332.0" y="824.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="230.0" y="845" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">MyTickets</text>
+<line x1="75" y1="854" x2="385" y2="854" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="75" y1="872" x2="385" y2="872" stroke="#0F172A" stroke-width="1.2"/>
+<text x="85" y="888" font-size="11" font-weight="700" fill="#FDE68A">[S2] +renderConvertedTickets()</text>
+<text x="85" y="905" font-size="11" font-weight="700" fill="#FDE68A">[S2] +showTicketCode(maVe)</text>
+<text x="85" y="922" font-size="11" font-weight="700" fill="#FDE68A">[S2] +showLockedPrice(donGiaChot)</text>
+<rect x="75" y="973" width="310" height="161" rx="3" fill="#2B8A8E" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="76" y="974" width="308" height="45" rx="2" fill="#237377"/>
+<text x="85" y="990" font-size="10.5" fill="#E2E8F0">&lt;&lt;Boundary&gt;&gt;</text>
+<rect x="287.0" y="978" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="332.0" y="989.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="230.0" y="1010" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">OrganizerPricingPanel</text>
+<line x1="75" y1="1019" x2="385" y2="1019" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="75" y1="1037" x2="385" y2="1037" stroke="#0F172A" stroke-width="1.2"/>
+<text x="85" y="1053" font-size="11" font-weight="700" fill="#FDE68A">[S2] +renderPricingConfigForm()</text>
+<text x="85" y="1070" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onSimulateDemand(scenario)</text>
+<text x="85" y="1087" font-size="11" font-weight="700" fill="#FDE68A">[S2] +renderProposalCards()</text>
+<text x="85" y="1104" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onApprove() / onReject()</text>
+<text x="85" y="1121" font-size="11" font-weight="700" fill="#FDE68A">[S2] +renderAuditLogs()</text>
+<rect x="75" y="1172" width="310" height="127" rx="3" fill="#2B8A8E" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="76" y="1173" width="308" height="45" rx="2" fill="#237377"/>
+<text x="85" y="1189" font-size="10.5" fill="#E2E8F0">&lt;&lt;Boundary&gt;&gt;</text>
+<rect x="287.0" y="1177" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="332.0" y="1188.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="230.0" y="1209" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">OrganizerPurchaseConfig</text>
+<line x1="75" y1="1218" x2="385" y2="1218" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="75" y1="1236" x2="385" y2="1236" stroke="#0F172A" stroke-width="1.2"/>
+<text x="85" y="1252" font-size="11" font-weight="700" fill="#FDE68A">[S2] +renderTicketLimit(1..20)</text>
+<text x="85" y="1269" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onToggleRequireOtp()</text>
+<text x="85" y="1286" font-size="11" font-weight="700" fill="#FDE68A">[S2] +onSavePurchaseConfig()</text>
+<rect x="585" y="228" width="325" height="161" rx="3" fill="#3E5258" stroke="#F59E0B" stroke-width="2.4" stroke-dasharray="5,3" filter="url(#card-shadow)"/>
+<rect x="586" y="229" width="323" height="45" rx="2" fill="#324348"/>
+<text x="595" y="245" font-size="10.5" fill="#E2E8F0">&lt;&lt;Control&gt;&gt;</text>
+<rect x="844.5" y="233" width="57.5" height="16" rx="3" fill="#D97706"/>
+<text x="873.25" y="244.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S3 + S2</text>
+<text x="747.5" y="265" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">BookingService</text>
+<line x1="585" y1="274" x2="910" y2="274" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="585" y1="292" x2="910" y2="292" stroke="#0F172A" stroke-width="1.2"/>
+<text x="595" y="308" font-size="11" font-weight="400" fill="#F8FAFC">+createSeatHold(tao_giu_cho)</text>
+<text x="595" y="325" font-size="11" font-weight="700" fill="#FDE68A">[S2] +extendSeatHold(gia_han)</text>
+<text x="595" y="342" font-size="11" font-weight="700" fill="#FDE68A">[S2] +confirmPayment(xac_nhan)</text>
+<text x="595" y="359" font-size="11" font-weight="400" fill="#F8FAFC">+releaseSeatHold(huy_giu_cho)</text>
+<text x="595" y="376" font-size="11" font-weight="700" fill="#FDE68A">[S2] +holdSessionGuard(logout)</text>
+<rect x="585" y="417" width="325" height="127" rx="3" fill="#3E5258" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="586" y="418" width="323" height="45" rx="2" fill="#324348"/>
+<text x="595" y="434" font-size="10.5" fill="#E2E8F0">&lt;&lt;Control&gt;&gt;</text>
+<rect x="812.0" y="422" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="857.0" y="433.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="747.5" y="454" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">OtpService</text>
+<line x1="585" y1="463" x2="910" y2="463" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="585" y1="481" x2="910" y2="481" stroke="#0F172A" stroke-width="1.2"/>
+<text x="595" y="497" font-size="11" font-weight="700" fill="#FDE68A">[S2] +requestOtp(signInWithOtp)</text>
+<text x="595" y="514" font-size="11" font-weight="700" fill="#FDE68A">[S2] +verifyOtp(type: email)</text>
+<text x="595" y="531" font-size="11" font-weight="700" fill="#FDE68A">[S2] +checkCooldown()</text>
+<rect x="585" y="572" width="325" height="93" rx="3" fill="#3E5258" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="586" y="573" width="323" height="45" rx="2" fill="#324348"/>
+<text x="595" y="589" font-size="10.5" fill="#E2E8F0">&lt;&lt;Control&gt;&gt;</text>
+<rect x="812.0" y="577" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="857.0" y="588.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="747.5" y="609" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">TicketWalletService</text>
+<line x1="585" y1="618" x2="910" y2="618" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="585" y1="636" x2="910" y2="636" stroke="#0F172A" stroke-width="1.2"/>
+<text x="595" y="652" font-size="11" font-weight="700" fill="#FDE68A">[S2] +loadMyTickets(ve_cua_toi)</text>
+<rect x="585" y="693" width="325" height="93" rx="3" fill="#3E5258" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="586" y="694" width="323" height="45" rx="2" fill="#324348"/>
+<text x="595" y="710" font-size="10.5" fill="#E2E8F0">&lt;&lt;Control&gt;&gt;</text>
+<rect x="812.0" y="698" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="857.0" y="709.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="747.5" y="730" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">PriceRealtimeService</text>
+<line x1="585" y1="739" x2="910" y2="739" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="585" y1="757" x2="910" y2="757" stroke="#0F172A" stroke-width="1.2"/>
+<text x="595" y="773" font-size="11" font-weight="700" fill="#FDE68A">[S2] +subscribeKhuVucPrice()</text>
+<rect x="585" y="814" width="325" height="127" rx="3" fill="#3E5258" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="586" y="815" width="323" height="45" rx="2" fill="#324348"/>
+<text x="595" y="831" font-size="10.5" fill="#E2E8F0">&lt;&lt;Control&gt;&gt;</text>
+<rect x="812.0" y="819" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="857.0" y="830.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="747.5" y="851" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">PricingEngine (Domain)</text>
+<line x1="585" y1="860" x2="910" y2="860" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="585" y1="878" x2="910" y2="878" stroke="#0F172A" stroke-width="1.2"/>
+<text x="595" y="894" font-size="11" font-weight="700" fill="#FDE68A">[S2] +computePriceProposal()</text>
+<text x="595" y="911" font-size="11" font-weight="700" fill="#FDE68A">[S2] +applyDeltaMaxAndStepS()</text>
+<text x="595" y="928" font-size="11" font-weight="700" fill="#FDE68A">[S2] +clampFloorCeilingDeadband()</text>
+<rect x="585" y="969" width="325" height="161" rx="3" fill="#3E5258" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="586" y="970" width="323" height="45" rx="2" fill="#324348"/>
+<text x="595" y="986" font-size="10.5" fill="#E2E8F0">&lt;&lt;Control&gt;&gt;</text>
+<rect x="812.0" y="974" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="857.0" y="985.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="747.5" y="1006" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">PricingService</text>
+<line x1="585" y1="1015" x2="910" y2="1015" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="585" y1="1033" x2="910" y2="1033" stroke="#0F172A" stroke-width="1.2"/>
+<text x="595" y="1049" font-size="11" font-weight="700" fill="#FDE68A">[S2] +savePriceRule(luu_quy_tac)</text>
+<text x="595" y="1066" font-size="11" font-weight="700" fill="#FDE68A">[S2] +simulateDemand(mo_phong)</text>
+<text x="595" y="1083" font-size="11" font-weight="700" fill="#FDE68A">[S2] +loadMetrics(lay_so_lieu)</text>
+<text x="595" y="1100" font-size="11" font-weight="700" fill="#FDE68A">[S2] +saveProposal(PriceGuard)</text>
+<text x="595" y="1117" font-size="11" font-weight="700" fill="#FDE68A">[S2] +approve(PT409) / reject()</text>
+<rect x="585" y="1158" width="325" height="110" rx="3" fill="#3E5258" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="586" y="1159" width="323" height="45" rx="2" fill="#324348"/>
+<text x="595" y="1175" font-size="10.5" fill="#E2E8F0">&lt;&lt;Control&gt;&gt;</text>
+<rect x="812.0" y="1163" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="857.0" y="1174.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="747.5" y="1195" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">PurchaseConfigService</text>
+<line x1="585" y1="1204" x2="910" y2="1204" stroke="#0F172A" stroke-width="1.2"/>
+<line x1="585" y1="1222" x2="910" y2="1222" stroke="#0F172A" stroke-width="1.2"/>
+<text x="595" y="1238" font-size="11" font-weight="700" fill="#FDE68A">[S2] +loadConfig(suKienId)</text>
+<text x="595" y="1255" font-size="11" font-weight="700" fill="#FDE68A">[S2] +saveConfig(luu_cau_hinh)</text>
+<rect x="1155" y="228" width="325" height="172" rx="3" fill="#659179" stroke="#F59E0B" stroke-width="2.4" stroke-dasharray="5,3" filter="url(#card-shadow)"/>
+<rect x="1156" y="229" width="323" height="45" rx="2" fill="#547B66"/>
+<text x="1165" y="245" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1414.5" y="233" width="57.5" height="16" rx="3" fill="#D97706"/>
+<text x="1443.25" y="244.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S3 + S2</text>
+<text x="1317.5" y="265" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">GiuCho</text>
+<line x1="1155" y1="274" x2="1480" y2="274" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="290" font-size="11" font-weight="400" fill="#F8FAFC">+int giuChoId (PK)</text>
+<text x="1165" y="307" font-size="11" font-weight="400" fill="#F8FAFC">+uuid nguoiDungId</text>
+<text x="1165" y="324" font-size="11" font-weight="400" fill="#F8FAFC">+string trangThai (CONVERTED)</text>
+<text x="1165" y="341" font-size="11" font-weight="700" fill="#FDE68A">[S2] +boolean daGiaHan</text>
+<text x="1165" y="358" font-size="11" font-weight="700" fill="#FDE68A">[S2] +numeric mocOtpDaDung</text>
+<line x1="1155" y1="371" x2="1480" y2="371" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="387" font-size="11" font-weight="700" fill="#FDE68A">[S2] +verifyFreshOtpAfterHold()</text>
+<rect x="1155" y="426" width="325" height="155" rx="3" fill="#659179" stroke="#F59E0B" stroke-width="2.4" stroke-dasharray="5,3" filter="url(#card-shadow)"/>
+<rect x="1156" y="427" width="323" height="45" rx="2" fill="#547B66"/>
+<text x="1165" y="443" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1414.5" y="431" width="57.5" height="16" rx="3" fill="#D97706"/>
+<text x="1443.25" y="442.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S3 + S2</text>
+<text x="1317.5" y="463" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">ChiTietGiuCho</text>
+<line x1="1155" y1="472" x2="1480" y2="472" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="488" font-size="11" font-weight="400" fill="#F8FAFC">+int chiTietGiuChoId (PK)</text>
+<text x="1165" y="505" font-size="11" font-weight="400" fill="#F8FAFC">+int giuChoId / khuVucId / gheId</text>
+<text x="1165" y="522" font-size="11" font-weight="400" fill="#F8FAFC">+string maVe</text>
+<text x="1165" y="539" font-size="11" font-weight="700" fill="#FDE68A">[S2] +decimal donGiaChot</text>
+<line x1="1155" y1="552" x2="1480" y2="552" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="568" font-size="11" font-weight="700" fill="#FDE68A">[S2] +freezePriceAtHold()</text>
+<rect x="1155" y="607" width="325" height="155" rx="3" fill="#659179" stroke="#F59E0B" stroke-width="2.4"  filter="url(#card-shadow)"/>
+<rect x="1156" y="608" width="323" height="45" rx="2" fill="#547B66"/>
+<text x="1165" y="624" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1414.5" y="612" width="57.5" height="16" rx="3" fill="#D97706"/>
+<text x="1443.25" y="623.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S1 + S2</text>
+<text x="1317.5" y="644" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">Ghe</text>
+<line x1="1155" y1="653" x2="1480" y2="653" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="669" font-size="11" font-weight="400" fill="#F8FAFC">+int gheId (PK)</text>
+<text x="1165" y="686" font-size="11" font-weight="400" fill="#F8FAFC">+int khuVucId (FK)</text>
+<text x="1165" y="703" font-size="11" font-weight="400" fill="#F8FAFC">+string trangThai (DA_BAN)</text>
+<text x="1165" y="720" font-size="11" font-weight="700" fill="#FDE68A">[S2] +Date ngayCapNhatTrangThai</text>
+<line x1="1155" y1="733" x2="1480" y2="733" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="749" font-size="11" font-weight="700" fill="#FDE68A">[S2] +trackStatusTimestamp()</text>
+<rect x="1155" y="788" width="325" height="172" rx="3" fill="#659179" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="1156" y="789" width="323" height="45" rx="2" fill="#547B66"/>
+<text x="1165" y="805" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1382.0" y="793" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="1427.0" y="804.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="1317.5" y="825" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">QuyTacGia</text>
+<line x1="1155" y1="834" x2="1480" y2="834" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="850" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bigint quyTacGiaId (PK)</text>
+<text x="1165" y="867" font-size="11" font-weight="700" fill="#FDE68A">[S2] +int khuVucId (FK, UK 1-1)</text>
+<text x="1165" y="884" font-size="11" font-weight="700" fill="#FDE68A">[S2] +decimal giaGoc / San / Tran</text>
+<text x="1165" y="901" font-size="11" font-weight="700" fill="#FDE68A">[S2] +decimal buocNhay / bienDo</text>
+<text x="1165" y="918" font-size="11" font-weight="700" fill="#FDE68A">[S2] +decimal nguong / trongSo</text>
+<line x1="1155" y1="931" x2="1480" y2="931" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="947" font-size="11" font-weight="700" fill="#FDE68A">[S2] +validateBounds()</text>
+<rect x="1155" y="986" width="325" height="155" rx="3" fill="#659179" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="1156" y="987" width="323" height="45" rx="2" fill="#547B66"/>
+<text x="1165" y="1003" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1382.0" y="991" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="1427.0" y="1002.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="1317.5" y="1023" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">NhatKyDinhGia</text>
+<line x1="1155" y1="1032" x2="1480" y2="1032" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="1048" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bigint nhatKyId (PK)</text>
+<text x="1165" y="1065" font-size="11" font-weight="700" fill="#FDE68A">[S2] +string loaiSuKien</text>
+<text x="1165" y="1082" font-size="11" font-weight="700" fill="#FDE68A">[S2] +int khuVucId / quyTacId</text>
+<text x="1165" y="1099" font-size="11" font-weight="700" fill="#FDE68A">[S2] +jsonb chiTiet</text>
+<line x1="1155" y1="1112" x2="1480" y2="1112" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="1128" font-size="11" font-weight="700" fill="#FDE68A">[S2] +chanSuaXoaTrigger()</text>
+<rect x="1155" y="1167" width="325" height="138" rx="3" fill="#659179" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="1156" y="1168" width="323" height="45" rx="2" fill="#547B66"/>
+<text x="1165" y="1184" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1382.0" y="1172" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="1427.0" y="1183.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="1317.5" y="1204" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">MoPhongGhe (Tech)</text>
+<line x1="1155" y1="1213" x2="1480" y2="1213" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="1229" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bigint id (PK)</text>
+<text x="1165" y="1246" font-size="11" font-weight="700" fill="#FDE68A">[S2] +int gheId / khuVucId</text>
+<text x="1165" y="1263" font-size="11" font-weight="700" fill="#FDE68A">[S2] +string kichBan</text>
+<line x1="1155" y1="1276" x2="1480" y2="1276" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1165" y="1292" font-size="11" font-weight="700" fill="#FDE68A">[S2] +trackSimulatedSeats()</text>
+<rect x="1725" y="228" width="335" height="138" rx="3" fill="#709D84" stroke="#F59E0B" stroke-width="2.4"  filter="url(#card-shadow)"/>
+<rect x="1726" y="229" width="333" height="45" rx="2" fill="#5E8670"/>
+<text x="1735" y="245" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1994.5" y="233" width="57.5" height="16" rx="3" fill="#D97706"/>
+<text x="2023.25" y="244.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S1 + S2</text>
+<text x="1892.5" y="265" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">CauHinhSuKien</text>
+<line x1="1725" y1="274" x2="2060" y2="274" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="290" font-size="11" font-weight="400" fill="#F8FAFC">+int suKienId (PK=FK 1-1)</text>
+<text x="1735" y="307" font-size="11" font-weight="700" fill="#FDE68A">[S2] +int soVeToiDaMoiDon (1..20)</text>
+<text x="1735" y="324" font-size="11" font-weight="700" fill="#FDE68A">[S2] +boolean yeuCauXacMinhOtp</text>
+<line x1="1725" y1="337" x2="2060" y2="337" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="353" font-size="11" font-weight="700" fill="#FDE68A">[S2] +trgKhoaCauHinhMuaVe()</text>
+<rect x="1725" y="392" width="335" height="121" rx="3" fill="#709D84" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="1726" y="393" width="333" height="45" rx="2" fill="#5E8670"/>
+<text x="1735" y="409" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1962.0" y="397" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="2007.0" y="408.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="1892.5" y="429" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">CauHinhDemo (Tech)</text>
+<line x1="1725" y1="438" x2="2060" y2="438" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="454" font-size="11" font-weight="700" fill="#FDE68A">[S2] +text khoa (PK)</text>
+<text x="1735" y="471" font-size="11" font-weight="700" fill="#FDE68A">[S2] +text giaTriHash (SHA-256)</text>
+<line x1="1725" y1="484" x2="2060" y2="484" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="500" font-size="11" font-weight="700" fill="#FDE68A">[S2] +verifyDemoCode()</text>
+<rect x="1725" y="539" width="335" height="155" rx="3" fill="#709D84" stroke="#F59E0B" stroke-width="2.4"  filter="url(#card-shadow)"/>
+<rect x="1726" y="540" width="333" height="45" rx="2" fill="#5E8670"/>
+<text x="1735" y="556" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1994.5" y="544" width="57.5" height="16" rx="3" fill="#D97706"/>
+<text x="2023.25" y="555.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">S1 + S2</text>
+<text x="1892.5" y="576" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">KhuVuc</text>
+<line x1="1725" y1="585" x2="2060" y2="585" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="601" font-size="11" font-weight="400" fill="#F8FAFC">+int khuVucId (PK)</text>
+<text x="1735" y="618" font-size="11" font-weight="700" fill="#FDE68A">[S2] +decimal giaGoc</text>
+<text x="1735" y="635" font-size="11" font-weight="400" fill="#F8FAFC">+decimal giaVeNiemYet</text>
+<text x="1735" y="652" font-size="11" font-weight="400" fill="#F8FAFC">+int tongSoVe / soVeDaBan</text>
+<line x1="1725" y1="665" x2="2060" y2="665" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="681" font-size="11" font-weight="700" fill="#FDE68A">[S2] +kiemSoatDoiGiaTrucTiep()</text>
+<rect x="1725" y="720" width="335" height="172" rx="3" fill="#709D84" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="1726" y="721" width="333" height="45" rx="2" fill="#5E8670"/>
+<text x="1735" y="737" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1962.0" y="725" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="2007.0" y="736.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="1892.5" y="757" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">DeXuatGia</text>
+<line x1="1725" y1="766" x2="2060" y2="766" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="782" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bigint deXuatId (PK)</text>
+<text x="1735" y="799" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bigint quyTacGiaId / khuVuc</text>
+<text x="1735" y="816" font-size="11" font-weight="700" fill="#FDE68A">[S2] +decimal r, u, u_exp, Trem</text>
+<text x="1735" y="833" font-size="11" font-weight="700" fill="#FDE68A">[S2] +decimal giaHienTai / DeXuat</text>
+<text x="1735" y="850" font-size="11" font-weight="700" fill="#FDE68A">[S2] +string trangThaiDuyet</text>
+<line x1="1725" y1="863" x2="2060" y2="863" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="879" font-size="11" font-weight="700" fill="#FDE68A">[S2] +approve(PT409) / reject()</text>
+<rect x="1725" y="918" width="335" height="172" rx="3" fill="#709D84" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="1726" y="919" width="333" height="45" rx="2" fill="#5E8670"/>
+<text x="1735" y="935" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1962.0" y="923" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="2007.0" y="934.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="1892.5" y="955" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">NhatKyGia</text>
+<line x1="1725" y1="964" x2="2060" y2="964" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="980" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bigint nhatKyGiaId (PK)</text>
+<text x="1735" y="997" font-size="11" font-weight="700" fill="#FDE68A">[S2] +int khuVucId (FK RESTRICT)</text>
+<text x="1735" y="1014" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bigint deXuatId (FK, UK)</text>
+<text x="1735" y="1031" font-size="11" font-weight="700" fill="#FDE68A">[S2] +decimal giaCu / giaMoi</text>
+<text x="1735" y="1048" font-size="11" font-weight="700" fill="#FDE68A">[S2] +uuid nguoiThucHienId</text>
+<line x1="1725" y1="1061" x2="2060" y2="1061" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="1077" font-size="11" font-weight="700" fill="#FDE68A">[S2] +chanSuaXoaTrigger()</text>
+<rect x="1725" y="1116" width="335" height="155" rx="3" fill="#709D84" stroke="#FBBF24" stroke-width="2.8" stroke-dasharray="7,3" filter="url(#card-shadow)"/>
+<rect x="1726" y="1117" width="333" height="45" rx="2" fill="#5E8670"/>
+<text x="1735" y="1133" font-size="10.5" fill="#E2E8F0">&lt;&lt;Entity&gt;&gt;</text>
+<rect x="1962.0" y="1121" width="90.0" height="16" rx="3" fill="#F59E0B"/>
+<text x="2007.0" y="1132.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<text x="1892.5" y="1153" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">NhatKyCauHinhMuaVe</text>
+<line x1="1725" y1="1162" x2="2060" y2="1162" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="1178" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bigint nhatKyId (PK)</text>
+<text x="1735" y="1195" font-size="11" font-weight="700" fill="#FDE68A">[S2] +int suKienId</text>
+<text x="1735" y="1212" font-size="11" font-weight="700" fill="#FDE68A">[S2] +int soVeCu / soVeMoi</text>
+<text x="1735" y="1229" font-size="11" font-weight="700" fill="#FDE68A">[S2] +bool otpCu / otpMoi</text>
+<line x1="1725" y1="1242" x2="2060" y2="1242" stroke="#0F172A" stroke-width="1.2"/>
+<text x="1735" y="1258" font-size="11" font-weight="700" fill="#FDE68A">[S2] +trgKiemSoatCauHinh()</text>
+</svg>

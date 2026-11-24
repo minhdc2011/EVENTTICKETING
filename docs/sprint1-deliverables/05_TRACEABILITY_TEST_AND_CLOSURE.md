@@ -16,17 +16,17 @@
 | **UC-BTC-03** | FR-T1-03.3 | 1 | `SU_KIEN`, `CAU_HINH_SU_KIEN`, `SUAT_DIEN`, `KHU_VUC`, `GHE`, `GIU_CHO`, `CHI_TIET_GIU_CHO`, `NGHE_SI`, `SU_KIEN_NGHE_SI` | `SuKien`, `CauHinhSuKien`, `SuatDien`, `KhuVuc`, `Ghe`, `GiuCho`, `ChiTietGiuCho`, `NgheSi`, `SuKienNgheSi` • `OrganizerService` | `EventEditorPage`, `EventAdminController` | SD-04 |
 | **UC-BTC-04** | FR-T1-03.4 | 1 | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc` • `OrganizerService`, `EventService` | `EventEditorPage`, `EventAdminController` | SD-04 |
 | **UC-BTC-05** | FR-T1-03.5 | 1 | `SU_KIEN`, `SUAT_DIEN`, `KHU_VUC` | `SuKien`, `SuatDien`, `KhuVuc` • `OrganizerService` | `EventAdminController` | SD-04 |
-| **UC-T2-01** | FR-T2-01 | 2 | `CAU_HINH_SU_KIEN` (cột `YeuCauXacMinhOTP`), `HO_SO_NGUOI_DUNG` | `CauHinhSuKien`, `HoSoNguoiDung` | — (hoàn thiện cuối kỳ) | SD OTP (Sprint 2) |
-| **UC-T2-02** | FR-T2-02 | 2 | `CAU_HINH_SU_KIEN` (cột `SoVeToiDaMoiDon`), `GIU_CHO`, `CHI_TIET_GIU_CHO` | `CauHinhSuKien`, `GiuCho`, `ChiTietGiuCho` | — (hoàn thiện cuối kỳ) | SD OTP + 4 vé (Sprint 2) |
-| **UC-T4-01** | FR-T4-02 | 2 | `QUY_TAC_GIA`, `KHU_VUC` | `QuyTacGia`, `KhuVuc` | — (hoàn thiện cuối kỳ) | SD DP cấu hình khung giá (Sprint 2) |
-| **UC-T4-02** | FR-T4-04 | 2 | `QUY_TAC_GIA`, `DE_XUAT_GIA`, `KHU_VUC` | `QuyTacGia`, `DeXuatGia` | — (hoàn thiện cuối kỳ) | SD DP tính đề xuất giá (Sprint 2) |
-| **UC-T4-03** | FR-T4-04 | 2 | `DE_XUAT_GIA`, `NHAT_KY_GIA`, `KHU_VUC` | `DeXuatGia`, `NhatKyGia` | — (hoàn thiện cuối kỳ) | SD DP duyệt/từ chối (Sprint 2) |
-| **UC-T4-04** | FR-T4-04 | 2 | `KHU_VUC`, `NHAT_KY_GIA` | `KhuVuc`, `NhatKyGia` | — (hoàn thiện cuối kỳ) | SD DP giá hiện hành (Sprint 2) |
-| **UC-T4-05** | FR-T4-02 | 2 | `QUY_TAC_GIA`, `KHU_VUC` | `QuyTacGia`, `KhuVuc` | — (hoàn thiện cuối kỳ) | SD DP kiểm tra sàn/trần (Sprint 2) |
+| **UC-T2-01** | FR-T2-01 | 2 | `CAU_HINH_SU_KIEN` (`YeuCauXacMinhOTP`), `GIU_CHO` (`DaGiaHan`, `MocOtpDaDung`), `CAU_HINH_DEMO` | `CauHinhSuKien`, `GiuCho`, `CauHinhDemo` • `BookingService`, `OtpService` | `CheckoutOtpDialog`, `HoldConfirmationDialog` | SD-S2-01 |
+| **UC-T2-02** | FR-T2-02 | 2 | `CAU_HINH_SU_KIEN` (`SoVeToiDaMoiDon`), `GIU_CHO`, `CHI_TIET_GIU_CHO` (`DonGiaChot`) | `CauHinhSuKien`, `GiuCho`, `ChiTietGiuCho` • `BookingService` | `OfficialSeatingMap` | SD-S2-01 |
+| **UC-T4-01** | FR-T4-02 | 2 | `QUY_TAC_GIA`, `KHU_VUC`, `NHAT_KY_DINH_GIA` | `QuyTacGia`, `KhuVuc`, `NhatKyDinhGia` • `PricingService` | `OrganizerPricingPanel` | SD-S2-02 |
+| **UC-T4-02** | FR-T4-04 | 2 | `QUY_TAC_GIA`, `DE_XUAT_GIA`, `KHU_VUC`, `GHE`, `MO_PHONG_GHE` | `QuyTacGia`, `DeXuatGia`, `MoPhongGhe` • `PricingService`, `PricingEngine` | `OrganizerPricingPanel` | SD-S2-02 |
+| **UC-T4-03** | FR-T4-04 | 2 | `DE_XUAT_GIA`, `NHAT_KY_GIA`, `KHU_VUC` | `DeXuatGia`, `NhatKyGia`, `KhuVuc` • `PricingService` | `OrganizerPriceProposals` | SD-S2-03 |
+| **UC-T4-04** | FR-T4-04 | 2 | `KHU_VUC`, `CHI_TIET_GIU_CHO` | `KhuVuc` • `PriceRealtimeService` | `OfficialSeatingMap` | SD-S2-03 |
+| **UC-T4-05** | FR-T4-02 | 2 | `QUY_TAC_GIA`, `KHU_VUC`, `NHAT_KY_DINH_GIA` | `QuyTacGia`, `KhuVuc`, `NhatKyDinhGia` • `PricingService` | `OrganizerPricingPanel` | SD-S2-02 |
 | **UC-T3-01** | FR-T3-01 | 3 | `KHU_VUC`, `GHE` | `KhuVuc`, `Ghe` | `SeatMapView` | SD-05 |
 | **UC-T3-02** | FR-T3-01 | 3 | `GIU_CHO`, `CHI_TIET_GIU_CHO`, `GHE`, `KHU_VUC`, `SUAT_DIEN` | `GiuCho`, `ChiTietGiuCho`, `Ghe` • `BookingService` | `SeatHoldController`, `SeatLock`, `Seat` | SD-05, SD-06 |
 
-Các dòng Sprint 2 điền theo ERD 17 bảng (`QUY_TAC_GIA`, `DE_XUAT_GIA`, `NHAT_KY_GIA` là bảng mới; OTP là cột `YeuCauXacMinhOTP` của `CAU_HINH_SU_KIEN`) và các sequence đã soạn trong kế hoạch Sprint 2; cột lớp phân tích sẽ hoàn thiện ở cuối kỳ.
+Các dòng Sprint 2 đã được đồng bộ theo **ERD 21 bảng `public` thật** (36 migrations, bổ sung `NHAT_KY_DINH_GIA`, `NHAT_KY_CAU_HINH_MUA_VE`, `MO_PHONG_GHE`, `CAU_HINH_DEMO`) và bộ 4 Sequence Diagrams (`SD-S2-01..04`) tại [`docs/sprint2-deliverables/`](../sprint2-deliverables/00_README.md).
 
 Bảng `DIA_DIEM` chưa được UC nào ghi trực tiếp trong V1 (địa điểm của sự kiện do BTC tạo đang lưu bằng cột văn bản của `SU_KIEN`); bảng có trong CSDL để `SUAT_DIEN` tham chiếu.
 

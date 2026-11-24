@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1944" height="1183" viewBox="0 0 1944 1183" font-family="Arial, Liberation Sans, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="2198" height="1379" viewBox="0 0 2198 1379" font-family="Arial, Liberation Sans, sans-serif">
 <defs>
   <marker id="sd-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
     <path d="M 1 1 L 9 5 L 1 9 z" fill="#2A3342"/>
@@ -16,104 +16,116 @@
     <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.18"/>
   </filter>
 </defs>
-<rect x="0" y="0" width="1944" height="1183" fill="#F7F8FA"/>
-<rect x="0" y="0" width="1944" height="84.0" fill="#2A3342"/>
-<text x="36" y="38" font-size="21" font-weight="700" fill="#FFFFFF">SD-S2-02: Dynamic Pricing — Tính đề xuất, BTC Duyệt &amp; Realtime Giá</text>
-<text x="36" y="57" font-size="12" fill="#94A3B8">UC-T4-01..05 (FR-T4-02..04, NFR-08) — Quy trình Human-in-the-Loop</text>
-<text x="1780.0" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
-<rect x="1796.0" y="20" width="112.0" height="24" rx="12" fill="#F59E0B"/>
-<text x="1852.0" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
-<rect x="28.0" y="557.0" width="1888.4" height="548.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
-<rect x="28.0" y="557.0" width="46.0" height="22" rx="4" fill="#334155"/>
-<text x="51.0" y="572.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
-<rect x="157.0" y="559.0" width="235.60000000000002" height="20" rx="4" fill="#334155"/>
-<text x="166.0" y="572.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[BTC Phê duyệt đề xuất (APPROVED)]</text>
-<line x1="28.0" y1="959.0" x2="1916.4" y2="959.0" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,3"/>
-<rect x="34.0" y="963.0" width="46.0" height="20" rx="4" fill="#475569"/>
-<text x="57.0" y="976.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">else</text>
-<rect x="157.0" y="963.0" width="171.60000000000002" height="20" rx="4" fill="#475569"/>
-<text x="166.0" y="976.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[BTC Từ chối (REJECTED)]</text>
-<line x1="135.0" y1="114.0" x2="135.0" y2="1155.0" stroke="#EC1C69" stroke-width="2.6"/>
-<line x1="483.79999999999995" y1="114.0" x2="483.79999999999995" y2="1155.0" stroke="#5050CC" stroke-width="2.6"/>
-<line x1="819.0" y1="114.0" x2="819.0" y2="1155.0" stroke="#4B9CE2" stroke-width="2.6"/>
-<line x1="1167.8" y1="114.0" x2="1167.8" y2="1155.0" stroke="#3B82F6" stroke-width="2.6"/>
-<line x1="1412.8" y1="114.0" x2="1412.8" y2="1155.0" stroke="#2BB5B0" stroke-width="2.6"/>
-<line x1="1789.4" y1="114.0" x2="1789.4" y2="1155.0" stroke="#2E8BC0" stroke-width="2.6"/>
-<rect x="124.0" y="147.0" width="22" height="912.0" rx="3" fill="#EC1C69"/>
-<rect x="472.79999999999995" y="147.0" width="22" height="912.0" rx="3" fill="#5050CC"/>
-<rect x="808.0" y="191.0" width="22" height="278.0" rx="3" fill="#4B9CE2"/>
-<rect x="808.0" y="641.0" width="22" height="418.0" rx="3" fill="#4B9CE2"/>
-<rect x="1156.8" y="279.0" width="22" height="190.0" rx="3" fill="#3B82F6"/>
-<rect x="1401.8" y="235.0" width="22" height="234.0" rx="3" fill="#2BB5B0"/>
-<rect x="1401.8" y="685.0" width="22" height="374.0" rx="3" fill="#2BB5B0"/>
-<rect x="1778.4" y="849.0" width="22" height="24.0" rx="3" fill="#2E8BC0"/>
+<rect x="0" y="0" width="2198" height="1379" fill="#F7F8FA"/>
+<rect x="0" y="0" width="2198" height="84.0" fill="#2A3342"/>
+<text x="36" y="38" font-size="20.5" font-weight="700" fill="#FFFFFF">SD-S2-02: Dynamic Pricing — Cấu hình Quy tắc, Mô phỏng &amp; Tạo Đề xuất</text>
+<text x="36" y="57" font-size="12" fill="#94A3B8">UC-T4-01, UC-T4-02, UC-T4-05 (FR-T4-02..04) — Engine 5 bước, PriceGuard &amp; Nhật ký định giá</text>
+<text x="2034.0" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
+<rect x="2050.0" y="20" width="112.0" height="24" rx="12" fill="#F59E0B"/>
+<text x="2106.0" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<rect x="28.0" y="403.0" width="2142.6" height="189.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="28.0" y="403.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="51.0" y="418.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
+<rect x="157.0" y="405.0" width="331.6" height="20" rx="4" fill="#334155"/>
+<text x="166.0" y="418.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Tùy chọn: BTC chạy Mô phỏng nhu cầu (Demo/Test)]</text>
+<rect x="28.0" y="989.0" width="2142.6" height="318.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="28.0" y="989.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="51.0" y="1004.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
+<rect x="157.0" y="991.0" width="382.8" height="20" rx="4" fill="#334155"/>
+<text x="166.0" y="1004.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[PriceGuard: Quy tắc vừa đổi hoặc giá ngoài [Pmin, Pmax]]</text>
+<line x1="28.0" y1="1150.0" x2="2170.6" y2="1150.0" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,3"/>
+<rect x="34.0" y="1154.0" width="46.0" height="20" rx="4" fill="#475569"/>
+<text x="57.0" y="1167.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">else</text>
+<rect x="157.0" y="1154.0" width="229.20000000000002" height="20" rx="4" fill="#475569"/>
+<text x="166.0" y="1167.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Hợp lệ -&gt; Tạo đề xuất CHO_DUYET]</text>
+<line x1="135.0" y1="114.0" x2="135.0" y2="1353.0" stroke="#EC1C69" stroke-width="2.6"/>
+<line x1="541.2" y1="114.0" x2="541.2" y2="1353.0" stroke="#5050CC" stroke-width="2.6"/>
+<line x1="867.0" y1="114.0" x2="867.0" y2="1353.0" stroke="#4B9CE2" stroke-width="2.6"/>
+<line x1="1259.8" y1="114.0" x2="1259.8" y2="1353.0" stroke="#3B82F6" stroke-width="2.6"/>
+<line x1="1763.7" y1="114.0" x2="1763.7" y2="1353.0" stroke="#2BB5B0" stroke-width="2.6"/>
+<rect x="124.0" y="147.0" width="22" height="1115.0" rx="3" fill="#EC1C69"/>
+<rect x="530.2" y="147.0" width="22" height="1115.0" rx="3" fill="#5050CC"/>
+<rect x="856.0" y="190.0" width="22" height="164.0" rx="3" fill="#4B9CE2"/>
+<rect x="856.0" y="484.0" width="22" height="63.0" rx="3" fill="#4B9CE2"/>
+<rect x="856.0" y="647.0" width="22" height="615.0" rx="3" fill="#4B9CE2"/>
+<rect x="1248.8" y="776.0" width="22" height="121.0" rx="3" fill="#3B82F6"/>
+<rect x="1752.7" y="233.0" width="22" height="121.0" rx="3" fill="#2BB5B0"/>
+<rect x="1752.7" y="527.0" width="22" height="24.0" rx="3" fill="#2BB5B0"/>
+<rect x="1752.7" y="690.0" width="22" height="63.0" rx="3" fill="#2BB5B0"/>
+<rect x="1752.7" y="920.0" width="22" height="342.0" rx="3" fill="#2BB5B0"/>
 <rect x="47.5" y="60.0" width="175" height="54.0" rx="10" fill="#EC1C69" filter="url(#pbox-shadow)"/>
 <text x="135.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Actor»</text>
 <text x="135.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">Ban tổ chức</text>
-<rect x="396.29999999999995" y="60.0" width="175" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
-<text x="483.79999999999995" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
-<text x="483.79999999999995" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:DynamicPricingTab</text>
-<rect x="731.5" y="60.0" width="175" height="54.0" rx="10" fill="#4B9CE2" filter="url(#pbox-shadow)"/>
-<text x="819.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
-<text x="819.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:DynamicPricingSvc</text>
-<rect x="1080.3" y="60.0" width="175" height="54.0" rx="10" fill="#3B82F6" filter="url(#pbox-shadow)"/>
-<text x="1167.8" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
-<text x="1167.8" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:CronJob (30p)</text>
-<rect x="1325.3" y="60.0" width="175" height="54.0" rx="10" fill="#2BB5B0" filter="url(#pbox-shadow)"/>
-<text x="1412.8" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Entity»</text>
-<text x="1412.8" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PostgreSQL (3 Bảng)</text>
-<rect x="1701.9" y="60.0" width="175" height="54.0" rx="10" fill="#2E8BC0" filter="url(#pbox-shadow)"/>
-<text x="1789.4" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
-<text x="1789.4" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:SupabaseRealtime</text>
-<line x1="146.0" y1="155.0" x2="471.79999999999995" y2="155.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="171.5" y="142.0" width="274.79999999999995" height="26" rx="13" fill="#B45309"/>
-<text x="308.9" y="159.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Cấu hình P0, Pmin, Pmax, S, DeltaMax</text>
-<line x1="494.79999999999995" y1="199.0" x2="807.0" y2="199.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="520.3" y="186.0" width="261.2" height="26" rx="13" fill="#B45309"/>
-<text x="650.9" y="203.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">configurePriceRule(khuVucId, rule)</text>
-<line x1="830.0" y1="243.0" x2="1400.8" y2="243.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="988.2" y="230.0" width="254.4" height="26" rx="13" fill="#B45309"/>
-<text x="1115.4" y="247.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPSERT QUY_TAC_GIA (CHECK bounds)</text>
-<line x1="1156.8" y1="287.0" x2="831.0" y2="287.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="856.5" y="274.0" width="274.79999999999995" height="26" rx="13" fill="#B45309"/>
-<text x="993.9" y="291.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Kích hoạt quét chu kỳ (30p / Δr&gt;=5%)</text>
-<line x1="830.0" y1="331.0" x2="1400.8" y2="331.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="998.4000000000001" y="318.0" width="234.0" height="26" rx="13" fill="#B45309"/>
-<text x="1115.4" y="335.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC tinh_de_xuat_gia_khu_vuc()</text>
-<polyline points="1423.8,375.0 1460.8,375.0 1460.8,403.0 1423.8,403.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="1468.8" y="376.0" width="281.6" height="26" rx="13" fill="#B45309"/>
-<text x="1609.6" y="393.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Tính r, u, Trem -&gt; P_raw -&gt; Clamp &amp; S</text>
-<polyline points="1423.8,435.0 1460.8,435.0 1460.8,463.0 1423.8,463.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="1468.8" y="436.0" width="268.0" height="26" rx="13" fill="#B45309"/>
-<text x="1602.8" y="453.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Deadband &gt;= S -&gt; INSERT DE_XUAT_GIA</text>
-<line x1="146.0" y1="495.0" x2="471.79999999999995" y2="495.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="174.89999999999998" y="482.0" width="268.0" height="26" rx="13" fill="#B45309"/>
-<text x="308.9" y="499.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Xem đề xuất &amp; Giải thích r, u, Trem</text>
-<line x1="146.0" y1="605.0" x2="471.79999999999995" y2="605.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="198.7" y="592.0" width="220.4" height="26" rx="13" fill="#B45309"/>
-<text x="308.9" y="609.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Bấm Duyệt đề xuất (deXuatId)</text>
-<line x1="494.79999999999995" y1="649.0" x2="807.0" y2="649.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="537.3" y="636.0" width="227.2" height="26" rx="13" fill="#B45309"/>
-<text x="650.9" y="653.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">duyetDeXuatGia(deXuatId, uid)</text>
-<line x1="830.0" y1="693.0" x2="1400.8" y2="693.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="991.6000000000001" y="680.0" width="247.6" height="26" rx="13" fill="#B45309"/>
-<text x="1115.4" y="697.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC duyet_de_xuat_gia() (Atomic)</text>
-<polyline points="1423.8,737.0 1460.8,737.0 1460.8,765.0 1423.8,765.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="1468.8" y="738.0" width="213.6" height="26" rx="13" fill="#B45309"/>
-<text x="1575.6" y="755.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPDATE KHU_VUC.GiaVeNiemYet</text>
-<polyline points="1423.8,797.0 1460.8,797.0 1460.8,825.0 1423.8,825.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="1468.8" y="798.0" width="281.6" height="26" rx="13" fill="#B45309"/>
-<text x="1609.6" y="815.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">INSERT NHAT_KY_GIA (Immutable NFR-08)</text>
-<line x1="1423.8" y1="857.0" x2="1777.4" y2="857.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
-<rect x="1466.6" y="844.0" width="268.0" height="26" rx="13" fill="#92400E"/>
-<text x="1600.6" y="861.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Phát Realtime giá mới + % biến động</text>
-<line x1="808.0" y1="901.0" x2="495.79999999999995" y2="901.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
-<rect x="528.1" y="888.0" width="247.6" height="26" rx="13" fill="#92400E"/>
-<text x="651.9" y="905.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Hiển thị Giá mới &amp; Nhật ký Audit</text>
-<line x1="494.79999999999995" y1="1003.0" x2="807.0" y2="1003.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="523.6999999999999" y="990.0" width="254.4" height="26" rx="13" fill="#B45309"/>
-<text x="650.9" y="1007.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">tuChoiDeXuatGia(deXuatId, reason)</text>
-<line x1="830.0" y1="1047.0" x2="1400.8" y2="1047.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="981.4000000000001" y="1034.0" width="268.0" height="26" rx="13" fill="#B45309"/>
-<text x="1115.4" y="1051.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPDATE DE_XUAT = REJECTED (Giữ giá)</text>
+<rect x="443.70000000000005" y="60.0" width="195" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
+<text x="541.2" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
+<text x="541.2" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:OrganizerPricingPanel</text>
+<rect x="779.5" y="60.0" width="175" height="54.0" rx="10" fill="#4B9CE2" filter="url(#pbox-shadow)"/>
+<text x="867.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="867.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PricingService</text>
+<rect x="1172.3" y="60.0" width="175" height="54.0" rx="10" fill="#3B82F6" filter="url(#pbox-shadow)"/>
+<text x="1259.8" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1259.8" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PricingEngine</text>
+<rect x="1676.2" y="60.0" width="175" height="54.0" rx="10" fill="#2BB5B0" filter="url(#pbox-shadow)"/>
+<text x="1763.7" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Entity»</text>
+<text x="1763.7" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PostgreSQL</text>
+<line x1="146.0" y1="155.0" x2="529.2" y2="155.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="168.50000000000003" y="142.0" width="338.2" height="26" rx="13" fill="#B45309"/>
+<text x="337.6" y="159.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Cấu hình P0, Pmin, Pmax, S, DeltaMax, wr/wv/wt</text>
+<line x1="552.2" y1="198.0" x2="855.0" y2="198.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="591.45" y="185.0" width="224.3" height="26" rx="13" fill="#B45309"/>
+<text x="703.6" y="202.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">savePriceRule(khuVucId, rule)</text>
+<line x1="878.0" y1="241.0" x2="1751.7" y2="241.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1155.8" y="228.0" width="318.1" height="26" rx="13" fill="#B45309"/>
+<text x="1314.85" y="245.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC luu_quy_tac_gia() -&gt; UPSERT QUY_TAC_GIA</text>
+<polyline points="1774.7,284.0 1811.7,284.0 1811.7,312.0 1774.7,312.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1819.7" y="285.0" width="311.40000000000003" height="26" rx="13" fill="#B45309"/>
+<text x="1975.4" y="302.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">INSERT NHAT_KY_DINH_GIA (CAP_NHAT_QUY_TAC)</text>
+<line x1="1752.7" y1="342.0" x2="553.2" y2="342.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="960.4000000000001" y="329.0" width="385.1" height="26" rx="13" fill="#92400E"/>
+<text x="1152.95" y="346.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Lưu quy tắc &amp; Hết hiệu lực đề xuất cũ (nếu đổi khung)</text>
+<line x1="146.0" y1="449.0" x2="529.2" y2="449.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="168.50000000000003" y="436.0" width="338.2" height="26" rx="13" fill="#B45309"/>
+<text x="337.6" y="453.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Chọn kịch bản (ban_nhanh / ban_cham / ban_deu)</text>
+<line x1="552.2" y1="492.0" x2="855.0" y2="492.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="574.7" y="479.0" width="257.8" height="26" rx="13" fill="#B45309"/>
+<text x="703.6" y="496.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">simulateDemand(khuVucId, scenario)</text>
+<line x1="878.0" y1="535.0" x2="1751.7" y2="535.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1139.05" y="522.0" width="351.6" height="26" rx="13" fill="#B45309"/>
+<text x="1314.85" y="539.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC mo_phong_nhu_cau() -&gt; Ghi MO_PHONG_GHE &amp; GHE</text>
+<line x1="146.0" y1="612.0" x2="529.2" y2="612.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="228.8" y="599.0" width="217.6" height="26" rx="13" fill="#B45309"/>
+<text x="337.6" y="616.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Bấm Tính đề xuất giá khu vực</text>
+<line x1="552.2" y1="655.0" x2="855.0" y2="655.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="594.8000000000001" y="642.0" width="217.6" height="26" rx="13" fill="#B45309"/>
+<text x="703.6" y="659.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">loadPricingMetrics(khuVucId)</text>
+<line x1="878.0" y1="698.0" x2="1751.7" y2="698.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1125.6499999999999" y="685.0" width="378.40000000000003" height="26" rx="13" fill="#B45309"/>
+<text x="1314.85" y="702.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC lay_so_lieu_dinh_gia() -&gt; Tính r, u, u_exp, Trem</text>
+<line x1="1752.7" y1="741.0" x2="879.0" y2="741.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="1180.25" y="728.0" width="271.20000000000005" height="26" rx="13" fill="#92400E"/>
+<text x="1315.85" y="745.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">PricingMetrics + NgayCapNhat quy tắc</text>
+<line x1="878.0" y1="784.0" x2="1247.8" y2="784.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="900.5000000000001" y="771.0" width="324.8" height="26" rx="13" fill="#B45309"/>
+<text x="1062.9" y="788.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">computePriceProposal(rule, metrics) [5 bước]</text>
+<polyline points="1270.8,827.0 1307.8,827.0 1307.8,855.0 1270.8,855.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1315.8" y="828.0" width="411.90000000000003" height="26" rx="13" fill="#B45309"/>
+<text x="1521.75" y="845.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">P_raw -&gt; Giới hạn DeltaMax -&gt; Bước S -&gt; Clamp -&gt; Deadband</text>
+<line x1="1248.8" y1="885.0" x2="879.0" y2="885.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="911.5500000000001" y="872.0" width="304.7" height="26" rx="13" fill="#92400E"/>
+<text x="1063.9" y="889.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">P_propose, CoCanhBaoVuotKhung, LyDoDeXuat</text>
+<line x1="878.0" y1="928.0" x2="1751.7" y2="928.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1122.3" y="915.0" width="385.1" height="26" rx="13" fill="#B45309"/>
+<text x="1314.85" y="932.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC luu_de_xuat_gia() [PriceGuard kiểm tra đồng thời]</text>
+<polyline points="1774.7,1035.0 1811.7,1035.0 1811.7,1063.0 1774.7,1063.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1819.7" y="1036.0" width="284.6" height="26" rx="13" fill="#B45309"/>
+<text x="1962.0" y="1053.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">INSERT NHAT_KY_DINH_GIA (CHAN_DE_XUAT)</text>
+<line x1="1752.7" y1="1093.0" x2="553.2" y2="1093.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="987.2" y="1080.0" width="331.5" height="26" rx="13" fill="#92400E"/>
+<text x="1152.95" y="1097.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Từ chối lưu &amp; Yêu cầu tính lại theo khung mới</text>
+<polyline points="1774.7,1192.0 1811.7,1192.0 1811.7,1220.0 1774.7,1220.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1819.7" y="1193.0" width="344.90000000000003" height="26" rx="13" fill="#B45309"/>
+<text x="1992.15" y="1210.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">INSERT DE_XUAT_GIA (TrangThaiDuyet = CHO_DUYET)</text>
+<line x1="1752.7" y1="1250.0" x2="553.2" y2="1250.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="970.45" y="1237.0" width="365.0" height="26" rx="13" fill="#92400E"/>
+<text x="1152.95" y="1254.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Hiển thị thẻ Đề xuất giá kèm giải trình r, u, Trem</text>
 </svg>

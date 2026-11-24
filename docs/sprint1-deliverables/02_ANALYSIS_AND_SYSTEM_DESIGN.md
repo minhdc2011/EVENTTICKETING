@@ -1076,21 +1076,21 @@ sequenceDiagram
 
 ---
 
-### SD-S2-01: Xác minh OTP 6 số & Kiểm soát hạn mức 4 vé lũy kế (UC-T2-01, UC-T2-02, Sprint 2)
+### SD-S2-01: Giữ chỗ, Hạn mức 4 vé, Gia hạn & OTP Xác nhận thanh toán (UC-T2-01, UC-T2-02, Sprint 2)
 
-Phạm vi Sprint 2 (`FR-T2-01`, `FR-T2-02`, `FR-T2-04`, `NFR-04`): xác thực danh tính bằng OTP 6 chữ số qua Supabase Auth (TTL 120s, cooldown 60s, khóa 15 phút khi sai 5 lần) và kiểm tra hạn mức tối đa 4 vé lũy kế trên mỗi tài khoản/sự kiện bằng PostgreSQL `pg_advisory_xact_lock`.
+Phạm vi Sprint 2 (`FR-T2-01`, `FR-T2-02`, `FR-T2-04`, `NFR-04`): giữ chỗ (`tao_giu_cho_theo_suat`) **không** kiểm tra OTP mà chốt giá `DonGiaChot` và kiểm tra hạn mức lũy kế bằng `pg_advisory_xact_lock`; khi bấm thanh toán (`xac_nhan_thanh_toan`), nếu sự kiện bật `YeuCauXacMinhOTP`, hệ thống gia hạn +5 phút 1 lần (`gia_han_giu_cho`, `DaGiaHan=TRUE`) và yêu cầu **OTP tươi mỗi lần thanh toán** (`moc_otp_moi_nhat() > GIU_CHO.NgayTao`, ghi `MocOtpDaDung`) hoặc mã demo SHA-256 (`CAU_HINH_DEMO`) cho tài khoản `@demo.vn`.
 
-![SD-S2-01: Xác minh OTP 6 số và Kiểm soát hạn mức 4 vé lũy kế](images/sd_s2_01_otp_va_gioi_han_4_ve.png)
+![SD-S2-01: Giữ chỗ, Hạn mức 4 vé, Gia hạn và OTP Xác nhận thanh toán](images/sd_s2_01_otp_va_gioi_han_4_ve.png)
 
-> *Vector SVG:* [`images/sd_s2_01_otp_va_gioi_han_4_ve.svg`](images/sd_s2_01_otp_va_gioi_han_4_ve.svg)
+> *Vector SVG:* [`images/sd_s2_01_otp_va_gioi_han_4_ve.svg`](images/sd_s2_01_otp_va_gioi_han_4_ve.svg) — *Xem trọn bộ 4 Sequence Diagrams, 2 Activity Diagrams, Use Case & ERD 21 bảng Sprint 2 tại [`docs/sprint2-deliverables/`](../sprint2-deliverables/00_README.md).*
 
 ---
 
-### SD-S2-02: Dynamic Pricing — Tính đề xuất giá, BTC Phê duyệt & Realtime Giá (UC-T4-01..05, Sprint 2)
+### SD-S2-02: Dynamic Pricing — Cấu hình Quy tắc, Mô phỏng & Tạo Đề xuất (UC-T4-01..05, Sprint 2)
 
-Phạm vi Sprint 2 (`FR-T4-02`, `FR-T4-03`, `FR-T4-04`, `NFR-08`): thiết lập khung giá trần/sàn (`QUY_TAC_GIA`), quét chu kỳ tính toán giá đề xuất (`DE_XUAT_GIA`), quy trình BTC phê duyệt/từ chối (*Human-in-the-Loop*), ghi nhận lịch sử bất biến (`NHAT_KY_GIA`) và phát Realtime cập nhật giá vé.
+Phạm vi Sprint 2 (`FR-T4-02`, `FR-T4-03`, `FR-T4-04`, `NFR-08`): cấu hình khung giá (`QUY_TAC_GIA`, ghi `NHAT_KY_DINH_GIA`), mô phỏng nhu cầu (`mo_phong_nhu_cau`, `MO_PHONG_GHE`), tính đề xuất 5 bước qua `PricingEngine`, bảo vệ `PriceGuard` (`luu_de_xuat_gia`), sau đó BTC phê duyệt/từ chối (`duyet_de_xuat_gia` kèm kiểm tra xung đột `PT409`, ghi bất biến `NHAT_KY_GIA` và phát Realtime `PriceRealtimeService` — xem chi tiết tại `SD-S2-03` và `SD-S2-04` trong [`docs/sprint2-deliverables/`](../sprint2-deliverables/02_SPRINT2_ANALYSIS_AND_SYSTEM_DESIGN.md)).
 
-![SD-S2-02: Dynamic Pricing — Tính đề xuất, BTC Duyệt và Realtime giá](images/sd_s2_02_dynamic_pricing_duyet_gia.png)
+![SD-S2-02: Dynamic Pricing — Cấu hình Quy tắc, Mô phỏng và Tạo Đề xuất](images/sd_s2_02_dynamic_pricing_duyet_gia.png)
 
 > *Vector SVG:* [`images/sd_s2_02_dynamic_pricing_duyet_gia.svg`](images/sd_s2_02_dynamic_pricing_duyet_gia.svg)
 

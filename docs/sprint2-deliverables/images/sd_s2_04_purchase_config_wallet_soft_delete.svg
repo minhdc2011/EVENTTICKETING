@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2468" height="1133" viewBox="0 0 2468 1133" font-family="Arial, Liberation Sans, sans-serif">
+<defs>
+  <marker id="sd-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#2A3342"/>
+  </marker>
+  <marker id="sd-ret" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="sd-arrow-s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#D97706"/>
+  </marker>
+  <marker id="sd-ret-s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#B45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <filter id="pbox-shadow" x="-5%" y="-5%" width="110%" height="115%">
+    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="2468" height="1133" fill="#F7F8FA"/>
+<rect x="0" y="0" width="2468" height="84.0" fill="#2A3342"/>
+<text x="36" y="38" font-size="20.5" font-weight="700" fill="#FFFFFF">SD-S2-04: Cấu hình Mua vé (Audit), Vé của tôi &amp; Xóa mềm Sự kiện</text>
+<text x="36" y="57" font-size="12" fill="#94A3B8">UC-BTC-06, UC-T2-03, UC-BTC-07 — Luồng vận hành &amp; hậu thanh toán bổ sung ở Sprint 2</text>
+<text x="2304.0" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
+<rect x="2320.0" y="20" width="112.0" height="24" rx="12" fill="#F59E0B"/>
+<text x="2376.0" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<rect x="28.0" y="173.0" width="2412.1" height="290.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="28.0" y="173.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="51.0" y="188.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">opt</text>
+<rect x="157.0" y="175.0" width="363.6" height="20" rx="4" fill="#334155"/>
+<text x="166.0" y="188.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[1. BTC cập nhật Cấu hình mua vé &amp; Ghi Audit bất biến]</text>
+<rect x="28.0" y="501.0" width="2412.1" height="232.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="28.0" y="501.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="51.0" y="516.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">opt</text>
+<rect x="157.0" y="503.0" width="306.0" height="20" rx="4" fill="#334155"/>
+<text x="166.0" y="516.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[2. Khán giả xem Ví Vé của tôi (/my-tickets)]</text>
+<rect x="28.0" y="771.0" width="2412.1" height="290.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="28.0" y="771.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="51.0" y="786.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">opt</text>
+<rect x="157.0" y="773.0" width="222.8" height="20" rx="4" fill="#334155"/>
+<text x="166.0" y="786.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[3. BTC xóa mềm sự kiện (DA_AN)]</text>
+<line x1="135.0" y1="114.0" x2="135.0" y2="1107.0" stroke="#EC1C69" stroke-width="2.6"/>
+<line x1="370.0" y1="114.0" x2="370.0" y2="1107.0" stroke="#EC1C69" stroke-width="2.6"/>
+<line x1="605.0" y1="114.0" x2="605.0" y2="1107.0" stroke="#5050CC" stroke-width="2.6"/>
+<line x1="840.0" y1="114.0" x2="840.0" y2="1107.0" stroke="#5050CC" stroke-width="2.6"/>
+<line x1="1075.0" y1="114.0" x2="1075.0" y2="1107.0" stroke="#4B9CE2" stroke-width="2.6"/>
+<line x1="1310.0" y1="114.0" x2="1310.0" y2="1107.0" stroke="#3B82F6" stroke-width="2.6"/>
+<line x1="1546.6" y1="114.0" x2="1546.6" y2="1107.0" stroke="#2E8BC0" stroke-width="2.6"/>
+<line x1="1979.6" y1="114.0" x2="1979.6" y2="1107.0" stroke="#2BB5B0" stroke-width="2.6"/>
+<rect x="124.0" y="211.0" width="22" height="207.0" rx="3" fill="#EC1C69"/>
+<rect x="124.0" y="809.0" width="22" height="207.0" rx="3" fill="#EC1C69"/>
+<rect x="359.0" y="539.0" width="22" height="149.0" rx="3" fill="#EC1C69"/>
+<rect x="594.0" y="211.0" width="22" height="207.0" rx="3" fill="#5050CC"/>
+<rect x="594.0" y="809.0" width="22" height="207.0" rx="3" fill="#5050CC"/>
+<rect x="829.0" y="539.0" width="22" height="149.0" rx="3" fill="#5050CC"/>
+<rect x="1064.0" y="254.0" width="22" height="164.0" rx="3" fill="#4B9CE2"/>
+<rect x="1299.0" y="582.0" width="22" height="106.0" rx="3" fill="#3B82F6"/>
+<rect x="1535.6" y="852.0" width="22" height="164.0" rx="3" fill="#2E8BC0"/>
+<rect x="1968.6" y="297.0" width="22" height="121.0" rx="3" fill="#2BB5B0"/>
+<rect x="1968.6" y="625.0" width="22" height="63.0" rx="3" fill="#2BB5B0"/>
+<rect x="1968.6" y="895.0" width="22" height="121.0" rx="3" fill="#2BB5B0"/>
+<rect x="47.5" y="60.0" width="175" height="54.0" rx="10" fill="#EC1C69" filter="url(#pbox-shadow)"/>
+<text x="135.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Actor»</text>
+<text x="135.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">Ban tổ chức</text>
+<rect x="282.5" y="60.0" width="175" height="54.0" rx="10" fill="#EC1C69" filter="url(#pbox-shadow)"/>
+<text x="370.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Actor»</text>
+<text x="370.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">Khán giả</text>
+<rect x="517.5" y="60.0" width="175" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
+<text x="605.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
+<text x="605.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:OrganizerPortal</text>
+<rect x="762.5" y="60.0" width="155" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
+<text x="840.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
+<text x="840.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:MyTickets</text>
+<rect x="987.5" y="60.0" width="175" height="54.0" rx="10" fill="#4B9CE2" filter="url(#pbox-shadow)"/>
+<text x="1075.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1075.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PurchaseConfigSvc</text>
+<rect x="1222.5" y="60.0" width="175" height="54.0" rx="10" fill="#3B82F6" filter="url(#pbox-shadow)"/>
+<text x="1310.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1310.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:TicketWalletSvc</text>
+<rect x="1459.1" y="60.0" width="175" height="54.0" rx="10" fill="#2E8BC0" filter="url(#pbox-shadow)"/>
+<text x="1546.6" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1546.6" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:OrganizerService</text>
+<rect x="1892.1" y="60.0" width="175" height="54.0" rx="10" fill="#2BB5B0" filter="url(#pbox-shadow)"/>
+<text x="1979.6" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Entity»</text>
+<text x="1979.6" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PostgreSQL</text>
+<line x1="146.0" y1="219.0" x2="593.0" y2="219.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="200.4" y="206.0" width="338.2" height="26" rx="13" fill="#B45309"/>
+<text x="369.5" y="223.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Đổi SoVeToiDaMoiDon (1..20) &amp; YeuCauXacMinhOTP</text>
+<line x1="616.0" y1="262.0" x2="1063.0" y2="262.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="700.55" y="249.0" width="277.9" height="26" rx="13" fill="#B45309"/>
+<text x="839.5" y="266.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">savePurchaseConfig(suKienId, payload)</text>
+<line x1="1086.0" y1="305.0" x2="1967.6" y2="305.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1337.6" y="292.0" width="378.40000000000003" height="26" rx="13" fill="#B45309"/>
+<text x="1526.8" y="309.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC luu_cau_hinh_mua_ve() -&gt; UPDATE CAU_HINH_SU_KIEN</text>
+<polyline points="1990.6,348.0 2027.6,348.0 2027.6,376.0 1990.6,376.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="2035.6" y="349.0" width="398.5" height="26" rx="13" fill="#B45309"/>
+<text x="2234.85" y="366.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Trigger trg_kiem_soat -&gt; INSERT NHAT_KY_CAU_HINH_MUA_VE</text>
+<line x1="1968.6" y1="406.0" x2="617.0" y2="406.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="1120.35" y="393.0" width="344.90000000000003" height="26" rx="13" fill="#92400E"/>
+<text x="1292.8" y="410.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Lưu thành công &amp; Hiện lịch sử thay đổi cấu hình</text>
+<line x1="381.0" y1="547.0" x2="828.0" y2="547.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="505.75" y="534.0" width="197.5" height="26" rx="13" fill="#B45309"/>
+<text x="604.5" y="551.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Truy cập trang Vé của tôi</text>
+<line x1="851.0" y1="590.0" x2="1298.0" y2="590.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1009.25" y="577.0" width="130.5" height="26" rx="13" fill="#B45309"/>
+<text x="1074.5" y="594.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">loadMyTickets()</text>
+<line x1="1321.0" y1="633.0" x2="1967.6" y2="633.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1441.7" y="620.0" width="405.2" height="26" rx="13" fill="#B45309"/>
+<text x="1644.3" y="637.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC ve_cua_toi() [JOIN GIU_CHO=CONVERTED, CHI_TIET, GHE]</text>
+<line x1="1968.6" y1="676.0" x2="852.0" y2="676.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="1231.1499999999999" y="663.0" width="358.3" height="26" rx="13" fill="#92400E"/>
+<text x="1410.3" y="680.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Danh sách vé (MaVe, DonGiaChot, SuatDien, KhuVuc)</text>
+<line x1="146.0" y1="817.0" x2="593.0" y2="817.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="210.45" y="804.0" width="318.1" height="26" rx="13" fill="#B45309"/>
+<text x="369.5" y="821.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Bấm Xóa sự kiện (Bản nháp hoặc Đã kết thúc)</text>
+<line x1="616.0" y1="860.0" x2="1534.6" y2="860.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="989.9499999999999" y="847.0" width="170.70000000000002" height="26" rx="13" fill="#B45309"/>
+<text x="1075.3" y="864.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">deleteEvent(suKienId)</text>
+<line x1="1557.6" y1="903.0" x2="1967.6" y2="903.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1580.1" y="890.0" width="365.0" height="26" rx="13" fill="#B45309"/>
+<text x="1762.6" y="907.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC xoa_su_kien() [Check quyền &amp; 0 GIU_CHO ACTIVE]</text>
+<polyline points="1990.6,946.0 2027.6,946.0 2027.6,974.0 1990.6,974.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="2035.6" y="947.0" width="324.8" height="26" rx="13" fill="#B45309"/>
+<text x="2198.0" y="964.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPDATE SU_KIEN SET TrangThaiCongBo = &#x27;DA_AN&#x27;</text>
+<line x1="1968.6" y1="1004.0" x2="617.0" y2="1004.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="1150.5" y="991.0" width="284.6" height="26" rx="13" fill="#92400E"/>
+<text x="1292.8" y="1008.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Ẩn sự kiện khỏi Marketplace &amp; Cổng BTC</text>
+</svg>
