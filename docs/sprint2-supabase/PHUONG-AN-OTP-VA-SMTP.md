@@ -1,5 +1,7 @@
 # Phương án cho OTP và email trên môi trường V2
 
+> **Cập nhật 24/11/2026:** các mục dưới mô tả thời điểm kiểm SMTP (OTP còn chặn ở bước giữ chỗ, chỉ Hanou bật OTP). Hiện tại giữ chỗ chỉ cần đăng nhập, OTP kiểm ở bước xác nhận thanh toán và **mỗi lần thanh toán một OTP mới**; mọi sự kiện (1, 4, 5, 6, 7, 9, 12, 13) bật OTP. Xem `THAY-DOI-LUONG-OTP-LUC-THANH-TOAN.md`, mục "Trạng thái hiện hành".
+
 Ngày 23/11/2026. Mục đích: giải quyết việc mã OTP không đến được người dùng trên Supabase gói Free, và đề xuất phương án thay thế nếu không cấu hình được email.
 
 ## 1. Vấn đề

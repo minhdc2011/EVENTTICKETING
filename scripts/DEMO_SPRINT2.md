@@ -40,8 +40,9 @@ Mở **tab ẩn danh hoặc trình duyệt khác** cho khán giả để phiên 
 | 9 | Giữ chỗ 3 ghế, sau đó xin thêm 2 ghế | Thông báo nêu giới hạn 4, đang giữ 3, còn chọn thêm 1; tồn tại ít nhất 5 giây; lựa chọn được giữ |
 | 10 | Đang giữ chỗ, bấm **Đăng xuất** | Chỗ được trả lại ngay, đồng hồ tắt, lựa chọn bị xóa, hiện thông báo đã trả chỗ |
 | 11 | Ở BTC tắt OTP rồi giữ chỗ và bấm Xác nhận thanh toán bằng tài khoản đã đăng nhập | Không hiện hộp thoại OTP, thanh toán thành công ngay |
+| 12 | Sự kiện bật OTP: thanh toán xong một đơn (bước 7), rồi giữ chỗ và bấm Xác nhận thanh toán đơn thứ hai | **Hộp thoại OTP hiện lại** (mỗi lần thanh toán một OTP mới); nhập `123456` mới thanh toán được |
 
-Ghi chú: mã OTP cố định `123456` chỉ có ở chế độ mô phỏng (hộp thoại OTP có dòng gợi ý mã). Trên môi trường thật, mã 6 số gửi qua email của tài khoản đang đăng nhập; tài khoản đăng nhập nhanh `buyer@demo.vn` không có hộp thư thật nên không qua được OTP của sự kiện bật OTP, dùng tài khoản có email thật cho buổi demo.
+Ghi chú: mã OTP cố định `123456` chỉ có ở chế độ mô phỏng (hộp thoại OTP có dòng gợi ý mã). Trên môi trường thật, mã 6 số gửi qua email của tài khoản đang đăng nhập; tài khoản đăng nhập nhanh `buyer@demo.vn` không có hộp thư thật nên không nhận được OTP. Trên bản công khai, nhóm dùng **mã demo** (chỉ tài khoản `@demo.vn`, người quản trị đặt trên Supabase, không ghi trong tài liệu; hướng dẫn đặt và xóa ở `docs/sprint2-supabase/THAY-DOI-LUONG-OTP-LUC-THANH-TOAN.md`) hoặc dùng tài khoản có email thật. Mã demo thay OTP ở từng lần thanh toán.
 
 ## Phần 1C. Demand Simulator và duyệt giá
 
@@ -67,7 +68,7 @@ npm run db:start
 npm run db:reset
 npm run db:test
 ```
-Mong đợi: `Result: PASS`, 16 file, 860 test (số liệu 24/11/2026, gồm `sprint2_xac_nhan_thanh_toan.sql`). Gồm `sprint2_integration.sql` (OTP gate, giới hạn theo tài khoản và sự kiện, giá chốt `DonGiaChot`, duyệt đề xuất) và các file của W1–W4.
+Mong đợi: `Result: PASS`, 19 file, 897 test (số liệu 24/11/2026, gồm `sprint2_xac_nhan_thanh_toan.sql`, `sprint2_ma_demo_otp.sql`, `sprint2_xoa_mem_su_kien.sql`, `sprint2_otp_moi_giao_dich.sql`). Gồm `sprint2_integration.sql` (OTP gate, giới hạn theo tài khoản và sự kiện, giá chốt `DonGiaChot`, duyệt đề xuất) và các file của W1–W4.
 
 **Hai BTC duyệt cùng một đề xuất:**
 
@@ -90,4 +91,4 @@ Dọn dẹp: `npm run db:stop`.
 - Luồng giữ chỗ và thanh toán mới với nhiều tài khoản và email thật trên bản triển khai công khai (máy chủ và SMTP đã kiểm bằng API ở bước trước).
 - pgTAP trực tiếp trên staging (tài khoản CLI thiếu quyền schema auth); đã bù bằng pgTAP trên bản sao đã nâng cấp và trên project hosted riêng.
 
-Staging `qxkgkbayxxaakkwtepss` đã được nâng lên V2 ngày 23/11/2026 (27 migration); xem `docs/sprint2-supabase/NANG-CAP-STAGING-LEN-V2.md`.
+Staging `qxkgkbayxxaakkwtepss` đã được nâng lên V2 ngày 23/11/2026 và hiện ở 35/35 migration (24/11/2026); xem `docs/sprint2-supabase/NANG-CAP-STAGING-LEN-V2.md`. Staging có 8 sự kiện, tất cả thuộc tổ chức BTC demo (`organizer@demo.vn`); Creative Tech Summit và Autumn Arena cũng nằm trong cơ sở dữ liệu (không còn chỉ là dữ liệu mô phỏng).
