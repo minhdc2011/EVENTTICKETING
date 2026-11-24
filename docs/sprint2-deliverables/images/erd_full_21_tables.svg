@@ -1,0 +1,432 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1280" viewBox="0 0 1920 1280" font-family="Arial, Liberation Sans, sans-serif">
+<defs>
+  <marker id="arr-dark" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#334155"/>
+  </marker>
+  <marker id="arr-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#D97706"/>
+  </marker>
+  <marker id="arr-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#0F766E"/>
+  </marker>
+  <marker id="arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.6" stroke-linecap="round"/>
+  </marker>
+  <filter id="sh" x="-4%" y="-4%" width="108%" height="112%">
+    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.12"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="1920" height="1280" fill="#F8FAFC"/>
+<rect x="0" y="0" width="1920" height="82" fill="#2A3342"/>
+<text x="34" y="38" font-size="21" font-weight="700" fill="#FFFFFF">ERD TOÀN HỆ THỐNG EVENTTICKETING — 21 BẢNG PUBLIC THẬT (36 MIGRATIONS)</text>
+<text x="34" y="60" font-size="12.5" fill="#94A3B8">14 bảng Sprint 1/3 + 5 bảng Nghiệp vụ &amp; Audit bất biến Sprint 2 + 2 bảng Kỹ thuật Demo/Mô phỏng (Đã loại bỏ 2 bảng ảo DON_HANG, VE)</text>
+<text x="1741.0" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
+<rect x="1757.0" y="20" width="129.0" height="24" rx="12" fill="#F59E0B"/>
+<text x="1821.5" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827">21 Bảng Public</text>
+<rect x="28" y="102" width="1864" height="236" rx="10" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1.3"/>
+<text x="46" y="126" font-size="13" font-weight="700" fill="#1E40AF">NHÓM 1 — TỔ CHỨC, NGƯỜI DÙNG, ĐỊA ĐIỂM &amp; NGHỆ SĨ (7 BẢNG SPRINT 1)</text>
+<rect x="46" y="140" width="248" height="104" rx="7" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 53 140 H 287 Q 294 140 294 147 V 174 H 46 V 147 Q 46 140 53 140 Z" fill="#2B6CB0"/>
+<text x="56" y="162" font-size="12.5" font-weight="700" fill="#FFFFFF">TO_CHUC</text>
+<rect x="261.6" y="148" width="24.4" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="273.8" y="160.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1</text>
+<text x="56" y="191" font-size="11" font-weight="600" fill="#1E293B">PK ToChucID</text>
+<text x="284" y="191" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="56" y="211" font-size="11" font-weight="400" fill="#1E293B">TenToChuc / Slug</text>
+<text x="284" y="211" text-anchor="end" font-size="10.5" fill="#64748B">TEXT UK</text>
+<text x="56" y="231" font-size="11" font-weight="400" fill="#1E293B">TrangThai</text>
+<text x="284" y="231" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<rect x="308" y="140" width="248" height="104" rx="7" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 315 140 H 549 Q 556 140 556 147 V 174 H 308 V 147 Q 308 140 315 140 Z" fill="#2B6CB0"/>
+<text x="318" y="162" font-size="12.5" font-weight="700" fill="#FFFFFF">HO_SO_NGUOI_DUNG</text>
+<rect x="523.6" y="148" width="24.4" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="535.8" y="160.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1</text>
+<text x="318" y="191" font-size="11" font-weight="600" fill="#1E293B">PK NguoiDungID</text>
+<text x="546" y="191" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="318" y="211" font-size="11" font-weight="400" fill="#1E293B">HoTen</text>
+<text x="546" y="211" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<text x="318" y="231" font-size="11" font-weight="400" fill="#1E293B">LoaiTaiKhoan</text>
+<text x="546" y="231" text-anchor="end" font-size="10.5" fill="#64748B">USER|ORG</text>
+<rect x="570" y="140" width="248" height="124" rx="7" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 577 140 H 811 Q 818 140 818 147 V 174 H 570 V 147 Q 570 140 577 140 Z" fill="#2B6CB0"/>
+<text x="580" y="162" font-size="12.5" font-weight="700" fill="#FFFFFF">THANH_VIEN_TO_CHUC</text>
+<rect x="779.4" y="148" width="30.6" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="794.7" y="160.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">N:N</text>
+<text x="580" y="191" font-size="11" font-weight="600" fill="#1E293B">PK ID</text>
+<text x="808" y="191" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="580" y="211" font-size="11" font-weight="400" fill="#1E293B">FK ToChucID</text>
+<text x="808" y="211" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="580" y="231" font-size="11" font-weight="400" fill="#1E293B">FK NguoiDungID</text>
+<text x="808" y="231" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="580" y="251" font-size="11" font-weight="400" fill="#1E293B">VaiTro</text>
+<text x="808" y="251" text-anchor="end" font-size="10.5" fill="#64748B">RBAC</text>
+<rect x="832" y="140" width="248" height="124" rx="7" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 839 140 H 1073 Q 1080 140 1080 147 V 174 H 832 V 147 Q 832 140 839 140 Z" fill="#2B6CB0"/>
+<text x="842" y="162" font-size="12.5" font-weight="700" fill="#FFFFFF">DIA_DIEM</text>
+<rect x="1047.6" y="148" width="24.4" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1059.8" y="160.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1</text>
+<text x="842" y="191" font-size="11" font-weight="600" fill="#1E293B">PK DiaDiemID</text>
+<text x="1070" y="191" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="842" y="211" font-size="11" font-weight="400" fill="#1E293B">FK ToChucID</text>
+<text x="1070" y="211" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="842" y="231" font-size="11" font-weight="400" fill="#1E293B">TenDiaDiem</text>
+<text x="1070" y="231" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<text x="842" y="251" font-size="11" font-weight="400" fill="#1E293B">SucChuaToiDa</text>
+<text x="1070" y="251" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="1094" y="140" width="248" height="104" rx="7" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 1101 140 H 1335 Q 1342 140 1342 147 V 174 H 1094 V 147 Q 1094 140 1101 140 Z" fill="#2B6CB0"/>
+<text x="1104" y="162" font-size="12.5" font-weight="700" fill="#FFFFFF">PHIEN_BAN_SO_DO</text>
+<rect x="1309.6" y="148" width="24.4" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1321.8" y="160.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1</text>
+<text x="1104" y="191" font-size="11" font-weight="600" fill="#1E293B">PK PhienBanID</text>
+<text x="1332" y="191" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1104" y="211" font-size="11" font-weight="400" fill="#1E293B">FK DiaDiemID</text>
+<text x="1332" y="211" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1104" y="231" font-size="11" font-weight="400" fill="#1E293B">CauHinhToaDo</text>
+<text x="1332" y="231" text-anchor="end" font-size="10.5" fill="#64748B">JSONB</text>
+<rect x="1356" y="140" width="248" height="104" rx="7" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 1363 140 H 1597 Q 1604 140 1604 147 V 174 H 1356 V 147 Q 1356 140 1363 140 Z" fill="#2B6CB0"/>
+<text x="1366" y="162" font-size="12.5" font-weight="700" fill="#FFFFFF">NGHE_SI</text>
+<rect x="1571.6" y="148" width="24.4" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1583.8" y="160.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1</text>
+<text x="1366" y="191" font-size="11" font-weight="600" fill="#1E293B">PK NgheSiID</text>
+<text x="1594" y="191" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1366" y="211" font-size="11" font-weight="400" fill="#1E293B">FK ToChucID</text>
+<text x="1594" y="211" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="1366" y="231" font-size="11" font-weight="400" fill="#1E293B">HoTen / NgheDanh</text>
+<text x="1594" y="231" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<rect x="1618" y="140" width="248" height="124" rx="7" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 1625 140 H 1859 Q 1866 140 1866 147 V 174 H 1618 V 147 Q 1618 140 1625 140 Z" fill="#2B6CB0"/>
+<text x="1628" y="162" font-size="12.5" font-weight="700" fill="#FFFFFF">SU_KIEN_NGHE_SI</text>
+<rect x="1827.4" y="148" width="30.6" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1842.7" y="160.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">N:N</text>
+<text x="1628" y="191" font-size="11" font-weight="600" fill="#1E293B">PK ID</text>
+<text x="1856" y="191" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1628" y="211" font-size="11" font-weight="400" fill="#1E293B">FK SuKienID</text>
+<text x="1856" y="211" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1628" y="231" font-size="11" font-weight="400" fill="#1E293B">FK NgheSiID</text>
+<text x="1856" y="231" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1628" y="251" font-size="11" font-weight="400" fill="#1E293B">ThuTuHienThi</text>
+<text x="1856" y="251" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="28" y="362" width="1864" height="328" rx="10" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.3"/>
+<text x="46" y="386" font-size="13" font-weight="700" fill="#166534">NHÓM 2 — SỰ KIỆN, CẤU HÌNH 1-1, SUẤT DIỄN, KHU VỰC, GHẾ &amp; GIỮ CHỖ (7 BẢNG S1/S3 MỞ RỘNG Ở SPRINT 2)</text>
+<rect x="46" y="402" width="248" height="144" rx="7" fill="#FFFFFF" stroke="#86EFAC" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 53 402 H 287 Q 294 402 294 409 V 436 H 46 V 409 Q 46 402 53 402 Z" fill="#2F855A"/>
+<text x="56" y="424" font-size="12.5" font-weight="700" fill="#FFFFFF">SU_KIEN</text>
+<rect x="243.0" y="410" width="43.0" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="264.5" y="422.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1+S2</text>
+<text x="56" y="453" font-size="11" font-weight="600" fill="#1E293B">PK SuKienID</text>
+<text x="284" y="453" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="56" y="473" font-size="11" font-weight="400" fill="#1E293B">FK ToChucID</text>
+<text x="284" y="473" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="56" y="493" font-size="11" font-weight="400" fill="#1E293B">TenSuKien / Slug</text>
+<text x="284" y="493" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<text x="56" y="513" font-size="11" font-weight="400" fill="#1E293B">MoTaChiTiet</text>
+<text x="284" y="513" text-anchor="end" font-size="10.5" fill="#64748B">Timeline</text>
+<rect x="50" y="520" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="56" y="533" font-size="11" font-weight="700" fill="#92400E">TrangThaiCongBo</text>
+<text x="284" y="533" text-anchor="end" font-size="10.5" fill="#64748B">+DA_AN</text>
+<rect x="308" y="402" width="248" height="144" rx="7" fill="#FFFFFF" stroke="#86EFAC" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 315 402 H 549 Q 556 402 556 409 V 436 H 308 V 409 Q 308 402 315 402 Z" fill="#2F855A"/>
+<text x="318" y="424" font-size="12.5" font-weight="700" fill="#FFFFFF">CAU_HINH_SU_KIEN</text>
+<rect x="498.8" y="410" width="49.2" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="523.4" y="422.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">1-1 S2</text>
+<text x="318" y="453" font-size="11" font-weight="600" fill="#1E293B">PK=FK SuKienID</text>
+<text x="546" y="453" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="318" y="473" font-size="11" font-weight="400" fill="#1E293B">ThoiGianGiuChoGiay</text>
+<text x="546" y="473" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="312" y="480" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="318" y="493" font-size="11" font-weight="700" fill="#92400E">SoVeToiDaMoiDon</text>
+<text x="546" y="493" text-anchor="end" font-size="10.5" fill="#64748B">1..20</text>
+<rect x="312" y="500" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="318" y="513" font-size="11" font-weight="700" fill="#92400E">YeuCauXacMinhOTP</text>
+<text x="546" y="513" text-anchor="end" font-size="10.5" fill="#64748B">BOOL</text>
+<text x="318" y="533" font-size="11" font-weight="400" fill="#1E293B">TuyChonMoRong</text>
+<text x="546" y="533" text-anchor="end" font-size="10.5" fill="#64748B">JSONB</text>
+<rect x="570" y="402" width="248" height="144" rx="7" fill="#FFFFFF" stroke="#86EFAC" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 577 402 H 811 Q 818 402 818 409 V 436 H 570 V 409 Q 570 402 577 402 Z" fill="#2F855A"/>
+<text x="580" y="424" font-size="12.5" font-weight="700" fill="#FFFFFF">SUAT_DIEN</text>
+<rect x="785.6" y="410" width="24.4" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="797.8" y="422.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1</text>
+<text x="580" y="453" font-size="11" font-weight="600" fill="#1E293B">PK SuatDienID</text>
+<text x="808" y="453" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="580" y="473" font-size="11" font-weight="400" fill="#1E293B">FK SuKienID</text>
+<text x="808" y="473" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="580" y="493" font-size="11" font-weight="400" fill="#1E293B">FK DiaDiemID</text>
+<text x="808" y="493" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="580" y="513" font-size="11" font-weight="400" fill="#1E293B">FK PhienBanSoDoID</text>
+<text x="808" y="513" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="580" y="533" font-size="11" font-weight="400" fill="#1E293B">ThoiGianBatDau</text>
+<text x="808" y="533" text-anchor="end" font-size="10.5" fill="#64748B">TSTZ</text>
+<rect x="832" y="402" width="248" height="164" rx="7" fill="#FFFFFF" stroke="#86EFAC" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 839 402 H 1073 Q 1080 402 1080 409 V 436 H 832 V 409 Q 832 402 839 402 Z" fill="#2F855A"/>
+<text x="842" y="424" font-size="12.5" font-weight="700" fill="#FFFFFF">KHU_VUC</text>
+<rect x="1029.0" y="410" width="43.0" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1050.5" y="422.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1+S2</text>
+<text x="842" y="453" font-size="11" font-weight="600" fill="#1E293B">PK KhuVucID</text>
+<text x="1070" y="453" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="842" y="473" font-size="11" font-weight="400" fill="#1E293B">FK SuatDienID</text>
+<text x="1070" y="473" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="842" y="493" font-size="11" font-weight="400" fill="#1E293B">FK SuKienID (Trg)</text>
+<text x="1070" y="493" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="836" y="500" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="842" y="513" font-size="11" font-weight="700" fill="#92400E">GiaGoc (P0)</text>
+<text x="1070" y="513" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<text x="842" y="533" font-size="11" font-weight="400" fill="#1E293B">GiaVeNiemYet</text>
+<text x="1070" y="533" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<text x="842" y="553" font-size="11" font-weight="400" fill="#1E293B">TongSoVe / DaBan</text>
+<text x="1070" y="553" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="1094" y="402" width="248" height="144" rx="7" fill="#FFFFFF" stroke="#86EFAC" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 1101 402 H 1335 Q 1342 402 1342 409 V 436 H 1094 V 409 Q 1094 402 1101 402 Z" fill="#2F855A"/>
+<text x="1104" y="424" font-size="12.5" font-weight="700" fill="#FFFFFF">GHE</text>
+<rect x="1291.0" y="410" width="43.0" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1312.5" y="422.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S1+S2</text>
+<text x="1104" y="453" font-size="11" font-weight="600" fill="#1E293B">PK GheID</text>
+<text x="1332" y="453" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1104" y="473" font-size="11" font-weight="400" fill="#1E293B">FK KhuVucID</text>
+<text x="1332" y="473" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1104" y="493" font-size="11" font-weight="400" fill="#1E293B">MaGhe / HangGhe</text>
+<text x="1332" y="493" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<text x="1104" y="513" font-size="11" font-weight="400" fill="#1E293B">TrangThai</text>
+<text x="1332" y="513" text-anchor="end" font-size="10.5" fill="#64748B">DA_BAN</text>
+<rect x="1098" y="520" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1104" y="533" font-size="11" font-weight="700" fill="#92400E">NgayCapNhatTrangThai</text>
+<text x="1332" y="533" text-anchor="end" font-size="10.5" fill="#64748B">TSTZ</text>
+<rect x="1356" y="402" width="248" height="164" rx="7" fill="#FFFFFF" stroke="#86EFAC" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 1363 402 H 1597 Q 1604 402 1604 409 V 436 H 1356 V 409 Q 1356 402 1363 402 Z" fill="#2F855A"/>
+<text x="1366" y="424" font-size="12.5" font-weight="700" fill="#FFFFFF">GIU_CHO</text>
+<rect x="1553.0" y="410" width="43.0" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1574.5" y="422.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S3+S2</text>
+<text x="1366" y="453" font-size="11" font-weight="600" fill="#1E293B">PK GiuChoID</text>
+<text x="1594" y="453" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1366" y="473" font-size="11" font-weight="400" fill="#1E293B">FK SuatDienID</text>
+<text x="1594" y="473" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="1360" y="480" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1366" y="493" font-size="11" font-weight="700" fill="#92400E">NguoiDungID</text>
+<text x="1594" y="493" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<text x="1366" y="513" font-size="11" font-weight="400" fill="#1E293B">TrangThai</text>
+<text x="1594" y="513" text-anchor="end" font-size="10.5" fill="#64748B">CONVERTED</text>
+<rect x="1360" y="520" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1366" y="533" font-size="11" font-weight="700" fill="#92400E">DaGiaHan</text>
+<text x="1594" y="533" text-anchor="end" font-size="10.5" fill="#64748B">BOOL</text>
+<rect x="1360" y="540" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1366" y="553" font-size="11" font-weight="700" fill="#92400E">MocOtpDaDung</text>
+<text x="1594" y="553" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<rect x="1618" y="402" width="248" height="164" rx="7" fill="#FFFFFF" stroke="#86EFAC" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 1625 402 H 1859 Q 1866 402 1866 409 V 436 H 1618 V 409 Q 1618 402 1625 402 Z" fill="#2F855A"/>
+<text x="1628" y="424" font-size="12.5" font-weight="700" fill="#FFFFFF">CHI_TIET_GIU_CHO</text>
+<rect x="1815.0" y="410" width="43.0" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1836.5" y="422.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">S3+S2</text>
+<text x="1628" y="453" font-size="11" font-weight="600" fill="#1E293B">PK ChiTietGiuChoID</text>
+<text x="1856" y="453" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1628" y="473" font-size="11" font-weight="400" fill="#1E293B">FK GiuChoID</text>
+<text x="1856" y="473" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1628" y="493" font-size="11" font-weight="400" fill="#1E293B">FK KhuVucID</text>
+<text x="1856" y="493" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1628" y="513" font-size="11" font-weight="400" fill="#1E293B">FK GheID (NULLable)</text>
+<text x="1856" y="513" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<text x="1628" y="533" font-size="11" font-weight="400" fill="#1E293B">MaVe</text>
+<text x="1856" y="533" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<rect x="1622" y="540" width="240" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1628" y="553" font-size="11" font-weight="700" fill="#92400E">DonGiaChot</text>
+<text x="1856" y="553" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<line x1="294" y1="485" x2="308" y2="485" stroke="#166534" stroke-width="2.2"/>
+<rect x="287.0" y="388" width="28" height="15" rx="4" fill="#166534"/>
+<text x="301.0" y="399" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">1:1</text>
+<line x1="556" y1="485" x2="570" y2="485" stroke="#166534" stroke-width="2.2"/>
+<rect x="549.0" y="388" width="28" height="15" rx="4" fill="#166534"/>
+<text x="563.0" y="399" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">1:N</text>
+<line x1="818" y1="485" x2="832" y2="485" stroke="#166534" stroke-width="2.2"/>
+<rect x="811.0" y="388" width="28" height="15" rx="4" fill="#166534"/>
+<text x="825.0" y="399" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">1:N</text>
+<line x1="1080" y1="485" x2="1094" y2="485" stroke="#166534" stroke-width="2.2"/>
+<rect x="1073.0" y="388" width="28" height="15" rx="4" fill="#166534"/>
+<text x="1087.0" y="399" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">1:N</text>
+<line x1="1342" y1="485" x2="1356" y2="485" stroke="#166534" stroke-width="2.2"/>
+<rect x="1335.0" y="388" width="28" height="15" rx="4" fill="#166534"/>
+<text x="1349.0" y="399" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">1:N</text>
+<line x1="1604" y1="485" x2="1618" y2="485" stroke="#166534" stroke-width="2.2"/>
+<rect x="1597.0" y="388" width="28" height="15" rx="4" fill="#166534"/>
+<text x="1611.0" y="399" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">1:N</text>
+<rect x="28" y="714" width="1364" height="330" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.8"/>
+<text x="46" y="738" font-size="13" font-weight="700" fill="#92400E">NHÓM 3 — PHÂN HỆ DYNAMIC PRICING &amp; AUDIT BẤT BIẾN (5 BẢNG MỚI SPRINT 2)</text>
+<rect x="46" y="754" width="254" height="184" rx="7" fill="#FFFFFF" stroke="#F59E0B" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 53 754 H 293 Q 300 754 300 761 V 788 H 46 V 761 Q 46 754 53 754 Z" fill="#B45309"/>
+<text x="56" y="776" font-size="12.5" font-weight="700" fill="#FFFFFF">QUY_TAC_GIA</text>
+<rect x="211.8" y="762" width="80.2" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="251.89999999999998" y="774.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">1-1 KHU_VUC</text>
+<rect x="50" y="792" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="56" y="805" font-size="11" font-weight="700" fill="#92400E">PK QuyTacGiaID</text>
+<text x="290" y="805" text-anchor="end" font-size="10.5" fill="#64748B">BIGINT</text>
+<rect x="50" y="812" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="56" y="825" font-size="11" font-weight="700" fill="#92400E">FK UK KhuVucID</text>
+<text x="290" y="825" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="50" y="832" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="56" y="845" font-size="11" font-weight="700" fill="#92400E">GiaGoc / GiaSan / GiaTran</text>
+<text x="290" y="845" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<rect x="50" y="852" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="56" y="865" font-size="11" font-weight="700" fill="#92400E">BuocNhayGia (S)</text>
+<text x="290" y="865" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<rect x="50" y="872" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="56" y="885" font-size="11" font-weight="700" fill="#92400E">BienDoToiDaMoiChuKy</text>
+<text x="290" y="885" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<rect x="50" y="892" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="56" y="905" font-size="11" font-weight="700" fill="#92400E">Nguong / TrongSo</text>
+<text x="290" y="905" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<rect x="50" y="912" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="56" y="925" font-size="11" font-weight="700" fill="#92400E">TrangThaiKichHoat</text>
+<text x="290" y="925" text-anchor="end" font-size="10.5" fill="#64748B">BOOL</text>
+<rect x="314" y="754" width="254" height="184" rx="7" fill="#FFFFFF" stroke="#F59E0B" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 321 754 H 561 Q 568 754 568 761 V 788 H 314 V 761 Q 314 754 321 754 Z" fill="#B45309"/>
+<text x="324" y="776" font-size="12.5" font-weight="700" fill="#FFFFFF">DE_XUAT_GIA</text>
+<rect x="467.4" y="762" width="92.60000000000001" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="513.7" y="774.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">Human-in-Loop</text>
+<rect x="318" y="792" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="324" y="805" font-size="11" font-weight="700" fill="#92400E">PK DeXuatID</text>
+<text x="558" y="805" text-anchor="end" font-size="10.5" fill="#64748B">BIGINT</text>
+<rect x="318" y="812" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="324" y="825" font-size="11" font-weight="700" fill="#92400E">FK QuyTacGiaID / KhuVucID</text>
+<text x="558" y="825" text-anchor="end" font-size="10.5" fill="#64748B">ID</text>
+<rect x="318" y="832" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="324" y="845" font-size="11" font-weight="700" fill="#92400E">TyLeLapDay / TocDo / Gio</text>
+<text x="558" y="845" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<rect x="318" y="852" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="324" y="865" font-size="11" font-weight="700" fill="#92400E">GiaHienTai / Tho / DeXuat</text>
+<text x="558" y="865" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<rect x="318" y="872" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="324" y="885" font-size="11" font-weight="700" fill="#92400E">CoCanhBaoVuotKhung</text>
+<text x="558" y="885" text-anchor="end" font-size="10.5" fill="#64748B">BOOL</text>
+<rect x="318" y="892" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="324" y="905" font-size="11" font-weight="700" fill="#92400E">TrangThaiDuyet</text>
+<text x="558" y="905" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<rect x="318" y="912" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="324" y="925" font-size="11" font-weight="700" fill="#92400E">NguoiDuyetID / GhiChu</text>
+<text x="558" y="925" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<rect x="582" y="754" width="254" height="184" rx="7" fill="#FFFFFF" stroke="#F59E0B" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 589 754 H 829 Q 836 754 836 761 V 788 H 582 V 761 Q 582 754 589 754 Z" fill="#B45309"/>
+<text x="592" y="776" font-size="12.5" font-weight="700" fill="#FFFFFF">NHAT_KY_GIA</text>
+<rect x="760.2" y="762" width="67.80000000000001" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="794.1" y="774.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">Immutable</text>
+<rect x="586" y="792" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="592" y="805" font-size="11" font-weight="700" fill="#92400E">PK NhatKyGiaID</text>
+<text x="826" y="805" text-anchor="end" font-size="10.5" fill="#64748B">BIGINT</text>
+<rect x="586" y="812" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="592" y="825" font-size="11" font-weight="700" fill="#92400E">FK KhuVucID (RESTRICT)</text>
+<text x="826" y="825" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="586" y="832" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="592" y="845" font-size="11" font-weight="700" fill="#92400E">FK UK DeXuatID (0..1)</text>
+<text x="826" y="845" text-anchor="end" font-size="10.5" fill="#64748B">BIGINT</text>
+<rect x="586" y="852" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="592" y="865" font-size="11" font-weight="700" fill="#92400E">LoaiBienDong</text>
+<text x="826" y="865" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<rect x="586" y="872" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="592" y="885" font-size="11" font-weight="700" fill="#92400E">GiaCu / GiaMoi / %</text>
+<text x="826" y="885" text-anchor="end" font-size="10.5" fill="#64748B">NUM</text>
+<rect x="586" y="892" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="592" y="905" font-size="11" font-weight="700" fill="#92400E">NguoiThucHienID</text>
+<text x="826" y="905" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<rect x="586" y="912" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="592" y="925" font-size="11" font-weight="700" fill="#92400E">ThoiGianApDung</text>
+<text x="826" y="925" text-anchor="end" font-size="10.5" fill="#64748B">TSTZ</text>
+<rect x="850" y="754" width="254" height="184" rx="7" fill="#FFFFFF" stroke="#F59E0B" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 857 754 H 1097 Q 1104 754 1104 761 V 788 H 850 V 761 Q 850 754 857 754 Z" fill="#B45309"/>
+<text x="860" y="776" font-size="12.5" font-weight="700" fill="#FFFFFF">NHAT_KY_DINH_GIA</text>
+<rect x="1028.2" y="762" width="67.80000000000001" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1062.1" y="774.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">Immutable</text>
+<rect x="854" y="792" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="860" y="805" font-size="11" font-weight="700" fill="#92400E">PK NhatKyDinhGiaID</text>
+<text x="1094" y="805" text-anchor="end" font-size="10.5" fill="#64748B">BIGINT</text>
+<rect x="854" y="812" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="860" y="825" font-size="11" font-weight="700" fill="#92400E">LoaiSuKien (4 loại)</text>
+<text x="1094" y="825" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<rect x="854" y="832" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="860" y="845" font-size="11" font-weight="700" fill="#92400E">KhuVucID / QuyTacGiaID</text>
+<text x="1094" y="845" text-anchor="end" font-size="10.5" fill="#64748B">ID</text>
+<rect x="854" y="852" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="860" y="865" font-size="11" font-weight="700" fill="#92400E">DeXuatID (NULLable)</text>
+<text x="1094" y="865" text-anchor="end" font-size="10.5" fill="#64748B">BIGINT</text>
+<rect x="854" y="872" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="860" y="885" font-size="11" font-weight="700" fill="#92400E">NguoiThucHienID</text>
+<text x="1094" y="885" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<rect x="854" y="892" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="860" y="905" font-size="11" font-weight="700" fill="#92400E">ChiTiet</text>
+<text x="1094" y="905" text-anchor="end" font-size="10.5" fill="#64748B">JSONB</text>
+<rect x="854" y="912" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="860" y="925" font-size="11" font-weight="700" fill="#92400E">Trigger: chan_sua_xoa</text>
+<text x="1094" y="925" text-anchor="end" font-size="10.5" fill="#64748B">LOCK</text>
+<rect x="1118" y="754" width="254" height="184" rx="7" fill="#FFFFFF" stroke="#F59E0B" stroke-width="1.8"  filter="url(#sh)"/>
+<path d="M 1125 754 H 1365 Q 1372 754 1372 761 V 788 H 1118 V 761 Q 1118 754 1125 754 Z" fill="#B45309"/>
+<text x="1128" y="776" font-size="10.5" font-weight="700" fill="#FFFFFF">NHAT_KY_CAU_HINH_MUA_VE</text>
+<rect x="1296.2" y="762" width="67.80000000000001" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1330.1" y="774.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">Immutable</text>
+<rect x="1122" y="792" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1128" y="805" font-size="11" font-weight="700" fill="#92400E">PK NhatKyID</text>
+<text x="1362" y="805" text-anchor="end" font-size="10.5" fill="#64748B">BIGINT</text>
+<rect x="1122" y="812" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1128" y="825" font-size="11" font-weight="700" fill="#92400E">SuKienID</text>
+<text x="1362" y="825" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="1122" y="832" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1128" y="845" font-size="11" font-weight="700" fill="#92400E">SoVeToiDaCu / Moi</text>
+<text x="1362" y="845" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="1122" y="852" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1128" y="865" font-size="11" font-weight="700" fill="#92400E">YeuCauOTPCu / Moi</text>
+<text x="1362" y="865" text-anchor="end" font-size="10.5" fill="#64748B">BOOL</text>
+<rect x="1122" y="872" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1128" y="885" font-size="11" font-weight="700" fill="#92400E">NguoiThucHienID</text>
+<text x="1362" y="885" text-anchor="end" font-size="10.5" fill="#64748B">UUID</text>
+<rect x="1122" y="892" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1128" y="905" font-size="11" font-weight="700" fill="#92400E">ThoiGianThayDoi</text>
+<text x="1362" y="905" text-anchor="end" font-size="10.5" fill="#64748B">TSTZ</text>
+<rect x="1122" y="912" width="246" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1128" y="925" font-size="11" font-weight="700" fill="#92400E">AFTER Trigger on CAU_HINH</text>
+<text x="1362" y="925" text-anchor="end" font-size="10.5" fill="#64748B">AUTO</text>
+<rect x="1412" y="714" width="480" height="330" rx="10" fill="#F1F5F9" stroke="#64748B" stroke-width="1.6" stroke-dasharray="6,3"/>
+<text x="1430" y="738" font-size="13" font-weight="700" fill="#334155">NHÓM 4 — KỸ THUẬT MÔ PHỎNG &amp; DEMO (2 BẢNG)</text>
+<rect x="1430" y="754" width="214" height="144" rx="7" fill="#FFFFFF" stroke="#64748B" stroke-width="1.8" stroke-dasharray="6,3" filter="url(#sh)"/>
+<path d="M 1437 754 H 1637 Q 1644 754 1644 761 V 788 H 1430 V 761 Q 1430 754 1437 754 Z" fill="#475569"/>
+<text x="1440" y="776" font-size="12.5" font-weight="700" fill="#FFFFFF">MO_PHONG_GHE</text>
+<rect x="1580.6" y="762" width="55.4" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1608.3" y="774.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">Tech S2</text>
+<rect x="1434" y="792" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1440" y="805" font-size="11" font-weight="700" fill="#92400E">PK ID</text>
+<text x="1634" y="805" text-anchor="end" font-size="10.5" fill="#64748B">BIGINT</text>
+<rect x="1434" y="812" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1440" y="825" font-size="11" font-weight="700" fill="#92400E">KhuVucID / GheID</text>
+<text x="1634" y="825" text-anchor="end" font-size="10.5" fill="#64748B">INT</text>
+<rect x="1434" y="832" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1440" y="845" font-size="11" font-weight="700" fill="#92400E">KichBan</text>
+<text x="1634" y="845" text-anchor="end" font-size="10.5" fill="#64748B">ban_nhanh...</text>
+<rect x="1434" y="852" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1440" y="865" font-size="11" font-weight="700" fill="#92400E">NgayTao</text>
+<text x="1634" y="865" text-anchor="end" font-size="10.5" fill="#64748B">TSTZ</text>
+<rect x="1434" y="872" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1440" y="885" font-size="11" font-weight="700" fill="#92400E">0 FK — RPC only</text>
+<text x="1634" y="885" text-anchor="end" font-size="10.5" fill="#64748B">HIDDEN</text>
+<rect x="1660" y="754" width="214" height="144" rx="7" fill="#FFFFFF" stroke="#64748B" stroke-width="1.8" stroke-dasharray="6,3" filter="url(#sh)"/>
+<path d="M 1667 754 H 1867 Q 1874 754 1874 761 V 788 H 1660 V 761 Q 1660 754 1667 754 Z" fill="#475569"/>
+<text x="1670" y="776" font-size="12.5" font-weight="700" fill="#FFFFFF">CAU_HINH_DEMO</text>
+<rect x="1810.6" y="762" width="55.4" height="18" rx="4" fill="#FEF3C7" opacity="0.95"/>
+<text x="1838.3" y="774.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">Tech S2</text>
+<rect x="1664" y="792" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1670" y="805" font-size="11" font-weight="700" fill="#92400E">PK Khoa</text>
+<text x="1864" y="805" text-anchor="end" font-size="10.5" fill="#64748B">TEXT</text>
+<rect x="1664" y="812" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1670" y="825" font-size="11" font-weight="700" fill="#92400E">GiaTriHash</text>
+<text x="1864" y="825" text-anchor="end" font-size="10.5" fill="#64748B">SHA-256</text>
+<rect x="1664" y="832" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1670" y="845" font-size="11" font-weight="700" fill="#92400E">NgayCapNhat</text>
+<text x="1864" y="845" text-anchor="end" font-size="10.5" fill="#64748B">TSTZ</text>
+<rect x="1664" y="852" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1670" y="865" font-size="11" font-weight="700" fill="#92400E">Dùng cho @demo.vn</text>
+<text x="1864" y="865" text-anchor="end" font-size="10.5" fill="#64748B">BYPASS</text>
+<rect x="1664" y="872" width="206" height="18" rx="3" fill="#FEF3C7"/>
+<text x="1670" y="885" font-size="11" font-weight="700" fill="#92400E">0 FK — RLS DENY</text>
+<text x="1864" y="885" text-anchor="end" font-size="10.5" fill="#64748B">HIDDEN</text>
+<rect x="28" y="1068" width="1864" height="184" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.4"/>
+<text x="48" y="1096" font-size="14" font-weight="700" fill="#1B4F72">TỔNG HỢP 3 LOẠI QUAN HỆ CSDL &amp; CAM KẾT ĐỐI CHIẾU MÃ NGUỒN (36 MIGRATIONS — PR #108)</text>
+<text x="48" y="1122" font-size="12" fill="#334155">1. Quan hệ Một – Một (1–1): SU_KIEN ||--|| CAU_HINH_SU_KIEN (PK = FK SuKienID); KHU_VUC ||--o| QUY_TAC_GIA (UNIQUE KhuVucID); DE_XUAT_GIA |o--o| NHAT_KY_GIA (UNIQUE DeXuatID).</text>
+<text x="48" y="1146" font-size="12" fill="#334155">2. Quan hệ Một – Nhiều (1–N): TO_CHUC → SU_KIEN → SUAT_DIEN → KHU_VUC → GHE; GIU_CHO → CHI_TIET_GIU_CHO; QUY_TAC_GIA / KHU_VUC → DE_XUAT_GIA; KHU_VUC → NHAT_KY_GIA (ON DELETE RESTRICT).</text>
+<text x="48" y="1170" font-size="12" fill="#334155">3. Quan hệ Nhiều – Nhiều (N–N): TO_CHUC ↔ HO_SO_NGUOI_DUNG (qua THANH_VIEN_TO_CHUC); SU_KIEN ↔ NGHE_SI (qua SU_KIEN_NGHE_SI).</text>
+<text x="48" y="1194" font-size="12" fill="#334155">4. Chú thích kỹ thuật: (a) Trigger toàn vẹn SuKienID/SuatDienID; (b) GheID NULLable cho khu đứng; (c) Timeline gộp trong SU_KIEN.MoTaChiTiet; (d) 3 bảng Audit bất biến (chan_sua_xoa_*).</text>
+<text x="48" y="1218" font-size="12" fill="#334155">5. Chuẩn hóa Schema Sprint 2: Xác nhận đúng 21 bảng public thật; đã loại bỏ hoàn toàn 2 bảng ảo DON_HANG &amp; VE (Vé đã mua là GIU_CHO.TrangThai = &#x27;CONVERTED&#x27; + CHI_TIET_GIU_CHO.MaVe / DonGiaChot).</text>
+</svg>

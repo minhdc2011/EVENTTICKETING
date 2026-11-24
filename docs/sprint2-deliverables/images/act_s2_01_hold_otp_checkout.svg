@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="1060" viewBox="0 0 1520 1060" font-family="Arial, Liberation Sans, sans-serif">
+<defs>
+  <marker id="arr-dark" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#334155"/>
+  </marker>
+  <marker id="arr-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#D97706"/>
+  </marker>
+  <marker id="arr-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9 z" fill="#0F766E"/>
+  </marker>
+  <marker id="arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.6" stroke-linecap="round"/>
+  </marker>
+  <filter id="sh" x="-4%" y="-4%" width="108%" height="112%">
+    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.12"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="1520" height="1060" fill="#F8FAFC"/>
+<rect x="0" y="0" width="1520" height="82" fill="#2A3342"/>
+<text x="34" y="38" font-size="21" font-weight="700" fill="#FFFFFF">ACTIVITY DIAGRAM 01 — GIỮ CHỖ, HẠN MỨC 4 VÉ &amp; OTP XÁC NHẬN THANH TOÁN</text>
+<text x="34" y="60" font-size="12.5" fill="#94A3B8">Luồng chuẩn mã nguồn (Migration 20261124): Xem tự do -&gt; Giữ chỗ không cần OTP -&gt; Gia hạn 1 lần -&gt; OTP tươi / Mã Demo -&gt; CONVERTED</text>
+<text x="1341.0" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
+<rect x="1357.0" y="20" width="129.0" height="24" rx="12" fill="#F59E0B"/>
+<text x="1421.5" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827">Activity S2-01</text>
+<rect x="30" y="102" width="440" height="926" rx="8" fill="#FDF2F8" stroke="#CBD5E1" stroke-width="1.4"/>
+<rect x="30" y="102" width="440" height="34" rx="8" fill="#EC1C69"/>
+<text x="250.0" y="124" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFFFFF">SWIMLANE 1: KHÁN GIẢ (NGƯỜI MUA)</text>
+<rect x="470" y="102" width="500" height="926" rx="8" fill="#EEF2FF" stroke="#CBD5E1" stroke-width="1.4"/>
+<rect x="470" y="102" width="500" height="34" rx="8" fill="#5050CC"/>
+<text x="720.0" y="124" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFFFFF">SWIMLANE 2: FRONTEND (REACT + GUARD)</text>
+<rect x="970" y="102" width="520" height="926" rx="8" fill="#F0FDFA" stroke="#CBD5E1" stroke-width="1.4"/>
+<rect x="970" y="102" width="520" height="34" rx="8" fill="#0F766E"/>
+<text x="1230.0" y="124" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFFFFF">SWIMLANE 3: SUPABASE AUTH & POSTGRESQL RPC</text>
+<circle cx="250" cy="170" r="12" fill="#1E293B"/>
+<rect x="90" y="206" width="320" height="54" rx="10" fill="#FFFFFF" stroke="#EC1C69" stroke-width="1.8" filter="url(#sh)"/>
+<text x="250.0" y="229.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">1. Xem sơ đồ &amp; Chọn 1–4 ghế</text>
+<text x="250.0" y="245.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">(Không yêu cầu đăng nhập khi xem)</text>
+<rect x="520" y="206" width="400" height="54" rx="10" fill="#FFFFFF" stroke="#5050CC" stroke-width="1.8" filter="url(#sh)"/>
+<text x="720.0" y="229.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">2. Kiểm tra phiên đăng nhập</text>
+<text x="720.0" y="245.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">Chưa login -&gt; Mở BuyerAuthModal</text>
+<rect x="1020" y="206" width="420" height="68" rx="10" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.8" filter="url(#sh)"/>
+<text x="1230.0" y="228.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">3. RPC tao_giu_cho_theo_suat()</text>
+<text x="1230.0" y="244.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">KHÔNG check OTP | pg_advisory_xact_lock</text>
+<text x="1230.0" y="260.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">Check ACTIVE+CONVERTED &lt;= SoVeToiDaMoiDon</text>
+<polygon points="1230,298 1360,336 1230,374 1100,336" fill="#FEF3C7" stroke="#D97706" stroke-width="1.8" filter="url(#sh)"/>
+<text x="1230" y="333" text-anchor="middle" font-size="10.5" font-weight="700" fill="#92400E">Đủ ghế &amp;</text>
+<text x="1230" y="347" text-anchor="middle" font-size="10.5" font-weight="700" fill="#92400E">&lt;= Hạn mức?</text>
+<rect x="520" y="310" width="400" height="52" rx="10" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.8" filter="url(#sh)"/>
+<text x="720.0" y="332.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#991B1B">Hiển thị Toast lỗi tranh chấp / vượt hạn mức</text>
+<text x="720.0" y="348.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#991B1B">Yêu cầu chọn lại ghế</text>
+<rect x="1020" y="412" width="420" height="60" rx="10" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.8" filter="url(#sh)"/>
+<text x="1230.0" y="438.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">4. Tạo GIU_CHO (ACTIVE, 5 phút)</text>
+<text x="1230.0" y="454.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">Chốt DonGiaChot = GiaVeNiemYet; GHE=DANG_GIU</text>
+<rect x="520" y="412" width="400" height="60" rx="10" fill="#FFFFFF" stroke="#5050CC" stroke-width="1.8" filter="url(#sh)"/>
+<text x="720.0" y="438.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">5. Mở HoldConfirmationDialog (phase=held)</text>
+<text x="720.0" y="454.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">Đếm ngược 5 phút | Gắn holdSessionGuard</text>
+<polygon points="250,493 385,535 250,577 115,535" fill="#FEF3C7" stroke="#D97706" stroke-width="1.8" filter="url(#sh)"/>
+<text x="250" y="532" text-anchor="middle" font-size="10.5" font-weight="700" fill="#92400E">Hành động của</text>
+<text x="250" y="546" text-anchor="middle" font-size="10.5" font-weight="700" fill="#92400E">Khán giả?</text>
+<rect x="520" y="512" width="400" height="48" rx="10" fill="#F1F5F9" stroke="#64748B" stroke-width="1.8" filter="url(#sh)"/>
+<text x="720.0" y="532.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">Hủy / Đăng xuất / Hết 5 phút</text>
+<text x="720.0" y="548.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">huy_giu_cho() hoặc pg_cron expire_seat_holds()</text>
+<rect x="1020" y="586" width="420" height="56" rx="10" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.8" filter="url(#sh)"/>
+<text x="1230.0" y="610.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">6. RPC xac_nhan_thanh_toan()</text>
+<text x="1230.0" y="626.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">Kiểm tra CAU_HINH_SU_KIEN.YeuCauXacMinhOTP</text>
+<polygon points="1230,656 1375,696 1230,736 1085,696" fill="#FEF3C7" stroke="#D97706" stroke-width="1.8" filter="url(#sh)"/>
+<text x="1230" y="693" text-anchor="middle" font-size="10.5" font-weight="700" fill="#92400E">Cần OTP tươi</text>
+<text x="1230" y="707" text-anchor="middle" font-size="10.5" font-weight="700" fill="#92400E">sau NgayTao?</text>
+<rect x="520" y="668" width="400" height="62" rx="10" fill="#FEF3C7" stroke="#D97706" stroke-width="1.8" filter="url(#sh)"/>
+<text x="720.0" y="687.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#92400E">7. Nhận mã 42501 -&gt; gia_han_giu_cho()</text>
+<text x="720.0" y="703.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#92400E">Gia hạn +5p (1 lần duy nhất, DaGiaHan=TRUE)</text>
+<text x="720.0" y="719.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#92400E">Mở CheckoutOtpDialog</text>
+<rect x="90" y="672" width="320" height="58" rx="10" fill="#FFFFFF" stroke="#EC1C69" stroke-width="1.8" filter="url(#sh)"/>
+<text x="250.0" y="697.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">8. Nhập OTP 6 số (Email)</text>
+<text x="250.0" y="713.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">hoặc Mã Demo (@demo.vn)</text>
+<rect x="520" y="774" width="400" height="54" rx="10" fill="#FFFFFF" stroke="#5050CC" stroke-width="1.8" filter="url(#sh)"/>
+<text x="720.0" y="797.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1E293B">9. verifyOtp() hoặc gửi p_ma_demo</text>
+<text x="720.0" y="813.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E293B">Gọi lại xac_nhan_thanh_toan(holdId, demo?)</text>
+<rect x="1020" y="796" width="420" height="66" rx="10" fill="#ECFDF5" stroke="#059669" stroke-width="1.8" filter="url(#sh)"/>
+<text x="1230.0" y="817.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#065F46">10. Xác thực moc_otp_moi_nhat() / SHA-256</text>
+<text x="1230.0" y="833.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#065F46">Ghi GIU_CHO.MocOtpDaDung &amp; CONVERTED</text>
+<text x="1230.0" y="849.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#065F46">UPDATE GHE = DA_BAN (Atomic)</text>
+<rect x="520" y="906" width="400" height="54" rx="10" fill="#ECFDF5" stroke="#059669" stroke-width="1.8" filter="url(#sh)"/>
+<text x="720.0" y="929.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#065F46">11. Hiển thị phase=paid (Thanh toán thành công)</text>
+<text x="720.0" y="945.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#065F46">Khán giả xem vé tại /my-tickets (ve_cua_toi)</text>
+<circle cx="250" cy="933" r="14" fill="none" stroke="#1E293B" stroke-width="2.5"/><circle cx="250" cy="933" r="8" fill="#1E293B"/>
+<polyline points="250,182 250,206" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="410,233 520,233" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="920,233 1020,233" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="1230,274 1230,298" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="1100,336 920,336" fill="none" stroke="#DC2626" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="1230,374 1230,412" fill="none" stroke="#0F766E" stroke-width="2" marker-end="url(#arr-teal)"/>
+<polyline points="1020,442 920,442" fill="none" stroke="#0F766E" stroke-width="2" marker-end="url(#arr-teal)"/>
+<polyline points="520,442 250,442 250,493" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="385,535 520,535" fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="250,577 250,614 1020,614" fill="none" stroke="#D97706" stroke-width="2" marker-end="url(#arr-amber)"/>
+<polyline points="1230,642 1230,656" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="1085,696 920,696" fill="none" stroke="#D97706" stroke-width="2" marker-end="url(#arr-amber)"/>
+<polyline points="520,699 410,699" fill="none" stroke="#D97706" stroke-width="2" marker-end="url(#arr-amber)"/>
+<polyline points="250,730 250,801 520,801" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-dark)"/>
+<polyline points="920,818 1020,818" fill="none" stroke="#0F766E" stroke-width="2" marker-end="url(#arr-teal)"/>
+<polyline points="1230,736 1230,796" fill="none" stroke="#0F766E" stroke-width="2" marker-end="url(#arr-teal)"/>
+<polyline points="1230,862 1230,933 920,933" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#arr-teal)"/>
+<polyline points="520,933 264,933" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#arr-teal)"/>
+<text x="1010" y="328" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Không (Lỗi)</text>
+<text x="1272" y="392" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Hợp lệ</text>
+<text x="450" y="526" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Hủy / Hết giờ</text>
+<text x="420" y="606" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Bấm Xác nhận thanh toán</text>
+<text x="1002" y="688" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Có (42501)</text>
+<text x="1278" y="765" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Không cần OTP</text>
+</svg>

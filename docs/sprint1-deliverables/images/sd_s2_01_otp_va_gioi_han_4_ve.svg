@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1944" height="1223" viewBox="0 0 1944 1223" font-family="Arial, Liberation Sans, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="2466" height="1450" viewBox="0 0 2466 1450" font-family="Arial, Liberation Sans, sans-serif">
 <defs>
   <marker id="sd-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto">
     <path d="M 1 1 L 9 5 L 1 9 z" fill="#2A3342"/>
@@ -16,106 +16,130 @@
     <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.18"/>
   </filter>
 </defs>
-<rect x="0" y="0" width="1944" height="1223" fill="#F7F8FA"/>
-<rect x="0" y="0" width="1944" height="84.0" fill="#2A3342"/>
-<text x="36" y="38" font-size="21" font-weight="700" fill="#FFFFFF">SD-S2-01: Xác minh OTP 6 số &amp; Kiểm soát hạn mức 4 vé lũy kế</text>
-<text x="36" y="57" font-size="12" fill="#94A3B8">UC-T2-01, UC-T2-02 (FR-T2-01, FR-T2-02, FR-T2-04, NFR-04) — Phòng vệ 3 lớp</text>
-<text x="1780.0" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
-<rect x="1796.0" y="20" width="112.0" height="24" rx="12" fill="#F59E0B"/>
-<text x="1852.0" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
-<rect x="40.0" y="901.0" width="1864.0" height="208.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
-<rect x="40.0" y="901.0" width="46.0" height="22" rx="4" fill="#334155"/>
-<text x="63.0" y="916.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
-<rect x="169.0" y="903.0" width="235.60000000000002" height="20" rx="4" fill="#334155"/>
-<text x="178.0" y="916.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Tổng vé &gt; SoVeToiDaMoiDon (4 vé)]</text>
-<line x1="40.0" y1="1007.0" x2="1904.0" y2="1007.0" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,3"/>
-<rect x="46.0" y="1011.0" width="46.0" height="20" rx="4" fill="#475569"/>
-<text x="69.0" y="1024.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">else</text>
-<rect x="169.0" y="1011.0" width="107.60000000000001" height="20" rx="4" fill="#475569"/>
-<text x="178.0" y="1024.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Tổng &lt;= 4 vé]</text>
-<rect x="28.0" y="481.0" width="1888.0" height="664.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
-<rect x="28.0" y="481.0" width="46.0" height="22" rx="4" fill="#334155"/>
-<text x="51.0" y="496.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
-<rect x="157.0" y="483.0" width="197.20000000000002" height="20" rx="4" fill="#334155"/>
-<text x="166.0" y="496.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Sai OTP &gt;= 5 lần liên tiếp]</text>
-<line x1="28.0" y1="587.0" x2="1916.0" y2="587.0" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,3"/>
-<rect x="34.0" y="591.0" width="46.0" height="20" rx="4" fill="#475569"/>
-<text x="57.0" y="604.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">else</text>
-<rect x="157.0" y="591.0" width="216.4" height="20" rx="4" fill="#475569"/>
-<text x="166.0" y="604.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[OTP hợp lệ -&gt; Cấp JWT Session]</text>
-<line x1="135.0" y1="114.0" x2="135.0" y2="1195.0" stroke="#EC1C69" stroke-width="2.6"/>
-<line x1="430.6" y1="114.0" x2="430.6" y2="1195.0" stroke="#5050CC" stroke-width="2.6"/>
-<line x1="725.0" y1="114.0" x2="725.0" y2="1195.0" stroke="#4B9CE2" stroke-width="2.6"/>
-<line x1="1039.8" y1="114.0" x2="1039.8" y2="1195.0" stroke="#3B82F6" stroke-width="2.6"/>
-<line x1="1284.8" y1="114.0" x2="1284.8" y2="1195.0" stroke="#2E8BC0" stroke-width="2.6"/>
-<line x1="1599.6" y1="114.0" x2="1599.6" y2="1195.0" stroke="#2BB5B0" stroke-width="2.6"/>
-<rect x="124.0" y="147.0" width="22" height="916.0" rx="3" fill="#EC1C69"/>
-<rect x="419.6" y="147.0" width="22" height="916.0" rx="3" fill="#5050CC"/>
-<rect x="714.0" y="191.0" width="22" height="452.0" rx="3" fill="#4B9CE2"/>
-<rect x="1028.8" y="235.0" width="22" height="408.0" rx="3" fill="#3B82F6"/>
-<rect x="1273.8" y="667.0" width="22" height="396.0" rx="3" fill="#2E8BC0"/>
-<rect x="1588.6" y="711.0" width="22" height="352.0" rx="3" fill="#2BB5B0"/>
+<rect x="0" y="0" width="2466" height="1450" fill="#F7F8FA"/>
+<rect x="0" y="0" width="2466" height="84.0" fill="#2A3342"/>
+<text x="36" y="38" font-size="20.5" font-weight="700" fill="#FFFFFF">SD-S2-01: Giữ chỗ, Hạn mức 4 vé, Gia hạn &amp; OTP xác nhận thanh toán</text>
+<text x="36" y="57" font-size="12" fill="#94A3B8">UC-T2-01, UC-T2-02 (FR-T2-01..04) — Giữ chỗ không cần OTP; OTP tươi mỗi lần thanh toán hoặc Mã Demo</text>
+<text x="2302.0" y="38" text-anchor="end" font-size="16" font-weight="700" fill="#2BB5B0" letter-spacing="0.8">EVENTTICKETING</text>
+<rect x="2318.0" y="20" width="112.0" height="24" rx="12" fill="#F59E0B"/>
+<text x="2374.0" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827">Sprint 2 NEW</text>
+<rect x="40.0" y="826.0" width="2386.7" height="417.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="40.0" y="826.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="63.0" y="841.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
+<rect x="169.0" y="828.0" width="203.60000000000002" height="20" rx="4" fill="#334155"/>
+<text x="178.0" y="841.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Nhập OTP 6 số gửi qua Email]</text>
+<line x1="40.0" y1="1101.0" x2="2426.7" y2="1101.0" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,3"/>
+<rect x="46.0" y="1105.0" width="46.0" height="20" rx="4" fill="#475569"/>
+<text x="69.0" y="1118.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">else</text>
+<rect x="169.0" y="1105.0" width="299.6" height="20" rx="4" fill="#475569"/>
+<text x="178.0" y="1118.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[Tài khoản @demo.vn nhập Mã demo bỏ qua OTP]</text>
+<rect x="28.0" y="590.0" width="2410.7" height="687.0" rx="6" fill="#E2E8F0" fill-opacity="0.22" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5,3"/>
+<rect x="28.0" y="590.0" width="46.0" height="22" rx="4" fill="#334155"/>
+<text x="51.0" y="605.0" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">alt</text>
+<rect x="157.0" y="592.0" width="299.6" height="20" rx="4" fill="#334155"/>
+<text x="166.0" y="605.5" font-size="10.5" font-weight="600" fill="#F8FAFC">[YeuCauXacMinhOTP = TRUE &amp; chưa có OTP tươi]</text>
+<line x1="135.0" y1="114.0" x2="135.0" y2="1424.0" stroke="#EC1C69" stroke-width="2.6"/>
+<line x1="521.1" y1="114.0" x2="521.1" y2="1424.0" stroke="#5050CC" stroke-width="2.6"/>
+<line x1="954.1" y1="114.0" x2="954.1" y2="1424.0" stroke="#5050CC" stroke-width="2.6"/>
+<line x1="1189.1" y1="114.0" x2="1189.1" y2="1424.0" stroke="#4B9CE2" stroke-width="2.6"/>
+<line x1="1424.1" y1="114.0" x2="1424.1" y2="1424.0" stroke="#3B82F6" stroke-width="2.6"/>
+<line x1="1783.3999999999999" y1="114.0" x2="1783.3999999999999" y2="1424.0" stroke="#2E8BC0" stroke-width="2.6"/>
+<line x1="2018.3999999999999" y1="114.0" x2="2018.3999999999999" y2="1424.0" stroke="#2BB5B0" stroke-width="2.6"/>
+<rect x="124.0" y="147.0" width="22" height="1220.0" rx="3" fill="#EC1C69"/>
+<rect x="510.1" y="147.0" width="22" height="630.0" rx="3" fill="#5050CC"/>
+<rect x="510.1" y="1289.0" width="22" height="78.0" rx="3" fill="#5050CC"/>
+<rect x="943.1" y="757.0" width="22" height="441.0" rx="3" fill="#5050CC"/>
+<rect x="1178.1" y="190.0" width="22" height="544.0" rx="3" fill="#4B9CE2"/>
+<rect x="1413.1" y="864.0" width="22" height="63.0" rx="3" fill="#3B82F6"/>
+<rect x="1772.3999999999999" y="907.0" width="22" height="106.0" rx="3" fill="#2E8BC0"/>
+<rect x="2007.3999999999999" y="233.0" width="22" height="179.0" rx="3" fill="#2BB5B0"/>
+<rect x="2007.3999999999999" y="521.0" width="22" height="213.0" rx="3" fill="#2BB5B0"/>
+<rect x="2007.3999999999999" y="1036.0" width="22" height="331.0" rx="3" fill="#2BB5B0"/>
 <rect x="47.5" y="60.0" width="175" height="54.0" rx="10" fill="#EC1C69" filter="url(#pbox-shadow)"/>
 <text x="135.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Actor»</text>
 <text x="135.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">Người mua</text>
-<rect x="343.1" y="60.0" width="175" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
-<text x="430.6" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
-<text x="430.6" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:BuyerAuthModal</text>
-<rect x="637.5" y="60.0" width="175" height="54.0" rx="10" fill="#4B9CE2" filter="url(#pbox-shadow)"/>
-<text x="725.0" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
-<text x="725.0" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:BuyerAuthService</text>
-<rect x="952.3" y="60.0" width="175" height="54.0" rx="10" fill="#3B82F6" filter="url(#pbox-shadow)"/>
-<text x="1039.8" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
-<text x="1039.8" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:SupabaseAuth</text>
-<rect x="1197.3" y="60.0" width="175" height="54.0" rx="10" fill="#2E8BC0" filter="url(#pbox-shadow)"/>
-<text x="1284.8" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
-<text x="1284.8" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:BookingService</text>
-<rect x="1512.1" y="60.0" width="175" height="54.0" rx="10" fill="#2BB5B0" filter="url(#pbox-shadow)"/>
-<text x="1599.6" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Entity»</text>
-<text x="1599.6" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PostgreSQL</text>
-<line x1="146.0" y1="155.0" x2="418.6" y2="155.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="182.3" y="142.0" width="200.0" height="26" rx="13" fill="#B45309"/>
-<text x="282.3" y="159.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Chọn ghế &amp; xác thực Email</text>
-<line x1="441.6" y1="199.0" x2="713.0" y2="199.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="487.49999999999994" y="186.0" width="179.6" height="26" rx="13" fill="#B45309"/>
-<text x="577.3" y="203.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">requestBuyerOtp(email)</text>
-<line x1="736.0" y1="243.0" x2="1027.8" y2="243.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="761.5" y="230.0" width="240.79999999999998" height="26" rx="13" fill="#B45309"/>
-<text x="881.9" y="247.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">signInWithOtp(shouldCreateUser)</text>
-<line x1="1028.8" y1="287.0" x2="147.0" y2="287.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
-<rect x="460.7" y="274.0" width="254.4" height="26" rx="13" fill="#92400E"/>
-<text x="587.9" y="291.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Gửi OTP 6 số (TTL 120s, Wait 60s)</text>
-<line x1="146.0" y1="331.0" x2="418.6" y2="331.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="199.3" y="318.0" width="166.0" height="26" rx="13" fill="#B45309"/>
-<text x="282.3" y="335.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Nhập mã OTP 6 chữ số</text>
-<line x1="441.6" y1="375.0" x2="713.0" y2="375.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="467.09999999999997" y="362.0" width="220.4" height="26" rx="13" fill="#B45309"/>
-<text x="577.3" y="379.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">verifyBuyerOtp(email, token)</text>
-<line x1="736.0" y1="419.0" x2="1027.8" y2="419.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="792.1" y="406.0" width="179.6" height="26" rx="13" fill="#B45309"/>
-<text x="881.9" y="423.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">verifyOtp(type: email)</text>
-<line x1="1028.8" y1="529.0" x2="442.6" y2="529.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
-<rect x="628.9000000000001" y="516.0" width="213.6" height="26" rx="13" fill="#92400E"/>
-<text x="735.7" y="533.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Khóa tạm 15 phút (FR-T2-04)</text>
-<line x1="1028.8" y1="631.0" x2="737.0" y2="631.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
-<rect x="776.1" y="618.0" width="213.6" height="26" rx="13" fill="#92400E"/>
-<text x="882.9" y="635.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">JWT Access Token (auth.uid)</text>
-<line x1="441.6" y1="675.0" x2="1272.8" y2="675.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="750.4000000000001" y="662.0" width="213.6" height="26" rx="13" fill="#B45309"/>
-<text x="857.2" y="679.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">createSeatHold(items) + JWT</text>
-<line x1="1295.8" y1="719.0" x2="1587.6" y2="719.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="1321.2999999999997" y="706.0" width="240.79999999999998" height="26" rx="13" fill="#B45309"/>
-<text x="1441.6999999999998" y="723.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC đọc v_user_id := auth.uid()</text>
-<polyline points="1610.6,763.0 1647.6,763.0 1647.6,791.0 1610.6,791.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="1655.6" y="764.0" width="254.4" height="26" rx="13" fill="#B45309"/>
-<text x="1782.8" y="781.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">pg_advisory_xact_lock(uid, event)</text>
-<polyline points="1610.6,823.0 1647.6,823.0 1647.6,851.0 1610.6,851.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
-<rect x="1655.6" y="824.0" width="247.6" height="26" rx="13" fill="#B45309"/>
-<text x="1779.3999999999999" y="841.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Đếm: Paid + ActiveHold + Yêu cầu</text>
-<line x1="1588.6" y1="949.0" x2="442.6" y2="949.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
-<rect x="891.8" y="936.0" width="247.6" height="26" rx="13" fill="#92400E"/>
-<text x="1015.5999999999999" y="953.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">ROLLBACK + Lỗi vượt 4 vé/sự kiện</text>
-<line x1="1588.6" y1="1051.0" x2="442.6" y2="1051.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
-<rect x="884.9999999999999" y="1038.0" width="261.2" height="26" rx="13" fill="#92400E"/>
-<text x="1015.5999999999999" y="1055.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Khóa ghế + Ghi DonGiaChot (COMMIT)</text>
+<rect x="428.6" y="60.0" width="185" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
+<text x="521.1" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
+<text x="521.1" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:OfficialSeatingMap</text>
+<rect x="864.1" y="60.0" width="180" height="54.0" rx="10" fill="#5050CC" filter="url(#pbox-shadow)"/>
+<text x="954.1" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Boundary»</text>
+<text x="954.1" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:CheckoutOtpDialog</text>
+<rect x="1101.6" y="60.0" width="175" height="54.0" rx="10" fill="#4B9CE2" filter="url(#pbox-shadow)"/>
+<text x="1189.1" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1189.1" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:BookingService</text>
+<rect x="1336.6" y="60.0" width="175" height="54.0" rx="10" fill="#3B82F6" filter="url(#pbox-shadow)"/>
+<text x="1424.1" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1424.1" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:OtpService</text>
+<rect x="1695.8999999999999" y="60.0" width="175" height="54.0" rx="10" fill="#2E8BC0" filter="url(#pbox-shadow)"/>
+<text x="1783.3999999999999" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Control»</text>
+<text x="1783.3999999999999" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:SupabaseAuth</text>
+<rect x="1930.8999999999999" y="60.0" width="175" height="54.0" rx="10" fill="#2BB5B0" filter="url(#pbox-shadow)"/>
+<text x="2018.3999999999999" y="80.0" text-anchor="middle" font-size="10.5" fill="#F1F5F9" opacity="0.92">«Entity»</text>
+<text x="2018.3999999999999" y="100.0" text-anchor="middle" font-size="13.5" font-weight="700" fill="#FFFFFF">:PostgreSQL</text>
+<line x1="146.0" y1="155.0" x2="509.1" y2="155.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="168.5" y="142.0" width="318.1" height="26" rx="13" fill="#B45309"/>
+<text x="327.55" y="159.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Chọn ghế (xem tự do) -&gt; Đăng nhập &amp; Giữ chỗ</text>
+<line x1="532.1" y1="198.0" x2="1177.1" y2="198.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="729.05" y="185.0" width="251.1" height="26" rx="13" fill="#B45309"/>
+<text x="854.5999999999999" y="202.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">createSeatHold(suatDienId, seats)</text>
+<line x1="1200.1" y1="241.0" x2="2006.3999999999999" y2="241.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1437.5" y="228.0" width="331.5" height="26" rx="13" fill="#B45309"/>
+<text x="1603.25" y="245.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC tao_giu_cho_theo_suat() [Không check OTP]</text>
+<polyline points="2029.3999999999999,284.0 2066.3999999999996,284.0 2066.3999999999996,312.0 2029.3999999999999,312.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="2074.3999999999996" y="285.0" width="344.90000000000003" height="26" rx="13" fill="#B45309"/>
+<text x="2246.8499999999995" y="302.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">pg_advisory_xact_lock + Đếm ACTIVE+CONVERTED&lt;=4</text>
+<polyline points="2029.3999999999999,342.0 2066.3999999999996,342.0 2066.3999999999996,370.0 2029.3999999999999,370.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="2074.3999999999996" y="343.0" width="344.90000000000003" height="26" rx="13" fill="#B45309"/>
+<text x="2246.8499999999995" y="360.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Chốt CHI_TIET_GIU_CHO.DonGiaChot = GiaVeNiemYet</text>
+<line x1="2007.3999999999999" y1="400.0" x2="533.1" y2="400.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="1081.05" y="387.0" width="378.40000000000003" height="26" rx="13" fill="#92400E"/>
+<text x="1270.25" y="404.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">holdId (ACTIVE, 5 phút) -&gt; Mở HoldConfirmationDialog</text>
+<line x1="146.0" y1="443.0" x2="509.1" y2="443.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="235.5" y="430.0" width="184.1" height="26" rx="13" fill="#B45309"/>
+<text x="327.55" y="447.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Bấm Xác nhận thanh toán</text>
+<line x1="532.1" y1="486.0" x2="1177.1" y2="486.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="739.0999999999999" y="473.0" width="231.0" height="26" rx="13" fill="#B45309"/>
+<text x="854.5999999999999" y="490.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">confirmSeatHoldPayment(holdId)</text>
+<line x1="1200.1" y1="529.0" x2="2006.3999999999999" y2="529.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1434.15" y="516.0" width="338.2" height="26" rx="13" fill="#B45309"/>
+<text x="1603.25" y="533.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">RPC xac_nhan_thanh_toan(holdId, phienId, NULL)</text>
+<line x1="2007.3999999999999" y1="636.0" x2="533.1" y2="636.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="1111.2" y="623.0" width="318.1" height="26" rx="13" fill="#92400E"/>
+<text x="1270.25" y="640.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Lỗi 42501 (Yêu cầu OTP xác nhận thanh toán)</text>
+<line x1="532.1" y1="679.0" x2="1177.1" y2="679.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="665.3999999999999" y="666.0" width="378.40000000000003" height="26" rx="13" fill="#B45309"/>
+<text x="854.5999999999999" y="683.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">extendSeatHold -&gt; RPC gia_han_giu_cho() (+5p, 1 lần)</text>
+<line x1="1200.1" y1="722.0" x2="2006.3999999999999" y2="722.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1440.85" y="709.0" width="324.8" height="26" rx="13" fill="#B45309"/>
+<text x="1603.25" y="726.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">UPDATE GIU_CHO SET DaGiaHan=TRUE, HetHan +5p</text>
+<line x1="532.1" y1="765.0" x2="942.1" y2="765.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="554.6" y="752.0" width="365.0" height="26" rx="13" fill="#B45309"/>
+<text x="737.1" y="769.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Mở CheckoutOtpDialog (nhập OTP Email hoặc Mã demo)</text>
+<line x1="965.1" y1="872.0" x2="1412.1" y2="872.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1053.0" y="859.0" width="271.20000000000005" height="26" rx="13" fill="#B45309"/>
+<text x="1188.6" y="876.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">requestOtp(email) -&gt; signInWithOtp()</text>
+<line x1="1435.1" y1="915.0" x2="1771.3999999999999" y2="915.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1457.6" y="902.0" width="291.3" height="26" rx="13" fill="#B45309"/>
+<text x="1603.25" y="919.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Gửi mã OTP 6 chữ số (TTL 120s, chờ 60s)</text>
+<line x1="146.0" y1="958.0" x2="942.1" y2="958.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="475.44999999999993" y="945.0" width="137.2" height="26" rx="13" fill="#B45309"/>
+<text x="544.05" y="962.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Nhập mã OTP 6 số</text>
+<line x1="965.1" y1="1001.0" x2="1771.3999999999999" y2="1001.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1182.4" y="988.0" width="371.7" height="26" rx="13" fill="#B45309"/>
+<text x="1368.25" y="1005.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">verifyOtp(email, token) -&gt; Cập nhật last_sign_in_at</text>
+<line x1="965.1" y1="1044.0" x2="2006.3999999999999" y2="1044.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1306.6" y="1031.0" width="358.3" height="26" rx="13" fill="#B45309"/>
+<text x="1485.75" y="1048.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">xac_nhan_thanh_toan() -&gt; Check moc_otp_moi_nhat()</text>
+<line x1="146.0" y1="1143.0" x2="942.1" y2="1143.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="448.65" y="1130.0" width="190.8" height="26" rx="13" fill="#B45309"/>
+<text x="544.05" y="1147.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Nhập mã demo (p_ma_demo)</text>
+<line x1="965.1" y1="1186.0" x2="2006.3999999999999" y2="1186.0" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="1266.4" y="1173.0" width="438.7" height="26" rx="13" fill="#B45309"/>
+<text x="1485.75" y="1190.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">xac_nhan_thanh_toan(p_ma_demo) -&gt; Check SHA-256 CAU_HINH_DEMO</text>
+<polyline points="2029.3999999999999,1297.0 2066.3999999999996,1297.0 2066.3999999999996,1325.0 2029.3999999999999,1325.0" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="2.5,4.5" marker-end="url(#sd-arrow-s2)"/>
+<rect x="2074.3999999999996" y="1298.0" width="358.3" height="26" rx="13" fill="#B45309"/>
+<text x="2253.5499999999997" y="1315.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Ghi MocOtpDaDung + GIU_CHO=CONVERTED + GHE=DA_BAN</text>
+<line x1="2007.3999999999999" y1="1355.0" x2="533.1" y2="1355.0" stroke="#B45309" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#sd-ret-s2)"/>
+<rect x="1084.4" y="1342.0" width="371.7" height="26" rx="13" fill="#92400E"/>
+<text x="1270.25" y="1359.0" text-anchor="middle" font-size="11" font-weight="600" fill="#FFFFFF">Thanh toán thành công (phase=paid) &amp; Lưu Vé của tôi</text>
 </svg>
