@@ -143,6 +143,7 @@ export function taoKhoGiuChoMoPhong(options = {}) {
           status: 'ACTIVE',
           expiresAt,
           expiresAtMs,
+          createdAtMs: nowMs,
           soLuong: soLuongMoi,
           gioiHan: gioiHanApDung,
           items: frozenItems,

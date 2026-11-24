@@ -13,6 +13,8 @@ export interface MockHoldEntry {
   readonly status: 'ACTIVE' | 'EXPIRED' | 'RELEASED' | 'CONVERTED';
   readonly expiresAt: string;
   readonly expiresAtMs: number;
+  /** Thời điểm tạo giữ chỗ (ms); OTP thanh toán phải được xác minh sau mốc này. */
+  readonly createdAtMs: number;
   readonly soLuong: number;
   readonly gioiHan: number;
   readonly daGiaHan?: boolean;

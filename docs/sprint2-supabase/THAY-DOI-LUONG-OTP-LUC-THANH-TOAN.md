@@ -226,3 +226,16 @@ Giao diện: nút **Xóa** trên thẻ sự kiện (chỉ chủ sở hữu và q
 **Không có tự động xóa theo thời hạn.** Đã cân nhắc "xóa sau N ngày kể từ khi kết thúc" nhưng không bật: Super Concert 2026 đã kết thúc ngày 01/11/2026 nên một tác vụ 30 ngày sẽ ẩn sự kiện demo chính trước hạn nộp bài. Khi cần có thể thêm tác vụ định kỳ gọi cùng quy tắc.
 
 Tổng pgTAP sau đợt này: 18 file, 887 test đạt.
+
+### Mỗi lần thanh toán một OTP mới (24/11/2026, cập nhật)
+
+Trước đó một OTP có hiệu lực 24 giờ cho mọi thanh toán của tài khoản. Nay (migration `20261124130000_sprint2_otp_moi_lan_thanh_toan.sql`), với sự kiện bật OTP, `xac_nhan_thanh_toan` chỉ chấp nhận khi:
+
+1. có bằng chứng OTP (`amr`, `method = otp`) được xác minh **sau khi giữ chỗ đó được tạo**, và
+2. mốc OTP đó **chưa dùng** cho giữ chỗ khác của cùng người dùng (lưu ở cột `GIU_CHO.MocOtpDaDung`; hàm `moc_otp_moi_nhat()` lấy mốc mới nhất trong `amr`).
+
+Hệ quả: thanh toán đơn thứ hai (dù cùng sự kiện hay khác sự kiện) luôn hiện lại hộp thoại OTP; không dùng lại OTP cũ. Mã demo `@demo.vn` vẫn thay OTP ở từng lần xác nhận và không ghi mốc OTP. Ở chế độ mô phỏng, giao diện áp dụng cùng quy tắc (`bookingService.confirmSeatPayment`).
+
+Kiểm: pgTAP `sprint2_otp_moi_giao_dich.sql` (10 ca: OTP cũ, không OTP, OTP mới, ghi mốc, dùng lại bị từ chối, OTP khác thanh toán được, idempotent, quyền anon); `scripts/nfr/otp-moi-lan-flow.mjs` (Chrome thật, mô phỏng: lần 2 phải nhập OTP lại); `scripts/verify-otp-moi-lan-local.mjs` (OTP **thật** qua Auth cục bộ và Mailpit: OTP thứ nhất thanh toán A, dùng lại cho B bị 42501, OTP thứ hai thanh toán B thành công).
+
+Tổng pgTAP sau đợt này: 19 file, 897 test đạt.
