@@ -3,6 +3,9 @@ export const EVENT_DA_DANG_NHAP: string;
 export const KHOA_GIU_CHO_DANG_CHO: string;
 export const THONG_BAO_CAN_DANG_NHAP_GIU_CHO: string;
 export const EVENT_CAN_OTP: string;
+export const EVENT_MA_DEMO: string;
+export function phatMaDemo(ma: string, target?: unknown): boolean;
+export function laTaiKhoanDemo(email: unknown): boolean;
 export const EVENT_DA_XAC_MINH_OTP: string;
 export const THONG_BAO_CAN_OTP_THANH_TOAN: string;
 export class OtpRequiredError extends Error {

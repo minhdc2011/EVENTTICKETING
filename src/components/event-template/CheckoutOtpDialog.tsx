@@ -20,13 +20,15 @@ export type CheckoutOtpDialogProps = {
   khoOtp: KhoTrangThaiOtpPhien;
   onVerified: (ketQua: KetQuaXacMinhMaOtp) => void | Promise<void>;
   onClose: () => void;
+  /** Tài khoản demo nhập mã demo thay OTP. */
+  onDemoCode?: (ma: string) => void;
 };
 
 /**
  * Hộp thoại toàn trang "Xác minh OTP để thanh toán": hiện khi người đã đăng nhập bấm Thanh toán ở sự kiện bật OTP.
  * Nền phía sau được làm mờ; mã 6 số gửi về email của tài khoản đang đăng nhập. Xác minh xong thì bên gọi tự tiếp tục thanh toán.
  */
-export function CheckoutOtpDialog({session, eventId, isMock, khoOtp, onVerified, onClose}: CheckoutOtpDialogProps) {
+export function CheckoutOtpDialog({session, eventId, isMock, khoOtp, onVerified, onClose, onDemoCode}: CheckoutOtpDialogProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const lastFocusRef = useRef<HTMLElement | null>(
     typeof document !== 'undefined' && document.activeElement instanceof HTMLElement ? document.activeElement : null,
@@ -92,7 +94,14 @@ export function CheckoutOtpDialog({session, eventId, isMock, khoOtp, onVerified,
           Mã xác minh 6 số sẽ được gửi tới email <strong>{maskEmail(session.email)}</strong>. Ghế của bạn đang được giữ (đã gia hạn thêm để
           bạn kịp nhập mã); nhập đúng mã để hoàn tất thanh toán.
         </p>
-        <OtpVerificationPanel session={session} eventId={eventId} isMock={isMock} onVerified={onVerified} khoOtp={khoOtp} />
+        <OtpVerificationPanel
+          session={session}
+          eventId={eventId}
+          isMock={isMock}
+          onVerified={onVerified}
+          khoOtp={khoOtp}
+          onDemoCode={onDemoCode}
+        />
         <div className="et-login-modal__row">
           <button type="button" className="et-login-modal__btn et-login-modal__btn--quiet" onClick={onClose}>
             Để sau

@@ -19,6 +19,7 @@ import {
   type KhoTrangThaiOtpPhien,
   type TrangThaiOtp,
 } from '../../services/otpService';
+import {laTaiKhoanDemo} from '../../domain/loginRequired.js';
 import './OtpVerificationPanel.css';
 
 export type OtpVerificationPanelProps = {
@@ -32,6 +33,8 @@ export type OtpVerificationPanelProps = {
   layTrangThai?: () => TrangThaiOtp | null;
   /** Báo trạng thái mới để cha lưu qua lần mount lại khi không truyền khoOtp. */
   onTrangThaiChange?: (trangThai: TrangThaiOtp) => void;
+  /** Chỉ dùng cho tài khoản demo (@demo.vn): mã không phải số được coi là mã demo và chuyển lên máy chủ để kiểm. */
+  onDemoCode?: (ma: string) => void;
 };
 
 const MA_TOI_DA = 10;
@@ -55,7 +58,9 @@ export function OtpVerificationPanel({
   khoOtp,
   layTrangThai,
   onTrangThaiChange,
+  onDemoCode,
 }: OtpVerificationPanelProps) {
+  const choPhepMaDemo = Boolean(onDemoCode) && laTaiKhoanDemo(session.email);
   const baseId = useId();
   const inputId = `${baseId}-code`;
   const errorId = `${baseId}-error`;
@@ -207,6 +212,13 @@ export function OtpVerificationPanel({
     async (e?: FormEvent) => {
       e?.preventDefault();
       if (busy) return;
+      // Tài khoản demo nhập mã có chữ: coi là mã demo, máy chủ kiểm (không đi qua Supabase Auth).
+      if (choPhepMaDemo && /\D/.test(code)) {
+        const maDemo = code;
+        setCode('');
+        onDemoCode?.(maDemo);
+        return;
+      }
       if (khoOtp) {
         const epoch = epochRef.current;
         const maNhap = code;
@@ -250,12 +262,14 @@ export function OtpVerificationPanel({
         if (epoch === epochRef.current) setBusy(null);
       }
     },
-    [busy, code, khoOtp, session],
+    [busy, choPhepMaDemo, code, khoOtp, onDemoCode, session],
   );
 
   const khongGuiDuoc = busy !== null || (daGui && !thoiGian.coTheGuiLai);
-  const khongXacMinhDuoc =
-    busy !== null || !daGui || thoiGian.biTamKhoaNhap || code.length < MA_TOI_THIEU || !thoiGian.conHieuLuc;
+  const dangNhapMaDemo = choPhepMaDemo && /\D/.test(code);
+  const khongXacMinhDuoc = dangNhapMaDemo
+    ? busy !== null || code.length < 4
+    : busy !== null || !daGui || thoiGian.biTamKhoaNhap || code.length < MA_TOI_THIEU || !thoiGian.conHieuLuc;
 
   return (
     <div className="et-otp-card">
@@ -287,9 +301,15 @@ export function OtpVerificationPanel({
             type="password"
             inputMode="numeric"
             autoComplete="one-time-code"
-            maxLength={MA_TOI_DA}
+            maxLength={choPhepMaDemo ? 32 : MA_TOI_DA}
             value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, MA_TOI_DA))}
+            onChange={(e) =>
+              setCode(
+                choPhepMaDemo
+                  ? e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 32)
+                  : e.target.value.replace(/\D/g, '').slice(0, MA_TOI_DA),
+              )
+            }
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `${hintId} ${errorId}` : hintId}
             disabled={busy === 'verify'}

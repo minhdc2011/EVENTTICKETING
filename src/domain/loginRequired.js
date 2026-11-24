@@ -10,6 +10,8 @@ export const KHOA_GIU_CHO_DANG_CHO = 'eventticketing:pending-hold';
 export const EVENT_CAN_OTP = 'eventticketing:otp-required';
 /** Sự kiện cửa sổ: người dùng vừa xác minh OTP xong; nơi đang chờ tiếp tục thanh toán. */
 export const EVENT_DA_XAC_MINH_OTP = 'eventticketing:otp-verified';
+/** Sự kiện cửa sổ: tài khoản demo nhập mã demo thay OTP (detail.ma); nơi đang chờ xác nhận thanh toán gửi mã lên máy chủ. */
+export const EVENT_MA_DEMO = 'eventticketing:demo-code';
 export const THONG_BAO_CAN_OTP_THANH_TOAN = 'Cần xác minh OTP qua email trước khi thanh toán.';
 
 export const THONG_BAO_CAN_DANG_NHAP_GIU_CHO =
@@ -72,6 +74,18 @@ function phat(name, target) {
   if (!w || typeof w.dispatchEvent !== 'function' || typeof CustomEvent === 'undefined') return false;
   w.dispatchEvent(new CustomEvent(name));
   return true;
+}
+
+export function phatMaDemo(ma, target) {
+  const w = target ?? (typeof window === 'undefined' ? null : window);
+  if (!w || typeof w.dispatchEvent !== 'function' || typeof CustomEvent === 'undefined') return false;
+  w.dispatchEvent(new CustomEvent(EVENT_MA_DEMO, {detail: {ma}}));
+  return true;
+}
+
+/** Chỉ tài khoản demo (email @demo.vn) được nhập mã demo ở giao diện; máy chủ vẫn là nơi quyết định. */
+export function laTaiKhoanDemo(email) {
+  return typeof email === 'string' && /@demo\.vn$/i.test(email.trim());
 }
 
 export const phatYeuCauDangNhap = (target) => phat(EVENT_CAN_DANG_NHAP, target);

@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useRef, useState, type ReactNode} from 'react';
 import {runtimeConfig} from '../../config/runtime';
 import {canAccessPortal} from '../../domain/accountAccess';
-import {EVENT_CAN_OTP, phatDaXacMinhOtp, phatYeuCauDangNhap} from '../../domain/loginRequired.js';
+import {EVENT_CAN_OTP, phatDaXacMinhOtp,
+  phatMaDemo, phatYeuCauDangNhap} from '../../domain/loginRequired.js';
 import type {PublicEventRecord} from '../../services/eventService';
 import {subscribeBuyerAuth, type BuyerSession} from '../../services/buyerAuthService';
 import {docCauHinhMuaVe} from '../../services/purchaseConfigService';
@@ -174,6 +175,10 @@ export function PurchaseAccessGate({
             khoOtp={khoOtp}
             onVerified={handleVerified}
             onClose={() => setOtpOpen(false)}
+            onDemoCode={(ma) => {
+              setOtpOpen(false);
+              phatMaDemo(ma);
+            }}
           />
         ) : null}
       </>
