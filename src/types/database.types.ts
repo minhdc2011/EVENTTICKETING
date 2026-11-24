@@ -1103,6 +1103,10 @@ export type Database = {
         Args: { p_su_kien_id: number }
         Returns: Json
       }
+      ve_cua_toi: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       xac_nhan_thanh_toan: {
         Args: { p_giu_cho_id: string; p_phien_id: string; p_ma_demo?: string }
         Returns: Json

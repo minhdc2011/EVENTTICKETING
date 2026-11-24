@@ -68,7 +68,7 @@ npm run db:start
 npm run db:reset
 npm run db:test
 ```
-Mong đợi: `Result: PASS`, 19 file, 897 test (số liệu 24/11/2026, gồm `sprint2_xac_nhan_thanh_toan.sql`, `sprint2_ma_demo_otp.sql`, `sprint2_xoa_mem_su_kien.sql`, `sprint2_otp_moi_giao_dich.sql`). Gồm `sprint2_integration.sql` (OTP gate, giới hạn theo tài khoản và sự kiện, giá chốt `DonGiaChot`, duyệt đề xuất) và các file của W1–W4.
+Mong đợi: `Result: PASS`, 20 file, 907 test (số liệu 24/11/2026, gồm `sprint2_ve_cua_toi.sql`, `sprint2_xac_nhan_thanh_toan.sql`, `sprint2_ma_demo_otp.sql`, `sprint2_xoa_mem_su_kien.sql`, `sprint2_otp_moi_giao_dich.sql`). Gồm `sprint2_integration.sql` (OTP gate, giới hạn theo tài khoản và sự kiện, giá chốt `DonGiaChot`, duyệt đề xuất) và các file của W1–W4.
 
 **Hai BTC duyệt cùng một đề xuất:**
 

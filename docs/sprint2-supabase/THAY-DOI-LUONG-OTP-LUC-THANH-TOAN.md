@@ -15,7 +15,7 @@ Tài liệu này là **nhật ký theo thời gian**: các mục cũ giữ nguy�
 | Dữ liệu staging | 8 sự kiện đều **thuộc tổ chức "Ban tổ chức EventTicketing"** (tài khoản BTC demo `organizer@demo.vn`): Super Concert (1), Creative Tech Summit (12, 2 suất, 26 khu mỗi suất, 1.040 ghế), Autumn Arena (13, 23 khu, 840 ghế), Hanou (6), Test sinh viên (7), UAT (4, 5 đã đóng bán; 9 bản nháp). **Mọi sự kiện đều bật OTP và giới hạn 4 vé** (sự kiện 12 và 13 từng thiếu dòng cấu hình mua vé nên không đòi OTP; bật bằng migration `20261124140000`) | Migration `20261124120000` |
 | Lịch | Mọi suất mở bán đến 31/12/2026 | Dữ liệu staging |
 
-Số liệu kiểm thử hiện hành (24/11/2026): `npm run check` **997** test đạt; pgTAP cục bộ **19 file, 897** test đạt; OTP thật cục bộ: `verify-otp-local.mjs` 17 kiểm tra và `verify-otp-moi-lan-local.mjs` 5 kiểm tra (mỗi OTP một thanh toán); Chrome thật (mô phỏng): tất cả sự kiện, mã demo, khu vé đứng, xóa sự kiện, OTP mỗi lần thanh toán đạt. Lịch sử migration staging: **35/35** (khớp 35 file trong `supabase/migrations`).
+Số liệu kiểm thử hiện hành (24/11/2026): `npm run check` **1002** test đạt; pgTAP cục bộ **20 file, 907** test đạt; OTP thật cục bộ: `verify-otp-local.mjs` 17 kiểm tra và `verify-otp-moi-lan-local.mjs` 5 kiểm tra (mỗi OTP một thanh toán); Chrome thật (mô phỏng): tất cả sự kiện, mã demo, khu vé đứng, xóa sự kiện, OTP mỗi lần thanh toán đạt. Lịch sử migration staging: **35/36** (repo có 36 file; `20261124150000_ve_cua_toi.sql` chờ áp lên staging, xem mục "Vé đã mua" ở cuối file).
 
 Chưa kiểm: luồng đầy đủ (giữ chỗ, OTP thật, thanh toán) với nhiều tài khoản trên bản triển khai công khai; mã demo và nút Xóa của BTC trên bản công khai; thao tác bàn phím đầy đủ và cảm ứng.
 
@@ -260,3 +260,13 @@ Hệ quả: thanh toán đơn thứ hai (dù cùng sự kiện hay khác sự ki
 Kiểm: pgTAP `sprint2_otp_moi_giao_dich.sql` (10 ca: OTP cũ, không OTP, OTP mới, ghi mốc, dùng lại bị từ chối, OTP khác thanh toán được, idempotent, quyền anon); `scripts/nfr/otp-moi-lan-flow.mjs` (Chrome thật, mô phỏng: lần 2 phải nhập OTP lại); `scripts/verify-otp-moi-lan-local.mjs` (OTP **thật** qua Auth cục bộ và Mailpit: OTP thứ nhất thanh toán A, dùng lại cho B bị 42501, OTP thứ hai thanh toán B thành công).
 
 Tổng pgTAP sau đợt này: 19 file, 897 test đạt.
+
+## Vé đã mua trong trang "Tài khoản của tôi" (24/11/2026)
+
+Bấm tên người dùng trên thanh đầu trang để mở trang tài khoản: thẻ tài khoản cố định bên trái, danh sách **vé đã mua** bên phải (chưa có vé thì hiện ghi chú và nút "Khám phá sự kiện"). Mỗi vé có dạng thẻ vé: trái là thông tin sự kiện (suất, tên sự kiện, ngày giờ, địa điểm, vạch mã trang trí), phải là thông tin vé (Khu, Hàng, Ghế, tên khu, giá; khu đứng hiện số lượng thay cho hàng và ghế).
+
+- Dữ liệu: hàm `public.ve_cua_toi()` (migration `20261124150000_ve_cua_toi.sql`, chỉ đọc, `SECURITY DEFINER`, chỉ trả vé của `auth.uid()`; `anon` không gọi được). Vé là các dòng `CHI_TIET_GIU_CHO` của giữ chỗ đã `CONVERTED`; giữ chỗ chưa xác nhận hoặc đã hết hạn không hiện.
+- Chế độ mô phỏng: vé lấy từ kho giữ chỗ trong bộ nhớ nên **mất khi tải lại trang** (chỉ dùng để thử giao diện).
+- "Vé" ở đây vẫn là bản ghi đã thanh toán mô phỏng; chưa có mã QR hoặc mã vạch quét thật (vạch mã chỉ để trang trí), chưa gửi vé qua email.
+- Kiểm thử: pgTAP `sprint2_ve_cua_toi.sql` (10 ca), `tests/ve-da-mua.test.mjs` (5 ca), Chrome thật ở chế độ mô phỏng (máy tính và điện thoại, có vé và chưa có vé).
+- Tổng sau đợt này: `npm run check` 1002 test; pgTAP 20 file, 907 test.
