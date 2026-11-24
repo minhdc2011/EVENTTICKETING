@@ -31,6 +31,8 @@ export type OrganizerEvent = {
   status: string;
   category: string;
   startsAt: string;
+  /** Thời điểm kết thúc sự kiện (để biết sự kiện đã kết thúc hay chưa khi xóa). */
+  endsAt?: string;
   showCount: number;
   bannerUrl?: string;
   posterUrl?: string;
@@ -329,7 +331,7 @@ export async function loadOrganizerWorkspace(): Promise<{
     } else {
       orgs = [mockDefaultOrg];
     }
-    const stored = JSON.parse(localStorage.getItem(MOCK_EVENTS) || '[]') as OrganizerEvent[];
+    const stored = (JSON.parse(localStorage.getItem(MOCK_EVENTS) || '[]') as OrganizerEvent[]).filter((e) => e.status !== 'DA_AN');
     return {memberships: orgs, events: stored};
   }
   const {requireSupabaseClient} = await import('./supabaseClient');
@@ -365,9 +367,11 @@ export async function loadOrganizerWorkspace(): Promise<{
   const {data: eventRows, error: eventError} = await supabase
     .from('SU_KIEN')
     .select(
-      'SuKienID, ToChucID, TenSuKien, Slug, TrangThaiCongBo, TheLoai, ThoiGianBatDau, BannerURL, PosterURL, SUAT_DIEN(SuatDienID)',
+      'SuKienID, ToChucID, TenSuKien, Slug, TrangThaiCongBo, TheLoai, ThoiGianBatDau, ThoiGianKetThuc, BannerURL, PosterURL, SUAT_DIEN(SuatDienID)',
     )
     .in('ToChucID', memberships.map((item: OrganizerMembership) => item.organizationId))
+    // Sự kiện đã xóa (DA_AN) không hiện trong danh sách của BTC.
+    .neq('TrangThaiCongBo', 'DA_AN')
     .order('NgayCapNhat', {ascending: false});
   if (eventError) throw mapDatabaseError(eventError);
 
@@ -381,6 +385,7 @@ export async function loadOrganizerWorkspace(): Promise<{
       status: String(row.TrangThaiCongBo),
       category: String(row.TheLoai || 'KHAC'),
       startsAt: String(row.ThoiGianBatDau),
+      endsAt: row.ThoiGianKetThuc ? String(row.ThoiGianKetThuc) : undefined,
       showCount: Array.isArray(row.SUAT_DIEN) ? row.SUAT_DIEN.length : row.SUAT_DIEN ? 1 : 0,
       bannerUrl: row.BannerURL ? String(row.BannerURL) : undefined,
       posterUrl: row.PosterURL ? String(row.PosterURL) : undefined,
@@ -1015,6 +1020,37 @@ export async function loadEventForPreview(
     selectedShow,
     shows,
   };
+}
+
+const THONG_BAO_XOA_SU_KIEN: Record<string, string> = {
+  SU_KIEN_CHUA_KET_THUC: 'Chỉ xóa được bản nháp hoặc sự kiện đã kết thúc. Sự kiện đang bán chưa thể xóa.',
+  SU_KIEN_DANG_CO_GIU_CHO: 'Sự kiện còn chỗ đang được giữ. Vui lòng thử lại sau vài phút.',
+};
+
+/**
+ * BTC xóa sự kiện (xóa mềm: ẩn khỏi danh sách BTC và trang công khai, dữ liệu giữ lại để đối chiếu).
+ * Chỉ chủ sở hữu hoặc quản trị; chỉ bản nháp hoặc sự kiện đã kết thúc. Máy chủ (xoa_su_kien) là nơi cưỡng chế.
+ */
+export async function deleteEvent(eventId: number): Promise<void> {
+  if (runtimeConfig.useMockData) {
+    const rows = JSON.parse(localStorage.getItem(MOCK_EVENTS) || '[]') as OrganizerEvent[];
+    const target = rows.find((r) => r.id === eventId);
+    if (!target) throw new Error('Không tìm thấy sự kiện để xóa.');
+    const ketThuc = Date.parse(target.endsAt ?? target.startsAt);
+    const daKetThuc = Number.isFinite(ketThuc) && ketThuc < Date.now();
+    if (target.status !== 'BAN_NHAP' && !daKetThuc) throw new Error(THONG_BAO_XOA_SU_KIEN.SU_KIEN_CHUA_KET_THUC);
+    localStorage.setItem(MOCK_EVENTS, JSON.stringify(rows.filter((row) => row.id !== eventId)));
+    return;
+  }
+  const {requireSupabaseClient} = await import('./supabaseClient');
+  const {error} = await (requireSupabaseClient() as any).rpc('xoa_su_kien', {p_su_kien_id: eventId});
+  if (error) {
+    const message = String(error.message || '');
+    const known = Object.keys(THONG_BAO_XOA_SU_KIEN).find((key) => message.includes(key));
+    if (known) throw new Error(THONG_BAO_XOA_SU_KIEN[known]);
+    if (String(error.code) === '42501') throw new Error('Chỉ chủ sở hữu hoặc quản trị viên của tổ chức mới được xóa sự kiện.');
+    throw mapDatabaseError(error);
+  }
 }
 
 export async function publishEvent(eventId: number): Promise<void> {

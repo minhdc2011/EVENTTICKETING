@@ -196,3 +196,33 @@ Giao diện: ô OTP của tài khoản `@demo.vn` nhận thêm chữ; mã có ch
 Kiểm thử: pgTAP `sprint2_ma_demo_otp.sql` (14 ca: chưa cấu hình, sai mã, mã ngắn, thiếu mã, tài khoản thật, đúng mã thành công và ghế đã bán, email viết hoa, OTP thật vẫn chạy, xóa cấu hình thì ngừng, ACL, định nghĩa hàm không chứa mã); `scripts/nfr/demo-code-flow.mjs` (giao diện, Chrome thật, chế độ mô phỏng). Tổng pgTAP: 17 file, 874 test đạt.
 
 Giới hạn: chưa giới hạn số lần thử mã; mã là cửa sau có chủ đích chỉ cho tài khoản demo, nên xóa dòng cấu hình sau buổi bảo vệ.
+
+## Bổ sung (24/11/2026): khu vé đứng gộp trong khung thông tin vé, BTC xóa sự kiện
+
+### Khu vé đứng trên bản đồ đại diện cho cả nhóm hạng vé đứng
+
+Bấm khu vé đứng trên bản đồ (ví dụ GA Fanzone Standing 1) thì khung thông tin vé hiện **đủ các hạng vé đứng** của suất (Standing 1 và Standing 2), mỗi hạng một bộ chọn số lượng. Khi đã có khu đứng vẽ trên bản đồ, khối "Vé đứng (không chọn ghế)" ở dưới sơ đồ được ẩn; nếu không có khu đứng nào vẽ trên bản đồ (hoặc sự kiện chỉ có vé đứng) khối đó vẫn hiện như cũ để không có hạng vé nào bị mất lối chọn. Kiểm: `scripts/nfr/standing-panel-flow.mjs`.
+
+### Giữ chỗ hoạt động với mọi sự kiện
+
+Giữ chỗ, xác nhận thanh toán và OTP lấy sự kiện và suất theo **trang sự kiện đang mở** (`setActiveEventContext` ở `App.tsx`), không gắn riêng Super Concert; hàm máy chủ làm việc theo suất diễn. Điều kiện: sự kiện công khai, đang trong thời gian mở bán, có ghế hoặc khu vé đứng.
+
+### BTC xóa sự kiện (xóa mềm)
+
+Migration `20261124110000_sprint2_xoa_mem_su_kien.sql`, hàm `xoa_su_kien(p_su_kien_id)`:
+
+| Quy tắc | Nội dung |
+|---|---|
+| Ai được xóa | Chỉ chủ sở hữu hoặc quản trị viên của tổ chức (tài khoản ORGANIZER hoặc ADMIN); biên tập viên và tổ chức khác bị từ chối (42501) |
+| Xóa được khi | Là bản nháp, hoặc **đã kết thúc** (sự kiện và mọi suất đã qua thời gian kết thúc) |
+| Không xóa được | Sự kiện đang bán chưa kết thúc (`SU_KIEN_CHUA_KET_THUC`); sự kiện còn giữ chỗ đang hiệu lực (`SU_KIEN_DANG_CO_GIU_CHO`) |
+| Cách xóa | **Xóa mềm**: `TrangThaiCongBo` = `DA_AN`. Ẩn khỏi danh sách BTC và khỏi trang công khai; dữ liệu giữ lại |
+| Gọi lại | Thành công (idempotent) |
+
+Lý do không xóa cứng: nhật ký giá và đề xuất giá là bất biến (trigger chặn xóa, khóa ngoại RESTRICT) và vé đã bán cần giữ để đối chiếu.
+
+Giao diện: nút **Xóa** trên thẻ sự kiện (chỉ chủ sở hữu và quản trị thấy), khóa khi sự kiện đang bán chưa kết thúc, có hộp xác nhận ngay trong thẻ. Kiểm: pgTAP `sprint2_xoa_mem_su_kien.sql` (13 ca), `scripts/nfr/delete-event-flow.mjs` (Chrome thật, chế độ mô phỏng).
+
+**Không có tự động xóa theo thời hạn.** Đã cân nhắc "xóa sau N ngày kể từ khi kết thúc" nhưng không bật: Super Concert 2026 đã kết thúc ngày 01/11/2026 nên một tác vụ 30 ngày sẽ ẩn sự kiện demo chính trước hạn nộp bài. Khi cần có thể thêm tác vụ định kỳ gọi cùng quy tắc.
+
+Tổng pgTAP sau đợt này: 18 file, 887 test đạt.

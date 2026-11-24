@@ -455,6 +455,11 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
   const activeDisplayZone = activeZoneGroup?.zone || activeStandingZone;
   // Sơ đồ BTC (SVG) có ghế: bản đồ kiểu Ticketmaster với ghế là chấm trên bản đồ, kéo/zoom tự do, khung thông tin bên cạnh.
   const officialMapReady = Boolean(event?.seatingMapUrl) && catalogState === 'ready' && !standingOnly;
+  // Có khu vé đứng vẽ trên sơ đồ: chọn số lượng ngay trong khung thông tin vé, không cần khối "Vé đứng" ở dưới.
+  const standingInPanel =
+    officialMapReady &&
+    standingZones.length > 0 &&
+    standingZones.some((zone) => mappedZoneCodes?.has(zone.MaKhuVuc));
 
   // Search result is derived from the catalog so every display mode reacts to it.
   const seatSearch = useMemo(
@@ -1163,6 +1168,8 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
                   zone={inspectedSeat ? (catalog?.zones || []).find((z) => z.KhuVucID === inspectedSeat.KhuVucID) ?? null : null}
                   activeZone={activeDisplayZone}
                   standingQuantity={activeDisplayZone ? (standing[activeDisplayZone.MaKhuVuc] || 0) : 0}
+                  standingZones={standingZones}
+                  standingQuantities={standing}
                   roomLeft={roomLeft}
                   onChangeStanding={handleStandingChange}
                   isSelected={Boolean(inspectedSeat && selectedSeats.some((x) => x.MaGheDayDu === inspectedSeat.MaGheDayDu))}
@@ -1264,7 +1271,7 @@ export function SeatMapSection({event, selectedTier = null}: SeatMapSectionProps
 
 </>
 )}
-            {(viewMode === 'interactive' || standingOnly || officialMapReady) && (
+            {(viewMode === 'interactive' || standingOnly || officialMapReady) && !standingInPanel && (
               <StandingTicketPicker
                 zones={activeStandingZone && !officialMapReady ? [activeStandingZone] : standingZones}
                 quantities={standing}

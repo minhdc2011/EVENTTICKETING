@@ -1993,3 +1993,14 @@ body.et-tm-dragging, body.et-tm-dragging * { user-select: none !important; curso
   color: var(--seat-muted);
 }
 .et-countdown-caption + .et-countdown-display { margin-top: 6px; }
+
+/* Khung thông tin vé: các hạng vé đứng gộp trong một khu trên bản đồ */
+.et-ticket-panel__standing-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
+.et-ticket-panel__standing-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 0; border-top: 1px solid var(--seat-border);
+}
+.et-ticket-panel__standing-item:first-child { border-top: 0; }
+.et-ticket-panel__standing-info { display: grid; gap: 2px; min-width: 0; }
+.et-ticket-panel__standing-name { font-weight: 600; overflow-wrap: anywhere; }
+.et-ticket-panel__standing-price { font-size: 13px; color: var(--seat-muted); }

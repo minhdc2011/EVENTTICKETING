@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import type React from 'react';
 import {buildPublicPath, deduplicateSlug, navigatePublicRoute} from '../../domain/publicRoute';
 import type {OrganizerEvent} from '../../services/organizerService';
@@ -10,6 +11,7 @@ import {
   IconSliders,
   IconSpinner,
   IconTicket,
+  IconTrash,
 } from './OrganizerIcons';
 
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
@@ -31,6 +33,10 @@ type OrganizerEventCardProps = {
   onOpenPricing?: (event: OrganizerEvent) => void;
   canManagePurchaseConfig?: boolean;
   onOpenPurchaseConfig?: (event: OrganizerEvent) => void;
+  /** Chủ sở hữu hoặc quản trị của tổ chức: được xóa (bản nháp hoặc sự kiện đã kết thúc). */
+  canDelete?: boolean;
+  isDeleting?: boolean;
+  onDelete?: (id: number) => void;
 };
 
 export function OrganizerEventCard({
@@ -43,8 +49,15 @@ export function OrganizerEventCard({
   onOpenPricing,
   canManagePurchaseConfig = false,
   onOpenPurchaseConfig,
+  canDelete = false,
+  isDeleting = false,
+  onDelete,
 }: OrganizerEventCardProps) {
   const isPublished = event.status === 'CONG_KHAI';
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const endMs = Date.parse(event.endsAt ?? event.startsAt);
+  const isEnded = Number.isFinite(endMs) && endMs < Date.now();
+  const deletable = !isPublished || isEnded;
   const eventDateFormatted = (() => {
     try {
       return dateFormatter.format(new Date(event.startsAt));
@@ -140,6 +153,23 @@ export function OrganizerEventCard({
           <IconExternalLink size={13} />
         </a>
 
+        {canDelete && onDelete && (
+          <button
+            type="button"
+            className="org-btn org-btn-danger org-event-btn-delete"
+            onClick={() => setConfirmingDelete(true)}
+            disabled={!deletable || isDeleting}
+            title={
+              deletable
+                ? 'Xóa sự kiện (ẩn khỏi danh sách và trang công khai)'
+                : 'Chỉ xóa được bản nháp hoặc sự kiện đã kết thúc'
+            }
+          >
+            <IconTrash size={14} />
+            <span>Xóa</span>
+          </button>
+        )}
+
         {!isPublished && (
           <button
             type="button"
@@ -166,6 +196,31 @@ export function OrganizerEventCard({
           </button>
         )}
       </div>
+
+      {confirmingDelete && onDelete && (
+        <div className="org-event-delete-confirm" role="alertdialog" aria-label={`Xác nhận xóa sự kiện ${event.name}`}>
+          <p>
+            Xóa sự kiện <strong>{event.name}</strong>? Sự kiện sẽ bị ẩn khỏi danh sách của bạn và khỏi trang công khai.
+            Dữ liệu giữ lại để đối chiếu nhưng không khôi phục được từ giao diện.
+          </p>
+          <div className="org-event-delete-confirm__actions">
+            <button
+              type="button"
+              className="org-btn org-btn-danger"
+              disabled={isDeleting}
+              onClick={() => {
+                onDelete(event.id);
+                setConfirmingDelete(false);
+              }}
+            >
+              {isDeleting ? 'Đang xóa…' : 'Xác nhận xóa'}
+            </button>
+            <button type="button" className="org-btn org-btn-secondary" onClick={() => setConfirmingDelete(false)}>
+              Hủy
+            </button>
+          </div>
+        </div>
+      )}
     </article>
   );
 }

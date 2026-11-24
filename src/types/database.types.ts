@@ -1099,6 +1099,10 @@ export type Database = {
         Args: { p_items: Json; p_phien_id: string; p_su_kien_id: number }
         Returns: Json
       }
+      xoa_su_kien: {
+        Args: { p_su_kien_id: number }
+        Returns: Json
+      }
       xac_nhan_thanh_toan: {
         Args: { p_giu_cho_id: string; p_phien_id: string; p_ma_demo?: string }
         Returns: Json
