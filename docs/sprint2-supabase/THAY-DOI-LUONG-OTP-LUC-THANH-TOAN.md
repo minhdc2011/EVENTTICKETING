@@ -161,3 +161,11 @@ Hệ quả khác: số ghế bán (`DA_BAN`) nay tăng khi người mua xác nh�
 - Gia hạn chỉ xảy ra khi người dùng bấm Xác nhận thanh toán và cần OTP; mã OTP gửi lại muộn có thể còn hiệu lực lâu hơn hạn giữ chỗ (khi đó phải giữ chỗ lại).
 - Tải lại trang khi đang giữ chỗ vẫn mất trạng thái giữ trên giao diện (máy chủ tự trả sau khi hết hạn).
 - Chưa kiểm trên staging với email thật cho luồng mới (xem mục kết quả triển khai nếu đã áp migration).
+
+### Kết quả triển khai (24/11/2026)
+
+- **pgTAP cục bộ (Docker):** 16 file, 860 test đạt sau `db reset` áp lại toàn bộ migration.
+- **OTP thật cục bộ** (`scripts/verify-otp-local.mjs`, thư thật qua hộp thư cục bộ): 17 kiểm tra đạt, gồm giữ chỗ chỉ cần đăng nhập, xác nhận thanh toán bị 42501 khi chưa OTP, xác nhận thành công (CONVERTED) sau OTP thật.
+- **Áp lên staging `qxkgkbayxxaakkwtepss`:** `db push --remote=qxkgkbayxxaakkwtepss` (chạy thử trước), áp 2 migration: `20261123120000_seed_super_concert_upper_tier_seats.sql` (seed ghế Upper Tier đã có sẵn trên main, idempotent) và `20261124090000_...`. Các bước tự kiểm tra trong migration đạt; chạy lại chạy thử cho kết quả "Remote database is up to date".
+- **Kiểm chỉ đọc bằng khóa công khai:** `xac_nhan_thanh_toan` và `gia_han_giu_cho` tồn tại và `anon` bị từ chối 42501 (permission denied for function).
+- **Chưa kiểm:** luồng đầy đủ với tài khoản và email thật trên bản triển khai công khai.
