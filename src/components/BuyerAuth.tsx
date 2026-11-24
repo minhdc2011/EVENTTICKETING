@@ -13,9 +13,11 @@ import {IconBuilding, IconEye, IconEyeOff, IconUser} from './common/Icons';
 import {BUYER_RETURN_TO_KEY} from './event-template/PurchaseAccessGate';
 import {GlobalHeader} from './site/GlobalHeader';
 import {DemoQuickLogin} from './site/DemoQuickLogin';
+import {MyTickets} from './site/MyTickets';
 import {DEMO_BUYER, DEMO_ORGANIZER} from '../config/demoAccounts';
 import {signInOrganizer} from '../services/organizerService';
 import './site/auth.css';
+import './site/my-tickets.css';
 
 const SAFE_EVENT_RETURN_RE = /^events\/[a-z0-9._-]+(?:\/shows\/[a-z0-9._-]+)?(?:#seating-section)?$/i;
 
@@ -259,8 +261,9 @@ export function BuyerAuth({page}: {page?: string}) {
     <div className="et-site et-auth-page">
       <GlobalHeader session={activeSession} onSignOut={handleSignOut} />
 
-      <main className="et-auth__main">
+      <main className={activeSession ? 'et-auth__main et-auth__main--account' : 'et-auth__main'}>
         {activeSession && session ? (
+          <>
           <section className="et-auth__card" aria-labelledby="account-title">
             <div className="et-auth__profile-head">
               <div className="et-auth__avatar" aria-hidden="true">
@@ -339,6 +342,8 @@ export function BuyerAuth({page}: {page?: string}) {
               </a>
             </div>
           </section>
+            <MyTickets userId={session.userId} />
+        </>
         ) : (
           <section className="et-auth__card" aria-labelledby="auth-title">
             <div className="et-auth__tabs" role="tablist" aria-label="Chọn chế độ đăng nhập hoặc đăng ký" onKeyDown={handleTabKeyDown}>

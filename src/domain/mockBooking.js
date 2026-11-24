@@ -190,7 +190,7 @@ export function taoKhoGiuChoMoPhong(options = {}) {
       const hold = holds[idx];
       if (hold.status === 'CONVERTED') return {holdId, status: 'CONVERTED', daXacNhanTruoc: true};
       if (hold.status !== 'ACTIVE' || hold.expiresAtMs <= getNow()) throw taoLoiHetHan();
-      holds[idx] = Object.freeze({...hold, status: 'CONVERTED'});
+      holds[idx] = Object.freeze({...hold, status: 'CONVERTED', muaLucMs: getNow()});
       return {holdId, status: 'CONVERTED', soVe: hold.soLuong};
     },
 

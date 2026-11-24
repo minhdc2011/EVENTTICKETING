@@ -18,6 +18,8 @@ export interface MockHoldEntry {
   readonly soLuong: number;
   readonly gioiHan: number;
   readonly daGiaHan?: boolean;
+  /** Thời điểm xác nhận thanh toán (ms); chỉ có khi status là CONVERTED. */
+  readonly muaLucMs?: number;
   readonly items: readonly HoldItem[];
 }
 

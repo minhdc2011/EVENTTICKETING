@@ -25,6 +25,11 @@ const khoGiuChoMoPhong = taoKhoGiuChoMoPhong({thoiGianGiuMs: HOLD_DURATION_MS});
 /** Mô phỏng: các mốc OTP đã dùng cho một lần thanh toán (mỗi OTP chỉ thanh toán một lần, giống máy chủ thật). */
 const mocOtpMoPhongDaDung = new Set<string>();
 
+/** Chế độ mô phỏng: các giữ chỗ đã thanh toán của một tài khoản (trong bộ nhớ, mất khi tải lại trang). */
+export function layGiuChoDaMuaMoPhong(userId: string) {
+  return khoGiuChoMoPhong.layDanhSach().filter((h) => h.status === 'CONVERTED' && String(h.taiKhoanId) === String(userId));
+}
+
 function getBrowserSessionId(): string {
   const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
   if (existing) return existing;
