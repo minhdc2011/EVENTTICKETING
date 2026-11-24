@@ -78,8 +78,8 @@ const MOCK_EVENT: PublicEventRecord = {
 };
 
 const MOCK_GENERIC_SHOWS: PublicShowRecord[] = [
-  {id: 21, slug: 'ngay-1', name: 'Ngày 1 · Kết nối', startsAt: '2026-11-01T09:00:00+07:00', endsAt: '2026-11-01T17:00:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-12-31T22:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
-  {id: 22, slug: 'ngay-2', name: 'Ngày 2 · Thực hành', startsAt: '2026-11-30T09:00:00+07:00', endsAt: '2026-11-30T23:59:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-12-31T22:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
+  {id: 21, slug: 'ngay-1', name: 'Ngày 1 · Kết nối', startsAt: '2026-12-30T09:00:00+07:00', endsAt: '2026-12-30T17:00:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-12-30T08:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
+  {id: 22, slug: 'ngay-2', name: 'Ngày 2 · Thực hành', startsAt: '2026-12-31T09:00:00+07:00', endsAt: '2026-12-31T23:59:00+07:00', saleStartsAt: '2026-10-25T09:00:00+07:00', saleEndsAt: '2026-12-31T08:00:00+07:00', timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN'},
 ];
 
 const MOCK_GENERIC_EVENT: PublicEventRecord = {
@@ -127,8 +127,8 @@ const MOCK_ARENA_EVENT: PublicEventRecord = {
 // 5 sự kiện từ Ticketgo.vn
 const MOCK_MUSIQUE_SHOW: PublicShowRecord = {
   id: 41, slug: 'dem-chinh', name: 'Đêm nhạc Musique de Salon',
-  startsAt: '2026-11-07T20:00:00+07:00', endsAt: '2026-11-07T23:00:00+07:00',
-  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-11-07T21:30:00+07:00',
+  startsAt: '2026-12-31T20:00:00+07:00', endsAt: '2026-12-31T23:00:00+07:00',
+  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-12-31T21:30:00+07:00',
   timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 
@@ -150,8 +150,8 @@ const MOCK_TICKETGO_MUSIQUE: PublicEventRecord = {
 
 const MOCK_MOMANG_SHOW: PublicShowRecord = {
   id: 51, slug: 'dem-mo-mang', name: 'Đêm nhạc Mơ Màng Men Say 2',
-  startsAt: '2026-11-14T19:30:00+07:00', endsAt: '2026-11-14T22:30:00+07:00',
-  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-11-14T21:00:00+07:00',
+  startsAt: '2026-12-31T19:30:00+07:00', endsAt: '2026-12-31T22:30:00+07:00',
+  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-12-31T21:00:00+07:00',
   timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 
@@ -173,8 +173,8 @@ const MOCK_TICKETGO_MOMANG: PublicEventRecord = {
 
 const MOCK_GOM_SHOW: PublicShowRecord = {
   id: 61, slug: 'vo-dien-chinh', name: 'Vở diễn GOm Show',
-  startsAt: '2026-11-20T19:30:00+07:00', endsAt: '2026-11-20T21:30:00+07:00',
-  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-11-20T20:30:00+07:00',
+  startsAt: '2026-12-31T19:30:00+07:00', endsAt: '2026-12-31T21:30:00+07:00',
+  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-12-31T20:30:00+07:00',
   timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 
@@ -197,8 +197,8 @@ const MOCK_TICKETGO_GOMSHOW: PublicEventRecord = {
 
 const MOCK_TRAMHUONG_SHOW: PublicShowRecord = {
   id: 71, slug: 'buoi-trai-nghiem', name: 'Buổi trải nghiệm Trầm hương & Trà đạo',
-  startsAt: '2026-11-11T09:00:00+07:00', endsAt: '2026-11-11T16:30:00+07:00',
-  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-11-11T12:00:00+07:00',
+  startsAt: '2026-12-31T09:00:00+07:00', endsAt: '2026-12-31T16:30:00+07:00',
+  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-12-31T12:00:00+07:00',
   timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 
@@ -221,8 +221,8 @@ const MOCK_TICKETGO_TRAMHUONG: PublicEventRecord = {
 
 const MOCK_MARATHON_SHOW: PublicShowRecord = {
   id: 81, slug: 'giai-chay', name: 'Ngày chạy Marathon & Đêm nhạc hội',
-  startsAt: '2026-11-28T05:00:00+07:00', endsAt: '2026-11-28T22:30:00+07:00',
-  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-11-28T18:00:00+07:00',
+  startsAt: '2026-12-31T05:00:00+07:00', endsAt: '2026-12-31T22:30:00+07:00',
+  saleStartsAt: '2026-10-25T10:00:00+07:00', saleEndsAt: '2026-12-31T18:00:00+07:00',
   timezone: 'Asia/Ho_Chi_Minh', databaseSaleStatus: 'DANG_MO_BAN',
 };
 

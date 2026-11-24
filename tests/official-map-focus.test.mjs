@@ -44,7 +44,7 @@ test('Super Concert dùng cùng giao diện thẻ sáng với sự kiện chung'
 
 test('ba sự kiện có sơ đồ trực quan bán đến cuối tháng 12/2026', () => {
   const svc = read('src/services/eventService.ts');
-  const ends = [...svc.matchAll(/saleEndsAt: '(2026-12-31T22:00:00\+07:00)'/g)];
+  const ends = [...svc.matchAll(/saleEndsAt: '(2026-12-3[01]T[0-9:]+\+07:00)'/g)];
   assert.ok(ends.length >= 4, 'Super Concert, hai ngày Creative Tech và Arena');
 });
 

@@ -7,7 +7,7 @@ import {CategoryIcon} from '../common/Icons';
 import {accessibleBadgeColors} from '../../domain/colorContrast.js';
 import './FeaturedCarousel.css';
 
-const SLIDE_MS = 5000;
+const SLIDE_MS = 10000;
 const RESUME_AFTER_MANUAL_MS = 3000;
 const MAX_SLIDES = 6;
 
