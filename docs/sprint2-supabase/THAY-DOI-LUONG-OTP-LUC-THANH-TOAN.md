@@ -1,5 +1,24 @@
 # Thay đổi luồng: OTP ở bước Thanh toán (23/11/2026)
 
+## Trạng thái hiện hành (chốt 24/11/2026, sau PR #104)
+
+Tài liệu này là **nhật ký theo thời gian**: các mục cũ giữ nguyên để đối chiếu và có thể đã bị thay thế. Quy tắc đang chạy là bảng dưới đây; khi mục cũ mâu thuẫn thì bảng này đúng.
+
+| Chủ đề | Quy tắc hiện hành | Nơi cưỡng chế |
+|---|---|---|
+| Chọn ghế | Ai cũng chọn tự do, không cần đăng nhập; chưa giữ chỗ | Giao diện |
+| Giữ chỗ | Cần đăng nhập; **không cần OTP**; 5 phút; tối đa 4 vé mỗi tài khoản mỗi sự kiện (vé đã xác nhận cũng tính) | `tao_giu_cho_theo_suat` |
+| Gia hạn | Một lần, +5 phút, khi bấm Xác nhận thanh toán mà cần OTP | `gia_han_giu_cho` |
+| Xác nhận thanh toán (mô phỏng) | Sự kiện tắt OTP: xác nhận ngay. Sự kiện bật OTP: **mỗi lần thanh toán một OTP mới** (xác minh sau khi giữ chỗ được tạo, chưa dùng cho giao dịch khác; không còn "một OTP 24 giờ cho mọi đơn") | `xac_nhan_thanh_toan`, `moc_otp_moi_nhat`, cột `GIU_CHO.MocOtpDaDung` |
+| Mã demo thay OTP | Chỉ tài khoản `@demo.vn`, SHA-256 ở bảng `CAU_HINH_DEMO`, không có trong repo; xóa sau bảo vệ | `xac_nhan_thanh_toan(…, p_ma_demo)` |
+| BTC xóa sự kiện | Xóa mềm (`DA_AN`), chỉ chủ sở hữu hoặc quản trị, chỉ bản nháp hoặc sự kiện đã kết thúc | `xoa_su_kien` |
+| Dữ liệu staging | 8 sự kiện đều **thuộc tổ chức "Ban tổ chức EventTicketing"** (tài khoản BTC demo `organizer@demo.vn`): Super Concert (1), Creative Tech Summit (12, 2 suất, 26 khu mỗi suất, 1.040 ghế), Autumn Arena (13, 23 khu, 840 ghế), Hanou (6), Test sinh viên (7), UAT (4, 5 đã đóng bán; 9 bản nháp). Các sự kiện 12 và 13 **chưa có dòng cấu hình mua vé**, nên OTP đang tắt cho chúng (1, 4, 5, 6, 7, 9 bật OTP) | Migration `20261124120000` |
+| Lịch | Mọi suất mở bán đến 31/12/2026 | Dữ liệu staging |
+
+Số liệu kiểm thử hiện hành (24/11/2026): `npm run check` **997** test đạt; pgTAP cục bộ **19 file, 897** test đạt; OTP thật cục bộ: `verify-otp-local.mjs` 17 kiểm tra và `verify-otp-moi-lan-local.mjs` 5 kiểm tra (mỗi OTP một thanh toán); Chrome thật (mô phỏng): tất cả sự kiện, mã demo, khu vé đứng, xóa sự kiện, OTP mỗi lần thanh toán đạt. Lịch sử migration staging: **34/34** (khớp 34 file trong `supabase/migrations`).
+
+Chưa kiểm: luồng đầy đủ (giữ chỗ, OTP thật, thanh toán) với nhiều tài khoản trên bản triển khai công khai; mã demo và nút Xóa của BTC trên bản công khai; thao tác bàn phím đầy đủ và cảm ứng.
+
 > **Đã thay thế một phần ngày 24/11/2026:** luồng đúng là **giữ chỗ trước, OTP xác nhận thanh toán sau** (xem mục cuối "Bổ sung (24/11/2026)"). Mục "Luồng mới" và "Máy chủ vẫn là nơi cưỡng chế" bên dưới mô tả bản 23/11, nơi OTP chặn ở bước giữ chỗ; chỉ giữ để đối chiếu lịch sử.
 
 ## Luồng mới
@@ -96,7 +115,7 @@ Ghế đổi từ ô cung sang chấm tròn cùng bảng màu; bấm chấm thì
 - Super Concert **chưa có** kéo thả tự do và bản đồ nhỏ: sơ đồ này vẫn là camera theo khu của bản cũ (phóng vào khu, nút Thu nhỏ toàn cảnh). Muốn có đủ như hai sơ đồ kia phải chuyển Super Concert sang bản đồ SVG chung, kéo theo việc bỏ bộ chạy riêng (`concertRuntime.js`) đang điều khiển cả đồng hồ đếm ngược trang chủ, nên chưa làm.
 - Chưa có bộ lọc giá, loại vé, ghế dành cho người khuyết tật như Ticketmaster.
 - Thu phóng bằng cuộn chuột cần giữ Ctrl để không cướp thao tác cuộn trang.
-- Mới kiểm tra ở chế độ mô phỏng (mỗi khu 40 ghế); chưa kiểm với dữ liệu staging cho hai sơ đồ BTC vì staging chỉ có sơ đồ Super Concert.
+- Mới kiểm tra ở chế độ mô phỏng (mỗi khu 40 ghế); lúc đó staging chỉ có sơ đồ Super Concert. **Từ 24/11/2026** staging có cả hai sơ đồ BTC (Creative Tech Summit và Autumn Arena, mỗi khu 40 ghế) nhờ migration `20261124120000`.
 - Ghế trên điện thoại vẫn nhỏ (chấm), nhưng có thể phóng to bằng chụm hai ngón hoặc nút ＋.
 
 ## Bổ sung (23/11/2026, đợt 4): Super Concert dùng bản đồ chung, sửa ghế tràn, xem toàn cảnh, kéo chuột
@@ -206,6 +225,8 @@ Bấm khu vé đứng trên bản đồ (ví dụ GA Fanzone Standing 1) thì kh
 ### Giữ chỗ hoạt động với mọi sự kiện
 
 Giữ chỗ, xác nhận thanh toán và OTP lấy sự kiện và suất theo **trang sự kiện đang mở** (`setActiveEventContext` ở `App.tsx`), không gắn riêng Super Concert; hàm máy chủ làm việc theo suất diễn. Điều kiện: sự kiện công khai, đang trong thời gian mở bán, có ghế hoặc khu vé đứng.
+
+**Đính chính (24/11/2026):** câu trên đúng về mã nguồn nhưng lúc viết chỉ kiểm ở chế độ mô phỏng. Trên staging, Creative Tech Summit và Autumn Arena khi đó **không có trong cơ sở dữ liệu** (chỉ có trong mã nguồn) nên giữ chỗ báo "Không thể giữ ghế lúc này". Đã sửa bằng cách đưa hai sự kiện vào cơ sở dữ liệu (migration `20261124120000`); sau đó giữ chỗ được thử trên giao diện nối staging thật cho Super Concert, Hanou, Creative Tech Summit và Autumn Arena (có dòng `GIU_CHO` ACTIVE trong cơ sở dữ liệu). Bước xác nhận thanh toán chưa chạy trên staging cho hai sự kiện mới.
 
 ### BTC xóa sự kiện (xóa mềm)
 

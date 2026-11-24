@@ -40,7 +40,7 @@ Dùng khóa in ra từ `npm run db:status` cho các script cần `SUPABASE_URL` 
 - `signInWithOtp({email, options: {shouldCreateUser: false}})` rồi `verifyOtp({email, token, type: 'email'})` chạy được; thư nằm ở hộp thư thử `http://127.0.0.1:54324`.
 - **Email phải chứa mã 6 số**: mẫu mặc định chỉ có đường dẫn. `supabase/config.toml` khai báo mẫu `supabase/templates/magic_link.html` dùng `{{ .Token }}`. **Dự án thật cũng phải đặt mẫu tương tự** (Dashboard > Authentication > Emails > Magic link).
 - Hiệu lực mã và khoảng cách gửi lại là cấu hình của Supabase Auth: `[auth.email] otp_expiry = 300` (5 phút) và `max_frequency = "60s"` trong `config.toml`; trên dự án thật chỉnh ở Dashboard (Authentication).
-- Token sau khi xác minh có claim `amr = [{"method":"otp","timestamp":<giây>}]`, giữ nguyên `timestamp` sau khi làm mới phiên. Máy chủ dùng claim này để kiểm tra "đã xác minh OTP trong 24 giờ" (`auth.jwt() -> 'amr'`).
+- Token sau khi xác minh có claim `amr = [{"method":"otp","timestamp":<giây>}]`, giữ nguyên `timestamp` sau khi làm mới phiên. Máy chủ đọc claim này (`auth.jwt() -> 'amr'`): `da_xac_minh_otp()` (OTP trong 24 giờ) và, cho thanh toán, `moc_otp_moi_nhat()`; từ 24/11/2026 `xac_nhan_thanh_toan` đòi **một OTP mới cho mỗi lần thanh toán** (xác minh sau khi giữ chỗ được tạo và chưa dùng cho giao dịch khác), kiểm chứng thật bằng `scripts/verify-otp-moi-lan-local.mjs`.
 - Supabase Auth **không** có cơ chế khóa tài khoản 15 phút sau 5 lần nhập sai; chỉ có giới hạn tốc độ xác minh chung (`[auth.rate_limit] token_verifications`). Phần "sai 5 lần thì khóa" chỉ có thể là giới hạn hiển thị phía giao diện.
 
 ## Trạng thái pgTAP (17/11/2026, dựng từ đầu bằng `npm run db:reset`)

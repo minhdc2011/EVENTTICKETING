@@ -91,3 +91,9 @@ Bạn đồng ý áp thật (bước 5) lên staging cũ. Tôi sẽ chạy từn
 | 8. Trỏ bản triển khai | `deploy.yml`, `.env.production`, `.env.local` về `https://qxkgkbayxxaakkwtepss.supabase.co` với khóa publishable của staging |
 
 Còn lại: tạo tài khoản demo nếu cần nút đăng nhập nhanh (`scripts/seed-demo-accounts.mjs`), xóa project `eventticketing-s2-sandbox` (bạn tự làm trên dashboard), SMTP riêng để OTP qua email hoạt động.
+
+## 8. Sau nâng cấp: các migration áp thêm (24/11/2026)
+
+Lịch sử migration staging hiện là **34/34** (khớp 34 file trong `supabase/migrations`). Áp thêm sau ngày 23/11 (đều chạy thử `--dry-run` trước, có sự đồng ý của chủ dự án): `20261123110000` (mã vé vùng đứng), `20261123120000` (ghế Upper Tier Super Concert), `20261124090000` (giữ chỗ trước, OTP xác nhận thanh toán, gia hạn một lần), `20261124100000` (mã demo thay OTP), `20261124110000` (xóa mềm sự kiện), `20261124120000` (đưa Creative Tech Summit và Autumn Arena vào cơ sở dữ liệu, gom các sự kiện UAT và thử nghiệm về tổ chức BTC demo), `20261124130000` (mỗi lần thanh toán một OTP mới).
+
+Dữ liệu staging sau đó: 8 sự kiện (id 1, 4, 5, 6, 7, 9, 12, 13), tất cả thuộc tổ chức "Ban tổ chức EventTicketing"; ngày diễn và đóng bán của các suất mở là 31/12/2026. Luôn dùng `db push --remote=qxkgkbayxxaakkwtepss` (kho đang liên kết với project sandbox `knmcvwwwusyneogqcgls`, không phải staging).
