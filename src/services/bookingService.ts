@@ -13,7 +13,7 @@ import {GIOI_HAN_MAC_DINH, taoKhoGiuChoMoPhong} from '../domain/mockBooking';
 import {laSuKienDemo} from '../domain/pricingMockDemo.js';
 import {apiRequest} from './apiClient';
 import {getBuyerSession} from './buyerAuthService';
-import {kiemTraDaXacMinhOtp} from './otpService';
+import {HIEU_LUC_XAC_MINH_GIAY, kiemTraDaXacMinhOtp} from './otpService';
 import {docCauHinhMuaVe} from './purchaseConfigService';
 import {docBangGiaChotDemo} from './pricingService';
 import {requireSupabaseClient} from './supabaseClient';
@@ -22,6 +22,8 @@ const HOLD_DURATION_MS = 300_000;
 const SESSION_STORAGE_KEY = 'eventticketing-session-id';
 
 const khoGiuChoMoPhong = taoKhoGiuChoMoPhong({thoiGianGiuMs: HOLD_DURATION_MS});
+/** Mô phỏng: các mốc OTP đã dùng cho một lần thanh toán (mỗi OTP chỉ thanh toán một lần, giống máy chủ thật). */
+const mocOtpMoPhongDaDung = new Set<string>();
 
 function getBrowserSessionId(): string {
   const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
@@ -188,6 +190,7 @@ export async function confirmSeatPayment(holdId: string, maDemo?: string): Promi
     const hold = khoGiuChoMoPhong.layGiuCho(holdId);
     if (!hold || String(hold.taiKhoanId) !== String(buyer.userId)) throw new HoldExpiredError();
     if (hold.status === 'ACTIVE' && hold.expiresAtMs <= Date.now()) throw new HoldExpiredError();
+    let mocOtpMoi: string | null = null;
     if (hold.status === 'ACTIVE') {
       let yeuCauOtp = false;
       try {
@@ -195,14 +198,19 @@ export async function confirmSeatPayment(holdId: string, maDemo?: string): Promi
       } catch {
         yeuCauOtp = false;
       }
-      // Sự kiện bật OTP: phải có bằng chứng xác minh (mô phỏng) trước khi xác nhận thanh toán, giống máy chủ thật.
+      // Sự kiện bật OTP: mỗi lần thanh toán cần một OTP MỚI (xác minh sau khi giữ chỗ được tạo, chưa dùng cho giao dịch khác).
       if (yeuCauOtp) {
         const daXacMinh = await kiemTraDaXacMinhOtp({userId: buyer.userId});
-        if (!daXacMinh.daXacMinh) throw new OtpRequiredError();
+        const xacMinhLuc = daXacMinh.daXacMinh && daXacMinh.hetHanLuc ? daXacMinh.hetHanLuc - HIEU_LUC_XAC_MINH_GIAY * 1000 : null;
+        mocOtpMoi = `${buyer.userId}:${xacMinhLuc}`;
+        const createdAtMs = hold.createdAtMs;
+        if (xacMinhLuc == null || xacMinhLuc < createdAtMs || mocOtpMoPhongDaDung.has(mocOtpMoi)) throw new OtpRequiredError();
       }
     }
     try {
-      return khoGiuChoMoPhong.xacNhan(holdId);
+      const ketQua = khoGiuChoMoPhong.xacNhan(holdId);
+      if (mocOtpMoi) mocOtpMoPhongDaDung.add(mocOtpMoi);
+      return ketQua;
     } catch (err) {
       throw chuanHoaLoiThanhToan(err);
     }
