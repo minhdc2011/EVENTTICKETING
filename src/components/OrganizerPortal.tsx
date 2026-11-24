@@ -11,6 +11,7 @@ import {
   loadOrganizerWorkspace,
   loadSavedActiveOrganizationId,
   publishEvent,
+  deleteEvent,
   refreshOrganizerSession,
   resolveActiveOrganizationId,
   saveActiveOrganizationId,
@@ -202,6 +203,7 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'status'>('status');
   const [publishingId, setPublishingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [busyOrg, setBusyOrg] = useState(false);
   const [busyDemo, setBusyDemo] = useState(false);
   const [wizardAggregate, setWizardAggregate] = useState<FullEventAggregateInput | null>(null);
@@ -474,6 +476,22 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
     }
   }
 
+  async function handleDelete(id: number) {
+    setDeletingId(id);
+    setMessage('');
+    try {
+      await deleteEvent(id);
+      setMessage('Đã xóa sự kiện.');
+      setMessageType('status');
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không thể xóa sự kiện.');
+      setMessageType('error');
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   const activeFilterTitle =
     statusFilter === 'CONG_KHAI'
       ? 'Sự kiện đã công bố'
@@ -689,6 +707,9 @@ function OrganizerDashboard({session}: {session: OrganizerSession}) {
                                 setPricingEvent(target);
                               }
                             }}
+                            canDelete={canManagePurchaseConfig(activeOrg, item.organizationId)}
+                            isDeleting={deletingId === item.id}
+                            onDelete={handleDelete}
                             canManagePurchaseConfig={canManagePurchaseConfig(activeOrg, item.organizationId)}
                             onOpenPurchaseConfig={(target) => {
                               if (canManagePurchaseConfig(activeOrg, target.organizationId)) {

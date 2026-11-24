@@ -7,6 +7,9 @@ export interface SeatTicketPanelProps {
   zone: ZoneRecord | null;
   activeZone?: ZoneRecord | null;
   standingQuantity?: number;
+  /** Mọi khu vé đứng của suất (khu đứng trên bản đồ đại diện cho cả nhóm hạng vé đứng). */
+  standingZones?: ZoneRecord[];
+  standingQuantities?: Record<string, number>;
   roomLeft?: number;
   onChangeStanding?: (zoneCode: string, quantity: number) => void;
   isSelected: boolean;
@@ -29,6 +32,8 @@ export function SeatTicketPanel({
   zone,
   activeZone = null,
   standingQuantity = 0,
+  standingZones,
+  standingQuantities,
   roomLeft = 0,
   onChangeStanding,
   isSelected,
@@ -41,6 +46,55 @@ export function SeatTicketPanel({
   onClose,
 }: SeatTicketPanelProps) {
   if (!seat) {
+    if (activeZone && isStandingZone(activeZone) && onChangeStanding && standingZones && standingZones.length > 0) {
+      // Khu vé đứng trên bản đồ đại diện cho cả nhóm hạng vé đứng: hiện đủ các hạng, mỗi hạng một bộ chọn số lượng.
+      const disabledAll = !saleOpen || isPending || hasActiveHold;
+      return (
+        <aside className="et-ticket-panel" aria-label="Thông tin vé" aria-live="polite" data-standing="true">
+          <div className="et-ticket-panel__head">
+            <h3 className="et-ticket-panel__title">Vé đứng tự do</h3>
+          </div>
+          <p className="et-ticket-panel__hint">
+            Khu vé đứng không xếp ghế cố định. Chọn số lượng vé từng hạng (tối đa {maxPerOrder} vé/lượt).
+          </p>
+          <ul className="et-ticket-panel__standing-list">
+            {standingZones.map((zoneItem) => {
+              const label = zoneItem.TenKhuVuc || zoneItem.MaKhuVuc;
+              const quantity = standingQuantities?.[zoneItem.MaKhuVuc] || 0;
+              return (
+                <li key={zoneItem.KhuVucID} className="et-ticket-panel__standing-item" data-standing-zone={zoneItem.MaKhuVuc}>
+                  <div className="et-ticket-panel__standing-info">
+                    <span className="et-ticket-panel__standing-name">{label}</span>
+                    <span className="et-ticket-panel__standing-price et-num">{formatMoneyVND(zoneItem.GiaVeNiemYet)} / vé</span>
+                  </div>
+                  <div className="et-ticket-panel__standing" role="group" aria-label={`Số lượng vé ${label}`}>
+                    <button
+                      type="button"
+                      className="et-standing-btn"
+                      aria-label={`Giảm số lượng vé ${label}`}
+                      disabled={disabledAll || quantity <= 0}
+                      onClick={() => onChangeStanding(zoneItem.MaKhuVuc, quantity - 1)}
+                    >
+                      −
+                    </button>
+                    <output className="et-standing-qty et-num" aria-live="polite">{quantity}</output>
+                    <button
+                      type="button"
+                      className="et-standing-btn"
+                      aria-label={`Tăng số lượng vé ${label}`}
+                      disabled={disabledAll || roomLeft <= 0}
+                      onClick={() => onChangeStanding(zoneItem.MaKhuVuc, quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </aside>
+      );
+    }
     if (activeZone && isStandingZone(activeZone) && onChangeStanding) {
       const zoneLabel = activeZone.TenKhuVuc || activeZone.MaKhuVuc;
       const disabled = !saleOpen || isPending || hasActiveHold;
